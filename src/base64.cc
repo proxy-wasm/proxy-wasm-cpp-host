@@ -5,12 +5,13 @@ const static char encodeLookup[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 const static char padCharacter = '=';
 
-std::basic_string<char> base64Encode(std::vector<uint8_t> inputBuffer) {
-  std::basic_string<char> encodedString;
-  encodedString.reserve(((inputBuffer.size() / 3) + (inputBuffer.size() % 3 > 0)) * 4);
+std::string base64Encode(const uint8_t *start, const uint8_t *end) {
+  std::string encodedString;
+  size_t size = end - start;
+  encodedString.reserve(((size / 3) + (size % 3 > 0)) * 4);
   uint32_t temp;
-  std::vector<unsigned char>::iterator cursor = inputBuffer.begin();
-  for (size_t idx = 0; idx < inputBuffer.size() / 3; idx++) {
+  auto cursor = start;
+  for (size_t idx = 0; idx < size / 3; idx++) {
     temp = (*cursor++) << 16; // Convert to big endian
     temp += (*cursor++) << 8;
     temp += (*cursor++);
@@ -19,7 +20,7 @@ std::basic_string<char> base64Encode(std::vector<uint8_t> inputBuffer) {
     encodedString.append(1, encodeLookup[(temp & 0x00000FC0) >> 6]);
     encodedString.append(1, encodeLookup[(temp & 0x0000003F)]);
   }
-  switch (inputBuffer.size() % 3) {
+  switch (size % 3) {
   case 1:
     temp = (*cursor++) << 16; // Convert to big endian
     encodedString.append(1, encodeLookup[(temp & 0x00FC0000) >> 18]);

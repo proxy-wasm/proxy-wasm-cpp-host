@@ -14,8 +14,9 @@
 // limitations under the License.
 
 #include "include/proxy-wasm/wasm.h"
+#include "src/base64.h"
 
-#include <assert.h>
+#include <cassert>
 #include <stdio.h>
 
 #include <algorithm>
@@ -31,6 +32,10 @@
 #include "openssl/sha.h"
 
 namespace proxy_wasm {
+
+thread_local ContextBase *current_context_;
+thread_local uint32_t effective_context_id_ = 0;
+
 namespace {
 
 // Map from Wasm Key to the local Wasm instance.
@@ -59,7 +64,39 @@ const uint8_t *decodeVarint(const uint8_t *pos, const uint8_t *end, uint32_t *ou
   return pos;
 }
 
+std::string Sha256(string_view data) {
+  std::vector<uint8_t> digest(SHA256_DIGEST_LENGTH);
+  EVP_MD_CTX *ctx(EVP_MD_CTX_new());
+  auto rc = EVP_DigestInit(ctx, EVP_sha256());
+  assert(rc == 1);
+  rc = EVP_DigestUpdate(ctx, data.data(), data.size());
+  assert(rc == 1);
+  rc = EVP_DigestFinal(ctx, digest.data(), nullptr);
+  assert(rc == 1);
+  EVP_MD_CTX_free(ctx);
+  return std::string(reinterpret_cast<const char *>(&digest[0]), digest.size());
+}
+
+std::string Xor(string_view a, string_view b) {
+  assert(a.size() == b.size());
+  std::string result;
+  result.reserve(a.size());
+  for (size_t i = 0; i < a.size(); i++) {
+    result.push_back(a[i] ^ b[i]);
+  }
+  return result;
+}
+
 } // namespace
+
+std::string makeVmKey(string_view vm_id, string_view vm_configuration, string_view code) {
+  std::string vm_key = Sha256(vm_id);
+  vm_key = Xor(vm_key, Sha256(vm_configuration));
+  vm_key = Xor(vm_key, Sha256(code));
+  auto start = reinterpret_cast<uint8_t *>(&*vm_key.begin());
+  auto end = start + vm_key.size();
+  return base64Encode(start, end);
+}
 
 class WasmBase::ShutdownHandle {
 public:
@@ -79,7 +116,8 @@ RegisterForeignFunction::RegisterForeignFunction(std::string name, WasmForeignFu
 
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, string_view vm_id, string_view vm_configuration,
                    string_view vm_key)
-    : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)) {}
+    : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
+      vm_configuration_(std::string(vm_configuration)) {}
 
 WasmBase::~WasmBase() {}
 
@@ -127,7 +165,6 @@ void WasmBase::registerCallbacks() {
   _REGISTER_PROXY(continue_request);
   _REGISTER_PROXY(continue_response);
   _REGISTER_PROXY(send_local_response);
-  _REGISTER_PROXY(clear_route_cache);
 
   _REGISTER_PROXY(get_shared_data);
   _REGISTER_PROXY(set_shared_data);
@@ -459,7 +496,7 @@ std::shared_ptr<WasmHandle> getThreadLocalWasm(string_view vm_key) {
   return wasm;
 }
 
-std::shared_ptr<WasmHandle> getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandle> base_wasm,
+std::shared_ptr<WasmHandle> getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandle> &base_wasm,
                                                        std::shared_ptr<PluginBase> plugin,
                                                        WasmHandleCloneFactory factory) {
   auto wasm_handle = getThreadLocalWasm(base_wasm->wasm()->vm_key());

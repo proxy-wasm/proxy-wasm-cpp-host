@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "include/proxy-wasm/compat.h"
 #include "include/proxy-wasm/v8.h"
 
 #include <cassert>
@@ -20,10 +21,12 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include <unordered_map>
 
 #include "v8-version.h"
 #include "wasm-api/wasm.hh"
+
+// TODO remove absl dependency
+#include "absl/container/flat_hash_map.h"
 
 namespace proxy_wasm {
 namespace {
@@ -48,24 +51,24 @@ public:
   V8() {}
 
   // WasmVm
-  absl::string_view runtime() override { return "v8"; }
+  string_view runtime() override { return "v8"; }
 
   bool load(const std::string &code, bool allow_precompiled) override;
-  absl::string_view getCustomSection(absl::string_view name) override;
-  absl::string_view getPrecompiledSectionName() override;
-  void link(absl::string_view debug_name) override;
+  string_view getCustomSection(string_view name) override;
+  string_view getPrecompiledSectionName() override;
+  void link(string_view debug_name) override;
 
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::unique_ptr<WasmVm> clone() override;
 
   uint64_t getMemorySize() override;
-  absl::optional<absl::string_view> getMemory(uint64_t pointer, uint64_t size) override;
+  optional<string_view> getMemory(uint64_t pointer, uint64_t size) override;
   bool setMemory(uint64_t pointer, uint64_t size, const void *data) override;
   bool getWord(uint64_t pointer, Word *word) override;
   bool setWord(uint64_t pointer, Word word) override;
 
 #define _REGISTER_HOST_FUNCTION(T)                                                                 \
-  void registerCallback(absl::string_view module_name, absl::string_view function_name, T,         \
+  void registerCallback(string_view module_name, string_view function_name, T,                     \
                         typename ConvertFunctionTypeWordToUint32<T>::type f) override {            \
     registerHostFunctionImpl(module_name, function_name, f);                                       \
   };
@@ -73,7 +76,7 @@ public:
 #undef _REGISTER_HOST_FUNCTION
 
 #define _GET_MODULE_FUNCTION(T)                                                                    \
-  void getFunction(absl::string_view function_name, T *f) override {                               \
+  void getFunction(string_view function_name, T *f) override {                                     \
     getModuleFunctionImpl(function_name, f);                                                       \
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
@@ -83,19 +86,19 @@ private:
   wasm::vec<byte_t> getStrippedSource();
 
   template <typename... Args>
-  void registerHostFunctionImpl(absl::string_view module_name, absl::string_view function_name,
+  void registerHostFunctionImpl(string_view module_name, string_view function_name,
                                 void (*function)(void *, Args...));
 
   template <typename R, typename... Args>
-  void registerHostFunctionImpl(absl::string_view module_name, absl::string_view function_name,
+  void registerHostFunctionImpl(string_view module_name, string_view function_name,
                                 R (*function)(void *, Args...));
 
   template <typename... Args>
-  void getModuleFunctionImpl(absl::string_view function_name,
+  void getModuleFunctionImpl(string_view function_name,
                              std::function<void(ContextBase *, Args...)> *function);
 
   template <typename R, typename... Args>
-  void getModuleFunctionImpl(absl::string_view function_name,
+  void getModuleFunctionImpl(string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
 
   wasm::vec<byte_t> source_ = wasm::vec<byte_t>::invalid();
@@ -106,8 +109,8 @@ private:
   wasm::own<wasm::Memory> memory_;
   wasm::own<wasm::Table> table_;
 
-  std::unordered_map<std::string, FuncDataPtr> host_functions_;
-  std::unordered_map<std::string, wasm::own<wasm::Func>> module_functions_;
+  absl::flat_hash_map<std::string, FuncDataPtr> host_functions_;
+  absl::flat_hash_map<std::string, wasm::own<wasm::Func>> module_functions_;
 };
 
 // Helper functions.
@@ -166,7 +169,7 @@ static uint32_t parseVarint(const byte_t *&pos, const byte_t *end) {
   byte_t b;
   do {
     if (pos + 1 > end) {
-      return 0;
+      abort();
     }
     b = *pos++;
     n += (b & 0x7f) << shift;
@@ -312,7 +315,7 @@ wasm::vec<byte_t> V8::getStrippedSource() {
   return wasm::vec<byte_t>::make(stripped.size(), stripped.data());
 }
 
-absl::string_view V8::getCustomSection(absl::string_view name) {
+string_view V8::getCustomSection(string_view name) {
   assert(source_.get() != nullptr);
 
   const byte_t *pos = source_.get() + 8 /* Wasm header */;
@@ -350,25 +353,25 @@ absl::string_view V8::getCustomSection(absl::string_view name) {
 #define WEE8_PLATFORM ""
 #endif
 
-absl::string_view V8::getPrecompiledSectionName() {
-  static const auto name = sizeof(WEE8_PLATFORM) - 1 > 0
-                               ? ("precompiled_wee8_v" + std::to_string(V8_MAJOR_VERSION) + "." +
-                                      std::to_string(V8_MINOR_VERSION) + ".",
-                                  std::to_string(V8_BUILD_NUMBER) + "." +
-                                      std::to_string(V8_PATCH_LEVEL) + "_" + WEE8_PLATFORM)
-                               : "";
+string_view V8::getPrecompiledSectionName() {
+  static const auto name =
+      sizeof(WEE8_PLATFORM) - 1 > 0
+          ? ("precompiled_wee8_v" + std::to_string(V8_MAJOR_VERSION) + "." +
+             std::to_string(V8_MINOR_VERSION) + "." + std::to_string(V8_BUILD_NUMBER) + "." +
+             std::to_string(V8_PATCH_LEVEL) + "_" + WEE8_PLATFORM)
+          : "";
   return name;
 }
 
-void V8::link(absl::string_view debug_name) {
+void V8::link(string_view debug_name) {
   assert(module_ != nullptr);
 
   const auto import_types = module_.get()->imports();
   std::vector<const wasm::Extern *> imports;
 
   for (size_t i = 0; i < import_types.size(); i++) {
-    absl::string_view module(import_types[i]->module().get(), import_types[i]->module().size());
-    absl::string_view name(import_types[i]->name().get(), import_types[i]->name().size());
+    string_view module(import_types[i]->module().get(), import_types[i]->module().size());
+    string_view name(import_types[i]->name().get(), import_types[i]->name().size());
     auto import_type = import_types[i]->type();
 
     switch (import_type->kind()) {
@@ -384,7 +387,7 @@ void V8::link(absl::string_view debug_name) {
           !equalValTypes(import_type->func()->results(), func->type()->results())) {
         error(std::string("Failed to load WASM module due to an import type mismatch: ") +
               std::string(module) + "." + std::string(name) +
-              " want: " + printValTypes(import_type->func()->params()) + " -> " +
+              ", want: " + printValTypes(import_type->func()->params()) + " -> " +
               printValTypes(import_type->func()->results()) +
               ", but host exports: " + printValTypes(func->type()->params()) + " -> " +
               printValTypes(func->type()->results()));
@@ -425,7 +428,7 @@ void V8::link(absl::string_view debug_name) {
   assert(export_types.size() == exports.size());
 
   for (size_t i = 0; i < export_types.size(); i++) {
-    absl::string_view name(export_types[i]->name().get(), export_types[i]->name().size());
+    string_view name(export_types[i]->name().get(), export_types[i]->name().size());
     auto export_type = export_types[i]->type();
     auto export_item = exports[i].get();
     assert(export_type->kind() == export_item->kind());
@@ -434,7 +437,7 @@ void V8::link(absl::string_view debug_name) {
 
     case wasm::EXTERN_FUNC: {
       assert(export_item->func() != nullptr);
-      module_functions_.emplace(name, export_item->func()->copy());
+      module_functions_.insert_or_assign(name, export_item->func()->copy());
     } break;
 
     case wasm::EXTERN_GLOBAL: {
@@ -456,12 +459,12 @@ void V8::link(absl::string_view debug_name) {
 
 uint64_t V8::getMemorySize() { return memory_->data_size(); }
 
-absl::optional<absl::string_view> V8::getMemory(uint64_t pointer, uint64_t size) {
+optional<string_view> V8::getMemory(uint64_t pointer, uint64_t size) {
   assert(memory_ != nullptr);
   if (pointer + size > memory_->data_size()) {
-    return absl::nullopt;
+    return PROXY_WASM_NULLOPT;
   }
-  return absl::string_view(memory_->data() + pointer, size);
+  return string_view(memory_->data() + pointer, size);
 }
 
 bool V8::setMemory(uint64_t pointer, uint64_t size, const void *data) {
@@ -495,7 +498,7 @@ bool V8::setWord(uint64_t pointer, Word word) {
 }
 
 template <typename... Args>
-void V8::registerHostFunctionImpl(absl::string_view module_name, absl::string_view function_name,
+void V8::registerHostFunctionImpl(string_view module_name, string_view function_name,
                                   void (*function)(void *, Args...)) {
   auto data =
       std::make_unique<FuncData>(std::string(module_name) + "." + std::string(function_name));
@@ -514,12 +517,12 @@ void V8::registerHostFunctionImpl(absl::string_view module_name, absl::string_vi
       data.get());
   data->callback_ = std::move(func);
   data->raw_func_ = reinterpret_cast<void *>(function);
-  host_functions_.emplace(std::string(module_name) + "." + std::string(function_name),
-                          std::move(data));
+  host_functions_.insert_or_assign(std::string(module_name) + "." + std::string(function_name),
+                                   std::move(data));
 }
 
 template <typename R, typename... Args>
-void V8::registerHostFunctionImpl(absl::string_view module_name, absl::string_view function_name,
+void V8::registerHostFunctionImpl(string_view module_name, string_view function_name,
                                   R (*function)(void *, Args...)) {
   auto data =
       std::make_unique<FuncData>(std::string(module_name) + "." + std::string(function_name));
@@ -539,12 +542,12 @@ void V8::registerHostFunctionImpl(absl::string_view module_name, absl::string_vi
       data.get());
   data->callback_ = std::move(func);
   data->raw_func_ = reinterpret_cast<void *>(function);
-  host_functions_.emplace(std::string(module_name) + "." + std::string(function_name),
-                          std::move(data));
+  host_functions_.insert_or_assign(std::string(module_name) + "." + std::string(function_name),
+                                   std::move(data));
 }
 
 template <typename... Args>
-void V8::getModuleFunctionImpl(absl::string_view function_name,
+void V8::getModuleFunctionImpl(string_view function_name,
                                std::function<void(ContextBase *, Args...)> *function) {
   auto it = module_functions_.find(std::string(function_name));
   if (it == module_functions_.end()) {
@@ -568,7 +571,7 @@ void V8::getModuleFunctionImpl(absl::string_view function_name,
 }
 
 template <typename R, typename... Args>
-void V8::getModuleFunctionImpl(absl::string_view function_name,
+void V8::getModuleFunctionImpl(string_view function_name,
                                std::function<R(ContextBase *, Args...)> *function) {
   auto it = module_functions_.find(std::string(function_name));
   if (it == module_functions_.end()) {
@@ -586,8 +589,8 @@ void V8::getModuleFunctionImpl(absl::string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, results);
     if (trap) {
-      error("Function: " + std::string(function_name) + " failed: {}" +
-            std::string(trap->message().get(), trap->message().size()));
+      error("Function: " + std::string(function_name) +
+            " failed: " + std::string(trap->message().get(), trap->message().size()));
     }
     R rvalue = results[0].get<typename ConvertWordTypeToUint32<R>::type>();
     return rvalue;

@@ -17,7 +17,7 @@
 
 #include <memory>
 
-#include "src/null/null_vm_plugin.h"
+#include "include/proxy-wasm/null_vm_plugin.h"
 #include "include/proxy-wasm/wasm.h"
 
 #include <google/protobuf/message.h>
@@ -28,7 +28,7 @@ namespace null_plugin {
 } // namespace null_plugin
 } // namespace proxy_wasm
 
-#include "src/null/wasm_api_impl.h"
+#include "include/proxy-wasm/wasm_api_impl.h"
 
 namespace proxy_wasm {
 namespace null_plugin {
@@ -130,7 +130,7 @@ private:
                                     null_plugin::RootFactory root_factory = nullptr,               \
                                     StringView root_id = "") {                                     \
       if (!context_registry_) {                                                                    \
-        context_registry_ = new null_plugin::NullPluginRegistry;                                   \
+        context_registry_ = new NullPluginRegistry;                                                \
       }                                                                                            \
       context_registry_->context_factories[std::string(root_id)] = context_factory;                \
       context_registry_->root_factories[std::string(root_id)] = root_factory;                      \
@@ -148,7 +148,7 @@ private:
   namespace proxy_wasm {                                                                           \
   namespace null_plugin {                                                                          \
   namespace _name {                                                                                \
-  NULL_PLUGIN_REGISTRY
+  PROXY_WASM_NULL_PLUGIN_REGISTRY
 
 #define END_WASM_PLUGIN                                                                            \
   }                                                                                                \
@@ -158,6 +158,9 @@ private:
 #define WASM_EXPORT(_t, _f, _a)                                                                    \
   _t _f _a;                                                                                        \
   static int register_export_##_f() {                                                              \
+    if (!context_registry_) {                                                                      \
+      context_registry_ = new NullPluginRegistry;                                                  \
+    }                                                                                              \
     context_registry_->_f##_ = _f;                                                                 \
     return 0;                                                                                      \
   };                                                                                               \

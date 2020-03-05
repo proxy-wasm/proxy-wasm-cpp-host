@@ -16,9 +16,10 @@
 #include "include/proxy-wasm/wasm.h"
 
 namespace proxy_wasm {
-namespace exports {
 
 extern thread_local uint32_t effective_context_id_;
+
+namespace exports {
 
 // Any currently executing Wasm call context.
 #define WASM_CONTEXT(_c)                                                                           \

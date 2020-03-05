@@ -197,6 +197,25 @@ std::string PluginBase::makeLogPrefix() const {
   return prefix;
 }
 
+ContextBase::ContextBase() : root_context_(this) {}
+
+ContextBase::ContextBase(WasmBase *wasm) : wasm_(wasm), root_context_(this) {
+  wasm_->contexts_[id_] = this;
+}
+
+ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
+  initializeRoot(wasm, plugin);
+}
+
+ContextBase::ContextBase(WasmBase *wasm, uint32_t root_context_id,
+                         std::shared_ptr<PluginBase> plugin)
+    : wasm_(wasm), id_(wasm->allocContextId()), root_context_id_(root_context_id), plugin_(plugin) {
+  wasm_->contexts_[id_] = this;
+  root_context_ = wasm_->contexts_[root_context_id_];
+}
+
+WasmVm *ContextBase::wasmVm() const { return wasm_->wasm_vm(); }
+
 void ContextBase::initializeRoot(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
   wasm_ = wasm;
   id_ = wasm->allocContextId();
@@ -249,6 +268,14 @@ bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
   plugin_.reset();
   return result;
 }
+
+void ContextBase::onCreate(uint32_t parent_context_id) {
+  if (wasm_->on_context_create_) {
+    DeferAfterCallActions actions(this);
+    wasm_->on_context_create_(this, id_, parent_context_id);
+  }
+}
+
 // Shared Data
 WasmResult ContextBase::getSharedData(string_view key, std::pair<std::string, uint32_t> *data) {
   return global_shared_data.get(wasm_->vm_id(), key, data);

@@ -261,8 +261,9 @@ using WasmHandleCloneFactory =
 
 // Returns nullptr on failure (i.e. initialization of the VM fails).
 std::shared_ptr<WasmHandle>
-createWasm(std::string code, std::shared_ptr<PluginBase> plugin, WasmHandleFactory factory,
-           bool allow_precompiled, std::unique_ptr<ContextBase> root_context_for_testing = nullptr);
+createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plugin,
+           WasmHandleFactory factory, bool allow_precompiled,
+           std::unique_ptr<ContextBase> root_context_for_testing = nullptr);
 // Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
 std::shared_ptr<WasmHandle> getThreadLocalWasm(string_view vm_id);
 // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by

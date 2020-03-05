@@ -14,8 +14,8 @@
 // limitations under the License.
 
 #include "include/proxy-wasm/null.h"
-#include "src/null/null_vm.h"
-#include "src/null/null_vm_plugin.h"
+#include "include/proxy-wasm/null_vm.h"
+#include "include/proxy-wasm/null_vm_plugin.h"
 
 namespace proxy_wasm {
 

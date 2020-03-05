@@ -13,14 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "src/null/null_vm.h"
+#include "include/proxy-wasm/null_vm.h"
 
 #include <memory>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "src/null/null_vm_plugin.h"
+#include "include/proxy-wasm/null_vm_plugin.h"
 
 namespace proxy_wasm {
 
@@ -54,16 +54,16 @@ bool NullVm::load(const std::string &name, bool /* allow_precompiled */) {
   return true;
 }
 
-void NullVm::link(absl::string_view /* name */) {}
+void NullVm::link(string_view /* name */) {}
 
 uint64_t NullVm::getMemorySize() { return std::numeric_limits<uint64_t>::max(); }
 
 // NulVm pointers are just native pointers.
-absl::optional<absl::string_view> NullVm::getMemory(uint64_t pointer, uint64_t size) {
+optional<string_view> NullVm::getMemory(uint64_t pointer, uint64_t size) {
   if (pointer == 0 && size != 0) {
-    return absl::nullopt;
+    return PROXY_WASM_NULLOPT;
   }
-  return absl::string_view(reinterpret_cast<char *>(pointer), static_cast<size_t>(size));
+  return string_view(reinterpret_cast<char *>(pointer), static_cast<size_t>(size));
 }
 
 bool NullVm::setMemory(uint64_t pointer, uint64_t size, const void *data) {
@@ -97,12 +97,12 @@ bool NullVm::getWord(uint64_t pointer, Word *data) {
   return true;
 }
 
-absl::string_view NullVm::getCustomSection(absl::string_view /* name */) {
+string_view NullVm::getCustomSection(string_view /* name */) {
   // Return nothing: there is no WASM file.
   return {};
 }
 
-absl::string_view NullVm::getPrecompiledSectionName() {
+string_view NullVm::getPrecompiledSectionName() {
   // Return nothing: there is no WASM file.
   return {};
 }

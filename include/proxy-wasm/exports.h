@@ -35,7 +35,6 @@ Word send_local_response(void *raw_context, Word response_code, Word response_co
                          Word response_code_details_size, Word body_ptr, Word body_size,
                          Word additional_response_header_pairs_ptr,
                          Word additional_response_header_pairs_size, Word grpc_status);
-Word clear_route_cache(void *raw_context);
 Word get_shared_data(void *raw_context, Word key_ptr, Word key_size, Word value_ptr_ptr,
                      Word value_size_ptr, Word cas_ptr);
 Word set_shared_data(void *raw_context, Word key_ptr, Word key_size, Word value_ptr,

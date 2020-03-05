@@ -78,9 +78,6 @@ proxy_send_local_response(uint32_t response_code, const char *response_code_deta
       WR(additional_response_header_pairs_ptr), WS(additional_response_header_pairs_size),
       WS(grpc_status)));
 }
-inline WasmResult proxy_clear_route_cache() {
-  return wordToWasmResult(exports::clear_route_cache(current_context_));
-}
 
 // SharedData
 inline WasmResult proxy_get_shared_data(const char *key_ptr, size_t key_size,

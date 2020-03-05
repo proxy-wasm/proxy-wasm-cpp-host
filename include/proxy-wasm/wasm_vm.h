@@ -99,7 +99,7 @@ enum class Cloneable {
 
 // Integrator specific WasmVm operations.
 struct WasmVmIntegration {
-  virtual ~WasmVmIntegration();
+  virtual ~WasmVmIntegration() {}
   virtual WasmVmIntegration *clone() = 0;
   virtual void error(string_view message) = 0;
 };

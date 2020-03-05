@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "src/null/null_plugin.h"
+#include "include/proxy-wasm/null_plugin.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-#include "src/null/null_vm.h"
+#include "include/proxy-wasm/null_vm.h"
 #include "include/proxy-wasm/wasm.h"
 
 namespace proxy_wasm {

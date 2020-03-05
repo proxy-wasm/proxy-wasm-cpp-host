@@ -103,31 +103,64 @@ public:
   // General stream downcall on a new stream.
   virtual void onCreate(uint32_t root_context_id);
   // Network
-  virtual FilterStatus onNetworkNewConnection();
-  virtual FilterStatus onDownstreamData(int data_length, bool end_of_stream);
-  virtual FilterStatus onUpstreamData(int data_length, bool end_of_stream);
+  virtual FilterStatus onNetworkNewConnection() {
+    unimplemented();
+    return FilterStatus::Continue;
+  }
+  virtual FilterStatus onDownstreamData(int /* data_length */, bool /* end_of_stream */) {
+    unimplemented();
+    return FilterStatus::Continue;
+  }
+  virtual FilterStatus onUpstreamData(int /* data_length */, bool /* end_of_stream */) {
+    unimplemented();
+    return FilterStatus::Continue;
+  }
   enum class PeerType : uint32_t {
     Unknown = 0,
     Local = 1,
     Remote = 2,
   };
-  virtual void onDownstreamConnectionClose(PeerType);
-  virtual void onUpstreamConnectionClose(PeerType);
+  virtual void onDownstreamConnectionClose(PeerType) { unimplemented(); }
+  virtual void onUpstreamConnectionClose(PeerType) { unimplemented(); }
   // HTTP Filter Stream Request Downcalls.
-  virtual FilterHeadersStatus onRequestHeaders();
-  virtual FilterDataStatus onRequestBody(int body_buffer_length, bool end_of_stream);
-  virtual FilterTrailersStatus onRequestTrailers();
-  virtual FilterMetadataStatus onRequestMetadata();
+  virtual FilterHeadersStatus onRequestHeaders() {
+    unimplemented();
+    return FilterHeadersStatus::Continue;
+  }
+  virtual FilterDataStatus onRequestBody(int /* body_buffer_length */, bool /* end_of_stream */) {
+    unimplemented();
+    return FilterDataStatus::Continue;
+  }
+  virtual FilterTrailersStatus onRequestTrailers() {
+    unimplemented();
+    return FilterTrailersStatus::Continue;
+  }
+  virtual FilterMetadataStatus onRequestMetadata() {
+    unimplemented();
+    return FilterMetadataStatus::Continue;
+  }
   // HTTP Filter Stream Response Downcalls.
-  virtual FilterHeadersStatus onResponseHeaders();
-  virtual FilterDataStatus onResponseBody(int body_buffer_length, bool end_of_stream);
-  virtual FilterTrailersStatus onResponseTrailers();
-  virtual FilterMetadataStatus onResponseMetadata();
+  virtual FilterHeadersStatus onResponseHeaders() {
+    unimplemented();
+    return FilterHeadersStatus::Continue;
+  }
+  virtual FilterDataStatus onResponseBody(int /* body_buffer_length */, bool /* end_of_stream */) {
+    unimplemented();
+    return FilterDataStatus::Continue;
+  }
+  virtual FilterTrailersStatus onResponseTrailers() {
+    unimplemented();
+    return FilterTrailersStatus::Continue;
+  }
+  virtual FilterMetadataStatus onResponseMetadata() {
+    unimplemented();
+    return FilterMetadataStatus::Continue;
+  }
   // Async call response.
-  virtual void onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t body_size,
-                                  uint32_t trailers);
+  virtual void onHttpCallResponse(uint32_t /* token */, uint32_t /* headers */,
+                                  uint32_t /* body_size */, uint32_t /* trailers */) {}
   // Inter-VM shared queue message arrival.
-  virtual void onQueueReady(uint32_t token);
+  virtual void onQueueReady(uint32_t /* token */) { unimplemented(); }
   // General stream downcall when the stream/vm has ended.
   virtual bool onDone();
   // General stream downcall for logging. Occurs after onDone().
@@ -145,9 +178,13 @@ public:
   // General Callbacks.
   //
   virtual WasmResult log(uint64_t /* level */, string_view /* message */) {
+    unimplemented();
     return WasmResult::Unimplemented;
   }
-  virtual WasmResult setTimerPeriod(std::chrono::milliseconds period);
+  virtual WasmResult setTimerPeriod(std::chrono::milliseconds /* period */) {
+    unimplemented();
+    return WasmResult::Unimplemented;
+  }
   virtual uint64_t getCurrentTimeNanoseconds() {
     struct timespec tpe;
     clock_gettime(CLOCK_REALTIME, &tpe);
@@ -156,11 +193,20 @@ public:
     t += tpe.tv_nsec;
     return t;
   }
-  virtual std::pair<uint32_t, string_view> getStatus();
+  virtual std::pair<uint32_t, string_view> getStatus() {
+    unimplemented();
+    return std::make_pair(1, "unimplmemented");
+  }
 
   // Buffer
-  virtual const BufferInterface *getBuffer(WasmBufferType type);
-  virtual bool end_of_stream();
+  virtual const BufferInterface *getBuffer(WasmBufferType /* type */) {
+    unimplemented();
+    return nullptr;
+  }
+  virtual bool end_of_stream() {
+    unimplemented();
+    return true;
+  }
 
   // HTTP
   // Returns a token which will be used with the corresponding onHttpCallResponse.
@@ -200,14 +246,33 @@ public:
   }
 
   // Metrics
-  virtual WasmResult defineMetric(MetricType type, string_view name, uint32_t *metric_id_ptr);
-  virtual WasmResult incrementMetric(uint32_t metric_id, int64_t offset);
-  virtual WasmResult recordMetric(uint32_t metric_id, uint64_t value);
-  virtual WasmResult getMetric(uint32_t metric_id, uint64_t *value_ptr);
+  virtual WasmResult defineMetric(MetricType /* type */, string_view /* name */,
+                                  uint32_t * /* metric_id_ptr */) {
+    unimplemented();
+    return WasmResult::Unimplemented;
+  }
+  virtual WasmResult incrementMetric(uint32_t /* metric_id */, int64_t /* offset */) {
+    unimplemented();
+    return WasmResult::Unimplemented;
+  }
+  virtual WasmResult recordMetric(uint32_t /* metric_id */, uint64_t /* value */) {
+    unimplemented();
+    return WasmResult::Unimplemented;
+  }
+  virtual WasmResult getMetric(uint32_t /* metric_id */, uint64_t * /* value_ptr */) {
+    unimplemented();
+    return WasmResult::Unimplemented;
+  }
 
-  // State accessors
-  virtual WasmResult getProperty(string_view path, std::string *result);
-  virtual WasmResult setProperty(string_view key, string_view serialized_value);
+  // Properties
+  virtual WasmResult getProperty(string_view /* path */, std::string * /* result */) {
+    unimplemented();
+    return WasmResult::Unimplemented;
+  }
+  virtual WasmResult setProperty(string_view /* key */, string_view /* serialized_value */) {
+    unimplemented();
+    return WasmResult::Unimplemented;
+  }
 
   // Continue
   virtual void continueRequest() { unimplemented(); }
