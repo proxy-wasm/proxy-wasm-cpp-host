@@ -3,10 +3,10 @@ workspace(name = "proxy_wasm_cpp_host")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
-		name = "proxy_wasm_cpp_sdk",
-		sha256 = "14f66f67e8f37ec81d28d7f5307be4407d206ac5f0daaf6d22fa5536797bcac1",
-		strip_prefix = "proxy-wasm-cpp-sdk-31f1fc5b7e09f231fa532d2d296e479a113c3e10",
-		urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/31f1fc5b7e09f231fa532d2d296e479a113c3e10.tar.gz"],
+    name = "proxy_wasm_cpp_sdk",
+    sha256 = "14f66f67e8f37ec81d28d7f5307be4407d206ac5f0daaf6d22fa5536797bcac1",
+    strip_prefix = "proxy-wasm-cpp-sdk-31f1fc5b7e09f231fa532d2d296e479a113c3e10",
+    urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/31f1fc5b7e09f231fa532d2d296e479a113c3e10.tar.gz"],
 )
 
 http_archive(
