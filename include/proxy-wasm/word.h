@@ -24,6 +24,7 @@ namespace proxy_wasm {
 struct Word {
   Word(uint64_t w) : u64_(w) {} // Implicit conversion into Word.
   uint32_t u32() const { return static_cast<uint32_t>(u64_); }
+  operator uint64_t() const { return u64_; }
   uint64_t u64_;
 };
 
