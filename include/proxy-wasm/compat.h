@@ -17,16 +17,12 @@
 // Provide compatibiliby for projects which have not yet moved to C++17.
 // TODO: remove this when all dependent projects have upgraded.
 
-#ifndef __cpp_lib_optional
-#include "absl/types/optional.h"
-#else
+#if __cplusplus >= 201703L
 #include <optional>
-#endif
-
-#ifndef __cpp_lib_string_view
-#include "absl/strings/string_view.h"
-#else
 #include <string_view>
+#else
+#include "absl/types/optional.h"
+#include "absl/strings/string_view.h"
 #endif
 
 namespace proxy_wasm {
