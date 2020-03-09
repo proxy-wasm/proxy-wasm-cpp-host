@@ -14,28 +14,37 @@
 
 #pragma once
 
-// #ifdef PROXY_WASM_USE_ABSL
+// Provide compatibiliby for projects which have not yet moved to C++17.
+// TODO: remove this when all dependent projects have upgraded.
+
 #ifndef __cpp_lib_optional
 #include "absl/types/optional.h"
-#include "absl/strings/string_view.h"
 #else
 #include <optional>
+#endif
+
+#ifndef __cpp_lib_string_view
+#include "absl/strings/string_view.h"
+#else
 #include <string_view>
 #endif
 
 namespace proxy_wasm {
-// #ifdef PROXY_WASM_USE_ABSL
 #ifndef __cpp_lib_optional
-using string_view = absl::string_view;
 template <typename T> using optional = absl::optional<T>;
 // Only available in C++17
 // inline constexpr absl::nullopt_t nullopt = absl::nullopt;
 #define PROXY_WASM_NULLOPT absl::nullopt
 #else
-using string_view = std::string_view;
 template <typename T> using optional = std::optional<T>;
 // Only available in C++17
 // inline constexpr std::nullopt_t nullopt = std::nullopt;
 #define PROXY_WASM_NULLOPT std::nullopt
+#endif
+
+#ifndef __cpp_lib_string_view
+using string_view = absl::string_view;
+#else
+using string_view = std::string_view;
 #endif
 } // namespace proxy_wasm
