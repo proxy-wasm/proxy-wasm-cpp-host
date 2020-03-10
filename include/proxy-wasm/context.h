@@ -41,7 +41,16 @@ using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 struct BufferInterface {
   virtual ~BufferInterface() {}
   virtual size_t size() const = 0;
-  // Returns true on success.
+  /**
+   * Copy bytes from the buffer into the Wasm VM corresponding to 'wasm'.
+   * @param start is the first buffer byte to copy.
+   * @param length is the length of sequence of buffer bytes to copy.
+   * @param ptr_ptr is the location in the VM address space to place the address of the newly
+   * allocated memory block which contains the copied bytes.
+   * @param size_ptr is the location in the VM address space to place the size of the newly
+   * allocated memory block which contains the copied bytes (e.g. length).
+   * @return true on success.
+   */
   virtual bool copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
                       uint64_t size_ptr) const = 0;
 };
