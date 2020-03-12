@@ -17,6 +17,7 @@
 
 #include "include/proxy-wasm/compat.h"
 
+#include <functional>
 #include <memory>
 
 #include "include/proxy-wasm/word.h"
