@@ -45,6 +45,11 @@ using Pairs = std::vector<std::pair<string_view, string_view>>;
 using PairsWithStringValues = std::vector<std::pair<string_view, std::string>>;
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
+/**
+ * BufferInterface provides a interface between proxy-specifc buffers and the proxy-independent ABI
+ * implementation. Embedders should subclass BufferInterface to enable the proxy-independent code to
+ * implement ABI calls which use buffers (e.g. the HTTP body).
+ */
 struct BufferInterface {
   virtual ~BufferInterface() {}
   virtual size_t size() const = 0;
@@ -62,8 +67,11 @@ struct BufferInterface {
                       uint64_t size_ptr) const = 0;
 };
 
-// A container to hold plugin information which is shared with all Context(s) created for this
-// plugin.
+/**
+ * PluginBase is container to hold plugin information which is shared with all Context(s) created
+ * for a given plugin. Embedders may extend this class with additional host-specific plugin
+ * information as required.
+ */
 struct PluginBase {
   PluginBase(string_view name, string_view root_id, string_view vm_id,
              string_view plugin_configuration)
@@ -82,8 +90,21 @@ private:
   std::string log_prefix_;
 };
 
-// A context which will be the target of callbacks for a particular session
-// e.g. a handler of a stream.
+/**
+ * ContextBase is the interface between the VM host and the VM. It has several uses:
+ *
+ * 1) To provide host-specific implementations of ABI calls out of the VM. For example, a proxy
+ * which wants to provide the ability to make an HTTP call must implement the
+ * ContextBase::httpCall() method.
+ *
+ * 2) To call into the VM. For example, when the above mentioned httpCall() completes, the host must
+ * call ContextBase::onHttpCallResponse(). Similarly, when a new HTTP request arrives and the
+ * headers are available, the host must create a new ContextBase object to manage the new stream and
+ * call onRequestHeaders() on that object which will cause a corresponding Context to be allocated
+ * in the VM which will receive the proxy_on_context_create and proxy_on_request_headers calls.
+ *
+ * 3) For testing and instrumentation the methods of ContextBase can be replaces or augmented.
+ */
 class ContextBase {
 public:
   ContextBase();                                                   // Testing.
