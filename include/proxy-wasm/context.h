@@ -479,10 +479,12 @@ public:
    * Get proxy-wide key-value data shared between VMs.
    * @param key is a proxy-wide key mapping to the shared data value.
    * @param cas is a number which will be incremented when a data value has been changed.
-   * @param data is a location to store the returned value.
+   * @param data is a location to store the returned stored 'value' and the corresponding 'cas'
+   * compare-and-swap value which can be used with setSharedData for safe concurrent updates.
    */
-  virtual WasmResult getSharedData(string_view /* key */,
-                                   std::pair<std::string, uint32_t /* cas */> * /* data */);
+  virtual WasmResult
+  getSharedData(string_view /* key */,
+                std::pair<std::string /* value */, uint32_t /* cas */> * /* data */);
 
   /**
    * Set a key-value data shared between VMs.
