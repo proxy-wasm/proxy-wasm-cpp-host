@@ -4,12 +4,7 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "include",
-    hdrs = [
-        "include/proxy-wasm/compat.h",
-        "include/proxy-wasm/context.h",
-        "include/proxy-wasm/wasm_vm.h",
-        "include/proxy-wasm/word.h",
-    ],
+    hdrs = glob(["include/proxy-wasm/*.h"]),
     deps = [
         "@proxy_wasm_cpp_sdk//:common_lib",
     ],
@@ -18,12 +13,7 @@ cc_library(
 # TODO: remove when dependent projects have been upgraded.
 cc_library(
     name = "include14",
-    hdrs = [
-        "include/proxy-wasm/compat.h",
-        "include/proxy-wasm/context.h",
-        "include/proxy-wasm/wasm_vm.h",
-        "include/proxy-wasm/word.h",
-    ],
+    hdrs = glob(["include/proxy-wasm/*.h"]),
     copts = ["-std=c++14"],
     deps = [
         "@proxy_wasm_cpp_sdk//:common_lib",
