@@ -32,7 +32,7 @@ cc_library(
 
 cc_test(
     name = "wasm_vm_test",
-    srcs = ["wasm_vm_test.cc"],
+    srcs = ["test/wasm_vm_test.cc"],
     deps = [
         ":include",
         "@com_google_googletest//:gtest",
@@ -42,7 +42,7 @@ cc_test(
 
 cc_test(
     name = "context_test",
-    srcs = ["context_test.cc"],
+    srcs = ["test/context_test.cc"],
     deps = [
         ":include",
         "@com_google_googletest//:gtest",
@@ -53,7 +53,7 @@ cc_test(
 # TODO: remove when dependent projects have been upgraded.
 cc_test(
     name = "wasm_vm_14_test",
-    srcs = ["wasm_vm_test.cc"],
+    srcs = ["test/wasm_vm_test.cc"],
     copts = ["-std=c++14"],
     deps = [
         ":include14",
@@ -67,7 +67,7 @@ cc_test(
 
 cc_test(
     name = "context_14_test",
-    srcs = ["context_test.cc"],
+    srcs = ["test/context_test.cc"],
     copts = ["-std=c++14"],
     deps = [
         ":include14",

@@ -46,7 +46,7 @@ using PairsWithStringValues = std::vector<std::pair<string_view, std::string>>;
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
 /**
- * BufferInterface provides a interface between proxy-specifc buffers and the proxy-independent ABI
+ * BufferInterface provides a interface between proxy-specific buffers and the proxy-independent ABI
  * implementation. Embedders should subclass BufferInterface to enable the proxy-independent code to
  * implement ABI calls which use buffers (e.g. the HTTP body).
  */
@@ -60,23 +60,27 @@ struct BufferInterface {
    * @param ptr_ptr is the location in the VM address space to place the address of the newly
    * allocated memory block which contains the copied bytes.
    * @param size_ptr is the location in the VM address space to place the size of the newly
-   * allocated memory block which contains the copied bytes (e.g. length).
-   * @return true on success.
+   * allocated memory block which contains the copied bytes (i.e. length).
+   * @return a WasmResult with any error or WasmResult::Ok.
    */
-  virtual bool copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
-                      uint64_t size_ptr) const = 0;
+  virtual WasmResult copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
+                            uint64_t size_ptr) const = 0;
 };
 
 /**
  * PluginBase is container to hold plugin information which is shared with all Context(s) created
  * for a given plugin. Embedders may extend this class with additional host-specific plugin
  * information as required.
+ * @param name is the name of the plugin.
+ * @param root_id is an identifier for the in VM handlers for this plugin.
+ * @param vm_id is a string used to differentiate VMs with the same code and VM configuration.
+ * @param plugin_configuration is configuration for this plugin.
  */
 struct PluginBase {
   PluginBase(string_view name, string_view root_id, string_view vm_id,
              string_view plugin_configuration)
       : name_(std::string(name)), root_id_(std::string(root_id)), vm_id_(std::string(vm_id)),
-        plugin_configuration_(plugin_configuration) {}
+        plugin_configuration_(plugin_configuration), log_prefix_(makeLogPrefix()) {}
 
   const std::string name_;
   const std::string root_id_;
@@ -116,27 +120,25 @@ public:
 
   WasmBase *wasm() const { return wasm_; }
   uint32_t id() const { return id_; }
+  // The VM Context used for calling "malloc" has an id_ == 0.
   bool isVmContext() { return id_ == 0; }
+  // Root Contexts have the VM Context as a parent.
   bool isRootContext() { return root_context_id_ == 0; }
   ContextBase *root_context() { return root_context_; }
   string_view root_id() const { return plugin_->root_id_; }
   string_view log_prefix() const { return plugin_->log_prefix(); }
   WasmVm *wasmVm() const;
 
-  //
-  // Calls into the VM.
-  //
+  /**
+   * Calls into the VM.
+   * These are implemented by the proxy-independent host code. They are virtual to support some
+   * types of testing.
+   */
 
   // Root Context
 
   /**
-   * Call on a Root Context when a VM first starts up.
-   * @param plugin is the plugin which caused the VM to be started.
-   */
-  virtual bool onStart(std::shared_ptr<PluginBase> plugin);
-
-  /**
-   * Call on a Root Context when a plugin is configured or reconfigured dyanmically.
+   * Call on a Root Context when a plugin is configured or reconfigured dynamically.
    * @param plugin is the plugin which is being configured or reconfigured.
    */
   virtual bool onConfigure(std::shared_ptr<PluginBase> plugin);
@@ -151,16 +153,18 @@ public:
    */
   virtual void onCreate(uint32_t parent_context_id);
 
-  // Network
+  /**
+   * Network
+   * Note: Body data is obtained by the code in the VM via calls implemented by the
+   * proxy-independent host code using the getBuffer() call.
+   */
 
   /**
    * Call on a stream Context to indicate that a new network connection has been been created.
    * Calls onStart().
    */
-  virtual ProxyAction onNetworkNewConnection() {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onNetworkNewConnection();
+
   /**
    * Call on a stream Context to indicate that data has arrived from downstream (e.g. on the
    * incoming port that was accepted and for which the proxy is acting as a server).
@@ -169,10 +173,8 @@ public:
    * @return indicates the subsequent behavior of this stream, e.g. continue proxying or pause
    * proxying.
    */
-  virtual ProxyAction onDownstreamData(int /* data_length */, bool /* end_of_stream */) {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onDownstreamData(uint32_t data_length, bool end_of_stream);
+
   /**
    * Call on a stream Context to indicate that data has arrived from upstream (e.g. on the outgoing
    * port that the proxy connected and for which the proxy is acting as a client).
@@ -181,16 +183,13 @@ public:
    * @return indicates the subsequent behavior of this stream, e.g. continue proxying or pause
    * proxying.
    */
-  virtual ProxyAction onUpstreamData(int /* data_length */, bool /* end_of_stream */) {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onUpstreamData(uint32_t data_length, bool end_of_stream);
 
   /*
    * The source of the close event.
    * Unknown is when the source is not known.
    * Local is when the close was initiated by the proxy.
-   * Remote is when the close was recieved from the peer.
+   * Remote is when the close was received from the peer.
    */
   enum class CloseType : uint32_t {
     Unknown = 0,
@@ -202,83 +201,64 @@ public:
    * Call on a stream context to indicate that the downstream connection has closed.
    * @close_type is the source of the close.
    */
-  virtual void onDownstreamConnectionClose(CloseType /* close_type */) { unimplemented(); }
+  virtual void onDownstreamConnectionClose(CloseType close_type);
 
   /**
    * Call on a stream context to indicate that the upstream connection has closed.
    * @close_type is the source of the close.
    */
-  virtual void onUpstreamConnectionClose(CloseType /* close_type */) { unimplemented(); }
+  virtual void onUpstreamConnectionClose(CloseType close_type);
 
-  // HTTP
+  /*
+   * HTTP
+   * Note: headers and trailers are obtained by the code in the VM via the XXXHeaderMapXXX set of
+   * functions. Body data is obtained by the code in the VM via calls implemented by the
+   * proxy-independent host code using the getBuffer() call.
+   */
 
   /**
    * Call on a stream context to indicate that the request headers have arrived.  Calls onCreate().
    */
-  virtual ProxyAction onRequestHeaders() {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onRequestHeaders();
 
   /**
    * Call on a stream context to indicate that body data has arrived.
    * @param body_buffer_length the amount of data in the body buffer.
    * @param end_of_stream is true if no more body data will be arriving.
    */
-  virtual ProxyAction onRequestBody(int /* body_buffer_length */, bool /* end_of_stream */) {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onRequestBody(uint32_t body_buffer_length, bool end_of_stream);
 
   /**
    * Call on a stream context to indicate that the request trailers have arrived.
    */
-  virtual ProxyAction onRequestTrailers() {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onRequestTrailers();
 
   /**
    * Call on a stream context to indicate that the request metadata has arrived.
    */
-  virtual ProxyAction onRequestMetadata() {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onRequestMetadata();
 
   /**
    * Call on a stream context to indicate that the request trailers have arrived.
    */
-  virtual ProxyAction onResponseHeaders() {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onResponseHeaders();
 
   /**
    * Call on a stream context to indicate that body data has arrived.
    * @param body_buffer_length the amount of data in the body buffer.
    * @param end_of_stream is true if no more body data will be arriving.
    */
-  virtual ProxyAction onResponseBody(int /* body_buffer_length */, bool /* end_of_stream */) {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onResponseBody(uint32_t body_buffer_length, bool end_of_stream);
 
   /**
    * Call on a stream context to indicate that the request trailers have arrived.
    */
-  virtual ProxyAction onResponseTrailers() {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onResponseTrailers();
 
   /**
    * Call on a stream context to indicate that the request metadata has arrived.
    */
-  virtual ProxyAction onResponseMetadata() {
-    unimplemented();
-    return ProxyAction::Continue;
-  }
+  virtual ProxyAction onResponseMetadata();
 
   // Root Context async events
 
@@ -287,16 +267,16 @@ public:
    * @param token is the token returned by the corresponding httpCall().
    * @param headers are the number of headers in the response.
    * @param body_size is the size in bytes of the response body.
-   * @param trailers is the number of trailres in the response.
+   * @param trailers is the number of trailers in the response.
    */
-  virtual void onHttpCallResponse(uint32_t /* token */, uint32_t /* headers */,
-                                  uint32_t /* body_size */, uint32_t /* trailers */) {}
+  virtual void onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t body_size,
+                                  uint32_t trailers);
 
   /**
    * Called on a Root Context to indicate that an Inter-VM shared queue message has arrived.
    * @token is the token returned by registerSharedQueue().
    */
-  virtual void onQueueReady(uint32_t /* token */) { unimplemented(); }
+  virtual void onQueueReady(uint32_t token);
 
   // Context
 
@@ -316,12 +296,6 @@ public:
   virtual void onLog();
 
   /**
-   * Call when no further stream calls will occur.  This will cause the corresponding Context in the
-   * VM to be deleted.
-   */
-  virtual void onDelete();
-
-  /**
    * Will be called on sever Wasm errors. Callees may report and handle the error (e.g. via an
    * Exception) to prevent the proxy from crashing.
    */
@@ -331,16 +305,20 @@ public:
   }
 
   /**
-   * Called by all functions which are not overriden with a proxy-specific implementation.
+   * Called by all functions which are not overridden with a proxy-specific implementation.
    */
   virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
 
-  //
-  // Calls from the VM>
-  // Note: most of these return a WasmResult, assume:
-  // @return a WasmResult with the status of the call.
-  //
-  //
+  /**
+   * Calls from the VM>
+   * This collection represents all the calls into the VM in the ABI
+   * (https://github.com/proxy-wasm/spec).  They are not broken into separate interfaces because
+   * doing so would result in duplication since calls into the VM must be overriden by the
+   * implementations in the ContextBase.
+   *
+   * Note: most of these return a WasmResult, assume:
+   * @return a WasmResult with the status of the call.
+   */
 
   /**
    * Log a message.  Note: log_prefix() is *not* auto-prepended end may be useful to provide some
@@ -375,12 +353,12 @@ public:
   }
 
   /**
-   * Provides the status of the call into the VM or out of the VM.
+   * Provides the status of the last call into the VM or out of the VM, similar to errno.
    * @return the status code and a descriptive string.
    */
   virtual std::pair<uint32_t, string_view> getStatus() {
     unimplemented();
-    return std::make_pair(1, "unimplmemented");
+    return std::make_pair(1, "unimplemented");
   }
 
   // Buffer
@@ -410,14 +388,14 @@ public:
    * @param request_headers are the request headers.
    * @param request_body is the request body.
    * @param request_trailers are the request trailers.
-   * @param timeout_milliseconds is a timeout after which the request will be conidered to have
+   * @param timeout_milliseconds is a timeout after which the request will be considered to have
    * failed.
    * @param token_ptr contains a pointer to a location to store the token which will be used with
    * the corresponding onHttpCallResponse.
    */
   virtual WasmResult httpCall(string_view /* target */, const Pairs & /*request_headers */,
                               string_view /* request_body */, const Pairs & /* request_trailers */,
-                              int /* timeout_millisconds */, uint32_t * /* token_ptr */) {
+                              int /* timeout_milliseconds */, uint32_t * /* token_ptr */) {
     unimplemented();
     return WasmResult::Unimplemented;
   }
@@ -459,8 +437,8 @@ public:
   }
 
   /**
-   * Close a gRPC stream.  In flight data may stil result in calls into the VM.
-   * @param token is a token returned from grpcSream.
+   * Close a gRPC stream.  In flight data may still result in calls into the VM.
+   * @param token is a token returned from grpcStream.
    */
   virtual WasmResult grpcClose(uint32_t /* token */) { // cancel on call, close on stream.
     unimplemented();
@@ -477,7 +455,7 @@ public:
   }
 
   /**
-   * Close a gRPC stream.  In flight data may stil result in calls into the VM.
+   * Close a gRPC stream.  In flight data may still result in calls into the VM.
    * @param token is a token returned from grpcSream.
    * @param message is a (serialized) message to be sent.
    * @param end_stream indicates that the stream is now end_of_stream (e.g. WriteLast() or
@@ -647,29 +625,32 @@ public:
    * @param key is the key (header).
    * @param value is the value (header value).
    */
-  virtual void addHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
-                                 string_view /* value */) {
+  virtual WasmResult addHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
+                                       string_view /* value */) {
     unimplemented();
+    return WasmResult::Unimplemented;
   }
 
   /**
    * Get a value from to a header map.
    * @param type of the header map.
    * @param key is the key (header).
+   * @param result is a pointer to the returned header value.
    */
-  virtual string_view getHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */) {
+  virtual WasmResult getHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
+                                       string_view *result) {
     unimplemented();
-    return "";
+    return WasmResult::Unimplemented;
   }
 
   /**
    * Get all the key-value pairs in a header map.
    * @param type of the header map.
-   * @return the pairs.
+   * @param result is a pointer to the pairs.
    */
-  virtual Pairs getHeaderMapPairs(WasmHeaderMapType /* type */) {
+  virtual WasmResult getHeaderMapPairs(WasmHeaderMapType /* type */, Pairs * /* result */) {
     unimplemented();
-    return {};
+    return WasmResult::Unimplemented;
   }
 
   /**
@@ -677,8 +658,9 @@ public:
    * @param type of the header map.
    * @param the pairs to set the header map to.
    */
-  virtual void setHeaderMapPairs(WasmHeaderMapType /* type */, const Pairs & /* pairs */) {
+  virtual WasmResult setHeaderMapPairs(WasmHeaderMapType /* type */, const Pairs & /* pairs */) {
     unimplemented();
+    return WasmResult::Unimplemented;
   }
 
   /**
@@ -686,8 +668,9 @@ public:
    * @param type of the header map.
    * @param key of the header map.
    */
-  virtual void removeHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */) {
+  virtual WasmResult removeHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */) {
     unimplemented();
+    return WasmResult::Unimplemented;
   }
 
   /**
@@ -696,22 +679,44 @@ public:
    * @param key of the header map.
    * @param value to set in the header map.
    */
-  virtual void replaceHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
-                                     string_view /* value */) {
+  virtual WasmResult replaceHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
+                                           string_view /* value */) {
     unimplemented();
+    return WasmResult::Unimplemented;
   }
 
   /**
    * Returns the number of entries in a header map.
    * @param type of the header map.
+   * @param result is a pointer to the result.
    */
-  virtual uint32_t getHeaderMapSize(WasmHeaderMapType /* type */) {
+  virtual WasmResult getHeaderMapSize(WasmHeaderMapType /* type */, uint32_t * /* result */) {
     unimplemented();
-    return 0;
+    return WasmResult::Unimplemented;
   }
 
 protected:
   friend class WasmBase;
+
+  /**
+   * Calls into the VM.
+   * These are implemented and called by the proxy-independent host code.  They are virtual to
+   * support some types of testing.
+   */
+
+  /**
+   * Call on a Root Context when a VM first starts up.
+   * @param plugin is the plugin which caused the VM to be started.
+   * Called by the host code.
+   */
+  bool onStart(std::shared_ptr<PluginBase> plugin);
+
+  /**
+   * Call when no further stream calls will occur.  This will cause the corresponding Context in the
+   * VM to be deleted.
+   * Called by the host code.
+   */
+  virtual void onDelete();
 
   virtual void initializeRoot(WasmBase *wasm, std::shared_ptr<PluginBase> plugin);
   std::string makeRootLogPrefix(string_view vm_id) const;
