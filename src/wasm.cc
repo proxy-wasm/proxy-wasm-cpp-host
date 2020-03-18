@@ -254,7 +254,11 @@ void WasmBase::getFunctions() {
   }
 }
 
-WasmBase::WasmBase(const std::shared_ptr<WasmHandle> &base_wasm_handle, WasmVmFactory factory) {
+WasmBase::WasmBase(const std::shared_ptr<WasmHandle> &base_wasm_handle, WasmVmFactory factory)
+    : std::enable_shared_from_this<WasmBase>(*base_wasm_handle->wasm()),
+      vm_id_(base_wasm_handle->wasm()->vm_id_), vm_key_(base_wasm_handle->wasm()->vm_key_),
+      started_from_(base_wasm_handle->wasm()->wasm_vm()->cloneable()),
+      base_wasm_handle_(base_wasm_handle) {
   if (started_from_ != Cloneable::NotCloneable) {
     wasm_vm_ = base_wasm_handle->wasm()->wasm_vm()->clone();
   } else {
