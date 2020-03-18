@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <string.h>
+
 #include <atomic>
 #include <deque>
 #include <map>
@@ -252,8 +254,7 @@ private:
   std::shared_ptr<WasmBase> wasm_;
 };
 
-std::string makeVmKey(absl::string_view vm_id, absl::string_view configuration,
-                      absl::string_view code);
+std::string makeVmKey(string_view vm_id, string_view configuration, string_view code);
 
 using WasmHandleFactory = std::function<std::shared_ptr<WasmHandle>(string_view vm_id)>;
 using WasmHandleCloneFactory =

@@ -15,6 +15,8 @@
 
 #include "include/proxy-wasm/null_vm.h"
 
+#include <string.h>
+
 #include <memory>
 #include <unordered_map>
 #include <utility>
@@ -36,7 +38,8 @@ RegisterNullVmPluginFactory::RegisterNullVmPluginFactory(string_view name,
 
 std::unique_ptr<WasmVm> NullVm::clone() {
   auto cloned_null_vm = std::make_unique<NullVm>(*this);
-  cloned_null_vm->integration().reset(integration()->clone());
+  if (integration())
+    cloned_null_vm->integration().reset(integration()->clone());
   cloned_null_vm->load(plugin_name_, false /* unused */);
   return cloned_null_vm;
 }

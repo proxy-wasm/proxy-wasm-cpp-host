@@ -15,6 +15,7 @@
 
 #include "include/proxy-wasm/wasm.h"
 #include "src/base64.h"
+#include "src/picosha2.h"
 
 #include <cassert>
 #include <stdio.h>
@@ -27,9 +28,11 @@
 #include <string>
 #include <unordered_map>
 
+#if 0
 #include "openssl/bytestring.h"
 #include "openssl/hmac.h"
 #include "openssl/sha.h"
+#endif
 
 namespace proxy_wasm {
 
@@ -65,16 +68,9 @@ const uint8_t *decodeVarint(const uint8_t *pos, const uint8_t *end, uint32_t *ou
 }
 
 std::string Sha256(string_view data) {
-  std::vector<uint8_t> digest(SHA256_DIGEST_LENGTH);
-  EVP_MD_CTX *ctx(EVP_MD_CTX_new());
-  auto rc = EVP_DigestInit(ctx, EVP_sha256());
-  assert(rc == 1);
-  rc = EVP_DigestUpdate(ctx, data.data(), data.size());
-  assert(rc == 1);
-  rc = EVP_DigestFinal(ctx, digest.data(), nullptr);
-  assert(rc == 1);
-  EVP_MD_CTX_free(ctx);
-  return std::string(reinterpret_cast<const char *>(&digest[0]), digest.size());
+  std::vector<unsigned char> hash(picosha2::k_digest_size);
+  picosha2::hash256(data.begin(), data.end(), hash.begin(), hash.end());
+  return std::string(reinterpret_cast<const char *>(&hash[0]), hash.size());
 }
 
 std::string Xor(string_view a, string_view b) {

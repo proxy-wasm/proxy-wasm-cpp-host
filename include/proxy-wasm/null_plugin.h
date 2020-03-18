@@ -66,7 +66,7 @@ public:
   explicit NullPlugin(NullPluginRegistry *registry) : registry_(registry) {}
   NullPlugin(const NullPlugin &other) : registry_(other.registry_) {}
 
-#define _DECLARE_OVERRIDE(_t) void getFunction(absl::string_view function_name, _t *f) override;
+#define _DECLARE_OVERRIDE(_t) void getFunction(string_view function_name, _t *f) override;
   FOR_ALL_WASM_VM_EXPORTS(_DECLARE_OVERRIDE)
 #undef _DECLARE_OVERRIDE
 
@@ -107,7 +107,7 @@ public:
   uint64_t onDone(uint64_t context_id);
   void onDelete(uint64_t context_id);
 
-  null_plugin::RootContext *getRoot(absl::string_view root_id);
+  null_plugin::RootContext *getRoot(string_view root_id);
 
   void error(string_view message) { wasm_vm_->error(message); }
 
