@@ -17,7 +17,9 @@
 
 namespace proxy_wasm {
 
-// TODO: use the SDK version when it is updated.
+// TODO: use the SDK version when it is updated.  This is a placeholder.  When the spec review
+// completes the SDK will be updated with the final version and we will use that instead of this
+// file.
 enum class ProxyAction : uint32_t {
   Illegal = 0,
   Continue = 1,

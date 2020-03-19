@@ -31,6 +31,70 @@
 namespace proxy_wasm {
 
 /**
+ * HttpInterface is the interface between the VM host and the VM for HTTP streams.
+ */
+class HttpInterface {
+public:
+  /**
+   * Calls into the VM.
+   * These are implemented by the proxy-independent host code. They are virtual to support some
+   * types of testing.
+   */
+
+  /*
+   * HTTP
+   * Note: headers and trailers are obtained by the code in the VM via the XXXHeaderMapXXX set of
+   * functions. Body data is obtained by the code in the VM via calls implemented by the
+   * proxy-independent host code using the getBuffer() call.
+   */
+
+  /**
+   * Call on a stream context to indicate that the request headers have arrived.  Calls onCreate().
+   */
+  virtual ProxyAction onRequestHeaders() = 0;
+
+  /**
+   * Call on a stream context to indicate that body data has arrived.
+   */
+  virtual ProxyAction onRequestBody() = 0;
+
+  /**
+   * Call on a stream context to indicate that the request trailers have arrived.
+   */
+  virtual ProxyAction onRequestTrailers() = 0;
+
+  /**
+   * Call on a stream context to indicate that the request metadata has arrived.
+   */
+  virtual ProxyAction onRequestMetadata() = 0;
+
+  /**
+   * Call on a stream context to indicate that the request trailers have arrived.
+   */
+  virtual ProxyAction onResponseHeaders() = 0;
+
+  /**
+   * Call on a stream context to indicate that body data has arrived.
+   */
+  virtual ProxyAction onResponseBody() = 0;
+
+  /**
+   * Call on a stream context to indicate that the request trailers have arrived.
+   */
+  virtual ProxyAction onResponseTrailers() = 0;
+
+  /**
+   * Call on a stream context to indicate that the request metadata has arrived.
+   */
+  virtual ProxyAction onResponseMetadata() = 0;
+
+  /**
+   * Call when the final status of the stream is available e.g. for logging. Occurs after onDone().
+   */
+  virtual void onFinalize() = 0;
+};
+
+/**
  * NetworkInterface is the interface between the VM host and the VM for network streams.
  */
 class NetworkInterface {
@@ -50,12 +114,10 @@ public:
   /**
    * Call on a stream Context to indicate that data has arrived from downstream (e.g. on the
    * incoming port that was accepted and for which the proxy is acting as a server).
-   * @param data_length the amount of data in the buffer.
-   * @param end_of_stream is true if no more data will be arriving.
    * @return indicates the subsequent behavior of this stream, e.g. continue proxying or pause
    * proxying.
    */
-  virtual ProxyAction onDownstreamData(uint32_t data_length, bool end_of_stream) = 0;
+  virtual ProxyAction onDownstreamData() = 0;
 
   /**
    * Call on a stream Context to indicate that data has arrived from upstream (e.g. on the outgoing
@@ -65,7 +127,7 @@ public:
    * @return indicates the subsequent behavior of this stream, e.g. continue proxying or pause
    * proxying.
    */
-  virtual ProxyAction onUpstreamData(uint32_t data_length, bool end_of_stream) = 0;
+  virtual ProxyAction onUpstreamData() = 0;
 
   /*
    * The source of the close event.

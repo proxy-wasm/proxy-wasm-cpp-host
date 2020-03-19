@@ -26,8 +26,7 @@
 #include <memory>
 #include <vector>
 
-#include "include/proxy-wasm/http_interface.h"
-#include "include/proxy-wasm/network_interface.h"
+#include "include/proxy-wasm/context_interface.h"
 
 namespace proxy_wasm {
 
@@ -150,24 +149,24 @@ public:
   virtual void onCreate(uint32_t parent_context_id);
 
   /**
-   * Network - see network_interface.h
+   * Network - see NetworkInterface in context_interface.h
    */
   ProxyAction onNetworkNewConnection() override;
-  ProxyAction onDownstreamData(uint32_t data_length, bool end_of_stream) override;
-  ProxyAction onUpstreamData(uint32_t data_length, bool end_of_stream) override;
+  ProxyAction onDownstreamData() override;
+  ProxyAction onUpstreamData() override;
   using CloseType = NetworkInterface::CloseType;
   void onDownstreamConnectionClose(CloseType close_type) override;
   void onUpstreamConnectionClose(CloseType close_type) override;
 
   /*
-   * HTTP - see http_interface.h
+   * HTTP - see HttpInterface in context_interface.h
    */
   ProxyAction onRequestHeaders() override;
-  ProxyAction onRequestBody(uint32_t body_buffer_length, bool end_of_stream) override;
+  ProxyAction onRequestBody() override;
   ProxyAction onRequestTrailers() override;
   ProxyAction onRequestMetadata() override;
   ProxyAction onResponseHeaders() override;
-  ProxyAction onResponseBody(uint32_t body_buffer_length, bool end_of_stream) override;
+  ProxyAction onResponseBody() override;
   ProxyAction onResponseTrailers() override;
   ProxyAction onResponseMetadata() override;
 
@@ -176,12 +175,8 @@ public:
   /**
    * Called on a Root Context when a response arrives for an outstanding httpCall().
    * @param token is the token returned by the corresponding httpCall().
-   * @param headers are the number of headers in the response.
-   * @param body_size is the size in bytes of the response body.
-   * @param trailers is the number of trailers in the response.
    */
-  virtual void onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t body_size,
-                                  uint32_t trailers);
+  virtual void onHttpCallResponse(uint32_t token);
 
   /**
    * Called on a Root Context to indicate that an Inter-VM shared queue message has arrived.
@@ -201,10 +196,10 @@ public:
    */
   virtual bool onDone();
 
-  /**
-   * Call when a stream should log the final status of the stream. Occurs after onDone().
+  /*
+   * Any Stream  see context_interface.hh
    */
-  void onLog() override;
+  void onFinalize() override;
 
   /**
    * Will be called on sever Wasm errors. Callees may report and handle the error (e.g. via an
