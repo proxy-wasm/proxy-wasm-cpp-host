@@ -117,6 +117,15 @@ public:
 
   // Stream (e.g. HTTP, Network)
   void onFinalized() override;
+  const BufferInterface *getBuffer(WasmBufferType /* type */) override {
+    unimplemented();
+    return nullptr;
+  }
+  bool end_of_stream(WasmStreamType /* type */) override {
+    unimplemented();
+    return true;
+  }
+  void continueStream(WasmStreamType /* type */) override { unimplemented(); }
 
   // HTTP
   ProxyAction onRequestHeaders() override;
@@ -127,6 +136,11 @@ public:
   ProxyAction onResponseBody() override;
   ProxyAction onResponseTrailers() override;
   ProxyAction onResponseMetadata() override;
+  void sendLocalResponse(uint64_t /* response_code */, string_view /* body */,
+                         Pairs /* additional_headers */, uint64_t /* grpc_status */,
+                         string_view /* details */) override {
+    unimplemented();
+  }
 
   // Network
   ProxyAction onNetworkNewConnection() override;
@@ -136,55 +150,28 @@ public:
   void onDownstreamConnectionClose(CloseType close_type) override;
   void onUpstreamConnectionClose(CloseType close_type) override;
 
-  /**
-   * Will be called on sever Wasm errors. Callees may report and handle the error (e.g. via an
-   * Exception) to prevent the proxy from crashing.
-   */
-  virtual void error(string_view message) {
+  // General
+  void error(string_view message) override {
     std::cerr << message << "\n";
     abort();
   }
-
-  /**
-   * Called by all functions which are not overridden with a proxy-specific implementation.
-   */
-  virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
-
-  /**
-   * Calls from the VM>
-   * This collection represents all the calls into the VM in the ABI
-   * (https://github.com/proxy-wasm/spec).  They are not broken into separate interfaces because
-   * doing so would result in duplication since calls into the VM must be overriden by the
-   * implementations in the ContextBase.
-   *
-   * Note: most of these return a WasmResult, assume:
-   * @return a WasmResult with the status of the call.
-   */
-
-  /**
-   * Log a message.  Note: log_prefix() is *not* auto-prepended end may be useful to provide some
-   * context.
-   */
-  virtual WasmResult log(uint64_t /* level */, string_view /* message */) {
-    unimplemented();
+  WasmResult unimplemented() override {
+    error("unimplemented proxy-wasm API");
     return WasmResult::Unimplemented;
   }
-
-  /**
-   * Enables a periodic timer with the given period or sets the period of an existing timer. Note:
-   * the timer is associated with the Root Context of whatever Context this call was made on and
-   * there is only one timer available per Root Context.
-   * @param period is the period of the periodic timer in milliseconds.
-   */
-  virtual WasmResult setTimerPeriod(std::chrono::milliseconds /* period */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult log(uint64_t level, string_view message) override {
+    if (level >= static_cast<uint32_t>(LogLevel::error)) {
+      std::cerr << log_prefix() << message << "\n";
+    } else {
+      std::cout << log_prefix() << message << "\n";
+    }
+    return WasmResult::Ok;
   }
-
-  /**
-   * Provides the current time in nanoseconds.
-   */
-  virtual uint64_t getCurrentTimeNanoseconds() {
+  virtual WasmResult setTimerPeriod(std::chrono::milliseconds /* period */,
+                                    uint32_t * /* timer_token_ptr */) override {
+    return unimplemented();
+  }
+  uint64_t getCurrentTimeNanoseconds() override {
     struct timespec tpe;
     clock_gettime(CLOCK_REALTIME, &tpe);
     uint64_t t = tpe.tv_sec;
@@ -192,41 +179,22 @@ public:
     t += tpe.tv_nsec;
     return t;
   }
-
-  /**
-   * Provides the status of the last call into the VM or out of the VM, similar to errno.
-   * @return the status code and a descriptive string.
-   */
-  virtual std::pair<uint32_t, string_view> getStatus() {
+  std::pair<uint32_t, string_view> getStatus() override {
     unimplemented();
     return std::make_pair(1, "unimplemented");
   }
-
-  // Buffer
-
-  /**
-   * Provides a BufferInterface to be used to return buffered data to the VM.
-   * @param type is the type of buffer to provide.
-   */
-  virtual const BufferInterface *getBuffer(WasmBufferType /* type */) {
-    unimplemented();
-    return nullptr;
+  WasmResult getProperty(string_view /* path */, std::string * /* result */) override {
+    return unimplemented();
   }
-
-  /**
-   * Provides the end-of-stream status of the current stream (if any) or false.
-   */
-  virtual bool end_of_stream() {
-    unimplemented();
-    return true;
+  WasmResult setProperty(string_view /* key */, string_view /* value */) override {
+    return unimplemented();
   }
 
   // HTTP
   WasmResult httpCall(string_view /* target */, const Pairs & /*request_headers */,
                       string_view /* request_body */, const Pairs & /* request_trailers */,
                       int /* timeout_milliseconds */, HttpCallToken * /* token_ptr */) override {
-    unimplemented();
-    return WasmResult::Unimplemented;
+    return unimplemented();
   }
 
   // gRPC
@@ -234,234 +202,87 @@ public:
                       string_view /* request */, const Pairs & /* initial_metadata */,
                       std::chrono::milliseconds & /* timeout */,
                       GrpcToken * /* token_ptr */) override {
-    unimplemented();
-    return WasmResult::Unimplemented;
+    return unimplemented();
   }
   WasmResult grpcStream(string_view /* grpc_service */, string_view /* service_name */,
                         string_view /* method_name */, GrpcToken * /* token_ptr */) override {
-    unimplemented();
-    return WasmResult::Unimplemented;
+    return unimplemented();
   }
-  WasmResult grpcClose(GrpcToken /* token */) override {
-    unimplemented();
-    return WasmResult::Unimplemented;
-  }
-  WasmResult grpcCancel(GrpcToken /* token */) override {
-    unimplemented();
-    return WasmResult::Unimplemented;
-  }
+  WasmResult grpcClose(GrpcToken /* token */) override { return unimplemented(); }
+  WasmResult grpcCancel(GrpcToken /* token */) override { return unimplemented(); }
   WasmResult grpcSend(GrpcToken /* token */, string_view /* message */,
                       bool /* end_stream */) override { // stream only
-    unimplemented();
-    return WasmResult::Unimplemented;
+    return unimplemented();
   }
 
   // Metrics
   WasmResult defineMetric(MetricType /* type */, string_view /* name */,
                           uint32_t * /* metric_id_ptr */) override {
-    unimplemented();
-    return WasmResult::Unimplemented;
+    return unimplemented();
   }
   WasmResult incrementMetric(uint32_t /* metric_id */, int64_t /* offset */) override {
-    unimplemented();
-    return WasmResult::Unimplemented;
+    return unimplemented();
   }
   WasmResult recordMetric(uint32_t /* metric_id */, uint64_t /* value */) override {
-    unimplemented();
-    return WasmResult::Unimplemented;
+    return unimplemented();
   }
   WasmResult getMetric(uint32_t /* metric_id */, uint64_t * /* value_ptr */) override {
-    unimplemented();
-    return WasmResult::Unimplemented;
-  }
-
-  // Properties
-
-  /**
-   * Get the value of a property.  Some properties are proxy-independent (e.g. ["plugin_root_id"])
-   * while others can be proxy-specific.
-   * @param path is a sequence of strings describing a path to a property.
-   * @param result is a location to write the value of the property.
-   */
-  virtual WasmResult getProperty(string_view /* path */, std::string * /* result */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
-  }
-
-  /**
-   * Set the value of a property.
-   * @param path is a sequence of strings describing a path to a property.
-   * @param value the value to set.  For non-string, non-integral types, the value may be
-   * serialized..
-   */
-  virtual WasmResult setProperty(string_view /* key */, string_view /* value */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
-  }
-
-  // Continue
-
-  /**
-   * Continue processing a request e.g. after returning ProxyAction::Pause.
-   */
-  virtual void continueRequest() { unimplemented(); }
-
-  /**
-   * Continue processing a response e.g. after returning ProxyAction::Pause.
-   */
-  virtual void continueResponse() { unimplemented(); }
-
-  /**
-   * Respond directly to an HTTP request.
-   * @param response_code is the response code to send.
-   * @param body is the body of the response.
-   * @param additional_headers are additional headers to send in the response.
-   * @param grpc_status is an optional gRPC status if the connection is a gRPC connection.
-   * @param details are details of any (gRPC) error.
-   */
-  virtual void sendLocalResponse(uint64_t /* response_code */, string_view /* body */,
-                                 Pairs /* additional_headers */, uint64_t /* grpc_status */,
-                                 string_view /* details */) {
-    unimplemented();
+    return unimplemented();
   }
 
   // Shared Data
-
-  /**
-   * Get proxy-wide key-value data shared between VMs.
-   * @param key is a proxy-wide key mapping to the shared data value.
-   * @param cas is a number which will be incremented when a data value has been changed.
-   * @param data is a location to store the returned stored 'value' and the corresponding 'cas'
-   * compare-and-swap value which can be used with setSharedData for safe concurrent updates.
-   */
-  virtual WasmResult
+  WasmResult
   getSharedData(string_view /* key */,
-                std::pair<std::string /* value */, uint32_t /* cas */> * /* data */);
-
-  /**
-   * Set a key-value data shared between VMs.
-   * @param key is a proxy-wide key mapping to the shared data value.
-   * @param cas is a compare-and-swap value. If it is zero it is ignored, otherwise it must match
-   * the cas associated with the value.
-   * @param data is a location to store the returned value.
-   */
-  virtual WasmResult setSharedData(string_view /* key */, string_view /* value */,
-                                   uint32_t /* cas */);
+                std::pair<std::string /* value */, uint32_t /* cas */> * /* data */) override {
+    return unimplemented();
+  }
+  WasmResult setSharedData(string_view /* key */, string_view /* value */,
+                           uint32_t /* cas */) override {
+    return unimplemented();
+  }
 
   // Shared Queue
-
-  /**
-   * Register a proxy-wide queue.
-   * @param queue_name is a name for the queue. The queue_name is combined with the vm_id (if any)
-   * to make a unique identifier for the queue.
-   * @param token_ptr a location to store a token corresponding to the queue.
-   */
-  virtual WasmResult registerSharedQueue(string_view /* queue_name */,
-                                         SharedQueueDequeueToken *token_ptr);
-
-  /**
-   * Get the token for a queue.
-   * @param vm_id is the vm_id of the Plugin of the Root Context which registered the queue.
-   * @param queue_name is a name for the queue. The queue_name is combined with the vm_id (if any)
-   * to make a unique identifier for the queue.
-   * @param token_ptr a location to store a token corresponding to the queue.
-   */
-  using SharedQueueEnqueueToken = uint32_t;
-  virtual WasmResult resolveSharedQueue(string_view /* vm_id */, string_view /* queue_name */,
-                                        uint32_t * /* token_ptr */);
-
-  /**
-   * Dequeue a message from a shared queue.
-   * @param token is a token returned by registerSharedQueue();
-   * @param data_ptr is a location to store the data dequeued.
-   */
-  virtual WasmResult dequeueSharedQueue(SharedQueueDequeueToken /* token */,
-                                        std::string * /* data_ptr */);
-
-  /**
-   * Enqueue a message on a shared queue.
-   * @param token is a token returned by resolveSharedQueue();
-   * @param data is the data to be queued.
-   */
-  virtual WasmResult enqueueSharedQueue(SharedQueueEnqueueToken /* token */,
-                                        string_view /* data */);
+  WasmResult registerSharedQueue(string_view /* queue_name */,
+                                 SharedQueueDequeueToken *token_ptr) override {
+    return unimplemented();
+  }
+  WasmResult resolveSharedQueue(string_view /* vm_id */, string_view /* queue_name */,
+                                uint32_t * /* token_ptr */) override {
+    return unimplemented();
+  }
+  WasmResult dequeueSharedQueue(SharedQueueDequeueToken /* token */,
+                                std::string * /* data_ptr */) override {
+    return unimplemented();
+  }
+  WasmResult enqueueSharedQueue(SharedQueueEnqueueToken /* token */,
+                                string_view /* data */) override {
+    return unimplemented();
+  }
 
   // Header/Trailer/Metadata Maps
-
-  /**
-   * Add a key-value pair to a header map.
-   * @param type of the header map.
-   * @param key is the key (header).
-   * @param value is the value (header value).
-   */
-  virtual WasmResult addHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
-                                       string_view /* value */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult addHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
+                               string_view /* value */) override {
+    return unimplemented();
   }
-
-  /**
-   * Get a value from to a header map.
-   * @param type of the header map.
-   * @param key is the key (header).
-   * @param result is a pointer to the returned header value.
-   */
-  virtual WasmResult getHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
-                                       string_view *result) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult getHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
+                               string_view *result) override {
+    return unimplemented();
   }
-
-  /**
-   * Get all the key-value pairs in a header map.
-   * @param type of the header map.
-   * @param result is a pointer to the pairs.
-   */
-  virtual WasmResult getHeaderMapPairs(WasmHeaderMapType /* type */, Pairs * /* result */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult getHeaderMapPairs(WasmHeaderMapType /* type */, Pairs * /* result */) override {
+    return unimplemented();
   }
-
-  /**
-   * Set a header map so that it contains the given pairs (does not merge with existing data).
-   * @param type of the header map.
-   * @param the pairs to set the header map to.
-   */
-  virtual WasmResult setHeaderMapPairs(WasmHeaderMapType /* type */, const Pairs & /* pairs */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult setHeaderMapPairs(WasmHeaderMapType /* type */, const Pairs & /* pairs */) override {
+    return unimplemented();
   }
-
-  /**
-   * Remove a key-value pair from a header map.
-   * @param type of the header map.
-   * @param key of the header map.
-   */
-  virtual WasmResult removeHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult removeHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */) override {
+    return unimplemented();
   }
-
-  /**
-   * Replace (or set) a value in a header map.
-   * @param type of the header map.
-   * @param key of the header map.
-   * @param value to set in the header map.
-   */
-  virtual WasmResult replaceHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
-                                           string_view /* value */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult replaceHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
+                                   string_view /* value */) override {
+    return unimplemented();
   }
-
-  /**
-   * Returns the number of entries in a header map.
-   * @param type of the header map.
-   * @param result is a pointer to the result.
-   */
-  virtual WasmResult getHeaderMapSize(WasmHeaderMapType /* type */, uint32_t * /* result */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult getHeaderMapSize(WasmHeaderMapType /* type */, uint32_t * /* result */) override {
+    return unimplemented();
   }
 
 protected:

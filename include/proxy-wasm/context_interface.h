@@ -26,8 +26,6 @@
 #include <memory>
 #include <vector>
 
-#include "include/proxy-wasm/proxy_action.h"
-
 namespace proxy_wasm {
 
 #include "proxy_wasm_common.h"
@@ -37,6 +35,23 @@ using Pairs = std::vector<std::pair<string_view, string_view>>;
 using PairsWithStringValues = std::vector<std::pair<string_view, std::string>>;
 using HttpCallToken = uint32_t;
 using GrpcToken = uint32_t;
+using SharedQueueDequeueToken = uint32_t;
+using SharedQueueEnqueueToken = uint32_t;
+
+// TODO: move to SDK.
+enum WasmStreamType {
+  Request,
+  Response,
+  Downstream,
+  Upstream,
+};
+
+// TODO: update SDK.
+enum class ProxyAction : uint32_t {
+  Illegal = 0,
+  Continue = 1,
+  Pause = 2,
+};
 
 struct PluginBase;
 class WasmBase;
@@ -137,7 +152,6 @@ struct RootInterface : public RootGrpcInterface {
    * Called on a Root Context when an Inter-VM shared queue message has arrived.
    * @token is the token returned by registerSharedQueue().
    */
-  using SharedQueueDequeueToken = uint32_t;
   virtual void onQueueReady(uint32_t SharedQueueDequeueToken) = 0;
 
   /**
@@ -168,7 +182,7 @@ struct HttpInterface {
 public:
   /**
    * Call on a stream context to indicate that the request headers have arrived.  Calls
-   * onCreate().
+   * onCreate() to create a Context in the VM first.
    */
   virtual ProxyAction onRequestHeaders() = 0;
 
@@ -192,6 +206,17 @@ public:
 
   // Call on a stream context to indicate that the request metadata has arrived.
   virtual ProxyAction onResponseMetadata() = 0;
+
+  /**
+   * Respond directly to an HTTP request.
+   * @param response_code is the response code to send.
+   * @param body is the body of the response.
+   * @param additional_headers are additional headers to send in the response.
+   * @param grpc_status is an optional gRPC status if the connection is a gRPC connection.
+   * @param details are details of any (gRPC) error.
+   */
+  virtual void sendLocalResponse(uint64_t response_code, string_view body, Pairs additional_headers,
+                                 uint64_t grpc_status, string_view details) = 0;
 
   // Call when the stream closes. See RootInterface.
   virtual bool onDone() = 0;
@@ -267,6 +292,85 @@ public:
 
   // Call when the stream status has finalized, e.g. for logging. See RootInterface.
   virtual void onFinalized() = 0;
+};
+
+/**
+ * General Stream interface (e.g. HTTP, Network).
+ **/
+struct StreamInterface {
+
+  // Continue processing a request e.g. after returning ProxyAction::Pause.
+  virtual void continueStream(WasmStreamType type) = 0;
+
+  /**
+   * Provides a BufferInterface to be used to return buffered data to the VM.
+   * @param type is the type of buffer to provide.
+   */
+  virtual const BufferInterface *getBuffer(WasmBufferType type) = 0;
+
+  /**
+   * Provides the end-of-stream status of the given flow (if any) or false.
+   * @param stream_type is the flow
+   */
+  virtual bool end_of_stream(WasmStreamType type) = 0;
+};
+
+// Header/Trailer/Metadata Maps
+struct HeaderInterface {
+  /**
+   * Add a key-value pair to a header map.
+   * @param type of the header map.
+   * @param key is the key (header).
+   * @param value is the value (header value).
+   */
+  virtual WasmResult addHeaderMapValue(WasmHeaderMapType type, string_view key,
+                                       string_view value) = 0;
+
+  /**
+   * Get a value from to a header map.
+   * @param type of the header map.
+   * @param key is the key (header).
+   * @param result is a pointer to the returned header value.
+   */
+  virtual WasmResult getHeaderMapValue(WasmHeaderMapType type, string_view key,
+                                       string_view *result) = 0;
+
+  /**
+   * Get all the key-value pairs in a header map.
+   * @param type of the header map.
+   * @param result is a pointer to the pairs.
+   */
+  virtual WasmResult getHeaderMapPairs(WasmHeaderMapType type, Pairs *result) = 0;
+
+  /**
+   * Set a header map so that it contains the given pairs (does not merge with existing data).
+   * @param type of the header map.
+   * @param the pairs to set the header map to.
+   */
+  virtual WasmResult setHeaderMapPairs(WasmHeaderMapType type, const Pairs &pairs) = 0;
+
+  /**
+   * Remove a key-value pair from a header map.
+   * @param type of the header map.
+   * @param key of the header map.
+   */
+  virtual WasmResult removeHeaderMapValue(WasmHeaderMapType type, string_view key) = 0;
+
+  /**
+   * Replace (or set) a value in a header map.
+   * @param type of the header map.
+   * @param key of the header map.
+   * @param value to set in the header map.
+   */
+  virtual WasmResult replaceHeaderMapValue(WasmHeaderMapType type, string_view key,
+                                           string_view value) = 0;
+
+  /**
+   * Returns the number of entries in a header map.
+   * @param type of the header map.
+   * @param result is a pointer to the result.
+   */
+  virtual WasmResult getHeaderMapSize(WasmHeaderMapType type, uint32_t *result) = 0;
 };
 
 struct HttpCallInterface {
@@ -384,12 +488,128 @@ struct MetricsInterface {
   virtual WasmResult getMetric(uint32_t /* metric_id */, uint64_t * /* value_ptr */) = 0;
 };
 
+struct GeneralInterface {
+  /**
+   * Will be called on severe Wasm errors. Callees may report and handle the error (e.g. via an
+   * Exception) to prevent the proxy from crashing.
+   */
+  virtual void error(string_view message) = 0;
+
+  /**
+   * Called by all functions which are not overridden with a proxy-specific implementation.
+   * @return WasmResult::Unimplemented.
+   */
+  virtual WasmResult unimplemented() = 0;
+
+  // Log a message.
+  virtual WasmResult log(uint64_t level, string_view message) = 0;
+
+  /**
+   * Enables a periodic timer with the given period or sets the period of an existing timer. Note:
+   * the timer is associated with the Root Context of whatever Context this call was made on and
+   * there is only one timer available per Root Context.
+   * @param period is the period of the periodic timer in milliseconds.  If the period is 0 the
+   * timer is reset/deleted and will not call onTick.
+   * @param timer_token_ptr is a pointer to the timer_token.  If the target of timer_token_ptr is
+   * zero, a new timer will be allocated its token will be set.  If the target is non-zero, then
+   * that timer will have the new period (or be reset/deleted if period is zero).
+   */
+  virtual WasmResult setTimerPeriod(std::chrono::milliseconds period,
+                                    uint32_t *timer_token_ptr) = 0;
+
+  // Provides the current time in nanoseconds.
+  virtual uint64_t getCurrentTimeNanoseconds() = 0;
+
+  /**
+   * Provides the status of the last call into the VM or out of the VM, similar to errno.
+   * @return the status code and a descriptive string.
+   */
+  virtual std::pair<uint32_t, string_view> getStatus() = 0;
+
+  /**
+   * Get the value of a property.  Some properties are proxy-independent (e.g. ["plugin_root_id"])
+   * while others can be proxy-specific.
+   * @param path is a sequence of strings describing a path to a property.
+   * @param result is a location to write the value of the property.
+   */
+  virtual WasmResult getProperty(string_view path, std::string *result) = 0;
+
+  /**
+   * Set the value of a property.
+   * @param path is a sequence of strings describing a path to a property.
+   * @param value the value to set.  For non-string, non-integral types, the value may be
+   * serialized..
+   */
+  virtual WasmResult setProperty(string_view key, string_view value) = 0;
+};
+
+struct SharedDataInterface {
+  /**
+   * Get proxy-wide key-value data shared between VMs.
+   * @param key is a proxy-wide key mapping to the shared data value.
+   * @param cas is a number which will be incremented when a data value has been changed.
+   * @param data is a location to store the returned stored 'value' and the corresponding 'cas'
+   * compare-and-swap value which can be used with setSharedData for safe concurrent updates.
+   */
+  virtual WasmResult
+  getSharedData(string_view key, std::pair<std::string /* value */, uint32_t /* cas */> *data) = 0;
+
+  /**
+   * Set a key-value data shared between VMs.
+   * @param key is a proxy-wide key mapping to the shared data value.
+   * @param cas is a compare-and-swap value. If it is zero it is ignored, otherwise it must match
+   * the cas associated with the value.
+   * @param data is a location to store the returned value.
+   */
+  virtual WasmResult setSharedData(string_view key, string_view value, uint32_t cas) = 0;
+};
+
+struct SharedQueueInterface {
+  /**
+   * Register a proxy-wide queue.
+   * @param queue_name is a name for the queue. The queue_name is combined with the vm_id (if any)
+   * to make a unique identifier for the queue.
+   * @param token_ptr a location to store a token corresponding to the queue.
+   */
+  virtual WasmResult registerSharedQueue(string_view queue_name,
+                                         SharedQueueDequeueToken *token_ptr) = 0;
+
+  /**
+   * Get the token for a queue.
+   * @param vm_id is the vm_id of the Plugin of the Root Context which registered the queue.
+   * @param queue_name is a name for the queue. The queue_name is combined with the vm_id (if any)
+   * to make a unique identifier for the queue.
+   * @param token_ptr a location to store a token corresponding to the queue.
+   */
+  virtual WasmResult resolveSharedQueue(string_view vm_id, string_view queue_name,
+                                        SharedQueueEnqueueToken *token_ptr) = 0;
+
+  /**
+   * Dequeue a message from a shared queue.
+   * @param token is a token returned by registerSharedQueue();
+   * @param data_ptr is a location to store the data dequeued.
+   */
+  virtual WasmResult dequeueSharedQueue(SharedQueueDequeueToken token, std::string *data_ptr) = 0;
+
+  /**
+   * Enqueue a message on a shared queue.
+   * @param token is a token returned by resolveSharedQueue();
+   * @param data is the data to be queued.
+   */
+  virtual WasmResult enqueueSharedQueue(SharedQueueEnqueueToken token, string_view data) = 0;
+};
+
 struct ContextInterface : RootInterface,
                           HttpInterface,
                           NetworkInterface,
+                          StreamInterface,
+                          HeaderInterface,
                           HttpCallInterface,
                           GrpcCallInterface,
                           GrpcStreamInterface,
-                          MetricsInterface {};
+                          MetricsInterface,
+                          SharedDataInterface,
+                          SharedQueueInterface,
+                          GeneralInterface {};
 
 } // namespace proxy_wasm
