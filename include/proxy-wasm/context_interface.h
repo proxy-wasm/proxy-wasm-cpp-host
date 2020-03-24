@@ -215,8 +215,9 @@ public:
    * @param grpc_status is an optional gRPC status if the connection is a gRPC connection.
    * @param details are details of any (gRPC) error.
    */
-  virtual void sendLocalResponse(uint64_t response_code, string_view body, Pairs additional_headers,
-                                 uint64_t grpc_status, string_view details) = 0;
+  virtual WasmResult sendLocalResponse(uint64_t response_code, string_view body,
+                                       Pairs additional_headers, uint64_t grpc_status,
+                                       string_view details) = 0;
 
   // Call when the stream closes. See RootInterface.
   virtual bool onDone() = 0;
@@ -300,7 +301,7 @@ public:
 struct StreamInterface {
 
   // Continue processing a request e.g. after returning ProxyAction::Pause.
-  virtual void continueStream(WasmStreamType type) = 0;
+  virtual WasmResult continueStream(WasmStreamType type) = 0;
 
   /**
    * Provides a BufferInterface to be used to return buffered data to the VM.

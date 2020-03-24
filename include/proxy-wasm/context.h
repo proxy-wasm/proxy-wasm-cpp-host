@@ -125,7 +125,7 @@ public:
     unimplemented();
     return true;
   }
-  void continueStream(WasmStreamType /* type */) override { unimplemented(); }
+  WasmResult continueStream(WasmStreamType /* type */) override { return unimplemented(); }
 
   // HTTP
   ProxyAction onRequestHeaders() override;
@@ -136,10 +136,10 @@ public:
   ProxyAction onResponseBody() override;
   ProxyAction onResponseTrailers() override;
   ProxyAction onResponseMetadata() override;
-  void sendLocalResponse(uint64_t /* response_code */, string_view /* body */,
-                         Pairs /* additional_headers */, uint64_t /* grpc_status */,
-                         string_view /* details */) override {
-    unimplemented();
+  WasmResult sendLocalResponse(uint64_t /* response_code */, string_view /* body */,
+                               Pairs /* additional_headers */, uint64_t /* grpc_status */,
+                               string_view /* details */) override {
+    return unimplemented();
   }
 
   // Network
