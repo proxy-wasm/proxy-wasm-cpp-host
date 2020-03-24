@@ -309,7 +309,8 @@ struct StreamInterface {
   virtual const BufferInterface *getBuffer(WasmBufferType type) = 0;
 
   /**
-   * Provides the end-of-stream status of the given flow (if any) or false.
+   * Provides the end-of-stream status of the given flow (if any) or false.  End of stream occurs
+   * when a connection is closed (or half-closed) either locally or remotely.
    * @param stream_type is the flow
    */
   virtual bool end_of_stream(WasmStreamType type) = 0;
@@ -543,6 +544,11 @@ struct GeneralInterface {
   virtual WasmResult setProperty(string_view key, string_view value) = 0;
 };
 
+/**
+ * SharedDataInterface is for shaing data between VMs. In general the VMs may be on different
+ * threads.  Keys can have any format, but good practice would use reverse DNS and namespacing
+ * prefixes to avoid conflicts.
+ */
 struct SharedDataInterface {
   /**
    * Get proxy-wide key-value data shared between VMs.
@@ -562,7 +568,7 @@ struct SharedDataInterface {
    * @param data is a location to store the returned value.
    */
   virtual WasmResult setSharedData(string_view key, string_view value, uint32_t cas) = 0;
-};
+}; // namespace proxy_wasm
 
 struct SharedQueueInterface {
   /**
