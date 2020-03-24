@@ -30,37 +30,7 @@
 
 namespace proxy_wasm {
 
-#include "proxy_wasm_common.h"
-#include "proxy_wasm_enums.h"
-
-class WasmBase;
 class WasmVm;
-
-using Pairs = std::vector<std::pair<string_view, string_view>>;
-using PairsWithStringValues = std::vector<std::pair<string_view, std::string>>;
-using CallOnThreadFunction = std::function<void(std::function<void()>)>;
-
-/**
- * BufferInterface provides a interface between proxy-specific buffers and the proxy-independent ABI
- * implementation. Embedders should subclass BufferInterface to enable the proxy-independent code to
- * implement ABI calls which use buffers (e.g. the HTTP body).
- */
-struct BufferInterface {
-  virtual ~BufferInterface() {}
-  virtual size_t size() const = 0;
-  /**
-   * Copy bytes from the buffer into the Wasm VM corresponding to 'wasm'.
-   * @param start is the first buffer byte to copy.
-   * @param length is the length of sequence of buffer bytes to copy.
-   * @param ptr_ptr is the location in the VM address space to place the address of the newly
-   * allocated memory block which contains the copied bytes.
-   * @param size_ptr is the location in the VM address space to place the size of the newly
-   * allocated memory block which contains the copied bytes (i.e. length).
-   * @return a WasmResult with any error or WasmResult::Ok.
-   */
-  virtual WasmResult copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
-                            uint64_t size_ptr) const = 0;
-};
 
 /**
  * PluginBase is container to hold plugin information which is shared with all Context(s) created
@@ -104,7 +74,7 @@ private:
  *
  * 3) For testing and instrumentation the methods of ContextBase can be replaces or augmented.
  */
-class ContextBase : public HttpInterface, NetworkInterface {
+class ContextBase : public ContextInterface {
 public:
   ContextBase();                                                   // Testing.
   ContextBase(WasmBase *wasm);                                     // Vm Context.
@@ -130,37 +100,25 @@ public:
    * types of testing.
    */
 
-  // Root Context
-
-  /**
-   * Call on a Root Context when a plugin is configured or reconfigured dynamically.
-   * @param plugin is the plugin which is being configured or reconfigured.
-   */
-  virtual bool onConfigure(std::shared_ptr<PluginBase> plugin);
-
   // Context
+  void onCreate(uint32_t parent_context_id) override;
+  bool onDone() override;
+  void onDelete() override;
 
-  /**
-   * Call on a host Context to create a corresponding Context in the VM.  Note:
-   * onNetworkNewConnection and onRequestHeaders() call onCreate().
-   * @param parent_context_id is the parent Context id for the context being created.  For a Network
-   * stream Context, this will be a Root Context id.
-   */
-  virtual void onCreate(uint32_t parent_context_id);
+  // Root
+  bool onStart(std::shared_ptr<PluginBase> plugin) override;
+  bool onConfigure(std::shared_ptr<PluginBase> plugin) override;
+  void onHttpCallResponse(HttpCallToken token) override;
+  void onQueueReady(uint32_t SharedQueueDequeueToken) override;
+  void onGrpcReceiveInitialMetadata(GrpcToken token) override;
+  void onGrpcReceive(GrpcToken token) override;
+  void onGrpcReceiveTrailingMetadata(GrpcToken token) override;
+  void onGrpcClose(GrpcToken token, const GrpcStatus &status, const string_view message) override;
 
-  /**
-   * Network - see NetworkInterface in context_interface.h
-   */
-  ProxyAction onNetworkNewConnection() override;
-  ProxyAction onDownstreamData() override;
-  ProxyAction onUpstreamData() override;
-  using CloseType = NetworkInterface::CloseType;
-  void onDownstreamConnectionClose(CloseType close_type) override;
-  void onUpstreamConnectionClose(CloseType close_type) override;
+  // Stream (e.g. HTTP, Network)
+  void onFinalized() override;
 
-  /*
-   * HTTP - see HttpInterface in context_interface.h
-   */
+  // HTTP
   ProxyAction onRequestHeaders() override;
   ProxyAction onRequestBody() override;
   ProxyAction onRequestTrailers() override;
@@ -170,36 +128,13 @@ public:
   ProxyAction onResponseTrailers() override;
   ProxyAction onResponseMetadata() override;
 
-  // Root Context async events
-
-  /**
-   * Called on a Root Context when a response arrives for an outstanding httpCall().
-   * @param token is the token returned by the corresponding httpCall().
-   */
-  virtual void onHttpCallResponse(uint32_t token);
-
-  /**
-   * Called on a Root Context to indicate that an Inter-VM shared queue message has arrived.
-   * @token is the token returned by registerSharedQueue().
-   */
-  virtual void onQueueReady(uint32_t token);
-
-  // Context
-
-  /**
-   * Call when a stream has completed (both sides have closed) or on a Root Context when the VM is
-   * shutting down.
-   * @return true for stream contexts or for Root Context(s) if the VM can shutdown, false for Root
-   * Context(s) if the VM should wait until the Root Context calls the proxy_done() ABI call.  Note:
-   * the VM may (optionally) shutdown after some configured timeout even if the Root Context does
-   * not call proxy_done().
-   */
-  virtual bool onDone();
-
-  /*
-   * Any Stream  see context_interface.hh
-   */
-  void onFinalize() override;
+  // Network
+  ProxyAction onNetworkNewConnection() override;
+  ProxyAction onDownstreamData() override;
+  ProxyAction onUpstreamData() override;
+  using CloseType = NetworkInterface::CloseType;
+  void onDownstreamConnectionClose(CloseType close_type) override;
+  void onUpstreamConnectionClose(CloseType close_type) override;
 
   /**
    * Will be called on sever Wasm errors. Callees may report and handle the error (e.g. via an
@@ -287,133 +222,55 @@ public:
   }
 
   // HTTP
-
-  /**
-   * Make an outgoing HTTP request.
-   * @param target specifies the proxy-specific target of the call (e.g. a cluster, peer, or host).
-   * @param request_headers are the request headers.
-   * @param request_body is the request body.
-   * @param request_trailers are the request trailers.
-   * @param timeout_milliseconds is a timeout after which the request will be considered to have
-   * failed.
-   * @param token_ptr contains a pointer to a location to store the token which will be used with
-   * the corresponding onHttpCallResponse.
-   */
-  virtual WasmResult httpCall(string_view /* target */, const Pairs & /*request_headers */,
-                              string_view /* request_body */, const Pairs & /* request_trailers */,
-                              int /* timeout_milliseconds */, uint32_t * /* token_ptr */) {
+  WasmResult httpCall(string_view /* target */, const Pairs & /*request_headers */,
+                      string_view /* request_body */, const Pairs & /* request_trailers */,
+                      int /* timeout_milliseconds */, HttpCallToken * /* token_ptr */) override {
     unimplemented();
     return WasmResult::Unimplemented;
   }
 
   // gRPC
-
-  /**
-   * Make a gRPC call.
-   * @param grpc_service is proxy-specific metadata describing the service (e.g. security certs).
-   * @param service_name the name of the gRPC service.
-   * @param method_name the gRPC method name.
-   * @param request the serialized request.
-   * @param initial_metadata the initial metadata.
-   * @param timeout a timeout in milliseconds.
-   * @param token_ptr contains a pointer to a location to store the token which will be used with
-   * the corresponding onGrpc and grpc calls.
-   */
-  virtual WasmResult grpcCall(string_view /* grpc_service */, string_view /* service_name */,
-                              string_view /* method_name */, string_view /* request */,
-                              const Pairs & /* initial_metadata */,
-                              std::chrono::milliseconds & /* timeout */,
-                              uint32_t * /* token_ptr */) {
+  WasmResult grpcCall(string_view, string_view /* service_name */, string_view /* method_name */,
+                      string_view /* request */, const Pairs & /* initial_metadata */,
+                      std::chrono::milliseconds & /* timeout */,
+                      GrpcToken * /* token_ptr */) override {
     unimplemented();
     return WasmResult::Unimplemented;
   }
-
-  /**
-   * Open a gRPC stream.
-   * @param grpc_service is proxy-specific metadata describing the service (e.g. security certs).
-   * @param service_name the name of the gRPC service.
-   * @param method_name the gRPC method name.
-   * @param token_ptr contains a pointer to a location to store the token which will be used with
-   * the corresponding onGrpc and grpc calls.
-   */
-  virtual WasmResult grpcStream(string_view /* grpc_service */, string_view /* service_name */,
-                                string_view /* method_name */, uint32_t * /* token_ptr */) {
+  WasmResult grpcStream(string_view /* grpc_service */, string_view /* service_name */,
+                        string_view /* method_name */, GrpcToken * /* token_ptr */) override {
     unimplemented();
     return WasmResult::Unimplemented;
   }
-
-  /**
-   * Close a gRPC stream.  In flight data may still result in calls into the VM.
-   * @param token is a token returned from grpcStream.
-   */
-  virtual WasmResult grpcClose(uint32_t /* token */) { // cancel on call, close on stream.
+  WasmResult grpcClose(GrpcToken /* token */) override {
     unimplemented();
     return WasmResult::Unimplemented;
   }
-
-  /**
-   * Cancel a gRPC stream or call.  No more calls will occur.
-   * @param token is a token returned from grpcSream or grpcCall.
-   */
-  virtual WasmResult grpcCancel(uint32_t /* token */) { // cancel on call, reset on stream.
+  WasmResult grpcCancel(GrpcToken /* token */) override {
     unimplemented();
     return WasmResult::Unimplemented;
   }
-
-  /**
-   * Close a gRPC stream.  In flight data may still result in calls into the VM.
-   * @param token is a token returned from grpcSream.
-   * @param message is a (serialized) message to be sent.
-   * @param end_stream indicates that the stream is now end_of_stream (e.g. WriteLast() or
-   * WritesDone).
-   */
-  virtual WasmResult grpcSend(uint32_t /* token */, string_view /* message */,
-                              bool /* end_stream */) { // stream only
+  WasmResult grpcSend(GrpcToken /* token */, string_view /* message */,
+                      bool /* end_stream */) override { // stream only
     unimplemented();
     return WasmResult::Unimplemented;
   }
 
   // Metrics
-
-  /**
-   * Define a metric (Stat).
-   * @param type is the type of metric (e.g. Counter).
-   * @param name is a string uniquely identifying the metric.
-   * @param metric_id_ptr is a location to store a token used for subsequent operations on the
-   * metric.
-   */
-  virtual WasmResult defineMetric(MetricType /* type */, string_view /* name */,
-                                  uint32_t * /* metric_id_ptr */) {
+  WasmResult defineMetric(MetricType /* type */, string_view /* name */,
+                          uint32_t * /* metric_id_ptr */) override {
     unimplemented();
     return WasmResult::Unimplemented;
   }
-
-  /**
-   * Increment a metric.
-   * @param metric_id is a token returned by defineMetric() identifying the metric to operate on.
-   * @param offset is the offset to apply to the Counter.
-   */
-  virtual WasmResult incrementMetric(uint32_t /* metric_id */, int64_t /* offset */) {
+  WasmResult incrementMetric(uint32_t /* metric_id */, int64_t /* offset */) override {
     unimplemented();
     return WasmResult::Unimplemented;
   }
-
-  /**
-   * Record a metric.
-   * @param metric_id is a token returned by defineMetric() identifying the metric to operate on.
-   * @param value is the value to store for a Gauge or increment for a histogram or Counter.
-   */
-  virtual WasmResult recordMetric(uint32_t /* metric_id */, uint64_t /* value */) {
+  WasmResult recordMetric(uint32_t /* metric_id */, uint64_t /* value */) override {
     unimplemented();
     return WasmResult::Unimplemented;
   }
-
-  /**
-   * Get the current value of a metric.
-   * @param metric_id is a token returned by defineMetric() identifying the metric to operate on.
-   * @param value_ptr is a location to store the value of the metric.
-   */
-  virtual WasmResult getMetric(uint32_t /* metric_id */, uint64_t * /* value_ptr */) {
+  WasmResult getMetric(uint32_t /* metric_id */, uint64_t * /* value_ptr */) override {
     unimplemented();
     return WasmResult::Unimplemented;
   }
@@ -499,7 +356,8 @@ public:
    * to make a unique identifier for the queue.
    * @param token_ptr a location to store a token corresponding to the queue.
    */
-  virtual WasmResult registerSharedQueue(string_view /* queue_name */, uint32_t *token_ptr);
+  virtual WasmResult registerSharedQueue(string_view /* queue_name */,
+                                         SharedQueueDequeueToken *token_ptr);
 
   /**
    * Get the token for a queue.
@@ -508,6 +366,7 @@ public:
    * to make a unique identifier for the queue.
    * @param token_ptr a location to store a token corresponding to the queue.
    */
+  using SharedQueueEnqueueToken = uint32_t;
   virtual WasmResult resolveSharedQueue(string_view /* vm_id */, string_view /* queue_name */,
                                         uint32_t * /* token_ptr */);
 
@@ -516,14 +375,16 @@ public:
    * @param token is a token returned by registerSharedQueue();
    * @param data_ptr is a location to store the data dequeued.
    */
-  virtual WasmResult dequeueSharedQueue(uint32_t /* token */, std::string * /* data_ptr */);
+  virtual WasmResult dequeueSharedQueue(SharedQueueDequeueToken /* token */,
+                                        std::string * /* data_ptr */);
 
   /**
    * Enqueue a message on a shared queue.
    * @param token is a token returned by resolveSharedQueue();
    * @param data is the data to be queued.
    */
-  virtual WasmResult enqueueSharedQueue(uint32_t /* token */, string_view /* value */);
+  virtual WasmResult enqueueSharedQueue(SharedQueueEnqueueToken /* token */,
+                                        string_view /* data */);
 
   // Header/Trailer/Metadata Maps
 
@@ -605,26 +466,6 @@ public:
 
 protected:
   friend class WasmBase;
-
-  /**
-   * Calls into the VM.
-   * These are implemented and called by the proxy-independent host code.  They are virtual to
-   * support some types of testing.
-   */
-
-  /**
-   * Call on a Root Context when a VM first starts up.
-   * @param plugin is the plugin which caused the VM to be started.
-   * Called by the host code.
-   */
-  bool onStart(std::shared_ptr<PluginBase> plugin);
-
-  /**
-   * Call when no further stream calls will occur.  This will cause the corresponding Context in the
-   * VM to be deleted.
-   * Called by the host code.
-   */
-  virtual void onDelete();
 
   virtual void initializeRoot(WasmBase *wasm, std::shared_ptr<PluginBase> plugin);
   std::string makeRootLogPrefix(string_view vm_id) const;
