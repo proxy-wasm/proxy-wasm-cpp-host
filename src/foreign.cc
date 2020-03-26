@@ -15,11 +15,14 @@
 
 #include "include/proxy-wasm/wasm.h"
 
+#ifndef WITHOUT_ZLIB
 #include "zlib.h"
+#endif
 
 namespace proxy_wasm {
 namespace {
 
+#ifndef WITHOUT_ZLIB
 RegisterForeignFunction compressFunction(
     "compress",
     [](WasmBase &, string_view arguments,
@@ -57,6 +60,7 @@ RegisterForeignFunction
                            dest_len = dest_len * 2;
                          }
                        });
+#endif
 
 } // namespace
 } // namespace proxy_wasm

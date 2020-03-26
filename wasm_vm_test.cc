@@ -15,9 +15,24 @@
 #include "include/proxy-wasm/wasm_vm.h"
 
 #include "gtest/gtest.h"
+#include "include/proxy-wasm/null.h"
+#include "include/proxy-wasm/null_vm_plugin.h"
 
 namespace proxy_wasm {
-namespace {
+
+class TestNullVmPlugin : public NullVmPlugin {
+public:
+  TestNullVmPlugin() = default;
+  ~TestNullVmPlugin() override = default;
+};
+
+TestNullVmPlugin *test_null_vm_plugin = nullptr;
+
+RegisterNullVmPluginFactory register_test_null_vm_plugin("test_null_vm_plugin", []() {
+  auto plugin = std::make_unique<TestNullVmPlugin>();
+  test_null_vm_plugin = plugin.get();
+  return plugin;
+});
 
 TEST(WasmVm, Compat) {
   string_view foo = "foo";
@@ -41,5 +56,21 @@ TEST(WasmVm, Word) {
   EXPECT_EQ(sizeof(w), sizeof(uint64_t));
 }
 
-} // namespace
+class BaseVmTest : public testing::Test {
+public:
+  BaseVmTest() {}
+};
+
+TEST_F(BaseVmTest, NullVmStartup) {
+  auto wasm_vm = createNullVm();
+  EXPECT_TRUE(wasm_vm != nullptr);
+  EXPECT_TRUE(wasm_vm->runtime() == "null");
+  EXPECT_TRUE(wasm_vm->cloneable() == Cloneable::InstantiatedModule);
+  auto wasm_vm_clone = wasm_vm->clone();
+  EXPECT_TRUE(wasm_vm_clone != nullptr);
+  EXPECT_TRUE(wasm_vm->getCustomSection("user").empty());
+  EXPECT_TRUE(wasm_vm->load("test_null_vm_plugin", true));
+  EXPECT_NE(test_null_vm_plugin, nullptr);
+}
+
 } // namespace proxy_wasm

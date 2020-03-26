@@ -15,12 +15,14 @@
 
 #pragma once
 
+#include "include/proxy-wasm/compat.h"
+
 namespace proxy_wasm {
 namespace null_plugin {
 class RootContext;
 } // namespace null_plugin
 
-null_plugin::RootContext *nullVmGetRoot(absl::string_view root_id);
+null_plugin::RootContext *nullVmGetRoot(string_view root_id);
 
 namespace null_plugin {
 

@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "src/wavm/wavm.h"
+#include "include/proxy-wasm/wavm.h"
 
 #include <iostream>
 #include <memory>

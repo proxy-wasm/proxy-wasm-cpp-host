@@ -267,7 +267,4 @@ struct SaveRestoreContext {
   uint32_t saved_effective_context_id_;
 };
 
-// Create a new low-level WASM VM using runtime of the given type (e.g. "v8").
-std::unique_ptr<WasmVm> createWasmVm(string_view runtime);
-
 } // namespace proxy_wasm
