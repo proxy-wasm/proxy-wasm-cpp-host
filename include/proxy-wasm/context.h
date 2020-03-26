@@ -92,11 +92,13 @@ public:
 
   WasmBase *wasm() const { return wasm_; }
   uint32_t id() const { return id_; }
-  bool isVmContext() { return id_ == 0; }
-  bool isRootContext() { return root_context_id_ == 0; }
+  bool isVmContext() const { return id_ == 0; }
+  bool isRootContext() const { return root_context_id_ == 0; }
   ContextBase *root_context() { return root_context_; }
-  string_view root_id() const { return plugin_->root_id_; }
-  string_view log_prefix() const { return plugin_->log_prefix(); }
+  string_view root_id() const { return isRootContext() ? root_id_ : plugin_->root_id_; }
+  string_view log_prefix() const {
+    return isRootContext() ? root_log_prefix_ : plugin_->log_prefix();
+  }
   WasmVm *wasmVm() const;
 
   // Called before deleting the context.
