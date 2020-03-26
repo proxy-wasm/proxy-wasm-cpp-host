@@ -12,7 +12,13 @@ cc_library(
 
 cc_library(
     name = "lib",
-    srcs = glob(["src/**/*.cc"], exclude=["src/**/wavm*", "src/**/v8*"]) + glob(["src/**/*.h"]),
+    srcs = glob(
+        ["src/**/*.cc"],
+        exclude = [
+            "src/**/wavm*",
+            "src/**/v8*",
+        ],
+    ) + glob(["src/**/*.h"]),
     copts = ["-DWITHOUT_ZLIB=1"],
     deps = [
         ":include",
@@ -20,16 +26,24 @@ cc_library(
     ],
 )
 
-
 # TODO: remove when dependent projects have been upgraded.
 cc_library(
     name = "lib14",
-    srcs = glob(["src/**/*.cc"], exclude=["src/**/wavm*", "src/**/v8*"]) + glob(["src/**/*.h"]),
-    copts = ["-std=c++14", "-DWITHOUT_ZLIB=1"],
+    srcs = glob(
+        ["src/**/*.cc"],
+        exclude = [
+            "src/**/wavm*",
+            "src/**/v8*",
+        ],
+    ) + glob(["src/**/*.h"]),
+    copts = [
+        "-std=c++14",
+        "-DWITHOUT_ZLIB=1",
+    ],
     deps = [
         ":include",
         "@com_google_absl//absl/base",
-        "@com_google_absl//absl/strings:strings",
+        "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:optional",
         "@proxy_wasm_cpp_sdk//:api_lib",
     ],
