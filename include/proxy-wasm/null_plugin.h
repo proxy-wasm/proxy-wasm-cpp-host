@@ -20,7 +20,7 @@
 #include "include/proxy-wasm/null_vm_plugin.h"
 #include "include/proxy-wasm/wasm.h"
 
-#include <google/protobuf/message.h>
+#include "google/protobuf/message.h"
 
 namespace proxy_wasm {
 namespace null_plugin {
