@@ -85,7 +85,8 @@ struct RootGrpcInterface {
   /**
    * Called on Root Context to with the initial metadata of a grpcStream.
    * @token is the token returned by grpcStream.
-   * @metadata is the metadata received.
+   * The metadata can be retrieved via the HeaderInterface functions with
+   * WasmHeaderMapType::GrpcReceiveInitialMetadata as the type.
    */
   virtual void onGrpcReceiveInitialMetadata(GrpcToken token) = 0;
 
@@ -93,13 +94,16 @@ struct RootGrpcInterface {
    * Called on Root Context when gRPC data has arrived.
    * @token is the token returned by grpcCall or grpcStream.
    * For Call this implies OK close.  For Stream may be called repeatedly.
+   * The data can be retrieved via the getBuffer function with
+   * WasmBufferType::GrpcReceiveBuffer as the type.
    */
   virtual void onGrpcReceive(GrpcToken token) = 0;
 
   /**
-   * Called on Root Context to with the initial metadata of a grpcStream.
+   * Called on Root Context to with the trailing metadata of a grpcStream.
    * @token is the token returned by grpcStream.
-   * @metadata is the metadata received.
+   * The trailers can be retrieved via the HeaderInterface functions with
+   * WasmHeaderMapType::GrpcReceiveTrailingMetadata as the type.
    */
   virtual void onGrpcReceiveTrailingMetadata(GrpcToken token) = 0;
 
@@ -424,7 +428,7 @@ struct GrpcCallInterface {
   /**
    * Cancel a gRPC stream or call.  No more calls will occur.
    * @param token is a token returned from grpcSream or grpcCall.
-   * For Call, cancel on call. For Strea, reset the stream: no further callbacks will arrive.
+   * For Call, cancel on call. For Stream, reset the stream: no further callbacks will arrive.
    */
   virtual WasmResult grpcCancel(GrpcToken /* token */) = 0;
 };
@@ -457,6 +461,9 @@ struct GrpcStreamInterface {
   virtual WasmResult grpcCancel(GrpcToken token) = 0;
 };
 
+/**
+ * Metrics/Stats interface. See the proxy-wasm spec for details of the host ABI contract.
+ */
 struct MetricsInterface {
   /**
    * Define a metric (Stat).
@@ -508,8 +515,7 @@ struct GeneralInterface {
 
   /**
    * Enables a periodic timer with the given period or sets the period of an existing timer. Note:
-   * the timer is associated with the Root Context of whatever Context this call was made on and
-   * there is only one timer available per Root Context.
+   * the timer is associated with the Root Context of whatever Context this call was made on.
    * @param period is the period of the periodic timer in milliseconds.  If the period is 0 the
    * timer is reset/deleted and will not call onTick.
    * @param timer_token_ptr is a pointer to the timer_token.  If the target of timer_token_ptr is
@@ -519,7 +525,7 @@ struct GeneralInterface {
   virtual WasmResult setTimerPeriod(std::chrono::milliseconds period,
                                     uint32_t *timer_token_ptr) = 0;
 
-  // Provides the current time in nanoseconds.
+  // Provides the current time in nanoseconds since the Unix epoch.
   virtual uint64_t getCurrentTimeNanoseconds() = 0;
 
   /**
@@ -588,8 +594,8 @@ struct SharedQueueInterface {
    * to make a unique identifier for the queue.
    * @param token_ptr a location to store a token corresponding to the queue.
    */
-  virtual WasmResult resolveSharedQueue(string_view vm_id, string_view queue_name,
-                                        SharedQueueEnqueueToken *token_ptr) = 0;
+  virtual WasmResult lookupSharedQueue(string_view vm_id, string_view queue_name,
+                                       SharedQueueEnqueueToken *token_ptr) = 0;
 
   /**
    * Dequeue a message from a shared queue.
