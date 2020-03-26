@@ -14,8 +14,8 @@
 // limitations under the License.
 
 #include "include/proxy-wasm/wasm.h"
-#include "src/base64.h"
-#include "src/picosha2.h"
+#include "src/third_party/base64.h"
+#include "src/third_party/picosha2.h"
 
 #include <cassert>
 #include <stdio.h>
@@ -27,12 +27,6 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
-
-#if 0
-#include "openssl/bytestring.h"
-#include "openssl/hmac.h"
-#include "openssl/sha.h"
-#endif
 
 namespace proxy_wasm {
 
