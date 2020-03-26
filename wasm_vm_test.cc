@@ -26,10 +26,11 @@ public:
   ~TestNullVmPlugin() override = default;
 };
 
-TestNullVmPlugin *test_null_vm_plugin_ = nullptr;
+TestNullVmPlugin *test_null_vm_plugin = nullptr;
+
 RegisterNullVmPluginFactory register_test_null_vm_plugin("test_null_vm_plugin", []() {
   auto plugin = std::make_unique<TestNullVmPlugin>();
-  test_null_vm_plugin_ = plugin.get();
+  test_null_vm_plugin = plugin.get();
   return plugin;
 });
 
@@ -68,6 +69,8 @@ TEST_F(BaseVmTest, NullVmStartup) {
   auto wasm_vm_clone = wasm_vm->clone();
   EXPECT_TRUE(wasm_vm_clone != nullptr);
   EXPECT_TRUE(wasm_vm->getCustomSection("user").empty());
+  EXPECT_TRUE(wasm_vm->load("test_null_vm_plugin", true));
+  EXPECT_NE(test_null_vm_plugin, nullptr);
 }
 
 } // namespace proxy_wasm
