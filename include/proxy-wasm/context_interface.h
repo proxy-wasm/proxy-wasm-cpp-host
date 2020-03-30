@@ -73,6 +73,8 @@ struct BufferInterface {
    * @param size_ptr is the location in the VM address space to place the size of the newly
    * allocated memory block which contains the copied bytes (i.e. length).
    * @return a WasmResult with any error or WasmResult::Ok.
+   * NB: in order to support (future) 64-bit VMs and the NullVM we need 64-bits worth of resolution
+   * for addresses.
    */
   virtual WasmResult copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
                             uint64_t size_ptr) const = 0;
@@ -131,7 +133,7 @@ struct RootInterface : public RootGrpcInterface {
    * @param parent_context_id is the parent Context id for the context being created.  For a
    * stream Context this will be a Root Context id (or sub-Context thereof).
    */
-  virtual void onCreate(uint32_t parent_context_id);
+  virtual void onCreate(uint32_t parent_context_id) = 0;
 
   /**
    * Call on a Root Context when a VM first starts up.
@@ -173,7 +175,7 @@ struct RootInterface : public RootGrpcInterface {
    * VM to be deleted.
    * Called by the host code.
    */
-  virtual void onDelete();
+  virtual void onDelete() = 0;
 };
 
 /**
@@ -297,6 +299,9 @@ public:
 
   // Call when the stream status has finalized, e.g. for logging. See RootInterface.
   virtual void onFinalized() = 0;
+
+  // Call just before the Context is deleted. See RootInterface.
+  virtual void onDelete() = 0;
 };
 
 /**
