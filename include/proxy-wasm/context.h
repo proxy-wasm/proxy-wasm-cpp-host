@@ -109,7 +109,7 @@ public:
   bool onStart(std::shared_ptr<PluginBase> plugin) override;
   bool onConfigure(std::shared_ptr<PluginBase> plugin) override;
   void onHttpCallResponse(HttpCallToken token) override;
-  void onQueueReady(uint32_t SharedQueueDequeueToken) override;
+  void onQueueReady(SharedQueueDequeueToken token) override;
   void onGrpcReceiveInitialMetadata(GrpcToken token) override;
   void onGrpcReceive(GrpcToken token) override;
   void onGrpcReceiveTrailingMetadata(GrpcToken token) override;
@@ -246,8 +246,8 @@ public:
                                  SharedQueueDequeueToken *token_ptr) override {
     return unimplemented();
   }
-  WasmResult resolveSharedQueue(string_view /* vm_id */, string_view /* queue_name */,
-                                uint32_t * /* token_ptr */) override {
+  WasmResult lookupSharedQueue(string_view /* vm_id */, string_view /* queue_name */,
+                               uint32_t * /* token_ptr */) override {
     return unimplemented();
   }
   WasmResult dequeueSharedQueue(SharedQueueDequeueToken /* token */,
