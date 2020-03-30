@@ -136,8 +136,8 @@ public:
   ProxyAction onResponseBody() override;
   ProxyAction onResponseTrailers() override;
   ProxyAction onResponseMetadata() override;
-  WasmResult sendLocalResponse(uint64_t /* response_code */, string_view /* body */,
-                               Pairs /* additional_headers */, uint64_t /* grpc_status */,
+  WasmResult sendLocalResponse(uint32_t /* response_code */, string_view /* body */,
+                               Pairs /* additional_headers */, uint32_t /* grpc_status */,
                                string_view /* details */) override {
     return unimplemented();
   }
@@ -159,7 +159,7 @@ public:
     error("unimplemented proxy-wasm API");
     return WasmResult::Unimplemented;
   }
-  WasmResult log(uint64_t level, string_view message) override {
+  WasmResult log(uint32_t level, string_view message) override {
     if (level >= static_cast<uint32_t>(LogLevel::error)) {
       std::cerr << log_prefix() << message << "\n";
     } else {

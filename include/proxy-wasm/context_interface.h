@@ -156,7 +156,7 @@ struct RootInterface : public RootGrpcInterface {
    * Called on a Root Context when an Inter-VM shared queue message has arrived.
    * @token is the token returned by registerSharedQueue().
    */
-  virtual void onQueueReady(uint32_t SharedQueueDequeueToken) = 0;
+  virtual void onQueueReady(SharedQueueDequeueToken token) = 0;
 
   /**
    * Call when a stream has completed (both sides have closed) or on a Root Context when the VM is
@@ -219,8 +219,8 @@ public:
    * @param grpc_status is an optional gRPC status if the connection is a gRPC connection.
    * @param details are details of any (gRPC) error.
    */
-  virtual WasmResult sendLocalResponse(uint64_t response_code, string_view body,
-                                       Pairs additional_headers, uint64_t grpc_status,
+  virtual WasmResult sendLocalResponse(uint32_t response_code, string_view body,
+                                       Pairs additional_headers, uint32_t grpc_status,
                                        string_view details) = 0;
 
   // Call when the stream closes. See RootInterface.
@@ -511,7 +511,7 @@ struct GeneralInterface {
   virtual WasmResult unimplemented() = 0;
 
   // Log a message.
-  virtual WasmResult log(uint64_t level, string_view message) = 0;
+  virtual WasmResult log(uint32_t level, string_view message) = 0;
 
   /**
    * Enables a periodic timer with the given period or sets the period of an existing timer. Note:
