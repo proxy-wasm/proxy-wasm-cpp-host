@@ -204,7 +204,7 @@ ContextBase::ContextBase(WasmBase *wasm) : wasm_(wasm), root_context_(this) {
 }
 
 ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
-  initializeRoot(wasm, plugin);
+  initializeRootBase(wasm, plugin);
 }
 
 ContextBase::ContextBase(WasmBase *wasm, uint32_t root_context_id,
@@ -216,7 +216,7 @@ ContextBase::ContextBase(WasmBase *wasm, uint32_t root_context_id,
 
 WasmVm *ContextBase::wasmVm() const { return wasm_->wasm_vm(); }
 
-void ContextBase::initializeRoot(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
+void ContextBase::initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
   wasm_ = wasm;
   id_ = wasm->allocContextId();
   root_id_ = plugin->root_id_;
@@ -318,6 +318,218 @@ void ContextBase::destroy() {
   }
   destroyed_ = true;
   onDone();
+}
+
+void ContextBase::onTick() {
+  if (wasm_->on_tick_) {
+    DeferAfterCallActions actions(this);
+    wasm_->on_tick_(this, id_);
+  }
+}
+
+FilterStatus ContextBase::onNetworkNewConnection() {
+  DeferAfterCallActions actions(this);
+  onCreate(root_context_id_);
+  if (!wasm_->on_new_connection_) {
+    return FilterStatus::Continue;
+  }
+  if (wasm_->on_new_connection_(this, id_).u64_ == 0) {
+    return FilterStatus::Continue;
+  }
+  return FilterStatus::StopIteration;
+}
+
+FilterStatus ContextBase::onDownstreamData(int data_length, bool end_of_stream) {
+  if (!wasm_->on_downstream_data_) {
+    return FilterStatus::Continue;
+  }
+  DeferAfterCallActions actions(this);
+  auto result = wasm_->on_downstream_data_(this, id_, static_cast<uint32_t>(data_length),
+                                           static_cast<uint32_t>(end_of_stream));
+  // TODO(PiotrSikora): pull Proxy-WASM's FilterStatus values.
+  return result.u64_ == 0 ? FilterStatus::Continue : FilterStatus::StopIteration;
+}
+
+FilterStatus ContextBase::onUpstreamData(int data_length, bool end_of_stream) {
+  if (!wasm_->on_upstream_data_) {
+    return FilterStatus::Continue;
+  }
+  DeferAfterCallActions actions(this);
+  auto result = wasm_->on_upstream_data_(this, id_, static_cast<uint32_t>(data_length),
+                                         static_cast<uint32_t>(end_of_stream));
+  // TODO(PiotrSikora): pull Proxy-WASM's FilterStatus values.
+  return result.u64_ == 0 ? FilterStatus::Continue : FilterStatus::StopIteration;
+}
+
+void ContextBase::onDownstreamConnectionClose(PeerType peer_type) {
+  if (wasm_->on_downstream_connection_close_) {
+    DeferAfterCallActions actions(this);
+    wasm_->on_downstream_connection_close_(this, id_, static_cast<uint32_t>(peer_type));
+  }
+}
+
+void ContextBase::onUpstreamConnectionClose(PeerType peer_type) {
+  if (wasm_->on_upstream_connection_close_) {
+    DeferAfterCallActions actions(this);
+    wasm_->on_upstream_connection_close_(this, id_, static_cast<uint32_t>(peer_type));
+  }
+}
+
+// Empty headers/trailers have zero size.
+template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
+
+FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers) {
+  DeferAfterCallActions actions(this);
+  onCreate(root_context_id_);
+  in_vm_context_created_ = true;
+  if (!wasm_->on_request_headers_) {
+    return FilterHeadersStatus::Continue;
+  }
+  if (static_cast<FilterHeadersStatus>(wasm_->on_request_headers_(this, id_, headers).u64_) ==
+      FilterHeadersStatus::Continue) {
+    return FilterHeadersStatus::Continue;
+  }
+  return FilterHeadersStatus::StopIteration;
+}
+
+FilterDataStatus ContextBase::onRequestBody(uint32_t data_length, bool end_of_stream) {
+  if (!wasm_->on_request_body_) {
+    return FilterDataStatus::Continue;
+  }
+  DeferAfterCallActions actions(this);
+  auto result =
+      wasm_->on_request_body_(this, id_, data_length, static_cast<uint32_t>(end_of_stream)).u64_;
+  if (result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer))
+    return FilterDataStatus::StopIterationNoBuffer;
+  return static_cast<FilterDataStatus>(result);
+}
+
+FilterTrailersStatus ContextBase::onRequestTrailers(uint32_t trailers) {
+  if (!wasm_->on_request_trailers_) {
+    return FilterTrailersStatus::Continue;
+  }
+  DeferAfterCallActions actions(this);
+  if (static_cast<FilterTrailersStatus>(wasm_->on_request_trailers_(this, id_, trailers).u64_) ==
+      FilterTrailersStatus::Continue) {
+    return FilterTrailersStatus::Continue;
+  }
+  return FilterTrailersStatus::StopIteration;
+}
+
+FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
+  if (!wasm_->on_request_metadata_) {
+    return FilterMetadataStatus::Continue;
+  }
+  DeferAfterCallActions actions(this);
+  if (static_cast<FilterMetadataStatus>(wasm_->on_request_metadata_(this, id_, elements).u64_) ==
+      FilterMetadataStatus::Continue) {
+    return FilterMetadataStatus::Continue;
+  }
+  return FilterMetadataStatus::Continue; // This is currently the only return code.
+}
+
+FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers) {
+  DeferAfterCallActions actions(this);
+  if (!in_vm_context_created_) {
+    // If the request is invalid then onRequestHeaders() will not be called and neither will
+    // onCreate() then sendLocalReply be called which will call this function. In this case we
+    // need to call onCreate() so that the Context inside the VM is created before the
+    // onResponseHeaders() call.
+    onCreate(root_context_id_);
+    in_vm_context_created_ = true;
+  }
+  if (!wasm_->on_response_headers_) {
+    return FilterHeadersStatus::Continue;
+  }
+  if (static_cast<FilterHeadersStatus>(wasm_->on_response_headers_(this, id_, headers).u64_) ==
+      FilterHeadersStatus::Continue) {
+    return FilterHeadersStatus::Continue;
+  }
+  return FilterHeadersStatus::StopIteration;
+}
+
+FilterDataStatus ContextBase::onResponseBody(uint32_t body_length, bool end_of_stream) {
+  if (!wasm_->on_response_body_) {
+    return FilterDataStatus::Continue;
+  }
+  DeferAfterCallActions actions(this);
+  auto result =
+      wasm_->on_response_body_(this, id_, body_length, static_cast<uint32_t>(end_of_stream)).u64_;
+  if (result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer))
+    return FilterDataStatus::StopIterationNoBuffer;
+  return static_cast<FilterDataStatus>(result);
+}
+
+FilterTrailersStatus ContextBase::onResponseTrailers(uint32_t trailers) {
+  if (!wasm_->on_response_trailers_) {
+    return FilterTrailersStatus::Continue;
+  }
+  DeferAfterCallActions actions(this);
+  if (static_cast<FilterTrailersStatus>(wasm_->on_response_trailers_(this, id_, trailers).u64_) ==
+      FilterTrailersStatus::Continue) {
+    return FilterTrailersStatus::Continue;
+  }
+  return FilterTrailersStatus::StopIteration;
+}
+
+FilterMetadataStatus ContextBase::onResponseMetadata(uint32_t elements) {
+  if (!wasm_->on_response_metadata_) {
+    return FilterMetadataStatus::Continue;
+  }
+  DeferAfterCallActions actions(this);
+  if (static_cast<FilterMetadataStatus>(wasm_->on_response_metadata_(this, id_, elements).u64_) ==
+      FilterMetadataStatus::Continue) {
+    return FilterMetadataStatus::Continue;
+  }
+  return FilterMetadataStatus::Continue; // This is currently the only return code.
+}
+
+void ContextBase::onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t body_size,
+                                     uint32_t trailers) {
+  if (!wasm_->on_http_call_response_) {
+    return;
+  }
+  DeferAfterCallActions actions(this);
+  wasm_->on_http_call_response_(this, id_, token, headers, body_size, trailers);
+}
+
+void ContextBase::onQueueReady(uint32_t token) {
+  if (wasm_->on_queue_ready_) {
+    DeferAfterCallActions actions(this);
+    wasm_->on_queue_ready_(this, id_, token);
+  }
+}
+
+void ContextBase::onGrpcReceiveInitialMetadata(uint32_t token, uint32_t elements) {
+  if (!wasm_->on_grpc_receive_initial_metadata_) {
+    return;
+  }
+  DeferAfterCallActions actions(this);
+  wasm_->on_grpc_receive_initial_metadata_(this, id_, token, elements);
+}
+
+void ContextBase::onGrpcReceiveTrailingMetadata(uint32_t token, uint32_t trailers) {
+  if (!wasm_->on_grpc_receive_trailing_metadata_) {
+    return;
+  }
+  DeferAfterCallActions actions(this);
+  wasm_->on_grpc_receive_trailing_metadata_(this, id_, token, trailers);
+}
+
+void ContextBase::onGrpcReceive(uint32_t token, uint32_t response_size) {
+  if (!wasm_->on_grpc_receive_) {
+    return;
+  }
+  DeferAfterCallActions actions(this);
+  wasm_->on_grpc_receive_(this, id_, token, response_size);
+}
+
+void ContextBase::onGrpcClose(uint32_t token, uint32_t status_code) {
+  if (!wasm_->on_grpc_close_) {
+    return;
+  }
+  DeferAfterCallActions actions(this);
+  wasm_->on_grpc_close_(this, id_, token, status_code);
 }
 
 bool ContextBase::onDone() {

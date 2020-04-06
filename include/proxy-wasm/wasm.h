@@ -34,19 +34,21 @@ namespace proxy_wasm {
 
 #include "proxy_wasm_common.h"
 
+class ContextBase;
 class WasmBase;
-class WasmHandle;
+class WasmHandleBase;
 
 using WasmForeignFunction =
     std::function<WasmResult(WasmBase &, string_view, std::function<void *(size_t size)>)>;
 using WasmVmFactory = std::function<std::unique_ptr<WasmVm>()>;
+using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
 // Wasm execution instance. Manages the host side of the Wasm interface.
 class WasmBase : public std::enable_shared_from_this<WasmBase> {
 public:
   WasmBase(std::unique_ptr<WasmVm> wasm_vm, string_view vm_id, string_view vm_configuration,
            string_view vm_key);
-  WasmBase(const std::shared_ptr<WasmHandle> &other, WasmVmFactory factory);
+  WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
   bool initialize(const std::string &code, bool allow_precompiled = false);
@@ -78,11 +80,17 @@ public:
     unimplemented();
     return nullptr;
   }
-
-  void setTickPeriod(uint32_t /* root_context_id */, std::chrono::milliseconds /* tick_period */) {
-    unimplemented();
+  // NB: if plugin is nullptr, then a VM Context is returned.
+  virtual ContextBase *createContext(std::shared_ptr<PluginBase> plugin) {
+    if (plugin)
+      return new ContextBase(this, plugin);
+    return new ContextBase(this);
   }
-  void tickHandler(uint32_t /* root_context_idl */) { unimplemented(); }
+
+  virtual void setTickPeriod(uint32_t root_context_id, std::chrono::milliseconds tick_period) {
+    tick_period_[root_context_id] = tick_period;
+  }
+  void tick(uint32_t root_context_id);
   void queueReady(uint32_t root_context_id, uint32_t token);
 
   void startShutdown();
@@ -216,7 +224,7 @@ protected:
   WasmCallVoid<1> on_log_;
   WasmCallVoid<1> on_delete_;
 
-  std::shared_ptr<WasmHandle> base_wasm_handle_;
+  std::shared_ptr<WasmHandleBase> base_wasm_handle_;
 
   // Used by the base_wasm to enable non-clonable thread local Wasm(s) to be constructed.
   std::string code_;
@@ -235,43 +243,40 @@ protected:
   uint32_t next_gauge_metric_id_ = static_cast<uint32_t>(MetricType::Gauge);
   uint32_t next_histogram_metric_id_ = static_cast<uint32_t>(MetricType::Histogram);
 
-  // Foreign Functions.
-  std::unordered_map<std::string, WasmForeignFunction> foreign_functions_;
-
   // Actions to be done after the call into the VM returns.
   std::deque<std::function<void()>> after_vm_call_actions_;
 };
 
 // Handle which enables shutdown operations to run post deletion (e.g. post listener drain).
-class WasmHandle : public std::enable_shared_from_this<WasmHandle> {
+class WasmHandleBase : public std::enable_shared_from_this<WasmHandleBase> {
 public:
-  explicit WasmHandle(std::shared_ptr<WasmBase> wasm) : wasm_(wasm) {}
-  ~WasmHandle() { wasm_->startShutdown(); }
+  explicit WasmHandleBase(std::shared_ptr<WasmBase> wasm_base) : wasm_base_(wasm_base) {}
+  ~WasmHandleBase() { wasm_base_->startShutdown(); }
 
-  std::shared_ptr<WasmBase> &wasm() { return wasm_; }
+  std::shared_ptr<WasmBase> &wasm() { return wasm_base_; }
 
-private:
-  std::shared_ptr<WasmBase> wasm_;
+protected:
+  std::shared_ptr<WasmBase> wasm_base_;
 };
 
 std::string makeVmKey(string_view vm_id, string_view configuration, string_view code);
 
-using WasmHandleFactory = std::function<std::shared_ptr<WasmHandle>(string_view vm_id)>;
+using WasmHandleFactory = std::function<std::shared_ptr<WasmHandleBase>(string_view vm_id)>;
 using WasmHandleCloneFactory =
-    std::function<std::shared_ptr<WasmHandle>(std::shared_ptr<WasmHandle> wasm)>;
+    std::function<std::shared_ptr<WasmHandleBase>(std::shared_ptr<WasmHandleBase> wasm)>;
 
 // Returns nullptr on failure (i.e. initialization of the VM fails).
-std::shared_ptr<WasmHandle>
+std::shared_ptr<WasmHandleBase>
 createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plugin,
            WasmHandleFactory factory, bool allow_precompiled,
            std::unique_ptr<ContextBase> root_context_for_testing = nullptr);
 // Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
-std::shared_ptr<WasmHandle> getThreadLocalWasm(string_view vm_id);
+std::shared_ptr<WasmHandleBase> getThreadLocalWasm(string_view vm_id);
 // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
 // using it it as a template.
-std::shared_ptr<WasmHandle> getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandle> &base_wasm,
-                                                       std::shared_ptr<PluginBase> plugin,
-                                                       WasmHandleCloneFactory factory);
+std::shared_ptr<WasmHandleBase>
+getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
+                           std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory factory);
 
 inline const std::string &WasmBase::vm_configuration() const {
   if (base_wasm_handle_)

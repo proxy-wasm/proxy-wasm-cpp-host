@@ -36,7 +36,6 @@ class WasmVm;
 
 using Pairs = std::vector<std::pair<string_view, string_view>>;
 using PairsWithStringValues = std::vector<std::pair<string_view, std::string>>;
-using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
 struct BufferInterface {
   virtual ~BufferInterface() {}
@@ -50,9 +49,12 @@ struct BufferInterface {
    * @param size_ptr is the location in the VM address space to place the size of the newly
    * allocated memory block which contains the copied bytes (e.g. length).
    * @return true on success.
+   * Length is guarantteed to be > 0 and the bounds have already been checked.
    */
-  virtual bool copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
-                      uint64_t size_ptr) const = 0;
+  virtual WasmResult copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
+                            uint64_t size_ptr) const = 0;
+
+  virtual WasmResult copyFrom(size_t start, size_t length, string_view data) = 0;
 };
 
 // Opaque context object.
@@ -94,7 +96,7 @@ public:
   uint32_t id() const { return id_; }
   bool isVmContext() const { return id_ == 0; }
   bool isRootContext() const { return root_context_id_ == 0; }
-  ContextBase *root_context() { return root_context_; }
+  ContextBase *root_context() const { return root_context_; }
   string_view root_id() const { return isRootContext() ? root_id_ : plugin_->root_id_; }
   string_view log_prefix() const {
     return isRootContext() ? root_log_prefix_ : plugin_->log_prefix();
@@ -104,76 +106,50 @@ public:
   // Called before deleting the context.
   virtual void destroy();
 
-  //
   // VM level downcalls into the WASM code on Context(id == 0).
-  //
   virtual bool onStart(std::shared_ptr<PluginBase> plugin);
   virtual bool onConfigure(std::shared_ptr<PluginBase> plugin);
 
-  //
+  // Root Context downcalls into the WASM code Context(id != 0, root_context_id_ == 0);
+  virtual void onTick();
+
   // Stream downcalls on Context(id > 0).
   //
   // General stream downcall on a new stream.
   virtual void onCreate(uint32_t root_context_id);
+
   // Network
-  virtual FilterStatus onNetworkNewConnection() {
-    unimplemented();
-    return FilterStatus::Continue;
-  }
-  virtual FilterStatus onDownstreamData(int /* data_length */, bool /* end_of_stream */) {
-    unimplemented();
-    return FilterStatus::Continue;
-  }
-  virtual FilterStatus onUpstreamData(int /* data_length */, bool /* end_of_stream */) {
-    unimplemented();
-    return FilterStatus::Continue;
-  }
+  virtual FilterStatus onNetworkNewConnection();
+  virtual FilterStatus onDownstreamData(int data_length, bool end_of_stream);
+  virtual FilterStatus onUpstreamData(int data_length, bool end_of_stream);
   enum class PeerType : uint32_t {
     Unknown = 0,
     Local = 1,
     Remote = 2,
   };
-  virtual void onDownstreamConnectionClose(PeerType) { unimplemented(); }
-  virtual void onUpstreamConnectionClose(PeerType) { unimplemented(); }
+  virtual void onDownstreamConnectionClose(PeerType);
+  virtual void onUpstreamConnectionClose(PeerType);
   // HTTP Filter Stream Request Downcalls.
-  virtual FilterHeadersStatus onRequestHeaders() {
-    unimplemented();
-    return FilterHeadersStatus::Continue;
-  }
-  virtual FilterDataStatus onRequestBody(int /* body_buffer_length */, bool /* end_of_stream */) {
-    unimplemented();
-    return FilterDataStatus::Continue;
-  }
-  virtual FilterTrailersStatus onRequestTrailers() {
-    unimplemented();
-    return FilterTrailersStatus::Continue;
-  }
-  virtual FilterMetadataStatus onRequestMetadata() {
-    unimplemented();
-    return FilterMetadataStatus::Continue;
-  }
+  virtual FilterHeadersStatus onRequestHeaders(uint32_t headers);
+  virtual FilterDataStatus onRequestBody(uint32_t body_buffer_length, bool end_of_stream);
+  virtual FilterTrailersStatus onRequestTrailers(uint32_t trailers);
+  virtual FilterMetadataStatus onRequestMetadata(uint32_t elements);
   // HTTP Filter Stream Response Downcalls.
-  virtual FilterHeadersStatus onResponseHeaders() {
-    unimplemented();
-    return FilterHeadersStatus::Continue;
-  }
-  virtual FilterDataStatus onResponseBody(int /* body_buffer_length */, bool /* end_of_stream */) {
-    unimplemented();
-    return FilterDataStatus::Continue;
-  }
-  virtual FilterTrailersStatus onResponseTrailers() {
-    unimplemented();
-    return FilterTrailersStatus::Continue;
-  }
-  virtual FilterMetadataStatus onResponseMetadata() {
-    unimplemented();
-    return FilterMetadataStatus::Continue;
-  }
+  virtual FilterHeadersStatus onResponseHeaders(uint32_t headers);
+  virtual FilterDataStatus onResponseBody(uint32_t body_buffer_length, bool end_of_stream);
+  virtual FilterTrailersStatus onResponseTrailers(uint32_t trailers);
+  virtual FilterMetadataStatus onResponseMetadata(uint32_t elements);
   // Async call response.
-  virtual void onHttpCallResponse(uint32_t /* token */, uint32_t /* headers */,
-                                  uint32_t /* body_size */, uint32_t /* trailers */) {}
+  virtual void onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t body_size,
+                                  uint32_t trailers);
+  // Grpc
+  virtual void onGrpcReceiveInitialMetadata(uint32_t token, uint32_t elements);
+  virtual void onGrpcReceiveTrailingMetadata(uint32_t token, uint32_t trailers);
+  virtual void onGrpcReceive(uint32_t token, uint32_t response_size);
+  virtual void onGrpcClose(uint32_t token, uint32_t status_code);
+
   // Inter-VM shared queue message arrival.
-  virtual void onQueueReady(uint32_t /* token */) { unimplemented(); }
+  virtual void onQueueReady(uint32_t /* token */);
   // General stream downcall when the stream/vm has ended.
   virtual bool onDone();
   // General stream downcall for logging. Occurs after onDone().
@@ -212,7 +188,7 @@ public:
   }
 
   // Buffer
-  virtual const BufferInterface *getBuffer(WasmBufferType /* type */) {
+  virtual BufferInterface *getBuffer(WasmBufferType /* type */) {
     unimplemented();
     return nullptr;
   }
@@ -233,14 +209,16 @@ public:
   // gRPC
   // Returns a token which will be used with the corresponding onGrpc and grpc calls.
   virtual WasmResult grpcCall(string_view /* grpc_service */, string_view /* service_name */,
-                              string_view /* method_name */, string_view /* request */,
+                              string_view /* method_name */, const Pairs & /* initial_metadata */,
+                              string_view /* request */,
                               const optional<std::chrono::milliseconds> & /* timeout */,
                               uint32_t * /* token_ptr */) {
     unimplemented();
     return WasmResult::Unimplemented;
   }
   virtual WasmResult grpcStream(string_view /* grpc_service */, string_view /* service_name */,
-                                string_view /* method_name */, uint32_t * /* token_ptr */) {
+                                string_view /* method_name */, const Pairs & /* initial_metadata */,
+                                uint32_t * /* token_ptr */) {
     unimplemented();
     return WasmResult::Unimplemented;
   }
@@ -342,7 +320,12 @@ public:
 protected:
   friend class WasmBase;
 
-  virtual void initializeRoot(WasmBase *wasm, std::shared_ptr<PluginBase> plugin);
+  // NB: initializeRootBase is non-virtual and can be called in the constructor without ambiguity.
+  void initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin);
+  // NB: initializeRoot is virtual and should be called only outside of the constructor.
+  virtual void initializeRoot(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
+    initializeRootBase(wasm, plugin);
+  }
   std::string makeRootLogPrefix(string_view vm_id) const;
 
   WasmBase *wasm_{nullptr};

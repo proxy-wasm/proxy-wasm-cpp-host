@@ -48,6 +48,8 @@ Word enqueue_shared_queue(void *raw_context, Word token, Word data_ptr, Word dat
 Word get_buffer_bytes(void *raw_context, Word type, Word start, Word length, Word ptr_ptr,
                       Word size_ptr);
 Word get_buffer_status(void *raw_context, Word type, Word length_ptr, Word flags_ptr);
+Word set_buffer_bytes(void *raw_context, Word type, Word start, Word length, Word data_ptr,
+                      Word data_size);
 Word add_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_size, Word value_ptr,
                           Word value_size);
 Word get_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_size,
@@ -72,10 +74,11 @@ Word record_metric(void *raw_context, Word metric_id, uint64_t value);
 Word get_metric(void *raw_context, Word metric_id, Word result_uint64_ptr);
 Word grpc_call(void *raw_context, Word service_ptr, Word service_size, Word service_name_ptr,
                Word service_name_size, Word method_name_ptr, Word method_name_size,
-               Word request_ptr, Word request_size, Word timeout_milliseconds, Word token_ptr);
+               Word initial_metadata_ptr, Word initial_metadata_size, Word request_ptr,
+               Word request_size, Word timeout_milliseconds, Word token_ptr);
 Word grpc_stream(void *raw_context, Word service_ptr, Word service_size, Word service_name_ptr,
                  Word service_name_size, Word method_name_ptr, Word method_name_size,
-                 Word token_ptr);
+                 Word initial_metadata_ptr, Word initial_metadata_size, Word token_ptr);
 Word grpc_cancel(void *raw_context, Word token);
 Word grpc_close(void *raw_context, Word token);
 Word grpc_send(void *raw_context, Word token, Word message_ptr, Word message_size, Word end_stream);
@@ -92,8 +95,10 @@ Word call_foreign_function(void *raw_context, Word function_name, Word function_
 
 Word wasi_unstable_fd_write(void *raw_context, Word fd, Word iovs, Word iovs_len,
                             Word nwritten_ptr);
+Word wasi_unstable_fd_read(void *, Word, Word, Word, Word);
 Word wasi_unstable_fd_seek(void *, Word, int64_t, Word, Word);
 Word wasi_unstable_fd_close(void *, Word);
+Word wasi_unstable_fd_fdstat_get(void *, Word fd, Word statOut);
 Word wasi_unstable_environ_get(void *, Word, Word);
 Word wasi_unstable_environ_sizes_get(void *raw_context, Word count_ptr, Word buf_size_ptr);
 Word wasi_unstable_args_get(void *raw_context, Word argc_ptr, Word argv_buf_size_ptr);
