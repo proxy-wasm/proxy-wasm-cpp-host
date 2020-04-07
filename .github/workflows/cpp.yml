@@ -55,17 +55,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install protobuf v3.9.1
-      run: |
-        git clone https://github.com/protocolbuffers/protobuf
-        cd protobuf
-        git checkout v3.9.1
-        ./autogen.sh
-        ./configure
-        make
-        sudo make install
-        sudo ldconfig
-
     - name: Mount bazel cache
       uses: actions/cache@v1
       with:

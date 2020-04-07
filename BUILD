@@ -22,6 +22,7 @@ cc_library(
     copts = ["-DWITHOUT_ZLIB=1"],
     deps = [
         ":include",
+        "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
     ],
 )
