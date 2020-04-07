@@ -47,17 +47,17 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<1> *f) {
   if (function_name == "proxy_on_tick") {
     *f = [plugin](ContextBase *context, Word context_id) {
       SaveRestoreContext saved_context(context);
-      plugin->onTick(context_id.u64_);
+      plugin->onTick(context_id);
     };
   } else if (function_name == "proxy_on_log") {
     *f = [plugin](ContextBase *context, Word context_id) {
       SaveRestoreContext saved_context(context);
-      plugin->onLog(context_id.u64_);
+      plugin->onLog(context_id);
     };
   } else if (function_name == "proxy_on_delete") {
     *f = [plugin](ContextBase *context, Word context_id) {
       SaveRestoreContext saved_context(context);
-      plugin->onDelete(context_id.u64_);
+      plugin->onDelete(context_id);
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
@@ -69,22 +69,22 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<2> *f) {
   if (function_name == "proxy_on_context_create") {
     *f = [plugin](ContextBase *context, Word context_id, Word parent_context_id) {
       SaveRestoreContext saved_context(context);
-      plugin->onCreate(context_id.u64_, parent_context_id.u64_);
+      plugin->onCreate(context_id, parent_context_id);
     };
   } else if (function_name == "proxy_on_downstream_connection_close") {
     *f = [plugin](ContextBase *context, Word context_id, Word peer_type) {
       SaveRestoreContext saved_context(context);
-      plugin->onDownstreamConnectionClose(context_id.u64_, peer_type.u64_);
+      plugin->onDownstreamConnectionClose(context_id, peer_type);
     };
   } else if (function_name == "proxy_on_upstream_connection_close") {
     *f = [plugin](ContextBase *context, Word context_id, Word peer_type) {
       SaveRestoreContext saved_context(context);
-      plugin->onUpstreamConnectionClose(context_id.u64_, peer_type.u64_);
+      plugin->onUpstreamConnectionClose(context_id, peer_type);
     };
   } else if (function_name == "proxy_on_queue_ready") {
     *f = [plugin](ContextBase *context, Word context_id, Word token) {
       SaveRestoreContext saved_context(context);
-      plugin->onQueueReady(context_id.u64_, token.u64_);
+      plugin->onQueueReady(context_id, token);
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
@@ -96,27 +96,22 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<3> *f) {
   if (function_name == "proxy_on_grpc_close") {
     *f = [plugin](ContextBase *context, Word context_id, Word token, Word status_code) {
       SaveRestoreContext saved_context(context);
-      plugin->onGrpcClose(context_id.u64_, token.u64_, status_code.u64_);
+      plugin->onGrpcClose(context_id, token, status_code);
     };
   } else if (function_name == "proxy_on_grpc_receive") {
     *f = [plugin](ContextBase *context, Word context_id, Word token, Word body_size) {
       SaveRestoreContext saved_context(context);
-      plugin->onGrpcReceive(context_id.u64_, token.u64_, body_size.u64_);
-    };
-  } else if (function_name == "proxy_on_grpc_create_initial_metadata") {
-    *f = [plugin](ContextBase *context, Word context_id, Word token, Word headers) {
-      SaveRestoreContext saved_context(context);
-      plugin->onGrpcCreateInitialMetadata(context_id.u64_, token.u64_, headers.u64_);
+      plugin->onGrpcReceive(context_id, token, body_size);
     };
   } else if (function_name == "proxy_on_grpc_receive_initial_metadata") {
     *f = [plugin](ContextBase *context, Word context_id, Word token, Word headers) {
       SaveRestoreContext saved_context(context);
-      plugin->onGrpcReceiveInitialMetadata(context_id.u64_, token.u64_, headers.u64_);
+      plugin->onGrpcReceiveInitialMetadata(context_id, token, headers);
     };
   } else if (function_name == "proxy_on_grpc_receive_trailing_metadata") {
     *f = [plugin](ContextBase *context, Word context_id, Word token, Word trailers) {
       SaveRestoreContext saved_context(context);
-      plugin->onGrpcReceiveTrailingMetadata(context_id.u64_, token.u64_, trailers.u64_);
+      plugin->onGrpcReceiveTrailingMetadata(context_id, token, trailers);
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
@@ -129,8 +124,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<5> *f) {
     *f = [plugin](ContextBase *context, Word context_id, Word token, Word headers, Word body_size,
                   Word trailers) {
       SaveRestoreContext saved_context(context);
-      plugin->onHttpCallResponse(context_id.u64_, token.u64_, headers.u64_, body_size.u64_,
-                                 trailers.u64_);
+      plugin->onHttpCallResponse(context_id, token, headers, body_size, trailers);
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
@@ -141,17 +135,17 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<1> *f) {
   auto plugin = this;
   if (function_name == "malloc") {
     *f = [](ContextBase *, Word size) -> Word {
-      return Word(reinterpret_cast<uint64_t>(::malloc(size.u64_)));
+      return Word(reinterpret_cast<uint64_t>(::malloc(size)));
     };
   } else if (function_name == "proxy_on_new_connection") {
     *f = [plugin](ContextBase *context, Word context_id) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onNewConnection(context_id.u64_));
+      return Word(plugin->onNewConnection(context_id));
     };
   } else if (function_name == "proxy_on_done") {
     *f = [plugin](ContextBase *context, Word context_id) {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onDone(context_id.u64_));
+      return Word(plugin->onDone(context_id));
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
@@ -163,47 +157,47 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
   if (function_name == "proxy_on_vm_start") {
     *f = [plugin](ContextBase *context, Word context_id, Word configuration_size) {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onStart(context_id.u64_, configuration_size.u64_));
+      return Word(plugin->onStart(context_id, configuration_size));
     };
   } else if (function_name == "proxy_on_configure") {
     *f = [plugin](ContextBase *context, Word context_id, Word configuration_size) {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onConfigure(context_id.u64_, configuration_size.u64_));
+      return Word(plugin->onConfigure(context_id, configuration_size));
     };
   } else if (function_name == "proxy_validate_configuration") {
     *f = [plugin](ContextBase *context, Word context_id, Word configuration_size) {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->validateConfiguration(context_id.u64_, configuration_size.u64_));
+      return Word(plugin->validateConfiguration(context_id, configuration_size));
     };
   } else if (function_name == "proxy_on_request_headers") {
     *f = [plugin](ContextBase *context, Word context_id, Word headers) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onRequestHeaders(context_id.u64_, headers.u64_));
+      return Word(plugin->onRequestHeaders(context_id, headers));
     };
   } else if (function_name == "proxy_on_request_trailers") {
     *f = [plugin](ContextBase *context, Word context_id, Word trailers) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onRequestTrailers(context_id.u64_, trailers.u64_));
+      return Word(plugin->onRequestTrailers(context_id, trailers));
     };
   } else if (function_name == "proxy_on_request_metadata") {
     *f = [plugin](ContextBase *context, Word context_id, Word elements) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onRequestMetadata(context_id.u64_, elements.u64_));
+      return Word(plugin->onRequestMetadata(context_id, elements));
     };
   } else if (function_name == "proxy_on_response_headers") {
     *f = [plugin](ContextBase *context, Word context_id, Word headers) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onResponseHeaders(context_id.u64_, headers.u64_));
+      return Word(plugin->onResponseHeaders(context_id, headers));
     };
   } else if (function_name == "proxy_on_response_trailers") {
     *f = [plugin](ContextBase *context, Word context_id, Word trailers) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onResponseTrailers(context_id.u64_, trailers.u64_));
+      return Word(plugin->onResponseTrailers(context_id, trailers));
     };
   } else if (function_name == "proxy_on_response_metadata") {
     *f = [plugin](ContextBase *context, Word context_id, Word elements) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onResponseMetadata(context_id.u64_, elements.u64_));
+      return Word(plugin->onResponseMetadata(context_id, elements));
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
@@ -216,29 +210,25 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<3> *f) {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
                   Word end_of_stream) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(
-          plugin->onDownstreamData(context_id.u64_, body_buffer_length.u64_, end_of_stream.u64_));
+      return Word(plugin->onDownstreamData(context_id, body_buffer_length, end_of_stream));
     };
   } else if (function_name == "proxy_on_upstream_data") {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
                   Word end_of_stream) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(
-          plugin->onUpstreamData(context_id.u64_, body_buffer_length.u64_, end_of_stream.u64_));
+      return Word(plugin->onUpstreamData(context_id, body_buffer_length, end_of_stream));
     };
   } else if (function_name == "proxy_on_request_body") {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
                   Word end_of_stream) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(
-          plugin->onRequestBody(context_id.u64_, body_buffer_length.u64_, end_of_stream.u64_));
+      return Word(plugin->onRequestBody(context_id, body_buffer_length, end_of_stream));
     };
   } else if (function_name == "proxy_on_response_body") {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
                   Word end_of_stream) -> Word {
       SaveRestoreContext saved_context(context);
-      return Word(
-          plugin->onResponseBody(context_id.u64_, body_buffer_length.u64_, end_of_stream.u64_));
+      return Word(plugin->onResponseBody(context_id, body_buffer_length, end_of_stream));
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
@@ -430,11 +420,6 @@ void NullPlugin::onGrpcReceive(uint64_t context_id, uint64_t token, size_t body_
 
 void NullPlugin::onGrpcClose(uint64_t context_id, uint64_t token, uint64_t status_code) {
   getRootContext(context_id)->onGrpcClose(token, static_cast<GrpcStatus>(status_code));
-}
-
-void NullPlugin::onGrpcCreateInitialMetadata(uint64_t context_id, uint64_t token,
-                                             uint64_t headers) {
-  getRootContext(context_id)->onGrpcCreateInitialMetadata(token, headers);
 }
 
 void NullPlugin::onGrpcReceiveInitialMetadata(uint64_t context_id, uint64_t token,

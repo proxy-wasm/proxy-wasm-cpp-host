@@ -22,6 +22,7 @@ cc_library(
     copts = ["-DWITHOUT_ZLIB=1"],
     deps = [
         ":include",
+        "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
     ],
 )
@@ -45,6 +46,7 @@ cc_library(
         "@com_google_absl//absl/base",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:optional",
+        "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
     ],
 )

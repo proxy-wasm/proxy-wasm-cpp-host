@@ -36,12 +36,11 @@ thread_local uint32_t effective_context_id_ = 0;
 namespace {
 
 // Map from Wasm Key to the local Wasm instance.
-thread_local std::unordered_map<std::string, std::weak_ptr<WasmHandle>> local_wasms_;
+thread_local std::unordered_map<std::string, std::weak_ptr<WasmHandleBase>> local_wasms;
 // Map from Wasm Key to the base Wasm instance, using a pointer to avoid the initialization fiasco.
-std::mutex base_wasms_mutex_;
-std::unordered_map<std::string, std::weak_ptr<WasmHandle>> *base_wasms_ = nullptr;
-
-std::unordered_map<std::string, WasmForeignFunction> *foreign_functions_ = nullptr;
+std::mutex base_wasms_mutex;
+std::unordered_map<std::string, std::weak_ptr<WasmHandleBase>> *base_wasms = nullptr;
+std::unordered_map<std::string, WasmForeignFunction> *foreign_functions = nullptr;
 
 const std::string INLINE_STRING = "<inline>";
 
@@ -98,10 +97,10 @@ private:
 };
 
 RegisterForeignFunction::RegisterForeignFunction(std::string name, WasmForeignFunction f) {
-  if (!foreign_functions_) {
-    foreign_functions_ = new std::remove_reference<decltype(*foreign_functions_)>::type;
+  if (!foreign_functions) {
+    foreign_functions = new std::remove_reference<decltype(*foreign_functions)>::type;
   }
-  (*foreign_functions_)[name] = f;
+  (*foreign_functions)[name] = f;
 }
 
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, string_view vm_id, string_view vm_configuration,
@@ -130,8 +129,10 @@ void WasmBase::registerCallbacks() {
       &ConvertFunctionWordToUint32<decltype(exports::wasi_unstable_##_fn),                         \
                                    exports::wasi_unstable_##_fn>::convertFunctionWordToUint32)
   _REGISTER_WASI(fd_write);
+  _REGISTER_WASI(fd_read);
   _REGISTER_WASI(fd_seek);
   _REGISTER_WASI(fd_close);
+  _REGISTER_WASI(fd_fdstat_get);
   _REGISTER_WASI(environ_get);
   _REGISTER_WASI(environ_sizes_get);
   _REGISTER_WASI(args_get);
@@ -174,6 +175,7 @@ void WasmBase::registerCallbacks() {
 
   _REGISTER_PROXY(get_buffer_status);
   _REGISTER_PROXY(get_buffer_bytes);
+  _REGISTER_PROXY(set_buffer_bytes);
 
   _REGISTER_PROXY(http_call);
 
@@ -230,7 +232,6 @@ void WasmBase::getFunctions() {
   _GET_PROXY(on_http_call_response);
   _GET_PROXY(on_grpc_receive);
   _GET_PROXY(on_grpc_close);
-  _GET_PROXY(on_grpc_create_initial_metadata);
   _GET_PROXY(on_grpc_receive_initial_metadata);
   _GET_PROXY(on_grpc_receive_trailing_metadata);
   _GET_PROXY(on_queue_ready);
@@ -244,7 +245,7 @@ void WasmBase::getFunctions() {
   }
 }
 
-WasmBase::WasmBase(const std::shared_ptr<WasmHandle> &base_wasm_handle, WasmVmFactory factory)
+WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, WasmVmFactory factory)
     : std::enable_shared_from_this<WasmBase>(*base_wasm_handle->wasm()),
       vm_id_(base_wasm_handle->wasm()->vm_id_), vm_key_(base_wasm_handle->wasm()->vm_key_),
       started_from_(base_wasm_handle->wasm()->wasm_vm()->cloneable()),
@@ -309,7 +310,7 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
     wasm_vm_->link(vm_id_);
   }
 
-  vm_context_ = std::make_shared<ContextBase>(this);
+  vm_context_.reset(createContext(nullptr));
   getFunctions();
 
   if (started_from_ != Cloneable::InstantiatedModule) {
@@ -323,7 +324,7 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
 ContextBase *WasmBase::getOrCreateRootContext(const std::shared_ptr<PluginBase> &plugin) {
   auto root_context = getRootContext(plugin->root_id_);
   if (!root_context) {
-    auto context = std::make_unique<ContextBase>(this, plugin);
+    auto context = std::unique_ptr<ContextBase>(createContext(plugin));
     root_context = context.get();
     root_contexts_[plugin->root_id_] = std::move(context);
   }
@@ -350,7 +351,7 @@ ContextBase *WasmBase::start(std::shared_ptr<PluginBase> plugin) {
     it->second->onStart(plugin);
     return it->second.get();
   }
-  auto context = std::make_unique<ContextBase>(this, plugin);
+  auto context = std::unique_ptr<ContextBase>(createContext(plugin));
   auto context_ptr = context.get();
   root_contexts_[root_id] = std::move(context);
   context_ptr->onStart(plugin);
@@ -376,6 +377,16 @@ uint32_t WasmBase::allocContextId() {
     if (contexts_.find(id) == contexts_.end()) {
       return id;
     }
+  }
+}
+
+void WasmBase::tick(uint32_t root_context_id) {
+  if (on_tick_) {
+    auto it = contexts_.find(root_context_id);
+    if (it == contexts_.end() || !it->second->isRootContext()) {
+      return;
+    }
+    it->second->onTick();
   }
 }
 
@@ -423,33 +434,33 @@ void WasmBase::queueReady(uint32_t root_context_id, uint32_t token) {
 }
 
 WasmForeignFunction WasmBase::getForeignFunction(string_view function_name) {
-  auto it = foreign_functions_.find(std::string(function_name));
-  if (it != foreign_functions_.end()) {
+  auto it = foreign_functions->find(std::string(function_name));
+  if (it != foreign_functions->end()) {
     return it->second;
   }
   return nullptr;
 }
 
-std::shared_ptr<WasmHandle> createWasm(std::string vm_key, std::string code,
-                                       std::shared_ptr<PluginBase> plugin,
-                                       WasmHandleFactory factory, bool allow_precompiled,
-                                       std::unique_ptr<ContextBase> root_context_for_testing) {
-  std::shared_ptr<WasmHandle> wasm;
+std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
+                                           std::shared_ptr<PluginBase> plugin,
+                                           WasmHandleFactory factory, bool allow_precompiled,
+                                           std::unique_ptr<ContextBase> root_context_for_testing) {
+  std::shared_ptr<WasmHandleBase> wasm;
   {
-    std::lock_guard<std::mutex> guard(base_wasms_mutex_);
-    if (!base_wasms_) {
-      base_wasms_ = new std::remove_reference<decltype(*base_wasms_)>::type;
+    std::lock_guard<std::mutex> guard(base_wasms_mutex);
+    if (!base_wasms) {
+      base_wasms = new std::remove_reference<decltype(*base_wasms)>::type;
     }
-    auto it = base_wasms_->find(vm_key);
-    if (it != base_wasms_->end()) {
+    auto it = base_wasms->find(vm_key);
+    if (it != base_wasms->end()) {
       wasm = it->second.lock();
       if (!wasm) {
-        base_wasms_->erase(it);
+        base_wasms->erase(it);
       }
     }
     if (!wasm) {
       wasm = factory(vm_key);
-      (*base_wasms_)[vm_key] = wasm;
+      (*base_wasms)[vm_key] = wasm;
     }
   }
 
@@ -465,34 +476,34 @@ std::shared_ptr<WasmHandle> createWasm(std::string vm_key, std::string code,
   return wasm;
 };
 
-static std::shared_ptr<WasmHandle> createThreadLocalWasm(std::shared_ptr<WasmHandle> &base_wasm,
-                                                         std::shared_ptr<PluginBase> plugin,
-                                                         WasmHandleCloneFactory factory) {
+static std::shared_ptr<WasmHandleBase>
+createThreadLocalWasm(std::shared_ptr<WasmHandleBase> &base_wasm,
+                      std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory factory) {
   auto wasm_handle = factory(base_wasm);
   ContextBase *root_context = wasm_handle->wasm()->start(plugin);
   if (!wasm_handle->wasm()->configure(root_context, plugin)) {
     base_wasm->wasm()->error("Failed to configure WASM code");
     return nullptr;
   }
-  local_wasms_[std::string(wasm_handle->wasm()->vm_key())] = wasm_handle;
+  local_wasms[std::string(wasm_handle->wasm()->vm_key())] = wasm_handle;
   return wasm_handle;
 }
 
-std::shared_ptr<WasmHandle> getThreadLocalWasm(string_view vm_key) {
-  auto it = local_wasms_.find(std::string(vm_key));
-  if (it == local_wasms_.end()) {
+std::shared_ptr<WasmHandleBase> getThreadLocalWasm(string_view vm_key) {
+  auto it = local_wasms.find(std::string(vm_key));
+  if (it == local_wasms.end()) {
     return nullptr;
   }
   auto wasm = it->second.lock();
   if (!wasm) {
-    local_wasms_.erase(std::string(vm_key));
+    local_wasms.erase(std::string(vm_key));
   }
   return wasm;
 }
 
-std::shared_ptr<WasmHandle> getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandle> &base_wasm,
-                                                       std::shared_ptr<PluginBase> plugin,
-                                                       WasmHandleCloneFactory factory) {
+std::shared_ptr<WasmHandleBase>
+getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
+                           std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory factory) {
   auto wasm_handle = getThreadLocalWasm(base_wasm->wasm()->vm_key());
   if (wasm_handle) {
     auto root_context = wasm_handle->wasm()->getOrCreateRootContext(plugin);
