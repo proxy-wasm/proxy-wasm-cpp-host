@@ -53,7 +53,18 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+
+    - name: Install protobuf v3.9.1
+      run: |
+        git clone https://github.com/protocolbuffers/protobuf
+        cd protobuf
+        git checkout v3.9.1
+        ./autogen.sh
+        ./configure
+        make
+        sudo make install
+        sudo ldconfig
 
     - name: Mount bazel cache
       uses: actions/cache@v1
@@ -67,18 +78,6 @@ jobs:
         mkdir -p "${GITHUB_WORKSPACE}/bin/"
         mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
         chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
-
-
-    - name: Install protobuf v3.9.1
-      run: |
-        git clone https://github.com/protocolbuffers/protobuf
-        cd protobuf
-        git checkout v3.9.1
-        ./autogen.sh
-        ./configure
-        make
-        sudo make install
-        sudo ldconfig
 
     - name: Test
       run: |
