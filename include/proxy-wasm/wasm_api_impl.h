@@ -138,6 +138,12 @@ inline WasmResult proxy_get_buffer_status(WasmBufferType type, size_t *length_pt
       exports::get_buffer_status(current_context_, WS(type), WR(length_ptr), WR(flags_ptr)));
 }
 
+inline WasmResult proxy_set_buffer_bytes(WasmBufferType type, uint64_t start, uint64_t length,
+                                         const char *data, size_t size) {
+  return wordToWasmResult(exports::set_buffer_bytes(current_context_, WS(type), WS(start),
+                                                    WS(length), WR(data), WS(size)));
+}
+
 // Headers/Trailers/Metadata Maps
 inline WasmResult proxy_add_header_map_value(WasmHeaderMapType type, const char *key_ptr,
                                              size_t key_size, const char *value_ptr,
