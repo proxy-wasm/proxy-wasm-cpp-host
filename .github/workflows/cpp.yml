@@ -68,6 +68,18 @@ jobs:
         mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
         chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
 
+
+    - name: Install protobuf v3.9.1
+      run: |
+        git clone https://github.com/protocolbuffers/protobuf
+        cd protobuf
+        git checkout v3.9.1
+        ./autogen.sh
+        ./configure
+        make
+        sudo make install
+        sudo ldconfig
+
     - name: Test
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test //...
