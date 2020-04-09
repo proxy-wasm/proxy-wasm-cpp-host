@@ -458,9 +458,8 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
         base_wasms->erase(it);
       }
     }
-    if (wasm) {
+    if (wasm)
       return wasm;
-    }
     wasm = factory(vm_key);
     (*base_wasms)[vm_key] = wasm;
   }
