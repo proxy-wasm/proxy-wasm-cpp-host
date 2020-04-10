@@ -134,10 +134,14 @@ public:
 
   void addAfterVmCallAction(std::function<void()> f) { after_vm_call_actions_.push_back(f); }
   void doAfterVmCallActions() {
-    while (!after_vm_call_actions_.empty()) {
-      auto f = std::move(after_vm_call_actions_.front());
-      after_vm_call_actions_.pop_front();
-      f();
+    // NB: this may be deleted by a delayed function unless prevented.
+    if (!after_vm_call_actions_.empty()) {
+      auto self = shared_from_this();
+      while (!self->after_vm_call_actions_.empty()) {
+        auto f = std::move(self->after_vm_call_actions_.front());
+        self->after_vm_call_actions_.pop_front();
+        f();
+      }
     }
   }
 
