@@ -287,16 +287,18 @@ WasmResult ContextBase::setSharedData(string_view key, string_view value, uint32
 
 // Shared Queue
 
-uint32_t ContextBase::registerSharedQueue(string_view queue_name) {
+WasmResult ContextBase::registerSharedQueue(string_view queue_name,
+                                            SharedQueueDequeueToken *result) {
   // Get the id of the root context if this is a stream context because onQueueReady is on the
   // root.
-  return global_shared_data.registerQueue(wasm_->vm_id(), queue_name,
-                                          isRootContext() ? id_ : root_context_id_,
-                                          wasm_->callOnThreadFunction());
+  *result = global_shared_data.registerQueue(wasm_->vm_id(), queue_name,
+                                             isRootContext() ? id_ : root_context_id_,
+                                             wasm_->callOnThreadFunction());
+  return WasmResult::Ok;
 }
 
-WasmResult ContextBase::resolveSharedQueue(string_view vm_id, string_view queue_name,
-                                           uint32_t *token_ptr) {
+WasmResult ContextBase::lookupSharedQueue(string_view vm_id, string_view queue_name,
+                                          uint32_t *token_ptr) {
   uint32_t token = global_shared_data.resolveQueue(vm_id, queue_name);
   if (!token) {
     return WasmResult::NotFound;
@@ -320,7 +322,7 @@ void ContextBase::destroy() {
   onDone();
 }
 
-void ContextBase::onTick() {
+void ContextBase::onTick(uint32_t) {
   if (wasm_->on_tick_) {
     DeferAfterCallActions actions(this);
     wasm_->on_tick_(this, id_);
@@ -339,7 +341,7 @@ FilterStatus ContextBase::onNetworkNewConnection() {
   return FilterStatus::StopIteration;
 }
 
-FilterStatus ContextBase::onDownstreamData(int data_length, bool end_of_stream) {
+FilterStatus ContextBase::onDownstreamData(uint32_t data_length, bool end_of_stream) {
   if (!wasm_->on_downstream_data_) {
     return FilterStatus::Continue;
   }
@@ -350,7 +352,7 @@ FilterStatus ContextBase::onDownstreamData(int data_length, bool end_of_stream) 
   return result.u64_ == 0 ? FilterStatus::Continue : FilterStatus::StopIteration;
 }
 
-FilterStatus ContextBase::onUpstreamData(int data_length, bool end_of_stream) {
+FilterStatus ContextBase::onUpstreamData(uint32_t data_length, bool end_of_stream) {
   if (!wasm_->on_upstream_data_) {
     return FilterStatus::Continue;
   }
@@ -361,17 +363,17 @@ FilterStatus ContextBase::onUpstreamData(int data_length, bool end_of_stream) {
   return result.u64_ == 0 ? FilterStatus::Continue : FilterStatus::StopIteration;
 }
 
-void ContextBase::onDownstreamConnectionClose(PeerType peer_type) {
+void ContextBase::onDownstreamConnectionClose(CloseType close_type) {
   if (wasm_->on_downstream_connection_close_) {
     DeferAfterCallActions actions(this);
-    wasm_->on_downstream_connection_close_(this, id_, static_cast<uint32_t>(peer_type));
+    wasm_->on_downstream_connection_close_(this, id_, static_cast<uint32_t>(close_type));
   }
 }
 
-void ContextBase::onUpstreamConnectionClose(PeerType peer_type) {
+void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
   if (wasm_->on_upstream_connection_close_) {
     DeferAfterCallActions actions(this);
-    wasm_->on_upstream_connection_close_(this, id_, static_cast<uint32_t>(peer_type));
+    wasm_->on_upstream_connection_close_(this, id_, static_cast<uint32_t>(close_type));
   }
 }
 
@@ -540,7 +542,7 @@ bool ContextBase::onDone() {
   return true;
 }
 
-void ContextBase::onLog() {
+void ContextBase::onFinalized() {
   DeferAfterCallActions actions(this);
   if (wasm_->on_log_) {
     wasm_->on_log_(this, id_);

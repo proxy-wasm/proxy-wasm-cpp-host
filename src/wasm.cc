@@ -386,7 +386,7 @@ void WasmBase::tick(uint32_t root_context_id) {
     if (it == contexts_.end() || !it->second->isRootContext()) {
       return;
     }
-    it->second->onTick();
+    it->second->onTick(0);
   }
 }
 

@@ -363,12 +363,12 @@ uint64_t NullPlugin::onUpstreamData(uint64_t context_id, uint64_t data_length,
       getContext(context_id)->onUpstreamData(static_cast<size_t>(data_length), end_of_stream != 0));
 }
 
-void NullPlugin::onDownstreamConnectionClose(uint64_t context_id, uint64_t peer_type) {
-  getContext(context_id)->onDownstreamConnectionClose(static_cast<PeerType>(peer_type));
+void NullPlugin::onDownstreamConnectionClose(uint64_t context_id, uint64_t close_type) {
+  getContext(context_id)->onDownstreamConnectionClose(static_cast<PeerType>(close_type));
 }
 
-void NullPlugin::onUpstreamConnectionClose(uint64_t context_id, uint64_t peer_type) {
-  getContext(context_id)->onUpstreamConnectionClose(static_cast<PeerType>(peer_type));
+void NullPlugin::onUpstreamConnectionClose(uint64_t context_id, uint64_t close_type) {
+  getContext(context_id)->onUpstreamConnectionClose(static_cast<PeerType>(close_type));
 }
 
 uint64_t NullPlugin::onRequestHeaders(uint64_t context_id, uint64_t headers) {
