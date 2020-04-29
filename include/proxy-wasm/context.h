@@ -111,7 +111,7 @@ public:
   // Context
   void onCreate(uint32_t parent_context_id) override;
   bool onDone() override;
-  void onFinalized() override;
+  void onLog() override;
   void onDelete() override;
 
   // Root

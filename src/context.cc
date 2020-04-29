@@ -542,7 +542,7 @@ bool ContextBase::onDone() {
   return true;
 }
 
-void ContextBase::onFinalized() {
+void ContextBase::onLog() {
   DeferAfterCallActions actions(this);
   if (wasm_->on_log_) {
     wasm_->on_log_(this, id_);

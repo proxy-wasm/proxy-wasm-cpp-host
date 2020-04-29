@@ -262,7 +262,7 @@ public:
   virtual bool onDone() = 0;
 
   // Call when the stream status has finalized, e.g. for logging. See RootInterface.
-  virtual void onFinalized() = 0;
+  virtual void onLog() = 0;
 
   // Call just before the Context is deleted. See RootInterface.
   virtual void onDelete() = 0;
@@ -320,7 +320,7 @@ public:
   virtual bool onDone() = 0;
 
   // Call when the stream status has finalized, e.g. for logging. See RootInterface.
-  virtual void onFinalized() = 0;
+  virtual void onLog() = 0;
 
   // Call just before the Context is deleted. See RootInterface.
   virtual void onDelete() = 0;
