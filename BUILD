@@ -54,7 +54,6 @@ cc_library(
 cc_test(
     name = "wasm_vm_test",
     srcs = ["wasm_vm_test.cc"],
-    copts = ["-std=c++17"],
     deps = [
         ":lib",
         "@com_google_googletest//:gtest",
@@ -65,7 +64,6 @@ cc_test(
 cc_test(
     name = "context_test",
     srcs = ["context_test.cc"],
-    copts = ["-std=c++17"],
     deps = [
         ":include",
         "@com_google_googletest//:gtest",

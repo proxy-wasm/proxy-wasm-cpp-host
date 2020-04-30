@@ -16,6 +16,7 @@
 #pragma once
 
 #include "include/proxy-wasm/compat.h"
+#include "include/proxy-wasm/context_interface.h"
 
 #include <time.h>
 #include <atomic>
@@ -34,35 +35,15 @@ namespace proxy_wasm {
 class WasmBase;
 class WasmVm;
 
-using Pairs = std::vector<std::pair<string_view, string_view>>;
-using PairsWithStringValues = std::vector<std::pair<string_view, std::string>>;
-
-struct BufferInterface {
-  virtual ~BufferInterface() {}
-  virtual size_t size() const = 0;
-  /**
-   * Copy bytes from the buffer into the Wasm VM corresponding to 'wasm'.
-   * @param start is the first buffer byte to copy.
-   * @param length is the length of sequence of buffer bytes to copy.
-   * @param ptr_ptr is the location in the VM address space to place the address of the newly
-   * allocated memory block which contains the copied bytes.
-   * @param size_ptr is the location in the VM address space to place the size of the newly
-   * allocated memory block which contains the copied bytes (e.g. length).
-   * @return true on success.
-   * Length is guarantteed to be > 0 and the bounds have already been checked.
-   */
-  virtual WasmResult copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
-                            uint64_t size_ptr) const = 0;
-
-  virtual WasmResult copyFrom(size_t start, size_t length, string_view data) = 0;
-};
-
-// Opaque context object.
-class StorageObject {
-public:
-  virtual ~StorageObject() = default;
-};
-
+/**
+ * PluginBase is container to hold plugin information which is shared with all Context(s) created
+ * for a given plugin. Embedders may extend this class with additional host-specific plugin
+ * information as required.
+ * @param name is the name of the plugin.
+ * @param root_id is an identifier for the in VM handlers for this plugin.
+ * @param vm_id is a string used to differentiate VMs with the same code and VM configuration.
+ * @param plugin_configuration is configuration for this plugin.
+ */
 struct PluginBase {
   PluginBase(string_view name, string_view root_id, string_view vm_id,
              string_view plugin_configuration)
@@ -81,9 +62,22 @@ private:
   std::string log_prefix_;
 };
 
-// A context which will be the target of callbacks for a particular session
-// e.g. a handler of a stream.
-class ContextBase {
+/**
+ * ContextBase is the interface between the VM host and the VM. It has several uses:
+ *
+ * 1) To provide host-specific implementations of ABI calls out of the VM. For example, a proxy
+ * which wants to provide the ability to make an HTTP call must implement the
+ * ContextBase::httpCall() method.
+ *
+ * 2) To call into the VM. For example, when the above mentioned httpCall() completes, the host must
+ * call ContextBase::onHttpCallResponse(). Similarly, when a new HTTP request arrives and the
+ * headers are available, the host must create a new ContextBase object to manage the new stream and
+ * call onRequestHeaders() on that object which will cause a corresponding Context to be allocated
+ * in the VM which will receive the proxy_on_context_create and proxy_on_request_headers calls.
+ *
+ * 3) For testing and instrumentation the methods of ContextBase can be replaces or augmented.
+ */
+class ContextBase : public ContextInterface {
 public:
   ContextBase();                                                   // Testing.
   ContextBase(WasmBase *wasm);                                     // Vm Context.
@@ -94,7 +88,9 @@ public:
 
   WasmBase *wasm() const { return wasm_; }
   uint32_t id() const { return id_; }
+  // The VM Context used for calling "malloc" has an id_ == 0.
   bool isVmContext() const { return id_ == 0; }
+  // Root Contexts have the VM Context as a parent.
   bool isRootContext() const { return root_context_id_ == 0; }
   ContextBase *root_context() const { return root_context_; }
   string_view root_id() const { return isRootContext() ? root_id_ : plugin_->root_id_; }
@@ -106,75 +102,70 @@ public:
   // Called before deleting the context.
   virtual void destroy();
 
-  // VM level downcalls into the WASM code on Context(id == 0).
-  virtual bool onStart(std::shared_ptr<PluginBase> plugin);
-  virtual bool onConfigure(std::shared_ptr<PluginBase> plugin);
+  /**
+   * Calls into the VM.
+   * These are implemented by the proxy-independent host code. They are virtual to support some
+   * types of testing.
+   */
 
-  // Root Context downcalls into the WASM code Context(id != 0, root_context_id_ == 0);
-  virtual void onTick();
+  // Context
+  void onCreate(uint32_t parent_context_id) override;
+  bool onDone() override;
+  void onLog() override;
+  void onDelete() override;
 
-  // Stream downcalls on Context(id > 0).
-  //
-  // General stream downcall on a new stream.
-  virtual void onCreate(uint32_t root_context_id);
+  // Root
+  bool onStart(std::shared_ptr<PluginBase> plugin) override;
+  bool onConfigure(std::shared_ptr<PluginBase> plugin) override;
+  void onTick(TimerToken token) override;
+  void onQueueReady(SharedQueueDequeueToken token) override;
+
+  // HTTP
+  FilterHeadersStatus onRequestHeaders(uint32_t headers) override;
+  FilterDataStatus onRequestBody(uint32_t body_buffer_length, bool end_of_stream) override;
+  FilterTrailersStatus onRequestTrailers(uint32_t trailers) override;
+  FilterMetadataStatus onRequestMetadata(uint32_t elements) override;
+  FilterHeadersStatus onResponseHeaders(uint32_t headers) override;
+  FilterDataStatus onResponseBody(uint32_t body_buffer_length, bool end_of_stream) override;
+  FilterTrailersStatus onResponseTrailers(uint32_t trailers) override;
+  FilterMetadataStatus onResponseMetadata(uint32_t elements) override;
 
   // Network
-  virtual FilterStatus onNetworkNewConnection();
-  virtual FilterStatus onDownstreamData(int data_length, bool end_of_stream);
-  virtual FilterStatus onUpstreamData(int data_length, bool end_of_stream);
-  enum class PeerType : uint32_t {
-    Unknown = 0,
-    Local = 1,
-    Remote = 2,
-  };
-  virtual void onDownstreamConnectionClose(PeerType);
-  virtual void onUpstreamConnectionClose(PeerType);
-  // HTTP Filter Stream Request Downcalls.
-  virtual FilterHeadersStatus onRequestHeaders(uint32_t headers);
-  virtual FilterDataStatus onRequestBody(uint32_t body_buffer_length, bool end_of_stream);
-  virtual FilterTrailersStatus onRequestTrailers(uint32_t trailers);
-  virtual FilterMetadataStatus onRequestMetadata(uint32_t elements);
-  // HTTP Filter Stream Response Downcalls.
-  virtual FilterHeadersStatus onResponseHeaders(uint32_t headers);
-  virtual FilterDataStatus onResponseBody(uint32_t body_buffer_length, bool end_of_stream);
-  virtual FilterTrailersStatus onResponseTrailers(uint32_t trailers);
-  virtual FilterMetadataStatus onResponseMetadata(uint32_t elements);
+  FilterStatus onNetworkNewConnection() override;
+  FilterStatus onDownstreamData(uint32_t data_length, bool end_of_stream) override;
+  FilterStatus onUpstreamData(uint32_t data_length, bool end_of_stream) override;
+  void onDownstreamConnectionClose(CloseType) override;
+  void onUpstreamConnectionClose(CloseType) override;
+
   // Async call response.
-  virtual void onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t body_size,
-                                  uint32_t trailers);
+  void onHttpCallResponse(HttpCallToken token, uint32_t headers, uint32_t body_size,
+                          uint32_t trailers) override;
   // Grpc
-  virtual void onGrpcReceiveInitialMetadata(uint32_t token, uint32_t elements);
-  virtual void onGrpcReceiveTrailingMetadata(uint32_t token, uint32_t trailers);
-  virtual void onGrpcReceive(uint32_t token, uint32_t response_size);
-  virtual void onGrpcClose(uint32_t token, uint32_t status_code);
+  void onGrpcReceiveInitialMetadata(GrpcToken token, uint32_t elements) override;
+  void onGrpcReceive(GrpcToken token, uint32_t response_size) override;
+  void onGrpcReceiveTrailingMetadata(GrpcToken token, uint32_t trailers) override;
+  void onGrpcClose(GrpcToken token, GrpcStatusCode status_code) override;
 
-  // Inter-VM shared queue message arrival.
-  virtual void onQueueReady(uint32_t /* token */);
-  // General stream downcall when the stream/vm has ended.
-  virtual bool onDone();
-  // General stream downcall for logging. Occurs after onDone().
-  virtual void onLog();
-  // General stream downcall when no further stream calls will occur.
-  virtual void onDelete();
-
-  virtual void error(string_view message) {
+  void error(string_view message) override {
     std::cerr << message << "\n";
     abort();
   }
-  virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
+  WasmResult unimplemented() override {
+    error("unimplemented proxy-wasm API");
+    return WasmResult::Unimplemented;
+  }
 
   //
   // General Callbacks.
   //
-  virtual WasmResult log(uint64_t /* level */, string_view /* message */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult log(uint32_t /* level */, string_view /* message */) override {
+    return unimplemented();
   }
-  virtual WasmResult setTimerPeriod(std::chrono::milliseconds /* period */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult setTimerPeriod(std::chrono::milliseconds /* period */,
+                            uint32_t * /* timer_token_ptr */) override {
+    return unimplemented();
   }
-  virtual uint64_t getCurrentTimeNanoseconds() {
+  uint64_t getCurrentTimeNanoseconds() override {
     struct timespec tpe;
     clock_gettime(CLOCK_REALTIME, &tpe);
     uint64_t t = tpe.tv_sec;
@@ -182,139 +173,121 @@ public:
     t += tpe.tv_nsec;
     return t;
   }
-  virtual std::pair<uint32_t, string_view> getStatus() {
+  std::pair<uint32_t, string_view> getStatus() override {
     unimplemented();
     return std::make_pair(1, "unimplmemented");
   }
 
   // Buffer
-  virtual BufferInterface *getBuffer(WasmBufferType /* type */) {
+  BufferInterface *getBuffer(WasmBufferType /* type */) override {
     unimplemented();
     return nullptr;
   }
-  virtual bool end_of_stream() {
+  bool endOfStream(StreamType /* type */) override {
     unimplemented();
     return true;
   }
 
   // HTTP
-  // Returns a token which will be used with the corresponding onHttpCallResponse.
-  virtual WasmResult httpCall(string_view /* target */, const Pairs & /*request_headers */,
-                              string_view /* request_body */, const Pairs & /* request_trailers */,
-                              int /* timeout_millisconds */, uint32_t * /* token_ptr */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult httpCall(string_view /* target */, const Pairs & /*request_headers */,
+                      string_view /* request_body */, const Pairs & /* request_trailers */,
+                      int /* timeout_millisconds */, uint32_t * /* token_ptr */) override {
+    return unimplemented();
   }
 
   // gRPC
-  // Returns a token which will be used with the corresponding onGrpc and grpc calls.
-  virtual WasmResult grpcCall(string_view /* grpc_service */, string_view /* service_name */,
-                              string_view /* method_name */, const Pairs & /* initial_metadata */,
-                              string_view /* request */,
-                              const optional<std::chrono::milliseconds> & /* timeout */,
-                              uint32_t * /* token_ptr */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult grpcCall(string_view /* grpc_service */, string_view /* service_name */,
+                      string_view /* method_name */, const Pairs & /* initial_metadata */,
+                      string_view /* request */, std::chrono::milliseconds /* timeout */,
+                      GrpcToken * /* token_ptr */) override {
+    return unimplemented();
   }
-  virtual WasmResult grpcStream(string_view /* grpc_service */, string_view /* service_name */,
-                                string_view /* method_name */, const Pairs & /* initial_metadata */,
-                                uint32_t * /* token_ptr */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult grpcStream(string_view /* grpc_service */, string_view /* service_name */,
+                        string_view /* method_name */, const Pairs & /* initial_metadata */,
+                        GrpcToken * /* token_ptr */) override {
+    return unimplemented();
   }
-  virtual WasmResult grpcClose(uint32_t /* token */) { // cancel on call, close on stream.
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult grpcClose(uint32_t /* token */) override { // cancel on call, close on stream.
+    return unimplemented();
   }
-  virtual WasmResult grpcCancel(uint32_t /* token */) { // cancel on call, reset on stream.
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult grpcCancel(uint32_t /* token */) override { // cancel on call, reset on stream.
+    return unimplemented();
   }
-  virtual WasmResult grpcSend(uint32_t /* token */, string_view /* message */,
-                              bool /* end_stream */) { // stream only
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult grpcSend(uint32_t /* token */, string_view /* message */,
+                      bool /* end_stream */) override { // stream only
+    return unimplemented();
   }
 
   // Metrics
-  virtual WasmResult defineMetric(MetricType /* type */, string_view /* name */,
-                                  uint32_t * /* metric_id_ptr */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult defineMetric(MetricType /* type */, string_view /* name */,
+                          uint32_t * /* metric_id_ptr */) override {
+    return unimplemented();
   }
-  virtual WasmResult incrementMetric(uint32_t /* metric_id */, int64_t /* offset */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult incrementMetric(uint32_t /* metric_id */, int64_t /* offset */) override {
+    return unimplemented();
   }
-  virtual WasmResult recordMetric(uint32_t /* metric_id */, uint64_t /* value */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult recordMetric(uint32_t /* metric_id */, uint64_t /* value */) override {
+    return unimplemented();
   }
-  virtual WasmResult getMetric(uint32_t /* metric_id */, uint64_t * /* value_ptr */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult getMetric(uint32_t /* metric_id */, uint64_t * /* value_ptr */) override {
+    return unimplemented();
   }
 
   // Properties
-  virtual WasmResult getProperty(string_view /* path */, std::string * /* result */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult getProperty(string_view /* path */, std::string * /* result */) override {
+    return unimplemented();
   }
-  virtual WasmResult setProperty(string_view /* key */, string_view /* serialized_value */) {
-    unimplemented();
-    return WasmResult::Unimplemented;
+  WasmResult setProperty(string_view /* key */, string_view /* serialized_value */) override {
+    return unimplemented();
   }
 
   // Continue
-  virtual void continueRequest() { unimplemented(); }
-  virtual void continueResponse() { unimplemented(); }
-  virtual void sendLocalResponse(uint64_t /* response_code */, string_view /* body_text */,
-                                 Pairs /* additional_headers */, uint64_t /* grpc_status */,
-                                 string_view /* details */) {
-    unimplemented();
+  WasmResult continueStream(StreamType /* stream_type */) override { return unimplemented(); }
+  WasmResult sendLocalResponse(uint32_t /* response_code */, string_view /* body_text */,
+                               Pairs /* additional_headers */, GrpcStatusCode /* grpc_status */,
+                               string_view /* details */) override {
+    return unimplemented();
   }
 
   // Shared Data
-  virtual WasmResult getSharedData(string_view /* key */,
-                                   std::pair<std::string, uint32_t /* cas */> * /* data */);
-  virtual WasmResult setSharedData(string_view /* key */, string_view /* value */,
-                                   uint32_t /* cas */);
+  WasmResult getSharedData(string_view key,
+                           std::pair<std::string, uint32_t /* cas */> *data) override;
+  WasmResult setSharedData(string_view key, string_view value, uint32_t cas) override;
 
   // Shared Queue
-  virtual uint32_t registerSharedQueue(string_view /* queue_name */);
-  virtual WasmResult resolveSharedQueue(string_view /* vm_id */, string_view /* queue_name */,
-                                        uint32_t * /* token */);
-  virtual WasmResult dequeueSharedQueue(uint32_t /* token */, std::string * /* data */);
-  virtual WasmResult enqueueSharedQueue(uint32_t /* token */, string_view /* value */);
+  WasmResult registerSharedQueue(string_view queue_name,
+                                 SharedQueueDequeueToken *token_ptr) override;
+  WasmResult lookupSharedQueue(string_view vm_id, string_view queue_name,
+                               SharedQueueEnqueueToken *token) override;
+  WasmResult dequeueSharedQueue(uint32_t token, std::string *data) override;
+  WasmResult enqueueSharedQueue(uint32_t token, string_view value) override;
 
   // Header/Trailer/Metadata Maps
-  virtual void addHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
-                                 string_view /* value */) {
-    unimplemented();
+  WasmResult addHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
+                               string_view /* value */) override {
+    return unimplemented();
   }
-  virtual string_view getHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */) {
-    unimplemented();
-    return "";
+  WasmResult getHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
+                               string_view * /*result */) override {
+    return unimplemented();
   }
-  virtual Pairs getHeaderMapPairs(WasmHeaderMapType /* type */) {
-    unimplemented();
-    return {};
+  WasmResult getHeaderMapPairs(WasmHeaderMapType /* type */, Pairs * /* result */) override {
+    return unimplemented();
   }
-  virtual void setHeaderMapPairs(WasmHeaderMapType /* type */, const Pairs & /* pairs */) {
-    unimplemented();
-  }
-
-  virtual void removeHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */) {
-    unimplemented();
-  }
-  virtual void replaceHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
-                                     string_view /* value */) {
-    unimplemented();
+  WasmResult setHeaderMapPairs(WasmHeaderMapType /* type */, const Pairs & /* pairs */) override {
+    return unimplemented();
   }
 
-  virtual uint32_t getHeaderMapSize(WasmHeaderMapType /* type */) {
-    unimplemented();
-    return 0;
+  WasmResult removeHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */) override {
+    return unimplemented();
+  }
+  WasmResult replaceHeaderMapValue(WasmHeaderMapType /* type */, string_view /* key */,
+                                   string_view /* value */) override {
+    return unimplemented();
+  }
+
+  WasmResult getHeaderMapSize(WasmHeaderMapType /* type */, uint32_t * /* result */) override {
+    return unimplemented();
   }
 
 protected:

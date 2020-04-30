@@ -166,13 +166,13 @@ Word get_status(void *raw_context, Word code_ptr, Word value_ptr_ptr, Word value
 // Continue/Reply/Route
 Word continue_request(void *raw_context) {
   auto context = WASM_CONTEXT(raw_context);
-  context->continueRequest();
+  context->continueStream(StreamType::Request);
   return WasmResult::Ok;
 }
 
 Word continue_response(void *raw_context) {
   auto context = WASM_CONTEXT(raw_context);
-  context->continueResponse();
+  context->continueStream(StreamType::Response);
   return WasmResult::Ok;
 }
 
@@ -285,7 +285,11 @@ Word register_shared_queue(void *raw_context, Word queue_name_ptr, Word queue_na
   if (!queue_name) {
     return WasmResult::InvalidMemoryAccess;
   }
-  uint32_t token = context->registerSharedQueue(queue_name.value());
+  uint32_t token;
+  auto result = context->registerSharedQueue(queue_name.value(), &token);
+  if (result != WasmResult::Ok) {
+    return result;
+  }
   if (!context->wasm()->setDatatype(token_ptr, token)) {
     return WasmResult::InvalidMemoryAccess;
   }
@@ -314,7 +318,7 @@ Word resolve_shared_queue(void *raw_context, Word vm_id_ptr, Word vm_id_size, Wo
     return WasmResult::InvalidMemoryAccess;
   }
   uint32_t token = 0;
-  auto result = context->resolveSharedQueue(vm_id.value(), queue_name.value(), &token);
+  auto result = context->lookupSharedQueue(vm_id.value(), queue_name.value(), &token);
   if (result != WasmResult::Ok) {
     return result;
   }
@@ -359,8 +363,13 @@ Word get_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_s
   if (!key) {
     return WasmResult::InvalidMemoryAccess;
   }
-  auto result = context->getHeaderMapValue(static_cast<WasmHeaderMapType>(type.u64_), key.value());
-  context->wasm()->copyToPointerSize(result, value_ptr_ptr, value_size_ptr);
+  string_view value;
+  auto result =
+      context->getHeaderMapValue(static_cast<WasmHeaderMapType>(type.u64_), key.value(), &value);
+  if (result != WasmResult::Ok) {
+    return result;
+  }
+  context->wasm()->copyToPointerSize(value, value_ptr_ptr, value_size_ptr);
   return WasmResult::Ok;
 }
 
@@ -398,8 +407,12 @@ Word get_header_map_pairs(void *raw_context, Word type, Word ptr_ptr, Word size_
     return WasmResult::BadArgument;
   }
   auto context = WASM_CONTEXT(raw_context);
-  auto result = context->getHeaderMapPairs(static_cast<WasmHeaderMapType>(type.u64_));
-  if (!getPairs(context, result, ptr_ptr, size_ptr)) {
+  Pairs pairs;
+  auto result = context->getHeaderMapPairs(static_cast<WasmHeaderMapType>(type.u64_), &pairs);
+  if (result != WasmResult::Ok) {
+    return result;
+  }
+  if (!getPairs(context, pairs, ptr_ptr, size_ptr)) {
     return WasmResult::InvalidMemoryAccess;
   }
   return WasmResult::Ok;
@@ -423,8 +436,12 @@ Word get_header_map_size(void *raw_context, Word type, Word result_ptr) {
     return WasmResult::BadArgument;
   }
   auto context = WASM_CONTEXT(raw_context);
-  size_t result = context->getHeaderMapSize(static_cast<WasmHeaderMapType>(type.u64_));
-  if (!context->wasmVm()->setWord(result_ptr, Word(result))) {
+  uint32_t size;
+  auto result = context->getHeaderMapSize(static_cast<WasmHeaderMapType>(type.u64_), &size);
+  if (result != WasmResult::Ok) {
+    return result;
+  }
+  if (!context->wasmVm()->setWord(result_ptr, Word(size))) {
     return WasmResult::InvalidMemoryAccess;
   }
   return WasmResult::Ok;
@@ -787,8 +804,9 @@ void wasi_unstable_proc_exit(void *raw_context, Word) {
 Word pthread_equal(void *, Word left, Word right) { return left == right; }
 
 Word set_tick_period_milliseconds(void *raw_context, Word tick_period_milliseconds) {
+  TimerToken token = 0;
   return WASM_CONTEXT(raw_context)
-      ->setTimerPeriod(std::chrono::milliseconds(tick_period_milliseconds));
+      ->setTimerPeriod(std::chrono::milliseconds(tick_period_milliseconds), &token);
 }
 
 Word get_current_time_nanoseconds(void *raw_context, Word result_uint64_ptr) {
