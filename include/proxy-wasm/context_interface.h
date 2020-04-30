@@ -647,17 +647,4 @@ struct SharedQueueInterface {
   virtual WasmResult enqueueSharedQueue(SharedQueueEnqueueToken token, string_view data) = 0;
 };
 
-struct ContextInterface : RootInterface,
-                          HttpInterface,
-                          NetworkInterface,
-                          StreamInterface,
-                          HeaderInterface,
-                          HttpCallInterface,
-                          GrpcCallInterface,
-                          GrpcStreamInterface,
-                          MetricsInterface,
-                          SharedDataInterface,
-                          SharedQueueInterface,
-                          GeneralInterface {};
-
 } // namespace proxy_wasm

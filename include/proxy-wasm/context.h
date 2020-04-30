@@ -77,7 +77,18 @@ private:
  *
  * 3) For testing and instrumentation the methods of ContextBase can be replaces or augmented.
  */
-class ContextBase : public ContextInterface {
+class ContextBase : public RootInterface,
+                    public HttpInterface,
+                    public NetworkInterface,
+                    public StreamInterface,
+                    public HeaderInterface,
+                    public HttpCallInterface,
+                    public GrpcCallInterface,
+                    public GrpcStreamInterface,
+                    public MetricsInterface,
+                    public SharedDataInterface,
+                    public SharedQueueInterface,
+                    public GeneralInterface {
 public:
   ContextBase();                                                   // Testing.
   ContextBase(WasmBase *wasm);                                     // Vm Context.
