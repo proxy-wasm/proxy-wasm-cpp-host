@@ -107,13 +107,13 @@ public:
   void onDelete(uint64_t context_id);
 
   null_plugin::RootContext *getRoot(string_view root_id);
+  null_plugin::Context *getContext(uint64_t context_id);
 
   void error(string_view message) { wasm_vm_->error(message); }
 
 private:
   null_plugin::Context *ensureContext(uint64_t context_id, uint64_t root_context_id);
   null_plugin::RootContext *ensureRootContext(uint64_t context_id);
-  null_plugin::Context *getContext(uint64_t context_id);
   null_plugin::RootContext *getRootContext(uint64_t context_id);
   null_plugin::ContextBase *getContextBase(uint64_t context_id);
 

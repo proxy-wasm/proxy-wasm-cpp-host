@@ -20,9 +20,11 @@
 namespace proxy_wasm {
 namespace null_plugin {
 class RootContext;
+class Context;
 } // namespace null_plugin
 
 null_plugin::RootContext *nullVmGetRoot(string_view root_id);
+null_plugin::Context* nullVmGetContext(uint32_t context_id);
 
 namespace null_plugin {
 
@@ -263,6 +265,7 @@ inline WasmResult proxy_call_foreign_function(const char *function_name, size_t 
 #undef WR
 
 inline RootContext *getRoot(string_view root_id) { return nullVmGetRoot(root_id); }
+inline Context* getContext(uint32_t context_id) { return nullVmGetContext(context_id); }
 
 } // namespace null_plugin
 } // namespace proxy_wasm
