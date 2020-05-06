@@ -239,7 +239,7 @@ Word call_foreign_function(void *raw_context, Word function_name, Word function_
   if ((address || result) && !context->wasmVm()->setWord(results, Word(address))) {
     return WasmResult::InvalidMemoryAccess;
   }
-  if ((results || result_size) && !context->wasmVm()->setWord(results_size, Word(results))) {
+  if ((results || result_size) && !context->wasmVm()->setWord(results_size, Word(result_size))) {
     return WasmResult::InvalidMemoryAccess;
   }
   return res;
