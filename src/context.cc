@@ -384,7 +384,6 @@ template <typename P> static uint32_t headerSize(const P &p) { return p ? p->siz
 
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers) {
   DeferAfterCallActions actions(this);
-  in_vm_context_created_ = true;
   if (!wasm_->on_request_headers_) {
     return FilterHeadersStatus::Continue;
   }
