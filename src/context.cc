@@ -274,6 +274,9 @@ void ContextBase::onCreate(uint32_t parent_context_id) {
     DeferAfterCallActions actions(this);
     wasm_->on_context_create_(this, id_, parent_context_id);
   }
+  // NB: If no on_context_create function is registered the in-VM SDK is responsible for
+  // managing any required in-VM state.
+  in_vm_context_created_ = true;
 }
 
 // Shared Data
@@ -331,7 +334,6 @@ void ContextBase::onTick(uint32_t) {
 
 FilterStatus ContextBase::onNetworkNewConnection() {
   DeferAfterCallActions actions(this);
-  onCreate(root_context_id_);
   if (!wasm_->on_new_connection_) {
     return FilterStatus::Continue;
   }
@@ -382,7 +384,6 @@ template <typename P> static uint32_t headerSize(const P &p) { return p ? p->siz
 
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers) {
   DeferAfterCallActions actions(this);
-  onCreate(root_context_id_);
   in_vm_context_created_ = true;
   if (!wasm_->on_request_headers_) {
     return FilterHeadersStatus::Continue;
@@ -432,14 +433,6 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
 
 FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers) {
   DeferAfterCallActions actions(this);
-  if (!in_vm_context_created_) {
-    // If the request is invalid then onRequestHeaders() will not be called and neither will
-    // onCreate() then sendLocalReply be called which will call this function. In this case we
-    // need to call onCreate() so that the Context inside the VM is created before the
-    // onResponseHeaders() call.
-    onCreate(root_context_id_);
-    in_vm_context_created_ = true;
-  }
   if (!wasm_->on_response_headers_) {
     return FilterHeadersStatus::Continue;
   }
