@@ -236,11 +236,10 @@ Word call_foreign_function(void *raw_context, Word function_name, Word function_
     result_size = s;
     return result;
   });
-  if ((address || results) && !context->wasmVm()->setWord(results, Word(address))) {
+  if (address && !context->wasmVm()->setWord(results, Word(address))) {
     return WasmResult::InvalidMemoryAccess;
   }
-  if ((result_size || results_size) &&
-      !context->wasmVm()->setWord(results_size, Word(result_size))) {
+  if (result_size && !context->wasmVm()->setWord(results_size, Word(result_size))) {
     return WasmResult::InvalidMemoryAccess;
   }
   return res;
