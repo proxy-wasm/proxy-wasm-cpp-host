@@ -183,6 +183,12 @@ SharedData global_shared_data;
 
 } // namespace
 
+// Test support.
+
+uint32_t resolveQueueForTest(string_view vm_id, string_view queue_name) {
+  return global_shared_data.resolveQueue(vm_id, queue_name);
+}
+
 std::string PluginBase::makeLogPrefix() const {
   std::string prefix;
   if (!name_.empty()) {
