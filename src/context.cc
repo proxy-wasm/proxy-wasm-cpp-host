@@ -247,17 +247,18 @@ std::string ContextBase::makeRootLogPrefix(string_view vm_id) const {
 //
 bool ContextBase::onStart(std::shared_ptr<PluginBase> plugin) {
   DeferAfterCallActions actions(this);
-  bool result = 0;
+  bool result = true;
   if (wasm_->on_context_create_) {
     plugin_ = plugin;
     wasm_->on_context_create_(this, id_, 0);
     plugin_.reset();
   }
   if (wasm_->on_vm_start_) {
+    // Do not set plugin_ as the on_vm_start handler should be independent of the plugin since the
+    // specific plugin which ends up calling it is not necessarily known by the Wasm module.
     result =
         wasm_->on_vm_start_(this, id_, static_cast<uint32_t>(wasm()->vm_configuration().size()))
             .u64_ != 0;
-    plugin_.reset();
   }
   return result;
 }
