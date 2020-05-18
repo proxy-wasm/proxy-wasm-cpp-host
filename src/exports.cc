@@ -231,16 +231,24 @@ Word call_foreign_function(void *raw_context, Word function_name, Word function_
   uint64_t address = 0;
   void *result = nullptr;
   size_t result_size = 0;
-  auto res = f(wasm, args, [&wasm, &address, &result, &result_size](size_t s) -> void * {
-    result = wasm.allocMemory(s, &address);
+  auto res = f(wasm, args, [&wasm, &address, &result, &result_size, results](size_t s) -> void * {
+    if (results) {
+      result = wasm.allocMemory(s, &address);
+    } else {
+      // If the caller does not want the results, allocate a temporary buffer for them.
+      result = ::malloc(s);
+    }
     result_size = s;
     return result;
   });
-  if (!context->wasmVm()->setWord(results, Word(address))) {
+  if (results && !context->wasmVm()->setWord(results, Word(address))) {
     return WasmResult::InvalidMemoryAccess;
   }
-  if (!context->wasmVm()->setWord(results_size, Word(result_size))) {
+  if (results_size && !context->wasmVm()->setWord(results_size, Word(result_size))) {
     return WasmResult::InvalidMemoryAccess;
+  }
+  if (!results) {
+    ::free(result);
   }
   return res;
 }
