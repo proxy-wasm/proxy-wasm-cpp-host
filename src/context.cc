@@ -14,8 +14,8 @@
 // limitations under the License.
 
 #include <deque>
-#include <memory>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <unordered_map>
 #include <unordered_set>
@@ -387,11 +387,10 @@ FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers) {
   if (!wasm_->on_request_headers_) {
     return FilterHeadersStatus::Continue;
   }
-  if (static_cast<FilterHeadersStatus>(wasm_->on_request_headers_(this, id_, headers).u64_) ==
-      FilterHeadersStatus::Continue) {
-    return FilterHeadersStatus::Continue;
-  }
-  return FilterHeadersStatus::StopIteration;
+  auto result = wasm_->on_request_headers_(this, id_, headers).u64_;
+  if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
+    return FilterHeadersStatus::StopAllIterationAndWatermark;
+  return static_cast<FilterHeadersStatus>(result);
 }
 
 FilterDataStatus ContextBase::onRequestBody(uint32_t data_length, bool end_of_stream) {
@@ -443,11 +442,10 @@ FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers) {
   if (!wasm_->on_response_headers_) {
     return FilterHeadersStatus::Continue;
   }
-  if (static_cast<FilterHeadersStatus>(wasm_->on_response_headers_(this, id_, headers).u64_) ==
-      FilterHeadersStatus::Continue) {
-    return FilterHeadersStatus::Continue;
-  }
-  return FilterHeadersStatus::StopIteration;
+  auto result = wasm_->on_response_headers_(this, id_, headers).u64_;
+  if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
+    return FilterHeadersStatus::StopAllIterationAndWatermark;
+  return static_cast<FilterHeadersStatus>(result);
 }
 
 FilterDataStatus ContextBase::onResponseBody(uint32_t body_length, bool end_of_stream) {
