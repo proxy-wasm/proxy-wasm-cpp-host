@@ -103,13 +103,6 @@ RegisterForeignFunction::RegisterForeignFunction(std::string name, WasmForeignFu
   (*foreign_functions)[name] = f;
 }
 
-WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, string_view vm_id, string_view vm_configuration,
-                   string_view vm_key)
-    : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
-      vm_configuration_(std::string(vm_configuration)) {}
-
-WasmBase::~WasmBase() {}
-
 void WasmBase::registerCallbacks() {
 #define _REGISTER(_fn)                                                                             \
   wasm_vm_->registerCallback(                                                                      \
@@ -241,7 +234,7 @@ void WasmBase::getFunctions() {
 #undef _GET_PROXY
 
   if (!malloc_) {
-    error("WASM missing malloc");
+    error("Wasm missing malloc");
   }
 }
 
@@ -255,11 +248,14 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
   } else {
     wasm_vm_ = factory();
   }
-  if (!initialize(base_wasm_handle->wasm()->code(),
-                  base_wasm_handle->wasm()->allow_precompiled())) {
-    error("Failed to load WASM code");
-  }
 }
+
+WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, string_view vm_id, string_view vm_configuration,
+                   string_view vm_key)
+    : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
+      vm_configuration_(std::string(vm_configuration)) {}
+
+WasmBase::~WasmBase() {}
 
 bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
   if (!wasm_vm_) {
@@ -354,11 +350,13 @@ ContextBase *WasmBase::start(std::shared_ptr<PluginBase> plugin) {
   auto context = std::unique_ptr<ContextBase>(createContext(plugin));
   auto context_ptr = context.get();
   root_contexts_[root_id] = std::move(context);
-  context_ptr->onStart(plugin);
+  if (!context_ptr->onStart(plugin)) {
+    return nullptr;
+  }
   return context_ptr;
 };
 
-void WasmBase::startForTesting(std::unique_ptr<ContextBase> context,
+bool WasmBase::startForTesting(std::unique_ptr<ContextBase> context,
                                std::shared_ptr<PluginBase> plugin) {
   auto context_ptr = context.get();
   if (!context->wasm_) {
@@ -367,7 +365,7 @@ void WasmBase::startForTesting(std::unique_ptr<ContextBase> context,
   }
   root_contexts_[plugin->root_id_] = std::move(context);
   // Set the current plugin over the lifetime of the onConfigure call to the RootContext.
-  context_ptr->onStart(plugin);
+  return context_ptr->onStart(plugin) != 0;
 }
 
 uint32_t WasmBase::allocContextId() {
@@ -445,7 +443,7 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
                                            std::shared_ptr<PluginBase> plugin,
                                            WasmHandleFactory factory, bool allow_precompiled,
                                            std::unique_ptr<ContextBase> root_context_for_testing) {
-  std::shared_ptr<WasmHandleBase> wasm;
+  std::shared_ptr<WasmHandleBase> wasm_handle;
   {
     std::lock_guard<std::mutex> guard(base_wasms_mutex);
     if (!base_wasms) {
@@ -453,36 +451,63 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
     }
     auto it = base_wasms->find(vm_key);
     if (it != base_wasms->end()) {
-      wasm = it->second.lock();
-      if (!wasm) {
+      wasm_handle = it->second.lock();
+      if (!wasm_handle) {
         base_wasms->erase(it);
       }
     }
-    if (wasm)
-      return wasm;
-    wasm = factory(vm_key);
-    (*base_wasms)[vm_key] = wasm;
+    if (wasm_handle)
+      return wasm_handle;
+    wasm_handle = factory(vm_key);
+    if (!wasm_handle) {
+      return nullptr;
+    }
+    (*base_wasms)[vm_key] = wasm_handle;
   }
 
-  if (!wasm->wasm()->initialize(code, allow_precompiled)) {
-    wasm->wasm()->error("Failed to initialize WASM code");
+  if (!wasm_handle->wasm()->initialize(code, allow_precompiled)) {
+    wasm_handle->wasm()->error("Failed to initialize Wasm code");
     return nullptr;
   }
+  ContextBase *root_context = root_context_for_testing.get();
   if (!root_context_for_testing) {
-    wasm->wasm()->start(plugin);
+    root_context = wasm_handle->wasm()->start(plugin);
+    if (!root_context) {
+      wasm_handle->wasm()->error("Failed to start base Wasm");
+      return nullptr;
+    }
   } else {
-    wasm->wasm()->startForTesting(std::move(root_context_for_testing), plugin);
+    if (!wasm_handle->wasm()->startForTesting(std::move(root_context_for_testing), plugin)) {
+      wasm_handle->wasm()->error("Failed to start base Wasm");
+      return nullptr;
+    }
   }
-  return wasm;
+  if (!wasm_handle->wasm()->configure(root_context, plugin)) {
+    wasm_handle->wasm()->error("Failed to configure base Wasm plugin");
+    return nullptr;
+  }
+  return wasm_handle;
 };
 
 static std::shared_ptr<WasmHandleBase>
 createThreadLocalWasm(std::shared_ptr<WasmHandleBase> &base_wasm,
                       std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory factory) {
   auto wasm_handle = factory(base_wasm);
+  if (!wasm_handle) {
+    return nullptr;
+  }
+  if (!wasm_handle->wasm()->initialize(base_wasm->wasm()->code(),
+                                       base_wasm->wasm()->allow_precompiled())) {
+    base_wasm->wasm()->error("Failed to load Wasm code");
+    return nullptr;
+  }
   ContextBase *root_context = wasm_handle->wasm()->start(plugin);
+  if (!root_context) {
+    base_wasm->wasm()->error("Failed to start thread-local Wasm");
+    return nullptr;
+  }
   if (!wasm_handle->wasm()->configure(root_context, plugin)) {
-    base_wasm->wasm()->error("Failed to configure WASM code");
+    base_wasm->wasm()->error("Failed to configure thread-local Wasm plugin");
     return nullptr;
   }
   local_wasms[std::string(wasm_handle->wasm()->vm_key())] = wasm_handle;
@@ -508,7 +533,7 @@ getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
   if (wasm_handle) {
     auto root_context = wasm_handle->wasm()->getOrCreateRootContext(plugin);
     if (!wasm_handle->wasm()->configure(root_context, plugin)) {
-      base_wasm->wasm()->error("Failed to configure WASM code");
+      base_wasm->wasm()->error("Failed to configure Wasm code");
       return nullptr;
     }
     return wasm_handle;
