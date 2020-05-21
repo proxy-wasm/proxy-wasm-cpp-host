@@ -124,7 +124,7 @@ public:
         return true;
       }
     }
-    vm_->error("Failed to load WASM module due to a missing import: " + std::string(module_name) +
+    vm_->error("Failed to load Wasm module due to a missing import: " + std::string(module_name) +
                "." + std::string(export_name) + " " + asString(type));
   }
 

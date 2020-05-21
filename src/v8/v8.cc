@@ -322,18 +322,21 @@ string_view V8::getCustomSection(string_view name) {
   const byte_t *end = source_.get() + source_.size();
   while (pos < end) {
     if (pos + 1 > end) {
-      error("Failed to parse corrupted WASM module");
+      error("Failed to parse corrupted Wasm module");
+      return "";
     }
     const auto section_type = *pos++;
     const auto section_len = parseVarint(pos, end);
     if (section_len == static_cast<uint32_t>(-1) || pos + section_len > end) {
-      error("Failed to parse corrupted WASM module");
+      error("Failed to parse corrupted Wasm module");
+      return "";
     }
     if (section_type == 0 /* custom section */) {
       const auto section_data_start = pos;
       const auto section_name_len = parseVarint(pos, end);
       if (section_name_len == static_cast<uint32_t>(-1) || pos + section_name_len > end) {
-        error("Failed to parse corrupted WASM module");
+        error("Failed to parse corrupted Wasm module");
+        return "";
       }
       if (section_name_len == name.size() && ::memcmp(pos, name.data(), section_name_len) == 0) {
         pos += section_name_len;
@@ -379,25 +382,27 @@ void V8::link(string_view debug_name) {
     case wasm::EXTERN_FUNC: {
       auto it = host_functions_.find(std::string(module) + "." + std::string(name));
       if (it == host_functions_.end()) {
-        error(std::string("Failed to load WASM module due to a missing import: ") +
+        error(std::string("Failed to load Wasm module due to a missing import: ") +
               std::string(module) + "." + std::string(name));
+        break;
       }
       auto func = it->second.get()->callback_.get();
       if (!equalValTypes(import_type->func()->params(), func->type()->params()) ||
           !equalValTypes(import_type->func()->results(), func->type()->results())) {
-        error(std::string("Failed to load WASM module due to an import type mismatch: ") +
+        error(std::string("Failed to load Wasm module due to an import type mismatch: ") +
               std::string(module) + "." + std::string(name) +
               ", want: " + printValTypes(import_type->func()->params()) + " -> " +
               printValTypes(import_type->func()->results()) +
               ", but host exports: " + printValTypes(func->type()->params()) + " -> " +
               printValTypes(func->type()->results()));
+        break;
       }
       imports.push_back(func);
     } break;
 
     case wasm::EXTERN_GLOBAL: {
       // TODO(PiotrSikora): add support when/if needed.
-      error("Failed to load WASM module due to a missing import: " + std::string(module) + "." +
+      error("Failed to load Wasm module due to a missing import: " + std::string(module) + "." +
             std::string(name));
     } break;
 
@@ -558,6 +563,8 @@ void V8::getModuleFunctionImpl(string_view function_name,
   if (!equalValTypes(func->type()->params(), convertArgsTupleToValTypes<std::tuple<Args...>>()) ||
       !equalValTypes(func->type()->results(), convertArgsTupleToValTypes<std::tuple<>>())) {
     error(std::string("Bad function signature for: ") + std::string(function_name));
+    *function = nullptr;
+    return;
   }
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
     wasm::Val params[] = {makeVal(args)...};
@@ -582,6 +589,8 @@ void V8::getModuleFunctionImpl(string_view function_name,
   if (!equalValTypes(func->type()->params(), convertArgsTupleToValTypes<std::tuple<Args...>>()) ||
       !equalValTypes(func->type()->results(), convertArgsTupleToValTypes<std::tuple<R>>())) {
     error("Bad function signature for: " + std::string(function_name));
+    *function = nullptr;
+    return;
   }
   *function = [func, function_name, this](ContextBase *context, Args... args) -> R {
     wasm::Val params[] = {makeVal(args)...};
@@ -591,6 +600,7 @@ void V8::getModuleFunctionImpl(string_view function_name,
     if (trap) {
       error("Function: " + std::string(function_name) +
             " failed: " + std::string(trap->message().get(), trap->message().size()));
+      return R{};
     }
     R rvalue = results[0].get<typename ConvertWordTypeToUint32<R>::type>();
     return rvalue;
