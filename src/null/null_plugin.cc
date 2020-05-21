@@ -39,6 +39,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<0> *f) {
     *f = nullptr;
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -61,6 +62,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<1> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -88,6 +90,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<2> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -115,6 +118,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<3> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -128,6 +132,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<5> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -149,6 +154,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<1> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -201,6 +207,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -232,6 +239,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<3> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -244,6 +252,7 @@ null_plugin::Context *NullPlugin::ensureContext(uint64_t context_id, uint64_t ro
     auto factory = registry_->context_factories[root_id];
     if (!factory) {
       error("no context factory for root_id: " + root_id);
+      return nullptr;
     }
     e.first->second = factory(context_id, root);
   }
@@ -254,6 +263,7 @@ null_plugin::RootContext *NullPlugin::ensureRootContext(uint64_t context_id) {
   auto root_id_opt = null_plugin::getProperty({"plugin_root_id"});
   if (!root_id_opt) {
     error("unable to get root_id");
+    return nullptr;
   }
   auto root_id = std::move(root_id_opt.value());
   auto it = context_map_.find(context_id);
@@ -281,6 +291,7 @@ null_plugin::ContextBase *NullPlugin::getContextBase(uint64_t context_id) {
   auto it = context_map_.find(context_id);
   if (it == context_map_.end() || !(it->second->asContext() || it->second->asRoot())) {
     error("no base context context_id: " + std::to_string(context_id));
+    return nullptr;
   }
   return it->second.get();
 }
@@ -289,6 +300,7 @@ null_plugin::Context *NullPlugin::getContext(uint64_t context_id) {
   auto it = context_map_.find(context_id);
   if (it == context_map_.end() || !it->second->asContext()) {
     error("no context context_id: " + std::to_string(context_id));
+    return nullptr;
   }
   return it->second->asContext();
 }
@@ -297,6 +309,7 @@ null_plugin::RootContext *NullPlugin::getRootContext(uint64_t context_id) {
   auto it = context_map_.find(context_id);
   if (it == context_map_.end() || !it->second->asRoot()) {
     error("no root context_id: " + std::to_string(context_id));
+    return nullptr;
   }
   return it->second->asRoot();
 }
