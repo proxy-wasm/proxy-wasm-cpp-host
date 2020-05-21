@@ -387,7 +387,7 @@ void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
 // Empty headers/trailers have zero size.
 template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
 
-FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers) {
+FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool) {
   DeferAfterCallActions actions(this);
   onCreate(root_context_id_);
   in_vm_context_created_ = true;
@@ -436,7 +436,7 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
   return FilterMetadataStatus::Continue; // This is currently the only return code.
 }
 
-FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers) {
+FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool) {
   DeferAfterCallActions actions(this);
   if (!in_vm_context_created_) {
     // If the request is invalid then onRequestHeaders() will not be called and neither will
