@@ -223,7 +223,7 @@ public:
    * Call on a stream context to indicate that the request headers have arrived.  Calls
    * onCreate() to create a Context in the VM first.
    */
-  virtual FilterHeadersStatus onRequestHeaders(uint32_t headers) = 0;
+  virtual FilterHeadersStatus onRequestHeaders(uint32_t headers, bool end_of_stream) = 0;
 
   // Call on a stream context to indicate that body data has arrived.
   virtual FilterDataStatus onRequestBody(uint32_t body_buffer_length, bool end_of_stream) = 0;
@@ -235,7 +235,7 @@ public:
   virtual FilterMetadataStatus onRequestMetadata(uint32_t elements) = 0;
 
   // Call on a stream context to indicate that the request trailers have arrived.
-  virtual FilterHeadersStatus onResponseHeaders(uint32_t trailers) = 0;
+  virtual FilterHeadersStatus onResponseHeaders(uint32_t trailers, bool end_of_stream) = 0;
 
   // Call on a stream context to indicate that body data has arrived.
   virtual FilterDataStatus onResponseBody(uint32_t body_buffer_length, bool end_of_stream) = 0;
