@@ -534,7 +534,7 @@ getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
   if (wasm_handle) {
     auto root_context = wasm_handle->wasm()->getOrCreateRootContext(plugin);
     if (!wasm_handle->wasm()->configure(root_context, plugin)) {
-      base_wasm->wasm()->error("Failed to configure Wasm code");
+      base_wasm->wasm()->error("Failed to configure thread-local Wasm code");
       return nullptr;
     }
     return wasm_handle;
