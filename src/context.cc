@@ -389,7 +389,7 @@ void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
 // Empty headers/trailers have zero size.
 template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
 
-FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers) {
+FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool) {
   DeferAfterCallActions actions(this);
   if (!wasm_->on_request_headers_) {
     return FilterHeadersStatus::Continue;
@@ -436,7 +436,7 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
   return FilterMetadataStatus::Continue; // This is currently the only return code.
 }
 
-FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers) {
+FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool) {
   DeferAfterCallActions actions(this);
   if (!wasm_->on_response_headers_) {
     return FilterHeadersStatus::Continue;
