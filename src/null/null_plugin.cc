@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "include/proxy-wasm/null_plugin.h"
-
 #include <stdint.h>
 #include <stdio.h>
 
@@ -25,6 +23,7 @@
 #include <utility>
 #include <vector>
 
+#include "include/proxy-wasm/null_plugin.h"
 #include "include/proxy-wasm/null_vm.h"
 #include "include/proxy-wasm/wasm.h"
 
@@ -175,11 +174,6 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
       SaveRestoreContext saved_context(context);
       return Word(plugin->validateConfiguration(context_id, configuration_size));
     };
-  } else if (function_name == "proxy_on_request_headers") {
-    *f = [plugin](ContextBase *context, Word context_id, Word headers) -> Word {
-      SaveRestoreContext saved_context(context);
-      return Word(plugin->onRequestHeaders(context_id, headers));
-    };
   } else if (function_name == "proxy_on_request_trailers") {
     *f = [plugin](ContextBase *context, Word context_id, Word trailers) -> Word {
       SaveRestoreContext saved_context(context);
@@ -189,11 +183,6 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
     *f = [plugin](ContextBase *context, Word context_id, Word elements) -> Word {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onRequestMetadata(context_id, elements));
-    };
-  } else if (function_name == "proxy_on_response_headers") {
-    *f = [plugin](ContextBase *context, Word context_id, Word headers) -> Word {
-      SaveRestoreContext saved_context(context);
-      return Word(plugin->onResponseHeaders(context_id, headers));
     };
   } else if (function_name == "proxy_on_response_trailers") {
     *f = [plugin](ContextBase *context, Word context_id, Word trailers) -> Word {
@@ -225,11 +214,21 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<3> *f) {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onUpstreamData(context_id, body_buffer_length, end_of_stream));
     };
+  } else if (function_name == "proxy_on_request_headers") {
+    *f = [plugin](ContextBase *context, Word context_id, Word headers, Word end_of_stream) -> Word {
+      SaveRestoreContext saved_context(context);
+      return Word(plugin->onRequestHeaders(context_id, headers, end_of_stream));
+    };
   } else if (function_name == "proxy_on_request_body") {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
                   Word end_of_stream) -> Word {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onRequestBody(context_id, body_buffer_length, end_of_stream));
+    };
+  } else if (function_name == "proxy_on_response_headers") {
+    *f = [plugin](ContextBase *context, Word context_id, Word headers, Word end_of_stream) -> Word {
+      SaveRestoreContext saved_context(context);
+      return Word(plugin->onResponseHeaders(context_id, headers, end_of_stream));
     };
   } else if (function_name == "proxy_on_response_body") {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
@@ -384,8 +383,10 @@ void NullPlugin::onUpstreamConnectionClose(uint64_t context_id, uint64_t close_t
   getContext(context_id)->onUpstreamConnectionClose(static_cast<PeerType>(close_type));
 }
 
-uint64_t NullPlugin::onRequestHeaders(uint64_t context_id, uint64_t headers) {
-  return static_cast<uint64_t>(getContext(context_id)->onRequestHeaders(headers));
+uint64_t NullPlugin::onRequestHeaders(uint64_t context_id, uint64_t headers,
+                                      uint64_t end_of_stream) {
+  return static_cast<uint64_t>(
+      getContext(context_id)->onRequestHeaders(headers, end_of_stream != 0));
 }
 
 uint64_t NullPlugin::onRequestBody(uint64_t context_id, uint64_t body_buffer_length,
@@ -403,8 +404,10 @@ uint64_t NullPlugin::onRequestMetadata(uint64_t context_id, uint64_t elements) {
   return static_cast<uint64_t>(getContext(context_id)->onRequestMetadata(elements));
 }
 
-uint64_t NullPlugin::onResponseHeaders(uint64_t context_id, uint64_t headers) {
-  return static_cast<uint64_t>(getContext(context_id)->onResponseHeaders(headers));
+uint64_t NullPlugin::onResponseHeaders(uint64_t context_id, uint64_t headers,
+                                       uint64_t end_of_stream) {
+  return static_cast<uint64_t>(
+      getContext(context_id)->onResponseHeaders(headers, end_of_stream != 0));
 }
 
 uint64_t NullPlugin::onResponseBody(uint64_t context_id, uint64_t body_buffer_length,
