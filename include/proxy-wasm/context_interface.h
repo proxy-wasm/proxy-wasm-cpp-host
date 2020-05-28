@@ -582,6 +582,15 @@ struct GeneralInterface {
    * serialized..
    */
   virtual WasmResult setProperty(string_view key, string_view value) = 0;
+
+  /**
+   * Custom extension call into the VM. Data is provided as WasmBufferType::CallData.
+   * @param foreign_function_id a unique identifier for the calling foreign function. These are
+   * defined and allocated by the foreign function implementor.
+   * @param data_size is the size of the WasmBufferType::CallData buffer containing data for this
+   * foreign function call.
+   */
+  virtual void onForeignFunction(uint32_t foreign_function_id, uint32_t data_size) = 0;
 };
 
 /**

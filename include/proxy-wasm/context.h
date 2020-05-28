@@ -63,6 +63,46 @@ private:
   std::string log_prefix_;
 };
 
+struct BufferBase : public BufferInterface {
+  BufferBase() = default;
+  ~BufferBase() override = default;
+
+  // BufferInterface
+  size_t size() const override {
+    if (owned_data_) {
+      return owned_data_size_;
+    }
+    return data_.size();
+  }
+  WasmResult copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
+                    uint64_t size_ptr) const override;
+  WasmResult copyFrom(size_t /* start */, size_t /* length */, string_view /* data */) override {
+    // Setting a string buffer not supported (no use case).
+    return WasmResult::BadArgument;
+  }
+
+  virtual void clear() {
+    data_ = "";
+    owned_data_ = nullptr;
+  }
+  BufferBase *set(string_view data) {
+    clear();
+    data_ = data;
+    return this;
+  }
+  BufferBase *set(std::unique_ptr<char[]> owned_data, uint32_t owned_data_size) {
+    clear();
+    owned_data_ = std::move(owned_data);
+    owned_data_size_ = owned_data_size;
+    return this;
+  }
+
+protected:
+  string_view data_;
+  std::unique_ptr<char[]> owned_data_;
+  uint32_t owned_data_size_;
+};
+
 /**
  * ContextBase is the interface between the VM host and the VM. It has several uses:
  *
@@ -125,6 +165,7 @@ public:
   bool onDone() override;
   void onLog() override;
   void onDelete() override;
+  void onForeignFunction(uint32_t foreign_function_id, uint32_t data_size) override;
 
   // Root
   bool onStart(std::shared_ptr<PluginBase> plugin) override;
@@ -173,10 +214,6 @@ public:
   WasmResult log(uint32_t /* level */, string_view /* message */) override {
     return unimplemented();
   }
-  WasmResult setTimerPeriod(std::chrono::milliseconds /* period */,
-                            uint32_t * /* timer_token_ptr */) override {
-    return unimplemented();
-  }
   uint64_t getCurrentTimeNanoseconds() override {
     struct timespec tpe;
     clock_gettime(CLOCK_REALTIME, &tpe);
@@ -189,6 +226,7 @@ public:
     unimplemented();
     return std::make_pair(1, "unimplmemented");
   }
+  WasmResult setTimerPeriod(std::chrono::milliseconds period, uint32_t *timer_token_ptr) override;
 
   // Buffer
   BufferInterface *getBuffer(WasmBufferType /* type */) override {
@@ -322,6 +360,15 @@ protected:
   std::shared_ptr<PluginBase> plugin_;
   bool in_vm_context_created_ = false;
   bool destroyed_ = false;
+};
+
+class DeferAfterCallActions {
+public:
+  DeferAfterCallActions(ContextBase *context) : wasm_(context->wasm()) {}
+  ~DeferAfterCallActions();
+
+private:
+  WasmBase *const wasm_;
 };
 
 uint32_t resolveQueueForTest(string_view vm_id, string_view queue_name);

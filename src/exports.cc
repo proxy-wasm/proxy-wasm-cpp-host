@@ -15,19 +15,16 @@
 //
 #include "include/proxy-wasm/wasm.h"
 
+#define WASM_CONTEXT(_c)                                                                           \
+  (ContextOrEffectiveContext(static_cast<ContextBase *>((void)_c, current_context_)))
+
 namespace proxy_wasm {
 
+// The id of the context which should be used for calls out of the VM in place
+// of current_context_.
 extern thread_local uint32_t effective_context_id_;
 
 namespace exports {
-
-// Any currently executing Wasm call context.
-#define WASM_CONTEXT(_c)                                                                           \
-  (ContextOrEffectiveContext(static_cast<ContextBase *>((void)_c, current_context_)))
-// The id of the context which should be used for calls out of the VM in place
-// of current_context_ above.
-
-namespace {
 
 ContextBase *ContextOrEffectiveContext(ContextBase *context) {
   if (effective_context_id_ == 0) {
@@ -40,6 +37,8 @@ ContextBase *ContextOrEffectiveContext(ContextBase *context) {
   // The effective_context_id_ no longer exists, revert to the true context.
   return context;
 }
+
+namespace {
 
 Pairs toPairs(string_view buffer) {
   Pairs result;
@@ -811,10 +810,10 @@ void wasi_unstable_proc_exit(void *raw_context, Word) {
 
 Word pthread_equal(void *, Word left, Word right) { return left == right; }
 
-Word set_tick_period_milliseconds(void *raw_context, Word tick_period_milliseconds) {
+Word set_tick_period_milliseconds(void *raw_context, Word period_milliseconds) {
   TimerToken token = 0;
   return WASM_CONTEXT(raw_context)
-      ->setTimerPeriod(std::chrono::milliseconds(tick_period_milliseconds), &token);
+      ->setTimerPeriod(std::chrono::milliseconds(period_milliseconds), &token);
 }
 
 Word get_current_time_nanoseconds(void *raw_context, Word result_uint64_ptr) {

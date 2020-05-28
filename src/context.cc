@@ -27,15 +27,6 @@ namespace proxy_wasm {
 
 namespace {
 
-class DeferAfterCallActions {
-public:
-  DeferAfterCallActions(ContextBase *context) : wasm_(context->wasm()) {}
-  ~DeferAfterCallActions() { wasm_->doAfterVmCallActions(); }
-
-private:
-  WasmBase *const wasm_;
-};
-
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
 class SharedData {
@@ -182,6 +173,24 @@ private:
 SharedData global_shared_data;
 
 } // namespace
+
+DeferAfterCallActions::~DeferAfterCallActions() { wasm_->doAfterVmCallActions(); }
+
+WasmResult BufferBase::copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
+                              uint64_t size_ptr) const {
+  if (owned_data_) {
+    string_view s(owned_data_.get() + start, length);
+    if (!wasm->copyToPointerSize(s, ptr_ptr, size_ptr)) {
+      return WasmResult::InvalidMemoryAccess;
+    }
+    return WasmResult::Ok;
+  }
+  string_view s = data_.substr(start, length);
+  if (!wasm->copyToPointerSize(s, ptr_ptr, size_ptr)) {
+    return WasmResult::InvalidMemoryAccess;
+  }
+  return WasmResult::Ok;
+}
 
 // Test support.
 
@@ -333,6 +342,13 @@ void ContextBase::onTick(uint32_t) {
   if (wasm_->on_tick_) {
     DeferAfterCallActions actions(this);
     wasm_->on_tick_(this, id_);
+  }
+}
+
+void ContextBase::onForeignFunction(uint32_t foreign_function_id, uint32_t data_size) {
+  if (wasm_->on_foreign_function_) {
+    DeferAfterCallActions actions(this);
+    wasm_->on_foreign_function_(this, id_, foreign_function_id, data_size);
   }
 }
 
@@ -559,6 +575,13 @@ void ContextBase::onDelete() {
   if (wasm_->on_delete_) {
     wasm_->on_delete_(this, id_);
   }
+}
+
+WasmResult ContextBase::setTimerPeriod(std::chrono::milliseconds period,
+                                       uint32_t *timer_token_ptr) {
+  wasm()->setTimerPeriod(root_context_id_ ? root_context_id_ : id_, period);
+  *timer_token_ptr = 0;
+  return WasmResult::Ok;
 }
 
 ContextBase::~ContextBase() {

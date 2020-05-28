@@ -15,6 +15,7 @@
 
 #include "include/proxy-wasm/null_plugin.h"
 
+#include <cstdlib>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -37,7 +38,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<0> *f) {
     *f = nullptr;
   } else if (function_name == "__wasm_call_ctors") {
     *f = nullptr;
-  } else {
+  } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, false, 0, this, f)) {
     error("Missing getFunction for: " + std::string(function_name));
     *f = nullptr;
   }
@@ -60,7 +61,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<1> *f) {
       SaveRestoreContext saved_context(context);
       plugin->onDelete(context_id);
     };
-  } else {
+  } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, false, 1, this, f)) {
     error("Missing getFunction for: " + std::string(function_name));
     *f = nullptr;
   }
@@ -88,7 +89,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<2> *f) {
       SaveRestoreContext saved_context(context);
       plugin->onQueueReady(context_id, token);
     };
-  } else {
+  } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, false, 2, this, f)) {
     error("Missing getFunction for: " + std::string(function_name));
     *f = nullptr;
   }
@@ -116,7 +117,12 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<3> *f) {
       SaveRestoreContext saved_context(context);
       plugin->onGrpcReceiveTrailingMetadata(context_id, token, trailers);
     };
-  } else {
+  } else if (function_name == "proxy_on_foreign_function") {
+    *f = [plugin](ContextBase *context, Word context_id, Word foreign_function_id, Word data_size) {
+      SaveRestoreContext saved_context(context);
+      plugin->onForeignFunction(context_id, foreign_function_id, data_size);
+    };
+  } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, false, 3, this, f)) {
     error("Missing getFunction for: " + std::string(function_name));
     *f = nullptr;
   }
@@ -130,7 +136,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<5> *f) {
       SaveRestoreContext saved_context(context);
       plugin->onHttpCallResponse(context_id, token, headers, body_size, trailers);
     };
-  } else {
+  } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, false, 5, this, f)) {
     error("Missing getFunction for: " + std::string(function_name));
     *f = nullptr;
   }
@@ -152,7 +158,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<1> *f) {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onDone(context_id));
     };
-  } else {
+  } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, true, 1, this, f)) {
     error("Missing getFunction for: " + std::string(function_name));
     *f = nullptr;
   }
@@ -205,7 +211,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onResponseMetadata(context_id, elements));
     };
-  } else {
+  } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, true, 2, this, f)) {
     error("Missing getFunction for: " + std::string(function_name));
     *f = nullptr;
   }
@@ -237,7 +243,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<3> *f) {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onResponseBody(context_id, body_buffer_length, end_of_stream));
     };
-  } else {
+  } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, true, 3, this, f)) {
     error("Missing getFunction for: " + std::string(function_name));
     *f = nullptr;
   }
@@ -449,6 +455,14 @@ void NullPlugin::onQueueReady(uint64_t context_id, uint64_t token) {
   getRootContext(context_id)->onQueueReady(token);
 }
 
+void NullPlugin::onForeignFunction(uint64_t context_id, uint64_t foreign_function_id,
+                                   uint64_t data_size) {
+  if (registry_->proxy_on_foreign_function_) {
+    return registry_->proxy_on_foreign_function_(context_id, foreign_function_id, data_size);
+  }
+  getContextBase(context_id)->onForeignFunction(foreign_function_id, data_size);
+}
+
 void NullPlugin::onLog(uint64_t context_id) { getContext(context_id)->onLog(); }
 
 uint64_t NullPlugin::onDone(uint64_t context_id) {
@@ -476,5 +490,9 @@ null_plugin::Context *nullVmGetContext(uint32_t context_id) {
   auto null_vm = static_cast<NullVm *>(current_context_->wasmVm());
   return static_cast<NullPlugin *>(null_vm->plugin_.get())->getContext(context_id);
 }
+
+null_plugin::RootContext *getRoot(string_view root_id) { return nullVmGetRoot(root_id); }
+
+null_plugin::Context *getContext(uint32_t context_id) { return nullVmGetContext(context_id); }
 
 } // namespace proxy_wasm

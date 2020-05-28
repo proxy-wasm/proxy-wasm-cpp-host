@@ -19,11 +19,14 @@
 
 #include "include/proxy-wasm/null_vm_plugin.h"
 #include "include/proxy-wasm/wasm.h"
+#include "include/proxy-wasm/exports.h"
 
 #include "google/protobuf/message.h"
 
 namespace proxy_wasm {
 namespace null_plugin {
+template <typename T> using Optional = optional<T>;
+using StringView = string_view;
 #include "proxy_wasm_enums.h"
 } // namespace null_plugin
 } // namespace proxy_wasm
@@ -31,11 +34,6 @@ namespace null_plugin {
 #include "include/proxy-wasm/wasm_api_impl.h"
 
 namespace proxy_wasm {
-namespace null_plugin {
-using StringView = string_view;
-template <typename T> using Optional = optional<T>;
-#include "proxy_wasm_api.h"
-} // namespace null_plugin
 
 /**
  * Registry for Plugin implementation.
@@ -49,6 +47,8 @@ struct NullPluginRegistry {
   uint32_t (*proxy_on_configure_)(uint32_t root_context_id,
                                   uint32_t plugin_configuration_size) = nullptr;
   void (*proxy_on_tick_)(uint32_t context_id) = nullptr;
+  void (*proxy_on_foreign_function_)(uint32_t context_id, uint32_t token,
+                                     uint32_t data_size) = nullptr;
   uint32_t (*proxy_on_done_)(uint32_t context_id) = nullptr;
   void (*proxy_on_delete_)(uint32_t context_id) = nullptr;
   std::unordered_map<std::string, null_plugin::RootFactory> root_factories;
@@ -75,6 +75,8 @@ public:
   bool onConfigure(uint64_t root_context_id, uint64_t plugin_configuration_size);
   void onTick(uint64_t root_context_id);
   void onQueueReady(uint64_t root_context_id, uint64_t token);
+  void onForeignFunction(uint64_t root_context_id, uint64_t foreign_function_id,
+                         uint64_t data_size);
 
   void onCreate(uint64_t context_id, uint64_t root_context_id);
 
@@ -111,12 +113,12 @@ public:
 
   void error(string_view message) { wasm_vm_->error(message); }
 
-private:
   null_plugin::Context *ensureContext(uint64_t context_id, uint64_t root_context_id);
   null_plugin::RootContext *ensureRootContext(uint64_t context_id);
   null_plugin::RootContext *getRootContext(uint64_t context_id);
   null_plugin::ContextBase *getContextBase(uint64_t context_id);
 
+private:
   NullPluginRegistry *registry_{};
   std::unordered_map<std::string, null_plugin::RootContext *> root_context_map_;
   std::unordered_map<int64_t, std::unique_ptr<null_plugin::ContextBase>> context_map_;

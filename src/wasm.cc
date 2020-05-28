@@ -205,6 +205,7 @@ void WasmBase::getFunctions() {
   _GET_PROXY(on_vm_start);
   _GET_PROXY(on_configure);
   _GET_PROXY(on_tick);
+  _GET_PROXY(on_foreign_function);
 
   _GET_PROXY(on_context_create);
 
@@ -378,7 +379,7 @@ uint32_t WasmBase::allocContextId() {
   }
 }
 
-void WasmBase::tick(uint32_t root_context_id) {
+void WasmBase::timerReady(uint32_t root_context_id) {
   if (on_tick_) {
     auto it = contexts_.find(root_context_id);
     if (it == contexts_.end() || !it->second->isRootContext()) {

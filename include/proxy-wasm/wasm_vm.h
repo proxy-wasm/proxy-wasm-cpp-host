@@ -102,11 +102,26 @@ enum class Cloneable {
   InstantiatedModule // VMs can be cloned from an instantiated module.
 };
 
+class NullPlugin;
+
 // Integrator specific WasmVm operations.
 struct WasmVmIntegration {
   virtual ~WasmVmIntegration() {}
   virtual WasmVmIntegration *clone() = 0;
   virtual void error(string_view message) = 0;
+  // Get a NullVm implementation of a function.
+  // @param function_name is the name of the function with the implementation specific prefix.
+  // @param returns_word is true if the function returns a Word and false if it returns void.
+  // @param number_of_arguments is the number of Word arguments to the function.
+  // @param plugin is the Null VM plugin on which the function will be called.
+  // @param ptr_to_function_return is the location to write the function e.g. of type
+  // WasmCallWord<3>.
+  // @return true if the function was found.  ptr_to_function_return could still be set to nullptr
+  // (of the correct type) if the function has no implementation.  Returning true will prevent a
+  // "Missing getFunction" error.
+  virtual bool getNullVmFunction(string_view function_name, bool returns_word,
+                                 int number_of_arguments, NullPlugin *plugin,
+                                 void *ptr_to_function_return) = 0;
 };
 
 // Wasm VM instance. Provides the low level WASM interface.
