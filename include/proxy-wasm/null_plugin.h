@@ -17,10 +17,9 @@
 
 #include <memory>
 
+#include "google/protobuf/message.h"
 #include "include/proxy-wasm/null_vm_plugin.h"
 #include "include/proxy-wasm/wasm.h"
-
-#include "google/protobuf/message.h"
 
 namespace proxy_wasm {
 namespace null_plugin {
@@ -84,12 +83,12 @@ public:
   void onDownstreamConnectionClose(uint64_t context_id, uint64_t close_type);
   void onUpstreamConnectionClose(uint64_t context_id, uint64_t close_type);
 
-  uint64_t onRequestHeaders(uint64_t context_id, uint64_t headers);
+  uint64_t onRequestHeaders(uint64_t context_id, uint64_t headers, uint64_t end_of_stream);
   uint64_t onRequestBody(uint64_t context_id, uint64_t body_buffer_length, uint64_t end_of_stream);
   uint64_t onRequestTrailers(uint64_t context_id, uint64_t trailers);
   uint64_t onRequestMetadata(uint64_t context_id, uint64_t elements);
 
-  uint64_t onResponseHeaders(uint64_t context_id, uint64_t headers);
+  uint64_t onResponseHeaders(uint64_t context_id, uint64_t headers, uint64_t end_of_stream);
   uint64_t onResponseBody(uint64_t context_id, uint64_t body_buffer_length, uint64_t end_of_stream);
   uint64_t onResponseTrailers(uint64_t context_id, uint64_t trailers);
   uint64_t onResponseMetadata(uint64_t context_id, uint64_t elements);
