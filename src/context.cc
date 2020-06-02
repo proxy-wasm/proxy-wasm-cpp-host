@@ -389,12 +389,13 @@ void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
 // Empty headers/trailers have zero size.
 template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
 
-FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool) {
+FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_stream) {
   DeferAfterCallActions actions(this);
   if (!wasm_->on_request_headers_) {
     return FilterHeadersStatus::Continue;
   }
-  auto result = wasm_->on_request_headers_(this, id_, headers).u64_;
+  auto result =
+      wasm_->on_request_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream)).u64_;
   if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
     return FilterHeadersStatus::StopAllIterationAndWatermark;
   return static_cast<FilterHeadersStatus>(result);
@@ -436,12 +437,13 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
   return FilterMetadataStatus::Continue; // This is currently the only return code.
 }
 
-FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool) {
+FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of_stream) {
   DeferAfterCallActions actions(this);
   if (!wasm_->on_response_headers_) {
     return FilterHeadersStatus::Continue;
   }
-  auto result = wasm_->on_response_headers_(this, id_, headers).u64_;
+  auto result =
+      wasm_->on_response_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream)).u64_;
   if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
     return FilterHeadersStatus::StopAllIterationAndWatermark;
   return static_cast<FilterHeadersStatus>(result);
