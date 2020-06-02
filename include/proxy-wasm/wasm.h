@@ -20,12 +20,11 @@
 #include <atomic>
 #include <deque>
 #include <map>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
-#include <memory>
 
 #include "include/proxy-wasm/compat.h"
-
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/wasm_vm.h"
@@ -208,12 +207,12 @@ protected:
   WasmCallVoid<2> on_downstream_connection_close_;
   WasmCallVoid<2> on_upstream_connection_close_;
 
-  WasmCallWord<2> on_request_headers_;
+  WasmCallWord<3> on_request_headers_;
   WasmCallWord<3> on_request_body_;
   WasmCallWord<2> on_request_trailers_;
   WasmCallWord<2> on_request_metadata_;
 
-  WasmCallWord<2> on_response_headers_;
+  WasmCallWord<3> on_response_headers_;
   WasmCallWord<3> on_response_body_;
   WasmCallWord<2> on_response_trailers_;
   WasmCallWord<2> on_response_metadata_;
