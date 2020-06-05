@@ -355,7 +355,6 @@ void ContextBase::onForeignFunction(uint32_t foreign_function_id, uint32_t data_
 }
 
 FilterStatus ContextBase::onNetworkNewConnection() {
-  onCreate(root_context_id_);
   if (!wasm_->on_new_connection_) {
     return FilterStatus::Continue;
   }
@@ -406,7 +405,6 @@ void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
 template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
 
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_stream) {
-  onCreate(root_context_id_);
   if (!wasm_->on_request_headers_) {
     return FilterHeadersStatus::Continue;
   }
