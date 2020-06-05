@@ -251,6 +251,7 @@ bool ContextBase::onStart(std::shared_ptr<PluginBase> plugin) {
   if (wasm_->on_context_create_) {
     plugin_ = plugin;
     wasm_->on_context_create_(this, id_, 0);
+    in_vm_context_created_ = true;
     plugin_.reset();
   }
   if (wasm_->on_vm_start_) {
@@ -277,9 +278,10 @@ bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
 }
 
 void ContextBase::onCreate(uint32_t parent_context_id) {
-  if (wasm_->on_context_create_) {
+  if (!in_vm_context_created_ && wasm_->on_context_create_) {
     DeferAfterCallActions actions(this);
     wasm_->on_context_create_(this, id_, parent_context_id);
+    in_vm_context_created_ = true;
   }
   // NB: If no on_context_create function is registered the in-VM SDK is responsible for
   // managing any required in-VM state.
@@ -340,10 +342,10 @@ void ContextBase::onTick(uint32_t) {
 }
 
 FilterStatus ContextBase::onNetworkNewConnection() {
-  DeferAfterCallActions actions(this);
   if (!wasm_->on_new_connection_) {
     return FilterStatus::Continue;
   }
+  DeferAfterCallActions actions(this);
   if (wasm_->on_new_connection_(this, id_).u64_ == 0) {
     return FilterStatus::Continue;
   }
@@ -390,10 +392,10 @@ void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
 template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
 
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_stream) {
-  DeferAfterCallActions actions(this);
   if (!wasm_->on_request_headers_) {
     return FilterHeadersStatus::Continue;
   }
+  DeferAfterCallActions actions(this);
   auto result =
       wasm_->on_request_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream)).u64_;
   if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
@@ -438,10 +440,10 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
 }
 
 FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of_stream) {
-  DeferAfterCallActions actions(this);
   if (!wasm_->on_response_headers_) {
     return FilterHeadersStatus::Continue;
   }
+  DeferAfterCallActions actions(this);
   auto result =
       wasm_->on_response_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream)).u64_;
   if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
@@ -534,23 +536,23 @@ void ContextBase::onGrpcClose(uint32_t token, uint32_t status_code) {
 }
 
 bool ContextBase::onDone() {
-  DeferAfterCallActions actions(this);
   if (wasm_->on_done_) {
+    DeferAfterCallActions actions(this);
     return wasm_->on_done_(this, id_).u64_ != 0;
   }
   return true;
 }
 
 void ContextBase::onLog() {
-  DeferAfterCallActions actions(this);
   if (wasm_->on_log_) {
+    DeferAfterCallActions actions(this);
     wasm_->on_log_(this, id_);
   }
 }
 
 void ContextBase::onDelete() {
-  DeferAfterCallActions actions(this);
-  if (wasm_->on_delete_) {
+  if (in_vm_context_created_ && wasm_->on_delete_) {
+    DeferAfterCallActions actions(this);
     wasm_->on_delete_(this, id_);
   }
 }
