@@ -13,8 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "include/proxy-wasm/null_plugin.h"
-
 #include <stdint.h>
 #include <stdio.h>
 
@@ -25,6 +23,7 @@
 #include <utility>
 #include <vector>
 
+#include "include/proxy-wasm/null_plugin.h"
 #include "include/proxy-wasm/null_vm.h"
 #include "include/proxy-wasm/wasm.h"
 
@@ -39,6 +38,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<0> *f) {
     *f = nullptr;
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -61,6 +61,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<1> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -88,6 +89,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<2> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -115,6 +117,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<3> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -128,6 +131,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<5> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -149,6 +153,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<1> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -169,11 +174,6 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
       SaveRestoreContext saved_context(context);
       return Word(plugin->validateConfiguration(context_id, configuration_size));
     };
-  } else if (function_name == "proxy_on_request_headers") {
-    *f = [plugin](ContextBase *context, Word context_id, Word headers) -> Word {
-      SaveRestoreContext saved_context(context);
-      return Word(plugin->onRequestHeaders(context_id, headers));
-    };
   } else if (function_name == "proxy_on_request_trailers") {
     *f = [plugin](ContextBase *context, Word context_id, Word trailers) -> Word {
       SaveRestoreContext saved_context(context);
@@ -183,11 +183,6 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
     *f = [plugin](ContextBase *context, Word context_id, Word elements) -> Word {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onRequestMetadata(context_id, elements));
-    };
-  } else if (function_name == "proxy_on_response_headers") {
-    *f = [plugin](ContextBase *context, Word context_id, Word headers) -> Word {
-      SaveRestoreContext saved_context(context);
-      return Word(plugin->onResponseHeaders(context_id, headers));
     };
   } else if (function_name == "proxy_on_response_trailers") {
     *f = [plugin](ContextBase *context, Word context_id, Word trailers) -> Word {
@@ -201,6 +196,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -218,11 +214,21 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<3> *f) {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onUpstreamData(context_id, body_buffer_length, end_of_stream));
     };
+  } else if (function_name == "proxy_on_request_headers") {
+    *f = [plugin](ContextBase *context, Word context_id, Word headers, Word end_of_stream) -> Word {
+      SaveRestoreContext saved_context(context);
+      return Word(plugin->onRequestHeaders(context_id, headers, end_of_stream));
+    };
   } else if (function_name == "proxy_on_request_body") {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
                   Word end_of_stream) -> Word {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onRequestBody(context_id, body_buffer_length, end_of_stream));
+    };
+  } else if (function_name == "proxy_on_response_headers") {
+    *f = [plugin](ContextBase *context, Word context_id, Word headers, Word end_of_stream) -> Word {
+      SaveRestoreContext saved_context(context);
+      return Word(plugin->onResponseHeaders(context_id, headers, end_of_stream));
     };
   } else if (function_name == "proxy_on_response_body") {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
@@ -232,6 +238,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<3> *f) {
     };
   } else {
     error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
   }
 }
 
@@ -244,6 +251,7 @@ null_plugin::Context *NullPlugin::ensureContext(uint64_t context_id, uint64_t ro
     auto factory = registry_->context_factories[root_id];
     if (!factory) {
       error("no context factory for root_id: " + root_id);
+      return nullptr;
     }
     e.first->second = factory(context_id, root);
   }
@@ -254,6 +262,7 @@ null_plugin::RootContext *NullPlugin::ensureRootContext(uint64_t context_id) {
   auto root_id_opt = null_plugin::getProperty({"plugin_root_id"});
   if (!root_id_opt) {
     error("unable to get root_id");
+    return nullptr;
   }
   auto root_id = std::move(root_id_opt.value());
   auto it = context_map_.find(context_id);
@@ -281,6 +290,7 @@ null_plugin::ContextBase *NullPlugin::getContextBase(uint64_t context_id) {
   auto it = context_map_.find(context_id);
   if (it == context_map_.end() || !(it->second->asContext() || it->second->asRoot())) {
     error("no base context context_id: " + std::to_string(context_id));
+    return nullptr;
   }
   return it->second.get();
 }
@@ -289,6 +299,7 @@ null_plugin::Context *NullPlugin::getContext(uint64_t context_id) {
   auto it = context_map_.find(context_id);
   if (it == context_map_.end() || !it->second->asContext()) {
     error("no context context_id: " + std::to_string(context_id));
+    return nullptr;
   }
   return it->second->asContext();
 }
@@ -297,6 +308,7 @@ null_plugin::RootContext *NullPlugin::getRootContext(uint64_t context_id) {
   auto it = context_map_.find(context_id);
   if (it == context_map_.end() || !it->second->asRoot()) {
     error("no root context_id: " + std::to_string(context_id));
+    return nullptr;
   }
   return it->second->asRoot();
 }
@@ -371,8 +383,10 @@ void NullPlugin::onUpstreamConnectionClose(uint64_t context_id, uint64_t close_t
   getContext(context_id)->onUpstreamConnectionClose(static_cast<PeerType>(close_type));
 }
 
-uint64_t NullPlugin::onRequestHeaders(uint64_t context_id, uint64_t headers) {
-  return static_cast<uint64_t>(getContext(context_id)->onRequestHeaders(headers));
+uint64_t NullPlugin::onRequestHeaders(uint64_t context_id, uint64_t headers,
+                                      uint64_t end_of_stream) {
+  return static_cast<uint64_t>(
+      getContext(context_id)->onRequestHeaders(headers, end_of_stream != 0));
 }
 
 uint64_t NullPlugin::onRequestBody(uint64_t context_id, uint64_t body_buffer_length,
@@ -390,8 +404,10 @@ uint64_t NullPlugin::onRequestMetadata(uint64_t context_id, uint64_t elements) {
   return static_cast<uint64_t>(getContext(context_id)->onRequestMetadata(elements));
 }
 
-uint64_t NullPlugin::onResponseHeaders(uint64_t context_id, uint64_t headers) {
-  return static_cast<uint64_t>(getContext(context_id)->onResponseHeaders(headers));
+uint64_t NullPlugin::onResponseHeaders(uint64_t context_id, uint64_t headers,
+                                       uint64_t end_of_stream) {
+  return static_cast<uint64_t>(
+      getContext(context_id)->onResponseHeaders(headers, end_of_stream != 0));
 }
 
 uint64_t NullPlugin::onResponseBody(uint64_t context_id, uint64_t body_buffer_length,

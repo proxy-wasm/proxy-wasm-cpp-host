@@ -24,6 +24,7 @@ namespace proxy_wasm {
 // Represents a Wasm-native word-sized datum. On 32-bit VMs, the high bits are always zero.
 // The Wasm/VM API treats all bits as significant.
 struct Word {
+  Word() : u64_(0) {}
   Word(uint64_t w) : u64_(w) {}                          // Implicit conversion into Word.
   Word(WasmResult r) : u64_(static_cast<uint64_t>(r)) {} // Implicit conversion into Word.
   uint32_t u32() const { return static_cast<uint32_t>(u64_); }

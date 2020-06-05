@@ -15,10 +15,8 @@
 
 #pragma once
 
-#include "include/proxy-wasm/compat.h"
-#include "include/proxy-wasm/context_interface.h"
-
 #include <time.h>
+
 #include <atomic>
 #include <chrono>
 #include <functional>
@@ -26,6 +24,9 @@
 #include <map>
 #include <memory>
 #include <vector>
+
+#include "include/proxy-wasm/compat.h"
+#include "include/proxy-wasm/context_interface.h"
 
 namespace proxy_wasm {
 
@@ -132,11 +133,11 @@ public:
   void onQueueReady(SharedQueueDequeueToken token) override;
 
   // HTTP
-  FilterHeadersStatus onRequestHeaders(uint32_t headers) override;
+  FilterHeadersStatus onRequestHeaders(uint32_t headers, bool end_of_stream) override;
   FilterDataStatus onRequestBody(uint32_t body_buffer_length, bool end_of_stream) override;
   FilterTrailersStatus onRequestTrailers(uint32_t trailers) override;
   FilterMetadataStatus onRequestMetadata(uint32_t elements) override;
-  FilterHeadersStatus onResponseHeaders(uint32_t headers) override;
+  FilterHeadersStatus onResponseHeaders(uint32_t headers, bool end_of_stream) override;
   FilterDataStatus onResponseBody(uint32_t body_buffer_length, bool end_of_stream) override;
   FilterTrailersStatus onResponseTrailers(uint32_t trailers) override;
   FilterMetadataStatus onResponseMetadata(uint32_t elements) override;

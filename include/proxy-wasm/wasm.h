@@ -20,12 +20,11 @@
 #include <atomic>
 #include <deque>
 #include <map>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
-#include <memory>
 
 #include "include/proxy-wasm/compat.h"
-
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/wasm_vm.h"
@@ -54,7 +53,8 @@ public:
   bool initialize(const std::string &code, bool allow_precompiled = false);
   void startVm(ContextBase *root_context);
   bool configure(ContextBase *root_context, std::shared_ptr<PluginBase> plugin);
-  ContextBase *start(std::shared_ptr<PluginBase> plugin); // returns the root ContextBase.
+  // Returns the root ContextBase or nullptr if onStart returns false.
+  ContextBase *start(std::shared_ptr<PluginBase> plugin);
 
   string_view vm_id() const { return vm_id_; }
   string_view vm_key() const { return vm_key_; }
@@ -115,7 +115,8 @@ public:
 
   // For testing.
   void setContext(ContextBase *context) { contexts_[context->id()] = context; }
-  void startForTesting(std::unique_ptr<ContextBase> root_context,
+  // Returns false if onStart returns false.
+  bool startForTesting(std::unique_ptr<ContextBase> root_context,
                        std::shared_ptr<PluginBase> plugin);
 
   bool getEmscriptenVersion(uint32_t *emscripten_metadata_major_version,
@@ -204,12 +205,12 @@ protected:
   WasmCallVoid<2> on_downstream_connection_close_;
   WasmCallVoid<2> on_upstream_connection_close_;
 
-  WasmCallWord<2> on_request_headers_;
+  WasmCallWord<3> on_request_headers_;
   WasmCallWord<3> on_request_body_;
   WasmCallWord<2> on_request_trailers_;
   WasmCallWord<2> on_request_metadata_;
 
-  WasmCallWord<2> on_response_headers_;
+  WasmCallWord<3> on_response_headers_;
   WasmCallWord<3> on_response_body_;
   WasmCallWord<2> on_response_trailers_;
   WasmCallWord<2> on_response_metadata_;
@@ -289,6 +290,9 @@ inline const std::string &WasmBase::vm_configuration() const {
 }
 
 inline void *WasmBase::allocMemory(uint64_t size, uint64_t *address) {
+  if (!malloc_) {
+    return nullptr;
+  }
   Word a = malloc_(vm_context(), size);
   if (!a.u64_) {
     return nullptr;
