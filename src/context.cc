@@ -292,6 +292,9 @@ void ContextBase::onCreate(uint32_t parent_context_id) {
     wasm_->on_context_create_(this, id_, parent_context_id);
     in_vm_context_created_ = true;
   }
+  // NB: If no on_context_create function is registered the in-VM SDK is responsible for
+  // managing any required in-VM state.
+  in_vm_context_created_ = true;
 }
 
 // Shared Data
