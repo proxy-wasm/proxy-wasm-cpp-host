@@ -5,7 +5,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "proxy_wasm_cpp_sdk",
-    commit = "f750d1f5da6a2f20cc55da75dd9772b7ba1650ca",
+    commit = "246314dc6cf6faee4ade26d614ecbf98f6036e3c",
     remote = "https://github.com/proxy-wasm/proxy-wasm-cpp-sdk",
 )
 
