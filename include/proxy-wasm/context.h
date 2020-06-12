@@ -134,7 +134,7 @@ public:
   ContextBase();                                                   // Testing.
   ContextBase(WasmBase *wasm);                                     // Vm Context.
   ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin); // Root Context.
-  ContextBase(WasmBase *wasm, uint32_t root_context_id,
+  ContextBase(WasmBase *wasm, uint32_t parent_context_id,
               std::shared_ptr<PluginBase> plugin); // Stream context.
   virtual ~ContextBase();
 
@@ -143,8 +143,17 @@ public:
   // The VM Context used for calling "malloc" has an id_ == 0.
   bool isVmContext() const { return id_ == 0; }
   // Root Contexts have the VM Context as a parent.
-  bool isRootContext() const { return root_context_id_ == 0; }
-  ContextBase *root_context() const { return root_context_; }
+  bool isRootContext() const { return parent_context_id_ == 0; }
+  ContextBase *parent_context() const { return parent_context_; }
+  ContextBase *root_context() const {
+    const ContextBase *previous = this;
+    ContextBase *parent = parent_context_;
+    while (parent != previous) {
+      previous = parent;
+      parent = parent->parent_context_;
+    }
+    return parent;
+  }
   string_view root_id() const { return isRootContext() ? root_id_ : plugin_->root_id_; }
   string_view log_prefix() const {
     return isRootContext() ? root_log_prefix_ : plugin_->log_prefix();
@@ -161,7 +170,7 @@ public:
    */
 
   // Context
-  void onCreate(uint32_t parent_context_id) override;
+  void onCreate() override;
   bool onDone() override;
   void onLog() override;
   void onDelete() override;
@@ -353,10 +362,10 @@ protected:
 
   WasmBase *wasm_{nullptr};
   uint32_t id_{0};
-  uint32_t root_context_id_{0};        // 0 for roots and the general context.
-  ContextBase *root_context_{nullptr}; // set in all contexts.
-  std::string root_id_;                // set only in root context.
-  std::string root_log_prefix_;        // set only in root context.
+  uint32_t parent_context_id_{0};        // 0 for roots and the general context.
+  ContextBase *parent_context_{nullptr}; // set in all contexts.
+  std::string root_id_;                  // set only in root context.
+  std::string root_log_prefix_;          // set only in root context.
   std::shared_ptr<PluginBase> plugin_;
   bool in_vm_context_created_ = false;
   bool destroyed_ = false;

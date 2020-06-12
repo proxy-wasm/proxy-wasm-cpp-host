@@ -212,9 +212,9 @@ std::string PluginBase::makeLogPrefix() const {
   return prefix;
 }
 
-ContextBase::ContextBase() : root_context_(this) {}
+ContextBase::ContextBase() : parent_context_(this) {}
 
-ContextBase::ContextBase(WasmBase *wasm) : wasm_(wasm), root_context_(this) {
+ContextBase::ContextBase(WasmBase *wasm) : wasm_(wasm), parent_context_(this) {
   wasm_->contexts_[id_] = this;
 }
 
@@ -222,11 +222,12 @@ ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
   initializeRootBase(wasm, plugin);
 }
 
-ContextBase::ContextBase(WasmBase *wasm, uint32_t root_context_id,
+ContextBase::ContextBase(WasmBase *wasm, uint32_t parent_context_id,
                          std::shared_ptr<PluginBase> plugin)
-    : wasm_(wasm), id_(wasm->allocContextId()), root_context_id_(root_context_id), plugin_(plugin) {
+    : wasm_(wasm), id_(wasm->allocContextId()), parent_context_id_(parent_context_id),
+      plugin_(plugin) {
   wasm_->contexts_[id_] = this;
-  root_context_ = wasm_->contexts_[root_context_id_];
+  parent_context_ = wasm_->contexts_[parent_context_id_];
 }
 
 WasmVm *ContextBase::wasmVm() const { return wasm_->wasm_vm(); }
@@ -236,7 +237,7 @@ void ContextBase::initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase>
   id_ = wasm->allocContextId();
   root_id_ = plugin->root_id_;
   root_log_prefix_ = makeRootLogPrefix(plugin->vm_id_);
-  root_context_ = this;
+  parent_context_ = this;
   wasm_->contexts_[id_] = this;
 }
 
@@ -286,10 +287,10 @@ bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
   return result;
 }
 
-void ContextBase::onCreate(uint32_t parent_context_id) {
+void ContextBase::onCreate() {
   if (!in_vm_context_created_ && wasm_->on_context_create_) {
     DeferAfterCallActions actions(this);
-    wasm_->on_context_create_(this, id_, parent_context_id);
+    wasm_->on_context_create_(this, id_, parent_context_ ? parent_context()->id() : 0);
     in_vm_context_created_ = true;
   }
   // NB: If no on_context_create function is registered the in-VM SDK is responsible for
@@ -313,7 +314,7 @@ WasmResult ContextBase::registerSharedQueue(string_view queue_name,
   // Get the id of the root context if this is a stream context because onQueueReady is on the
   // root.
   *result = global_shared_data.registerQueue(wasm_->vm_id(), queue_name,
-                                             isRootContext() ? id_ : root_context_id_,
+                                             isRootContext() ? id_ : parent_context_id_,
                                              wasm_->callOnThreadFunction());
   return WasmResult::Ok;
 }
@@ -575,14 +576,14 @@ void ContextBase::onDelete() {
 
 WasmResult ContextBase::setTimerPeriod(std::chrono::milliseconds period,
                                        uint32_t *timer_token_ptr) {
-  wasm()->setTimerPeriod(root_context_id_ ? root_context_id_ : id_, period);
+  wasm()->setTimerPeriod(root_context()->id(), period);
   *timer_token_ptr = 0;
   return WasmResult::Ok;
 }
 
 ContextBase::~ContextBase() {
   // Do not remove vm or root contexts which have the same lifetime as wasm_.
-  if (root_context_id_) {
+  if (parent_context_id_) {
     wasm_->contexts_.erase(id_);
   }
 }
