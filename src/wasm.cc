@@ -146,8 +146,8 @@ void WasmBase::registerCallbacks() {
   _REGISTER_PROXY(set_property);
   _REGISTER_PROXY(get_property);
 
-  _REGISTER_PROXY(continue_request);
-  _REGISTER_PROXY(continue_response);
+  _REGISTER_PROXY(continue_stream);
+  _REGISTER_PROXY(close_stream);
   _REGISTER_PROXY(send_local_response);
 
   _REGISTER_PROXY(get_shared_data);
