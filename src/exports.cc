@@ -163,16 +163,20 @@ Word get_status(void *raw_context, Word code_ptr, Word value_ptr_ptr, Word value
 // HTTP
 
 // Continue/Reply/Route
-Word continue_request(void *raw_context) {
+Word continue_stream(void *raw_context, Word type) {
   auto context = WASM_CONTEXT(raw_context);
-  context->continueStream(StreamType::Request);
-  return WasmResult::Ok;
+  if (type > static_cast<uint64_t>(WasmStreamType::MAX)) {
+    return WasmResult::BadArgument;
+  }
+  return context->continueStream(static_cast<WasmStreamType>(type.u64_));
 }
 
-Word continue_response(void *raw_context) {
+Word close_stream(void *raw_context, Word type) {
   auto context = WASM_CONTEXT(raw_context);
-  context->continueStream(StreamType::Response);
-  return WasmResult::Ok;
+  if (type > static_cast<uint64_t>(WasmStreamType::MAX)) {
+    return WasmResult::BadArgument;
+  }
+  return context->closeStream(static_cast<WasmStreamType>(type.u64_));
 }
 
 Word send_local_response(void *raw_context, Word response_code, Word response_code_details_ptr,

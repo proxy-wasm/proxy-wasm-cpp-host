@@ -40,32 +40,11 @@ using GrpcStatusCode = uint32_t;
 using SharedQueueDequeueToken = uint32_t;
 using SharedQueueEnqueueToken = uint32_t;
 
-// TODO: move to SDK.
-enum StreamType {
-  Request,
-  Response,
-  Downstream,
-  Upstream,
-};
-
 // TODO: update SDK and use this.
 enum class ProxyAction : uint32_t {
   Illegal = 0,
   Continue = 1,
   Pause = 2,
-};
-
-/*
- * The source of the close event.
- * Unknown is when the source is not known.
- * Local is when the close was initiated by the proxy.
- * Remote is when the close was received from the peer.
- */
-// TODO: update SDK.
-enum class CloseType : uint32_t {
-  Unknown = 0,
-  Local = 1,
-  Remote = 2,
 };
 
 struct PluginBase;
@@ -330,8 +309,11 @@ public:
  **/
 struct StreamInterface {
   virtual ~StreamInterface() = default;
-  // Continue processing a request e.g. after returning ProxyAction::Pause.
-  virtual WasmResult continueStream(StreamType type) = 0;
+  // Continue processing e.g. after returning ProxyAction::Pause.
+  virtual WasmResult continueStream(WasmStreamType type) = 0;
+
+  // Close a stream.
+  virtual WasmResult closeStream(WasmStreamType type) = 0;
 
   /**
    * Provides a BufferInterface to be used to return buffered data to the VM.
@@ -344,7 +326,7 @@ struct StreamInterface {
    * when a connection is closed (or half-closed) either locally or remotely.
    * @param stream_type is the flow
    */
-  virtual bool endOfStream(StreamType type) = 0;
+  virtual bool endOfStream(WasmStreamType type) = 0;
 };
 
 // Header/Trailer/Metadata Maps

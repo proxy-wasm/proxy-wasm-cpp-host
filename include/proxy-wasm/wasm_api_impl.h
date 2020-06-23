@@ -57,11 +57,11 @@ inline WasmResult proxy_set_property(const char *key_ptr, size_t key_size, const
 }
 
 // Continue
-inline WasmResult proxy_continue_request() {
-  return wordToWasmResult(exports::continue_request(current_context_));
+inline WasmResult proxy_continue_stream(WasmStreamType stream_type) {
+  return wordToWasmResult(exports::continue_stream(current_context_, WS(stream_type)));
 }
-inline WasmResult proxy_continue_response() {
-  return wordToWasmResult(exports::continue_response(current_context_));
+inline WasmResult proxy_close_stream(WasmStreamType stream_type) {
+  return wordToWasmResult(exports::close_stream(current_context_, WS(stream_type)));
 }
 inline WasmResult
 proxy_send_local_response(uint32_t response_code, const char *response_code_details_ptr,
