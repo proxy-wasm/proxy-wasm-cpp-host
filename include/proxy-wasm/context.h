@@ -195,7 +195,7 @@ public:
     unimplemented();
     return nullptr;
   }
-  bool endOfStream(StreamType /* type */) override {
+  bool endOfStream(WasmStreamType /* type */) override {
     unimplemented();
     return true;
   }
@@ -254,7 +254,8 @@ public:
   }
 
   // Continue
-  WasmResult continueStream(StreamType /* stream_type */) override { return unimplemented(); }
+  WasmResult continueStream(WasmStreamType /* stream_type */) override { return unimplemented(); }
+  WasmResult closeStream(WasmStreamType /* stream_type */) override { return unimplemented(); }
   WasmResult sendLocalResponse(uint32_t /* response_code */, string_view /* body_text */,
                                Pairs /* additional_headers */, GrpcStatusCode /* grpc_status */,
                                string_view /* details */) override {
