@@ -44,17 +44,19 @@ class WasmVm;
  * @param root_id is an identifier for the in VM handlers for this plugin.
  * @param vm_id is a string used to differentiate VMs with the same code and VM configuration.
  * @param plugin_configuration is configuration for this plugin.
+ * @param fail_open if true the plugin will pass traffic as opposed to close all streams.
  */
 struct PluginBase {
   PluginBase(string_view name, string_view root_id, string_view vm_id,
-             string_view plugin_configuration)
+             string_view plugin_configuration, bool fail_open)
       : name_(std::string(name)), root_id_(std::string(root_id)), vm_id_(std::string(vm_id)),
-        plugin_configuration_(plugin_configuration) {}
+        plugin_configuration_(plugin_configuration), fail_open_(fail_open) {}
 
   const std::string name_;
   const std::string root_id_;
   const std::string vm_id_;
   std::string plugin_configuration_;
+  const bool fail_open_;
   const std::string &log_prefix() const { return log_prefix_; }
 
 private:
@@ -166,6 +168,8 @@ public:
     error("unimplemented proxy-wasm API");
     return WasmResult::Unimplemented;
   }
+  bool isFailed();
+  bool isFailOpen() { return plugin_->fail_open_; }
 
   //
   // General Callbacks.
@@ -261,6 +265,7 @@ public:
                                string_view /* details */) override {
     return unimplemented();
   }
+  void failStream(WasmStreamType stream_type) override { closeStream(stream_type); }
 
   // Shared Data
   WasmResult getSharedData(string_view key,
@@ -306,12 +311,7 @@ public:
 protected:
   friend class WasmBase;
 
-  // NB: initializeRootBase is non-virtual and can be called in the constructor without ambiguity.
   void initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin);
-  // NB: initializeRoot is virtual and should be called only outside of the constructor.
-  virtual void initializeRoot(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
-    initializeRootBase(wasm, plugin);
-  }
   std::string makeRootLogPrefix(string_view vm_id) const;
 
   WasmBase *wasm_{nullptr};

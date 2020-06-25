@@ -156,8 +156,9 @@ public:
    * should be loaded and the ABI callbacks registered (see above). Linking should be done once
    * after load().
    * @param debug_name user-provided name for use in log and error messages.
+   * @return whether or not the link was successful.
    */
-  virtual void link(string_view debug_name) = 0;
+  virtual bool link(string_view debug_name) = 0;
 
   /**
    * Get size of the currently allocated memory in the VM.
@@ -234,12 +235,24 @@ public:
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
+  bool isFailed() { return failed_; }
+  void fail(string_view message) {
+    error(message);
+    failed_ = true;
+    if (fail_callback_) {
+      fail_callback_();
+    }
+  }
+  void setFailCallback(std::function<void()> fail_callback) { fail_callback_ = fail_callback; }
+
   // Integrator operations.
   std::unique_ptr<WasmVmIntegration> &integration() { return integration_; }
   void error(string_view message) { integration()->error(message); }
 
 private:
   std::unique_ptr<WasmVmIntegration> integration_;
+  bool failed_ = false;
+  std::function<void()> fail_callback_;
 };
 
 // Thread local state set during a call into a WASM VM so that calls coming out of the

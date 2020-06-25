@@ -23,6 +23,25 @@
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
 
+#define CHECK_FAIL(_call, _stream_type, _return_open, _return_closed)                              \
+  if (isFailed()) {                                                                                \
+    if (plugin_->fail_open_) {                                                                     \
+      return _return_open;                                                                         \
+    } else {                                                                                       \
+      failStream(_stream_type);                                                                    \
+      return _return_closed;                                                                       \
+    }                                                                                              \
+  } else {                                                                                         \
+    if (!wasm_->_call) {                                                                           \
+      return _return_open;                                                                         \
+    }                                                                                              \
+  }
+
+#define CHECK_HTTP(_call, _return_open, _return_closed)                                            \
+  CHECK_FAIL(_call, WasmStreamType::Request, _return_open, _return_closed)
+#define CHECK_NET(_call, _return_open, _return_closed)                                             \
+  CHECK_FAIL(_call, WasmStreamType::Downstream, _return_open, _return_closed)
+
 namespace proxy_wasm {
 
 namespace {
@@ -129,7 +148,10 @@ public:
     it->second.call_on_thread([vm_id, context_id, token] {
       auto wasm = getThreadLocalWasm(vm_id);
       if (wasm) {
-        wasm->wasm()->queueReady(context_id, token);
+        auto context = wasm->wasm()->getContext(context_id);
+        if (context) {
+          context->onQueueReady(token);
+        }
       }
     });
     return WasmResult::Ok;
@@ -213,14 +235,20 @@ ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
   initializeRootBase(wasm, plugin);
 }
 
+// NB: wasm can be nullptr if it failed to be created successfully.
 ContextBase::ContextBase(WasmBase *wasm, uint32_t root_context_id,
                          std::shared_ptr<PluginBase> plugin)
-    : wasm_(wasm), id_(wasm->allocContextId()), root_context_id_(root_context_id), plugin_(plugin) {
-  wasm_->contexts_[id_] = this;
-  root_context_ = wasm_->contexts_[root_context_id_];
+    : wasm_(wasm), id_(wasm ? wasm->allocContextId() : 0), root_context_id_(root_context_id),
+      plugin_(plugin) {
+  if (wasm_) {
+    wasm_->contexts_[id_] = this;
+    root_context_ = wasm_->contexts_[root_context_id_];
+  }
 }
 
 WasmVm *ContextBase::wasmVm() const { return wasm_->wasm_vm(); }
+
+bool ContextBase::isFailed() { return !wasm_ || wasm_->isFailed(); }
 
 void ContextBase::initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
   wasm_ = wasm;
@@ -265,7 +293,7 @@ bool ContextBase::onStart(std::shared_ptr<PluginBase> plugin) {
 }
 
 bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
-  if (!wasm_->on_configure_) {
+  if (isFailed() || !wasm_->on_configure_) {
     return true;
   }
   DeferAfterCallActions actions(this);
@@ -278,10 +306,9 @@ bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
 }
 
 void ContextBase::onCreate(uint32_t parent_context_id) {
-  if (!in_vm_context_created_ && wasm_->on_context_create_) {
+  if (!isFailed() && !in_vm_context_created_ && wasm_->on_context_create_) {
     DeferAfterCallActions actions(this);
     wasm_->on_context_create_(this, id_, parent_context_id);
-    in_vm_context_created_ = true;
   }
   // NB: If no on_context_create function is registered the in-VM SDK is responsible for
   // managing any required in-VM state.
@@ -312,7 +339,7 @@ WasmResult ContextBase::registerSharedQueue(string_view queue_name,
 WasmResult ContextBase::lookupSharedQueue(string_view vm_id, string_view queue_name,
                                           uint32_t *token_ptr) {
   uint32_t token = global_shared_data.resolveQueue(vm_id, queue_name);
-  if (!token) {
+  if (isFailed() || !token) {
     return WasmResult::NotFound;
   }
   *token_ptr = token;
@@ -335,16 +362,14 @@ void ContextBase::destroy() {
 }
 
 void ContextBase::onTick(uint32_t) {
-  if (wasm_->on_tick_) {
+  if (!isFailed() && wasm_->on_tick_) {
     DeferAfterCallActions actions(this);
     wasm_->on_tick_(this, id_);
   }
 }
 
 FilterStatus ContextBase::onNetworkNewConnection() {
-  if (!wasm_->on_new_connection_) {
-    return FilterStatus::Continue;
-  }
+  CHECK_NET(on_new_connection_, FilterStatus::Continue, FilterStatus::StopIteration);
   DeferAfterCallActions actions(this);
   if (wasm_->on_new_connection_(this, id_).u64_ == 0) {
     return FilterStatus::Continue;
@@ -353,9 +378,7 @@ FilterStatus ContextBase::onNetworkNewConnection() {
 }
 
 FilterStatus ContextBase::onDownstreamData(uint32_t data_length, bool end_of_stream) {
-  if (!wasm_->on_downstream_data_) {
-    return FilterStatus::Continue;
-  }
+  CHECK_NET(on_downstream_data_, FilterStatus::Continue, FilterStatus::StopIteration);
   DeferAfterCallActions actions(this);
   auto result = wasm_->on_downstream_data_(this, id_, static_cast<uint32_t>(data_length),
                                            static_cast<uint32_t>(end_of_stream));
@@ -364,9 +387,7 @@ FilterStatus ContextBase::onDownstreamData(uint32_t data_length, bool end_of_str
 }
 
 FilterStatus ContextBase::onUpstreamData(uint32_t data_length, bool end_of_stream) {
-  if (!wasm_->on_upstream_data_) {
-    return FilterStatus::Continue;
-  }
+  CHECK_NET(on_upstream_data_, FilterStatus::Continue, FilterStatus::StopIteration);
   DeferAfterCallActions actions(this);
   auto result = wasm_->on_upstream_data_(this, id_, static_cast<uint32_t>(data_length),
                                          static_cast<uint32_t>(end_of_stream));
@@ -375,14 +396,14 @@ FilterStatus ContextBase::onUpstreamData(uint32_t data_length, bool end_of_strea
 }
 
 void ContextBase::onDownstreamConnectionClose(CloseType close_type) {
-  if (wasm_->on_downstream_connection_close_) {
+  if (!isFailed() && wasm_->on_downstream_connection_close_) {
     DeferAfterCallActions actions(this);
     wasm_->on_downstream_connection_close_(this, id_, static_cast<uint32_t>(close_type));
   }
 }
 
 void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
-  if (wasm_->on_upstream_connection_close_) {
+  if (!isFailed() && wasm_->on_upstream_connection_close_) {
     DeferAfterCallActions actions(this);
     wasm_->on_upstream_connection_close_(this, id_, static_cast<uint32_t>(close_type));
   }
@@ -392,9 +413,8 @@ void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
 template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
 
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_stream) {
-  if (!wasm_->on_request_headers_) {
-    return FilterHeadersStatus::Continue;
-  }
+  CHECK_HTTP(on_request_headers_, FilterHeadersStatus::Continue,
+             FilterHeadersStatus::StopIteration);
   DeferAfterCallActions actions(this);
   auto result =
       wasm_->on_request_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream)).u64_;
@@ -404,9 +424,7 @@ FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_
 }
 
 FilterDataStatus ContextBase::onRequestBody(uint32_t data_length, bool end_of_stream) {
-  if (!wasm_->on_request_body_) {
-    return FilterDataStatus::Continue;
-  }
+  CHECK_HTTP(on_request_body_, FilterDataStatus::Continue, FilterDataStatus::StopIterationNoBuffer);
   DeferAfterCallActions actions(this);
   auto result =
       wasm_->on_request_body_(this, id_, data_length, static_cast<uint32_t>(end_of_stream)).u64_;
@@ -416,9 +434,8 @@ FilterDataStatus ContextBase::onRequestBody(uint32_t data_length, bool end_of_st
 }
 
 FilterTrailersStatus ContextBase::onRequestTrailers(uint32_t trailers) {
-  if (!wasm_->on_request_trailers_) {
-    return FilterTrailersStatus::Continue;
-  }
+  CHECK_HTTP(on_request_trailers_, FilterTrailersStatus::Continue,
+             FilterTrailersStatus::StopIteration);
   DeferAfterCallActions actions(this);
   if (static_cast<FilterTrailersStatus>(wasm_->on_request_trailers_(this, id_, trailers).u64_) ==
       FilterTrailersStatus::Continue) {
@@ -428,9 +445,7 @@ FilterTrailersStatus ContextBase::onRequestTrailers(uint32_t trailers) {
 }
 
 FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
-  if (!wasm_->on_request_metadata_) {
-    return FilterMetadataStatus::Continue;
-  }
+  CHECK_HTTP(on_request_metadata_, FilterMetadataStatus::Continue, FilterMetadataStatus::Continue);
   DeferAfterCallActions actions(this);
   if (static_cast<FilterMetadataStatus>(wasm_->on_request_metadata_(this, id_, elements).u64_) ==
       FilterMetadataStatus::Continue) {
@@ -440,9 +455,8 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
 }
 
 FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of_stream) {
-  if (!wasm_->on_response_headers_) {
-    return FilterHeadersStatus::Continue;
-  }
+  CHECK_HTTP(on_response_headers_, FilterHeadersStatus::Continue,
+             FilterHeadersStatus::StopIteration);
   DeferAfterCallActions actions(this);
   auto result =
       wasm_->on_response_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream)).u64_;
@@ -452,9 +466,8 @@ FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of
 }
 
 FilterDataStatus ContextBase::onResponseBody(uint32_t body_length, bool end_of_stream) {
-  if (!wasm_->on_response_body_) {
-    return FilterDataStatus::Continue;
-  }
+  CHECK_HTTP(on_response_body_, FilterDataStatus::Continue,
+             FilterDataStatus::StopIterationNoBuffer);
   DeferAfterCallActions actions(this);
   auto result =
       wasm_->on_response_body_(this, id_, body_length, static_cast<uint32_t>(end_of_stream)).u64_;
@@ -464,9 +477,8 @@ FilterDataStatus ContextBase::onResponseBody(uint32_t body_length, bool end_of_s
 }
 
 FilterTrailersStatus ContextBase::onResponseTrailers(uint32_t trailers) {
-  if (!wasm_->on_response_trailers_) {
-    return FilterTrailersStatus::Continue;
-  }
+  CHECK_HTTP(on_response_trailers_, FilterTrailersStatus::Continue,
+             FilterTrailersStatus::StopIteration);
   DeferAfterCallActions actions(this);
   if (static_cast<FilterTrailersStatus>(wasm_->on_response_trailers_(this, id_, trailers).u64_) ==
       FilterTrailersStatus::Continue) {
@@ -476,9 +488,7 @@ FilterTrailersStatus ContextBase::onResponseTrailers(uint32_t trailers) {
 }
 
 FilterMetadataStatus ContextBase::onResponseMetadata(uint32_t elements) {
-  if (!wasm_->on_response_metadata_) {
-    return FilterMetadataStatus::Continue;
-  }
+  CHECK_HTTP(on_response_metadata_, FilterMetadataStatus::Continue, FilterMetadataStatus::Continue);
   DeferAfterCallActions actions(this);
   if (static_cast<FilterMetadataStatus>(wasm_->on_response_metadata_(this, id_, elements).u64_) ==
       FilterMetadataStatus::Continue) {
@@ -489,7 +499,7 @@ FilterMetadataStatus ContextBase::onResponseMetadata(uint32_t elements) {
 
 void ContextBase::onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t body_size,
                                      uint32_t trailers) {
-  if (!wasm_->on_http_call_response_) {
+  if (isFailed() || !wasm_->on_http_call_response_) {
     return;
   }
   DeferAfterCallActions actions(this);
@@ -497,14 +507,14 @@ void ContextBase::onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t 
 }
 
 void ContextBase::onQueueReady(uint32_t token) {
-  if (wasm_->on_queue_ready_) {
+  if (!isFailed() && wasm_->on_queue_ready_) {
     DeferAfterCallActions actions(this);
     wasm_->on_queue_ready_(this, id_, token);
   }
 }
 
 void ContextBase::onGrpcReceiveInitialMetadata(uint32_t token, uint32_t elements) {
-  if (!wasm_->on_grpc_receive_initial_metadata_) {
+  if (isFailed() || !wasm_->on_grpc_receive_initial_metadata_) {
     return;
   }
   DeferAfterCallActions actions(this);
@@ -512,7 +522,7 @@ void ContextBase::onGrpcReceiveInitialMetadata(uint32_t token, uint32_t elements
 }
 
 void ContextBase::onGrpcReceiveTrailingMetadata(uint32_t token, uint32_t trailers) {
-  if (!wasm_->on_grpc_receive_trailing_metadata_) {
+  if (isFailed() || !wasm_->on_grpc_receive_trailing_metadata_) {
     return;
   }
   DeferAfterCallActions actions(this);
@@ -520,7 +530,7 @@ void ContextBase::onGrpcReceiveTrailingMetadata(uint32_t token, uint32_t trailer
 }
 
 void ContextBase::onGrpcReceive(uint32_t token, uint32_t response_size) {
-  if (!wasm_->on_grpc_receive_) {
+  if (isFailed() || !wasm_->on_grpc_receive_) {
     return;
   }
   DeferAfterCallActions actions(this);
@@ -528,7 +538,7 @@ void ContextBase::onGrpcReceive(uint32_t token, uint32_t response_size) {
 }
 
 void ContextBase::onGrpcClose(uint32_t token, uint32_t status_code) {
-  if (!wasm_->on_grpc_close_) {
+  if (isFailed() || !wasm_->on_grpc_close_) {
     return;
   }
   DeferAfterCallActions actions(this);
@@ -536,7 +546,7 @@ void ContextBase::onGrpcClose(uint32_t token, uint32_t status_code) {
 }
 
 bool ContextBase::onDone() {
-  if (wasm_->on_done_) {
+  if (!isFailed() && wasm_->on_done_) {
     DeferAfterCallActions actions(this);
     return wasm_->on_done_(this, id_).u64_ != 0;
   }
@@ -544,14 +554,14 @@ bool ContextBase::onDone() {
 }
 
 void ContextBase::onLog() {
-  if (wasm_->on_log_) {
+  if (!isFailed() && wasm_->on_log_) {
     DeferAfterCallActions actions(this);
     wasm_->on_log_(this, id_);
   }
 }
 
 void ContextBase::onDelete() {
-  if (in_vm_context_created_ && wasm_->on_delete_) {
+  if (in_vm_context_created_ && !isFailed() && wasm_->on_delete_) {
     DeferAfterCallActions actions(this);
     wasm_->on_delete_(this, id_);
   }
