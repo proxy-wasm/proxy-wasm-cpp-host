@@ -513,10 +513,6 @@ Word set_buffer_bytes(void *raw_context, Word type, Word start, Word length, Wor
   if (!data) {
     return WasmResult::InvalidMemoryAccess;
   }
-  // check for overflow.
-  if (buffer->size() < start + length || start > start + length) {
-    return WasmResult::BadArgument;
-  }
   return buffer->copyFrom(start, length, data.value());
 }
 
