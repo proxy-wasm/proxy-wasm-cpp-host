@@ -76,6 +76,17 @@ public:
   const std::string &vm_configuration() const;
   bool allow_precompiled() const { return allow_precompiled_; }
 
+  void timerReady(uint32_t root_context_id);
+  void queueReady(uint32_t root_context_id, uint32_t token);
+
+  void startShutdown();
+  WasmResult done(ContextBase *root_context);
+  void finishShutdown();
+
+  // Proxy specific extension points.
+  //
+  virtual void registerCallbacks(); // Register functions called out from Wasm.
+  virtual void getFunctions();      // Get functions call into Wasm.
   virtual CallOnThreadFunction callOnThreadFunction() {
     unimplemented();
     return nullptr;
@@ -86,18 +97,17 @@ public:
       return new ContextBase(this, plugin);
     return new ContextBase(this);
   }
-
-  virtual void setTickPeriod(uint32_t root_context_id, std::chrono::milliseconds tick_period) {
-    tick_period_[root_context_id] = tick_period;
+  virtual void setTimerPeriod(uint32_t root_context_id, std::chrono::milliseconds period) {
+    timer_period_[root_context_id] = period;
   }
-  void tick(uint32_t root_context_id);
-  void queueReady(uint32_t root_context_id, uint32_t token);
-
-  void startShutdown();
-  WasmResult done(ContextBase *root_context);
-  void finishShutdown();
+  virtual void error(string_view message) {
+    std::cerr << message << "\n";
+    abort();
+  }
+  virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
 
   // Support functions.
+  //
   void *allocMemory(uint64_t size, uint64_t *address);
   // Allocate a null-terminated string in the VM and return the pointer to use as a call arguments.
   uint64_t copyString(string_view s);
@@ -107,14 +117,9 @@ public:
 
   WasmForeignFunction getForeignFunction(string_view function_name);
 
-  virtual void error(string_view message) {
-    std::cerr << message << "\n";
-    abort();
-  }
-  virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
-
   // For testing.
-  void setContext(ContextBase *context) { contexts_[context->id()] = context; }
+  //
+  void setContextForTesting(ContextBase *context) { contexts_[context->id()] = context; }
   // Returns false if onStart returns false.
   bool startForTesting(std::unique_ptr<ContextBase> root_context,
                        std::shared_ptr<PluginBase> plugin);
@@ -146,8 +151,6 @@ public:
     }
   }
 
-  // These are the same as the values of the MetricType enum, here separately for
-  // convenience.
   static const uint32_t kMetricTypeMask = 0x3;    // Enough to cover the 3 types.
   static const uint32_t kMetricIdIncrement = 0x4; // Enough to cover the 3 types.
   bool isCounterMetricId(uint32_t metric_id) {
@@ -166,9 +169,8 @@ public:
 protected:
   friend class ContextBase;
   class ShutdownHandle;
-  void registerCallbacks();    // Register functions called out from WASM.
+
   void establishEnvironment(); // Language specific environments.
-  void getFunctions();         // Get functions call into WASM.
 
   std::string vm_id_;  // User-provided vm_id.
   std::string vm_key_; // vm_id + hash of code.
@@ -179,8 +181,8 @@ protected:
   std::shared_ptr<ContextBase> vm_context_; // Context unrelated to any specific root or stream
                                             // (e.g. for global constructors).
   std::unordered_map<std::string, std::unique_ptr<ContextBase>> root_contexts_;
-  std::unordered_map<uint32_t, ContextBase *> contexts_;                // Contains all contexts.
-  std::unordered_map<uint32_t, std::chrono::milliseconds> tick_period_; // per root_id.
+  std::unordered_map<uint32_t, ContextBase *> contexts_;                 // Contains all contexts.
+  std::unordered_map<uint32_t, std::chrono::milliseconds> timer_period_; // per root_id.
   std::unique_ptr<ShutdownHandle> shutdown_handle_;
   std::unordered_set<ContextBase *> pending_done_; // Root contexts not done during shutdown.
 
@@ -224,6 +226,7 @@ protected:
   WasmCallVoid<3> on_grpc_receive_trailing_metadata_;
 
   WasmCallVoid<2> on_queue_ready_;
+  WasmCallVoid<3> on_foreign_function_;
 
   WasmCallWord<1> on_done_;
   WasmCallVoid<1> on_log_;

@@ -20,6 +20,11 @@
 #include "include/proxy-wasm/word.h"
 
 namespace proxy_wasm {
+
+class ContextBase;
+
+extern thread_local ContextBase *current_context_;
+
 namespace exports {
 
 // ABI functions exported from envoy to wasm.
@@ -106,6 +111,11 @@ Word wasi_unstable_args_sizes_get(void *raw_context, Word argc_ptr, Word argv_bu
 void wasi_unstable_proc_exit(void *, Word);
 void wasi_unstable_proc_exit(void *, Word);
 Word pthread_equal(void *, Word left, Word right);
+
+// Support for embedders, not exported to Wasm.
+
+// Any currently executing Wasm call context.
+::proxy_wasm::ContextBase *ContextOrEffectiveContext(::proxy_wasm::ContextBase *context);
 
 } // namespace exports
 } // namespace proxy_wasm

@@ -17,9 +17,9 @@
 
 #include <iostream>
 
-#include "proxy_wasm_common.h"
-
 namespace proxy_wasm {
+
+#include "proxy_wasm_common.h"
 
 // Represents a Wasm-native word-sized datum. On 32-bit VMs, the high bits are always zero.
 // The Wasm/VM API treats all bits as significant.

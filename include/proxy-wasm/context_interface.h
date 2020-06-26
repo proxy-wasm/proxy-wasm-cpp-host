@@ -133,10 +133,9 @@ struct RootInterface : public RootGrpcInterface {
   /**
    * Call on a host Context to create a corresponding Context in the VM.  Note:
    * onNetworkNewConnection and onRequestHeaders() call onCreate().
-   * @param parent_context_id is the parent Context id for the context being created.  For a
    * stream Context this will be a Root Context id (or sub-Context thereof).
    */
-  virtual void onCreate(uint32_t parent_context_id) = 0;
+  virtual void onCreate() = 0;
 
   /**
    * Call on a Root Context when a VM first starts up.
@@ -564,6 +563,15 @@ struct GeneralInterface {
    * serialized..
    */
   virtual WasmResult setProperty(string_view key, string_view value) = 0;
+
+  /**
+   * Custom extension call into the VM. Data is provided as WasmBufferType::CallData.
+   * @param foreign_function_id a unique identifier for the calling foreign function. These are
+   * defined and allocated by the foreign function implementor.
+   * @param data_size is the size of the WasmBufferType::CallData buffer containing data for this
+   * foreign function call.
+   */
+  virtual void onForeignFunction(uint32_t foreign_function_id, uint32_t data_size) = 0;
 };
 
 /**
