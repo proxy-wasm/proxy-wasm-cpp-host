@@ -46,15 +46,6 @@ namespace proxy_wasm {
 
 namespace {
 
-class DeferAfterCallActions {
-public:
-  DeferAfterCallActions(ContextBase *context) : wasm_(context->wasm()) {}
-  ~DeferAfterCallActions() { wasm_->doAfterVmCallActions(); }
-
-private:
-  WasmBase *const wasm_;
-};
-
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
 class SharedData {
@@ -205,6 +196,24 @@ SharedData global_shared_data;
 
 } // namespace
 
+DeferAfterCallActions::~DeferAfterCallActions() { wasm_->doAfterVmCallActions(); }
+
+WasmResult BufferBase::copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
+                              uint64_t size_ptr) const {
+  if (owned_data_) {
+    string_view s(owned_data_.get() + start, length);
+    if (!wasm->copyToPointerSize(s, ptr_ptr, size_ptr)) {
+      return WasmResult::InvalidMemoryAccess;
+    }
+    return WasmResult::Ok;
+  }
+  string_view s = data_.substr(start, length);
+  if (!wasm->copyToPointerSize(s, ptr_ptr, size_ptr)) {
+    return WasmResult::InvalidMemoryAccess;
+  }
+  return WasmResult::Ok;
+}
+
 // Test support.
 
 uint32_t resolveQueueForTest(string_view vm_id, string_view queue_name) {
@@ -225,9 +234,9 @@ std::string PluginBase::makeLogPrefix() const {
   return prefix;
 }
 
-ContextBase::ContextBase() : root_context_(this) {}
+ContextBase::ContextBase() : parent_context_(this) {}
 
-ContextBase::ContextBase(WasmBase *wasm) : wasm_(wasm), root_context_(this) {
+ContextBase::ContextBase(WasmBase *wasm) : wasm_(wasm), parent_context_(this) {
   wasm_->contexts_[id_] = this;
 }
 
@@ -236,13 +245,13 @@ ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
 }
 
 // NB: wasm can be nullptr if it failed to be created successfully.
-ContextBase::ContextBase(WasmBase *wasm, uint32_t root_context_id,
+ContextBase::ContextBase(WasmBase *wasm, uint32_t parent_context_id,
                          std::shared_ptr<PluginBase> plugin)
-    : wasm_(wasm), id_(wasm ? wasm->allocContextId() : 0), root_context_id_(root_context_id),
+    : wasm_(wasm), id_(wasm ? wasm->allocContextId() : 0), parent_context_id_(parent_context_id),
       plugin_(plugin) {
   if (wasm_) {
     wasm_->contexts_[id_] = this;
-    root_context_ = wasm_->contexts_[root_context_id_];
+    parent_context_ = wasm_->contexts_[parent_context_id_];
   }
 }
 
@@ -255,7 +264,7 @@ void ContextBase::initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase>
   id_ = wasm->allocContextId();
   root_id_ = plugin->root_id_;
   root_log_prefix_ = makeRootLogPrefix(plugin->vm_id_);
-  root_context_ = this;
+  parent_context_ = this;
   wasm_->contexts_[id_] = this;
 }
 
@@ -305,10 +314,10 @@ bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
   return result;
 }
 
-void ContextBase::onCreate(uint32_t parent_context_id) {
+void ContextBase::onCreate() {
   if (!isFailed() && !in_vm_context_created_ && wasm_->on_context_create_) {
     DeferAfterCallActions actions(this);
-    wasm_->on_context_create_(this, id_, parent_context_id);
+    wasm_->on_context_create_(this, id_, parent_context_ ? parent_context()->id() : 0);
   }
   // NB: If no on_context_create function is registered the in-VM SDK is responsible for
   // managing any required in-VM state.
@@ -331,7 +340,7 @@ WasmResult ContextBase::registerSharedQueue(string_view queue_name,
   // Get the id of the root context if this is a stream context because onQueueReady is on the
   // root.
   *result = global_shared_data.registerQueue(wasm_->vm_id(), queue_name,
-                                             isRootContext() ? id_ : root_context_id_,
+                                             isRootContext() ? id_ : parent_context_id_,
                                              wasm_->callOnThreadFunction());
   return WasmResult::Ok;
 }
@@ -365,6 +374,13 @@ void ContextBase::onTick(uint32_t) {
   if (!isFailed() && wasm_->on_tick_) {
     DeferAfterCallActions actions(this);
     wasm_->on_tick_(this, id_);
+  }
+}
+
+void ContextBase::onForeignFunction(uint32_t foreign_function_id, uint32_t data_size) {
+  if (wasm_->on_foreign_function_) {
+    DeferAfterCallActions actions(this);
+    wasm_->on_foreign_function_(this, id_, foreign_function_id, data_size);
   }
 }
 
@@ -567,9 +583,16 @@ void ContextBase::onDelete() {
   }
 }
 
+WasmResult ContextBase::setTimerPeriod(std::chrono::milliseconds period,
+                                       uint32_t *timer_token_ptr) {
+  wasm()->setTimerPeriod(root_context()->id(), period);
+  *timer_token_ptr = 0;
+  return WasmResult::Ok;
+}
+
 ContextBase::~ContextBase() {
   // Do not remove vm or root contexts which have the same lifetime as wasm_.
-  if (root_context_id_) {
+  if (parent_context_id_) {
     wasm_->contexts_.erase(id_);
   }
 }

@@ -205,6 +205,7 @@ void WasmBase::getFunctions() {
   _GET_PROXY(on_vm_start);
   _GET_PROXY(on_configure);
   _GET_PROXY(on_tick);
+  _GET_PROXY(on_foreign_function);
 
   _GET_PROXY(on_context_create);
 

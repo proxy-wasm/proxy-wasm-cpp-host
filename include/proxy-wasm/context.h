@@ -65,6 +65,46 @@ private:
   std::string log_prefix_;
 };
 
+struct BufferBase : public BufferInterface {
+  BufferBase() = default;
+  ~BufferBase() override = default;
+
+  // BufferInterface
+  size_t size() const override {
+    if (owned_data_) {
+      return owned_data_size_;
+    }
+    return data_.size();
+  }
+  WasmResult copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
+                    uint64_t size_ptr) const override;
+  WasmResult copyFrom(size_t /* start */, size_t /* length */, string_view /* data */) override {
+    // Setting a string buffer not supported (no use case).
+    return WasmResult::BadArgument;
+  }
+
+  virtual void clear() {
+    data_ = "";
+    owned_data_ = nullptr;
+  }
+  BufferBase *set(string_view data) {
+    clear();
+    data_ = data;
+    return this;
+  }
+  BufferBase *set(std::unique_ptr<char[]> owned_data, uint32_t owned_data_size) {
+    clear();
+    owned_data_ = std::move(owned_data);
+    owned_data_size_ = owned_data_size;
+    return this;
+  }
+
+protected:
+  string_view data_;
+  std::unique_ptr<char[]> owned_data_;
+  uint32_t owned_data_size_;
+};
+
 /**
  * ContextBase is the interface between the VM host and the VM. It has several uses:
  *
@@ -96,7 +136,7 @@ public:
   ContextBase();                                                   // Testing.
   ContextBase(WasmBase *wasm);                                     // Vm Context.
   ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin); // Root Context.
-  ContextBase(WasmBase *wasm, uint32_t root_context_id,
+  ContextBase(WasmBase *wasm, uint32_t parent_context_id,
               std::shared_ptr<PluginBase> plugin); // Stream context.
   virtual ~ContextBase();
 
@@ -105,8 +145,17 @@ public:
   // The VM Context used for calling "malloc" has an id_ == 0.
   bool isVmContext() const { return id_ == 0; }
   // Root Contexts have the VM Context as a parent.
-  bool isRootContext() const { return root_context_id_ == 0; }
-  ContextBase *root_context() const { return root_context_; }
+  bool isRootContext() const { return parent_context_id_ == 0; }
+  ContextBase *parent_context() const { return parent_context_; }
+  ContextBase *root_context() const {
+    const ContextBase *previous = this;
+    ContextBase *parent = parent_context_;
+    while (parent != previous) {
+      previous = parent;
+      parent = parent->parent_context_;
+    }
+    return parent;
+  }
   string_view root_id() const { return isRootContext() ? root_id_ : plugin_->root_id_; }
   string_view log_prefix() const {
     return isRootContext() ? root_log_prefix_ : plugin_->log_prefix();
@@ -123,10 +172,11 @@ public:
    */
 
   // Context
-  void onCreate(uint32_t parent_context_id) override;
+  void onCreate() override;
   bool onDone() override;
   void onLog() override;
   void onDelete() override;
+  void onForeignFunction(uint32_t foreign_function_id, uint32_t data_size) override;
 
   // Root
   bool onStart(std::shared_ptr<PluginBase> plugin) override;
@@ -177,10 +227,6 @@ public:
   WasmResult log(uint32_t /* level */, string_view /* message */) override {
     return unimplemented();
   }
-  WasmResult setTimerPeriod(std::chrono::milliseconds /* period */,
-                            uint32_t * /* timer_token_ptr */) override {
-    return unimplemented();
-  }
   uint64_t getCurrentTimeNanoseconds() override {
     struct timespec tpe;
     clock_gettime(CLOCK_REALTIME, &tpe);
@@ -193,6 +239,7 @@ public:
     unimplemented();
     return std::make_pair(1, "unimplmemented");
   }
+  WasmResult setTimerPeriod(std::chrono::milliseconds period, uint32_t *timer_token_ptr) override;
 
   // Buffer
   BufferInterface *getBuffer(WasmBufferType /* type */) override {
@@ -316,13 +363,22 @@ protected:
 
   WasmBase *wasm_{nullptr};
   uint32_t id_{0};
-  uint32_t root_context_id_{0};        // 0 for roots and the general context.
-  ContextBase *root_context_{nullptr}; // set in all contexts.
-  std::string root_id_;                // set only in root context.
-  std::string root_log_prefix_;        // set only in root context.
+  uint32_t parent_context_id_{0};        // 0 for roots and the general context.
+  ContextBase *parent_context_{nullptr}; // set in all contexts.
+  std::string root_id_;                  // set only in root context.
+  std::string root_log_prefix_;          // set only in root context.
   std::shared_ptr<PluginBase> plugin_;
   bool in_vm_context_created_ = false;
   bool destroyed_ = false;
+};
+
+class DeferAfterCallActions {
+public:
+  DeferAfterCallActions(ContextBase *context) : wasm_(context->wasm()) {}
+  ~DeferAfterCallActions();
+
+private:
+  WasmBase *const wasm_;
 };
 
 uint32_t resolveQueueForTest(string_view vm_id, string_view queue_name);

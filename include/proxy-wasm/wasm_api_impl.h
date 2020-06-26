@@ -19,14 +19,6 @@
 
 namespace proxy_wasm {
 namespace null_plugin {
-class RootContext;
-class Context;
-} // namespace null_plugin
-
-null_plugin::RootContext *nullVmGetRoot(string_view root_id);
-null_plugin::Context *nullVmGetContext(uint32_t context_id);
-
-namespace null_plugin {
 
 #define WS(_x) Word(static_cast<uint64_t>(_x))
 #define WR(_x) Word(reinterpret_cast<uint64_t>(_x))
@@ -264,8 +256,10 @@ inline WasmResult proxy_call_foreign_function(const char *function_name, size_t 
 #undef WS
 #undef WR
 
-inline RootContext *getRoot(string_view root_id) { return nullVmGetRoot(root_id); }
-inline Context *getContext(uint32_t context_id) { return nullVmGetContext(context_id); }
+#include "proxy_wasm_api.h"
+
+RootContext *getRoot(string_view root_id);
+Context *getContext(uint32_t context_id);
 
 } // namespace null_plugin
 } // namespace proxy_wasm

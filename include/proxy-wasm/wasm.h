@@ -77,6 +77,17 @@ public:
   const std::string &vm_configuration() const;
   bool allow_precompiled() const { return allow_precompiled_; }
 
+  void timerReady(uint32_t root_context_id);
+  void queueReady(uint32_t root_context_id, uint32_t token);
+
+  void startShutdown();
+  WasmResult done(ContextBase *root_context);
+  void finishShutdown();
+
+  // Proxy specific extension points.
+  //
+  virtual void registerCallbacks(); // Register functions called out from Wasm.
+  virtual void getFunctions();      // Get functions call into Wasm.
   virtual CallOnThreadFunction callOnThreadFunction() {
     unimplemented();
     return nullptr;
@@ -89,16 +100,12 @@ public:
   virtual ContextBase *createContext(const std::shared_ptr<PluginBase> &plugin) {
     return new ContextBase(this, plugin);
   }
-
-  virtual void setTickPeriod(uint32_t root_context_id, std::chrono::milliseconds tick_period) {
-    tick_period_[root_context_id] = tick_period;
+  virtual void setTimerPeriod(uint32_t root_context_id, std::chrono::milliseconds period) {
+    timer_period_[root_context_id] = period;
   }
 
-  void startShutdown();
-  WasmResult done(ContextBase *root_context);
-  void finishShutdown();
-
   // Support functions.
+  //
   void *allocMemory(uint64_t size, uint64_t *address);
   // Allocate a null-terminated string in the VM and return the pointer to use as a call arguments.
   uint64_t copyString(string_view s);
@@ -114,9 +121,6 @@ public:
   }
   virtual void error(string_view message) { std::cerr << message << "\n"; }
   virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
-
-  // For testing.
-  void setContext(ContextBase *context) { contexts_[context->id()] = context; }
 
   bool getEmscriptenVersion(uint32_t *emscripten_metadata_major_version,
                             uint32_t *emscripten_metadata_minor_version,
@@ -163,9 +167,8 @@ public:
 protected:
   friend class ContextBase;
   class ShutdownHandle;
-  void registerCallbacks();    // Register functions called out from WASM.
+
   void establishEnvironment(); // Language specific environments.
-  void getFunctions();         // Get functions call into WASM.
 
   std::string vm_id_;  // User-provided vm_id.
   std::string vm_key_; // vm_id + hash of code.
@@ -176,8 +179,8 @@ protected:
   std::shared_ptr<ContextBase> vm_context_; // Context unrelated to any specific root or stream
                                             // (e.g. for global constructors).
   std::unordered_map<std::string, std::unique_ptr<ContextBase>> root_contexts_;
-  std::unordered_map<uint32_t, ContextBase *> contexts_;                // Contains all contexts.
-  std::unordered_map<uint32_t, std::chrono::milliseconds> tick_period_; // per root_id.
+  std::unordered_map<uint32_t, ContextBase *> contexts_;                 // Contains all contexts.
+  std::unordered_map<uint32_t, std::chrono::milliseconds> timer_period_; // per root_id.
   std::unique_ptr<ShutdownHandle> shutdown_handle_;
   std::unordered_set<ContextBase *> pending_done_; // Root contexts not done during shutdown.
 
@@ -221,6 +224,7 @@ protected:
   WasmCallVoid<3> on_grpc_receive_trailing_metadata_;
 
   WasmCallVoid<2> on_queue_ready_;
+  WasmCallVoid<3> on_foreign_function_;
 
   WasmCallWord<1> on_done_;
   WasmCallVoid<1> on_log_;
