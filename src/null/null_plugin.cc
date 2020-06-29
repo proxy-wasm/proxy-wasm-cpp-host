@@ -486,18 +486,21 @@ void NullPlugin::onDelete(uint64_t context_id) {
   context_map_.erase(context_id);
 }
 
-null_plugin::RootContext *nullVmGetRoot(string_view root_id) {
+namespace null_plugin {
+
+RootContext *nullVmGetRoot(string_view root_id) {
   auto null_vm = static_cast<NullVm *>(current_context_->wasmVm());
   return static_cast<NullPlugin *>(null_vm->plugin_.get())->getRoot(root_id);
 }
 
-null_plugin::Context *nullVmGetContext(uint32_t context_id) {
+Context *nullVmGetContext(uint32_t context_id) {
   auto null_vm = static_cast<NullVm *>(current_context_->wasmVm());
   return static_cast<NullPlugin *>(null_vm->plugin_.get())->getContext(context_id);
 }
 
-null_plugin::RootContext *getRoot(string_view root_id) { return nullVmGetRoot(root_id); }
+RootContext *getRoot(string_view root_id) { return nullVmGetRoot(root_id); }
 
-null_plugin::Context *getContext(uint32_t context_id) { return nullVmGetContext(context_id); }
+Context *getContext(uint32_t context_id) { return nullVmGetContext(context_id); }
 
+} // namespace null_plugin
 } // namespace proxy_wasm
