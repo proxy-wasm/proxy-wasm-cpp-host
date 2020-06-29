@@ -315,6 +315,9 @@ struct StreamInterface {
   // Close a stream.
   virtual WasmResult closeStream(WasmStreamType type) = 0;
 
+  // Called when a Wasm VM has failed and the plugin is set to fail closed.
+  virtual void failStream(WasmStreamType) = 0;
+
   /**
    * Provides a BufferInterface to be used to return buffered data to the VM.
    * @param type is the type of buffer to provide.

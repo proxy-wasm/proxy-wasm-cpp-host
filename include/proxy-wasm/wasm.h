@@ -71,6 +71,7 @@ public:
     return nullptr;
   }
   uint32_t allocContextId();
+  bool isFailed() { return failed_; }
 
   const std::string &code() const { return code_; }
   const std::string &vm_configuration() const;
@@ -91,20 +92,17 @@ public:
     unimplemented();
     return nullptr;
   }
-  // NB: if plugin is nullptr, then a VM Context is returned.
-  virtual ContextBase *createContext(std::shared_ptr<PluginBase> plugin) {
-    if (plugin)
-      return new ContextBase(this, plugin);
-    return new ContextBase(this);
+
+  virtual ContextBase *createVmContext() { return new ContextBase(this); }
+  virtual ContextBase *createRootContext(const std::shared_ptr<PluginBase> &plugin) {
+    return new ContextBase(this, plugin);
+  }
+  virtual ContextBase *createContext(const std::shared_ptr<PluginBase> &plugin) {
+    return new ContextBase(this, plugin);
   }
   virtual void setTimerPeriod(uint32_t root_context_id, std::chrono::milliseconds period) {
     timer_period_[root_context_id] = period;
   }
-  virtual void error(string_view message) {
-    std::cerr << message << "\n";
-    abort();
-  }
-  virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
 
   // Support functions.
   //
@@ -117,12 +115,12 @@ public:
 
   WasmForeignFunction getForeignFunction(string_view function_name);
 
-  // For testing.
-  //
-  void setContextForTesting(ContextBase *context) { contexts_[context->id()] = context; }
-  // Returns false if onStart returns false.
-  bool startForTesting(std::unique_ptr<ContextBase> root_context,
-                       std::shared_ptr<PluginBase> plugin);
+  void fail(string_view message) {
+    error(message);
+    failed_ = true;
+  }
+  virtual void error(string_view message) { std::cerr << message << "\n"; }
+  virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
 
   bool getEmscriptenVersion(uint32_t *emscripten_metadata_major_version,
                             uint32_t *emscripten_metadata_minor_version,
@@ -238,6 +236,7 @@ protected:
   std::string code_;
   std::string vm_configuration_;
   bool allow_precompiled_ = false;
+  bool failed_ = false; // The Wasm VM has experienced a fatal error.
 
   bool is_emscripten_ = false;
   uint32_t emscripten_metadata_major_version_ = 0;
@@ -259,7 +258,13 @@ protected:
 class WasmHandleBase : public std::enable_shared_from_this<WasmHandleBase> {
 public:
   explicit WasmHandleBase(std::shared_ptr<WasmBase> wasm_base) : wasm_base_(wasm_base) {}
-  ~WasmHandleBase() { wasm_base_->startShutdown(); }
+  ~WasmHandleBase() {
+    if (wasm_base_) {
+      wasm_base_->startShutdown();
+    }
+  }
+
+  void kill() { wasm_base_ = nullptr; }
 
   std::shared_ptr<WasmBase> &wasm() { return wasm_base_; }
 
@@ -276,8 +281,7 @@ using WasmHandleCloneFactory =
 // Returns nullptr on failure (i.e. initialization of the VM fails).
 std::shared_ptr<WasmHandleBase>
 createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plugin,
-           WasmHandleFactory factory, bool allow_precompiled,
-           std::unique_ptr<ContextBase> root_context_for_testing = nullptr);
+           WasmHandleFactory factory, WasmHandleCloneFactory clone_factory, bool allow_precompiled);
 // Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
 std::shared_ptr<WasmHandleBase> getThreadLocalWasm(string_view vm_id);
 // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
@@ -285,6 +289,9 @@ std::shared_ptr<WasmHandleBase> getThreadLocalWasm(string_view vm_id);
 std::shared_ptr<WasmHandleBase>
 getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
                            std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory factory);
+
+// Clear Base Wasm cache and the thread-local Wasm sandbox cache for the calling thread.
+void clearWasmCachesForTesting();
 
 inline const std::string &WasmBase::vm_configuration() const {
   if (base_wasm_handle_)
