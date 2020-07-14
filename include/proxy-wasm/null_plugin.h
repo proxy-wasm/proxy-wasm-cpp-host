@@ -38,6 +38,8 @@ namespace proxy_wasm {
  * Registry for Plugin implementation.
  */
 struct NullPluginRegistry {
+  void (*proxy_abi_version_0_1_0_)() = nullptr;
+  void (*proxy_on_log_)(uint32_t context_id) = nullptr;
   uint32_t (*proxy_validate_configuration_)(uint32_t root_context_id,
                                             uint32_t plugin_configuration_size) = nullptr;
   void (*proxy_on_context_create_)(uint32_t context_id, uint32_t parent_context_id) = nullptr;
@@ -127,13 +129,20 @@ private:
   extern NullPluginRegistry *context_registry_;                                                    \
   struct RegisterContextFactory {                                                                  \
     explicit RegisterContextFactory(null_plugin::ContextFactory context_factory,                   \
-                                    null_plugin::RootFactory root_factory = nullptr,               \
+                                    null_plugin::RootFactory root_factory,                         \
                                     StringView root_id = "") {                                     \
       if (!context_registry_) {                                                                    \
         context_registry_ = new NullPluginRegistry;                                                \
       }                                                                                            \
       context_registry_->context_factories[std::string(root_id)] = context_factory;                \
       context_registry_->root_factories[std::string(root_id)] = root_factory;                      \
+    }                                                                                              \
+    explicit RegisterContextFactory(null_plugin::ContextFactory context_factory,                   \
+                                    StringView root_id = "") {                                     \
+      if (!context_registry_) {                                                                    \
+        context_registry_ = new NullPluginRegistry;                                                \
+      }                                                                                            \
+      context_registry_->context_factories[std::string(root_id)] = context_factory;                \
     }                                                                                              \
     explicit RegisterContextFactory(null_plugin::RootFactory root_factory,                         \
                                     StringView root_id = "") {                                     \

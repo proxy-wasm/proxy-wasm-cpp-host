@@ -468,7 +468,13 @@ void NullPlugin::onForeignFunction(uint64_t context_id, uint64_t foreign_functio
   getContextBase(context_id)->onForeignFunction(foreign_function_id, data_size);
 }
 
-void NullPlugin::onLog(uint64_t context_id) { getContext(context_id)->onLog(); }
+void NullPlugin::onLog(uint64_t context_id) {
+  if (registry_->proxy_on_log_) {
+    registry_->proxy_on_log_(context_id);
+    return;
+  }
+  getContext(context_id)->onLog();
+}
 
 uint64_t NullPlugin::onDone(uint64_t context_id) {
   if (registry_->proxy_on_done_) {
