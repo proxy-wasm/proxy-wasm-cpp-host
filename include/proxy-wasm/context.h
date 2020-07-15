@@ -282,7 +282,7 @@ public:
   }
 
   // Metrics
-  WasmResult defineMetric(MetricType /* type */, string_view /* name */,
+  WasmResult defineMetric(uint32_t /* type */, string_view /* name */,
                           uint32_t * /* metric_id_ptr */) override {
     return unimplemented();
   }
