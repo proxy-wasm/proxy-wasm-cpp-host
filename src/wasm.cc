@@ -235,7 +235,7 @@ void WasmBase::getFunctions() {
 #undef _GET_PROXY
 
   if (!malloc_) {
-    fail("Wasm missing malloc");
+    fail(FailState::MissingFunction, "Wasm missing malloc");
   }
 }
 
@@ -250,9 +250,9 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
     wasm_vm_ = factory();
   }
   if (!wasm_vm_) {
-    failed_ = true;
+    failed_ = FailState::UnableToCreateVM;
   } else {
-    wasm_vm_->setFailCallback([this] { failed_ = true; });
+    wasm_vm_->setFailCallback([this](FailState fail_state) { failed_ = fail_state; });
   }
 }
 
@@ -261,9 +261,9 @@ WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, string_view vm_id, string_vi
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
       vm_configuration_(std::string(vm_configuration)) {
   if (!wasm_vm_) {
-    failed_ = true;
+    failed_ = FailState::UnableToCreateVM;
   } else {
-    wasm_vm_->setFailCallback([this] { failed_ = true; });
+    wasm_vm_->setFailCallback([this](FailState fail_state) { failed_ = fail_state; });
   }
 }
 
@@ -450,25 +450,26 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
   }
 
   if (!wasm_handle->wasm()->initialize(code, allow_precompiled)) {
-    wasm_handle->wasm()->fail("Failed to initialize Wasm code");
+    wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
     return nullptr;
   }
   auto configuration_canary_handle = clone_factory(wasm_handle);
   if (!configuration_canary_handle) {
-    wasm_handle->wasm()->fail("Failed to clone Base Wasm");
+    wasm_handle->wasm()->fail(FailState::UnableToCloneVM, "Failed to clone Base Wasm");
     return nullptr;
   }
   if (!configuration_canary_handle->wasm()->initialize(code, allow_precompiled)) {
-    wasm_handle->wasm()->fail("Failed to initialize Wasm code");
+    wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
     return nullptr;
   }
   auto root_context = configuration_canary_handle->wasm()->start(plugin);
   if (!root_context) {
-    configuration_canary_handle->wasm()->fail("Failed to start base Wasm");
+    configuration_canary_handle->wasm()->fail(FailState::StartFailed, "Failed to start base Wasm");
     return nullptr;
   }
   if (!configuration_canary_handle->wasm()->configure(root_context, plugin)) {
-    configuration_canary_handle->wasm()->fail("Failed to configure base Wasm plugin");
+    configuration_canary_handle->wasm()->fail(FailState::ConfigureFailed,
+                                              "Failed to configure base Wasm plugin");
     return nullptr;
   }
   configuration_canary_handle->kill();
@@ -484,16 +485,17 @@ createThreadLocalWasm(std::shared_ptr<WasmHandleBase> &base_wasm,
   }
   if (!wasm_handle->wasm()->initialize(wasm_handle->wasm()->code(),
                                        wasm_handle->wasm()->allow_precompiled())) {
-    wasm_handle->wasm()->fail("Failed to initialize Wasm code");
+    wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
     return nullptr;
   }
   ContextBase *root_context = wasm_handle->wasm()->start(plugin);
   if (!root_context) {
-    base_wasm->wasm()->fail("Failed to start thread-local Wasm");
+    base_wasm->wasm()->fail(FailState::StartFailed, "Failed to start thread-local Wasm");
     return nullptr;
   }
   if (!wasm_handle->wasm()->configure(root_context, plugin)) {
-    base_wasm->wasm()->fail("Failed to configure thread-local Wasm plugin");
+    base_wasm->wasm()->fail(FailState::ConfigureFailed,
+                            "Failed to configure thread-local Wasm plugin");
     return nullptr;
   }
   local_wasms[std::string(wasm_handle->wasm()->vm_key())] = wasm_handle;
@@ -519,7 +521,8 @@ getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
   if (wasm_handle) {
     auto root_context = wasm_handle->wasm()->getOrCreateRootContext(plugin);
     if (!wasm_handle->wasm()->configure(root_context, plugin)) {
-      base_wasm->wasm()->fail("Failed to configure thread-local Wasm code");
+      base_wasm->wasm()->fail(FailState::ConfigureFailed,
+                              "Failed to configure thread-local Wasm code");
       return nullptr;
     }
     return wasm_handle;

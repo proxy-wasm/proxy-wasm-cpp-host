@@ -71,7 +71,7 @@ public:
     return nullptr;
   }
   uint32_t allocContextId();
-  bool isFailed() { return failed_; }
+  bool isFailed() { return failed_ != FailState::NotFailed; }
 
   const std::string &code() const { return code_; }
   const std::string &vm_configuration() const;
@@ -115,9 +115,9 @@ public:
 
   WasmForeignFunction getForeignFunction(string_view function_name);
 
-  void fail(string_view message) {
+  void fail(FailState fail_state, string_view message) {
     error(message);
-    failed_ = true;
+    failed_ = fail_state;
   }
   virtual void error(string_view message) { std::cerr << message << "\n"; }
   virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
@@ -236,7 +236,7 @@ protected:
   std::string code_;
   std::string vm_configuration_;
   bool allow_precompiled_ = false;
-  bool failed_ = false; // The Wasm VM has experienced a fatal error.
+  FailState failed_ = FailState::NotFailed; // Wasm VM fatal error.
 
   bool is_emscripten_ = false;
   uint32_t emscripten_metadata_major_version_ = 0;

@@ -124,6 +124,17 @@ struct WasmVmIntegration {
                                  void *ptr_to_function_return) = 0;
 };
 
+enum class FailState : int {
+  NotFailed = 0,
+  UnableToCreateVM = 1,
+  UnableToCloneVM = 2,
+  MissingFunction = 3,
+  UnableToInitializeCode = 4,
+  StartFailed = 5,
+  ConfigureFailed = 6,
+  RuntimeError = 7,
+};
+
 // Wasm VM instance. Provides the low level WASM interface.
 class WasmVm {
 public:
@@ -250,24 +261,26 @@ public:
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
-  bool isFailed() { return failed_; }
-  void fail(string_view message) {
+  bool isFailed() { return failed_ != FailState::NotFailed; }
+  void fail(FailState fail_state, string_view message) {
     error(message);
-    failed_ = true;
+    failed_ = fail_state;
     if (fail_callback_) {
-      fail_callback_();
+      fail_callback_(fail_state);
     }
   }
-  void setFailCallback(std::function<void()> fail_callback) { fail_callback_ = fail_callback; }
+  void setFailCallback(std::function<void(FailState)> fail_callback) {
+    fail_callback_ = fail_callback;
+  }
 
   // Integrator operations.
   std::unique_ptr<WasmVmIntegration> &integration() { return integration_; }
   void error(string_view message) { integration()->error(message); }
 
-private:
+protected:
   std::unique_ptr<WasmVmIntegration> integration_;
-  bool failed_ = false;
-  std::function<void()> fail_callback_;
+  FailState failed_ = FailState::NotFailed;
+  std::function<void(FailState)> fail_callback_;
 };
 
 // Thread local state set during a call into a WASM VM so that calls coming out of the
