@@ -20,27 +20,28 @@
 #if __cplusplus >= 201703L
 #include <optional>
 #include <string_view>
+
 #else
 #include "absl/types/optional.h"
 #include "absl/strings/string_view.h"
 #endif
 
 namespace proxy_wasm {
-#ifndef __cpp_lib_optional
-template <typename T> using optional = absl::optional<T>;
-// Only available in C++17
-// inline constexpr absl::nullopt_t nullopt = absl::nullopt;
-#define PROXY_WASM_NULLOPT absl::nullopt
-#else
+#if __cplusplus >= 201703L
+
 template <typename T> using optional = std::optional<T>;
 // Only available in C++17
 // inline constexpr std::nullopt_t nullopt = std::nullopt;
 #define PROXY_WASM_NULLOPT std::nullopt
-#endif
-
-#ifndef __cpp_lib_string_view
-using string_view = absl::string_view;
-#else
 using string_view = std::string_view;
+
+#else
+
+template <typename T> using optional = absl::optional<T>;
+// Only available in C++17
+// inline constexpr absl::nullopt_t nullopt = absl::nullopt;
+#define PROXY_WASM_NULLOPT absl::nullopt
+using string_view = absl::string_view;
+
 #endif
 } // namespace proxy_wasm
