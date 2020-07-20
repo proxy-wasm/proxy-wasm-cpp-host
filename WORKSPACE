@@ -35,6 +35,7 @@ git_repository(
     name = "com_google_protobuf",
     commit = "655310ca192a6e3a050e0ca0b7084a2968072260",
     remote = "https://github.com/protocolbuffers/protobuf",
+    shallow_since = "1565024848 -0700",
 )
 
 http_archive(
