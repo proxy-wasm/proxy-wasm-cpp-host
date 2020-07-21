@@ -47,14 +47,16 @@ class WasmVm;
  * @param fail_open if true the plugin will pass traffic as opposed to close all streams.
  */
 struct PluginBase {
-  PluginBase(string_view name, string_view root_id, string_view vm_id,
+  PluginBase(string_view name, string_view root_id, string_view vm_id, string_view runtime,
              string_view plugin_configuration, bool fail_open)
       : name_(std::string(name)), root_id_(std::string(root_id)), vm_id_(std::string(vm_id)),
-        plugin_configuration_(plugin_configuration), fail_open_(fail_open) {}
+        runtime_(std::string(runtime)), plugin_configuration_(plugin_configuration),
+        fail_open_(fail_open) {}
 
   const std::string name_;
   const std::string root_id_;
   const std::string vm_id_;
+  const std::string runtime_;
   std::string plugin_configuration_;
   const bool fail_open_;
   const std::string &log_prefix() const { return log_prefix_; }
