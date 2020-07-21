@@ -87,7 +87,7 @@ public:
   }
 
   uint32_t registerQueue(string_view vm_id, string_view queue_name, uint32_t context_id,
-                         CallOnThreadFunction call_on_thread) {
+                         CallOnThreadFunction call_on_thread, string_view vm_key) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto key = std::make_pair(std::string(vm_id), std::string(queue_name));
     auto it = queue_tokens_.insert(std::make_pair(key, static_cast<uint32_t>(0)));
@@ -97,7 +97,7 @@ public:
     }
     uint32_t token = it.first->second;
     auto &q = queues_[token];
-    q.vm_id = std::string(vm_id);
+    q.vm_key = std::string(vm_key);
     q.context_id = context_id;
     q.call_on_thread = std::move(call_on_thread);
     // Preserve any existing data.
@@ -127,17 +127,28 @@ public:
     it->second.queue.pop_front();
     return WasmResult::Ok;
   }
+
   WasmResult enqueue(uint32_t token, string_view value) {
-    std::lock_guard<std::mutex> lock(mutex_);
-    auto it = queues_.find(token);
-    if (it == queues_.end()) {
-      return WasmResult::NotFound;
+    Queue *target_queue;
+    std::string vm_key;
+    uint32_t context_id;
+
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      auto it = queues_.find(token);
+      if (it == queues_.end()) {
+        return WasmResult::NotFound;
+      }
+      target_queue = &(it->second);
+      vm_key = target_queue->vm_key;
+      context_id = target_queue->context_id;
+      target_queue->queue.push_back(std::string(value));
     }
-    it->second.queue.push_back(std::string(value));
-    auto vm_id = it->second.vm_id;
-    auto context_id = it->second.context_id;
-    it->second.call_on_thread([vm_id, context_id, token] {
-      auto wasm = getThreadLocalWasm(vm_id);
+
+    target_queue->call_on_thread([vm_key, context_id, token] {
+      // This code may or may not execute in another thread.
+      // Make sure that the lock is no longer held here.
+      auto wasm = getThreadLocalWasm(vm_key);
       if (wasm) {
         auto context = wasm->wasm()->getContext(context_id);
         if (context) {
@@ -171,7 +182,7 @@ private:
   }
 
   struct Queue {
-    std::string vm_id;
+    std::string vm_key;
     uint32_t context_id;
     CallOnThreadFunction call_on_thread;
     std::deque<std::string> queue;
@@ -341,7 +352,7 @@ WasmResult ContextBase::registerSharedQueue(string_view queue_name,
   // root.
   *result = global_shared_data.registerQueue(wasm_->vm_id(), queue_name,
                                              isRootContext() ? id_ : parent_context_id_,
-                                             wasm_->callOnThreadFunction());
+                                             wasm_->callOnThreadFunction(), wasm_->vm_key());
   return WasmResult::Ok;
 }
 
