@@ -20,7 +20,6 @@
 #if __cplusplus >= 201703L
 #include <optional>
 #include <string_view>
-
 #else
 #include "absl/types/optional.h"
 #include "absl/strings/string_view.h"
