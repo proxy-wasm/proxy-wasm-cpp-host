@@ -72,6 +72,7 @@ public:
   }
   uint32_t allocContextId();
   bool isFailed() { return failed_ != FailState::Ok; }
+  FailState fail_state() { return failed_; }
 
   const std::string &code() const { return code_; }
   const std::string &vm_configuration() const;
