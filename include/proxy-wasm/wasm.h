@@ -71,7 +71,7 @@ public:
     return nullptr;
   }
   uint32_t allocContextId();
-  bool isFailed() { return failed_ != FailState::NotFailed; }
+  bool isFailed() { return failed_ != FailState::Ok; }
 
   const std::string &code() const { return code_; }
   const std::string &vm_configuration() const;
@@ -236,7 +236,7 @@ protected:
   std::string code_;
   std::string vm_configuration_;
   bool allow_precompiled_ = false;
-  FailState failed_ = FailState::NotFailed; // Wasm VM fatal error.
+  FailState failed_ = FailState::Ok; // Wasm VM fatal error.
 
   bool is_emscripten_ = false;
   uint32_t emscripten_metadata_major_version_ = 0;

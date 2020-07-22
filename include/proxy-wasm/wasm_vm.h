@@ -125,7 +125,7 @@ struct WasmVmIntegration {
 };
 
 enum class FailState : int {
-  NotFailed = 0,
+  Ok = 0,
   UnableToCreateVM = 1,
   UnableToCloneVM = 2,
   MissingFunction = 3,
@@ -261,7 +261,7 @@ public:
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
-  bool isFailed() { return failed_ != FailState::NotFailed; }
+  bool isFailed() { return failed_ != FailState::Ok; }
   void fail(FailState fail_state, string_view message) {
     error(message);
     failed_ = fail_state;
@@ -279,7 +279,7 @@ public:
 
 protected:
   std::unique_ptr<WasmVmIntegration> integration_;
-  FailState failed_ = FailState::NotFailed;
+  FailState failed_ = FailState::Ok;
   std::function<void(FailState)> fail_callback_;
 };
 
