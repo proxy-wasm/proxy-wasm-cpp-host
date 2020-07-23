@@ -837,5 +837,14 @@ Word log(void *raw_context, Word level, Word address, Word size) {
   return context->log(level, message.value());
 }
 
+Word get_log_level(void *raw_context, Word result_level_uint32_ptr) {
+  auto context = WASM_CONTEXT(raw_context);
+  uint32_t level = context->getLogLevel();
+  if (!context->wasm()->setDatatype(result_level_uint32_ptr, level)) {
+    return WasmResult::InvalidMemoryAccess;
+  }
+  return WasmResult::Ok;
+}
+
 } // namespace exports
 } // namespace proxy_wasm

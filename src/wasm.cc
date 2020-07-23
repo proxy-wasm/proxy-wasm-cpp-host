@@ -140,6 +140,7 @@ void WasmBase::registerCallbacks() {
       &ConvertFunctionWordToUint32<decltype(exports::_fn),                                         \
                                    exports::_fn>::convertFunctionWordToUint32);
   _REGISTER_PROXY(log);
+  _REGISTER_PROXY(get_log_level);
 
   _REGISTER_PROXY(get_status);
 

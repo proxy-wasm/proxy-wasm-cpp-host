@@ -530,6 +530,9 @@ struct GeneralInterface {
   // Log a message.
   virtual WasmResult log(uint32_t level, string_view message) = 0;
 
+  // Return the current log level in the host
+  virtual uint32_t getLogLevel() = 0;
+
   /**
    * Enables a periodic timer with the given period or sets the period of an existing timer. Note:
    * the timer is associated with the Root Context of whatever Context this call was made on.

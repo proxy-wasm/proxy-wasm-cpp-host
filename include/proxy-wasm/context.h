@@ -229,6 +229,7 @@ public:
   WasmResult log(uint32_t /* level */, string_view /* message */) override {
     return unimplemented();
   }
+  uint32_t getLogLevel() override { return 0; }
   uint64_t getCurrentTimeNanoseconds() override {
     struct timespec tpe;
     clock_gettime(CLOCK_REALTIME, &tpe);

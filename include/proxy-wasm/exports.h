@@ -31,6 +31,7 @@ namespace exports {
 
 Word get_status(void *raw_context, Word status_code, Word address, Word size);
 Word log(void *raw_context, Word level, Word address, Word size);
+Word get_log_level(void *raw_context, Word result_level_uint32_ptr);
 Word get_property(void *raw_context, Word path_ptr, Word path_size, Word value_ptr_ptr,
                   Word value_size_ptr);
 Word set_property(void *raw_context, Word key_ptr, Word key_size, Word value_ptr, Word value_size);
