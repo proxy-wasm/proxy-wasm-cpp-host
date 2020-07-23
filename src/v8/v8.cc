@@ -322,20 +322,20 @@ string_view V8::getCustomSection(string_view name) {
   const byte_t *end = source_.get() + source_.size();
   while (pos < end) {
     if (pos + 1 > end) {
-      fail("Failed to parse corrupted Wasm module");
+      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
       return "";
     }
     const auto section_type = *pos++;
     const auto section_len = parseVarint(pos, end);
     if (section_len == static_cast<uint32_t>(-1) || pos + section_len > end) {
-      fail("Failed to parse corrupted Wasm module");
+      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
       return "";
     }
     if (section_type == 0 /* custom section */) {
       const auto section_data_start = pos;
       const auto section_name_len = parseVarint(pos, end);
       if (section_name_len == static_cast<uint32_t>(-1) || pos + section_name_len > end) {
-        fail("Failed to parse corrupted Wasm module");
+        fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
         return "";
       }
       if (section_name_len == name.size() && ::memcmp(pos, name.data(), section_name_len) == 0) {
@@ -382,19 +382,21 @@ bool V8::link(string_view debug_name) {
     case wasm::EXTERN_FUNC: {
       auto it = host_functions_.find(std::string(module) + "." + std::string(name));
       if (it == host_functions_.end()) {
-        fail(std::string("Failed to load Wasm module due to a missing import: ") +
-             std::string(module) + "." + std::string(name));
+        fail(FailState::UnableToInitializeCode,
+             std::string("Failed to load Wasm module due to a missing import: ") +
+                 std::string(module) + "." + std::string(name));
         break;
       }
       auto func = it->second.get()->callback_.get();
       if (!equalValTypes(import_type->func()->params(), func->type()->params()) ||
           !equalValTypes(import_type->func()->results(), func->type()->results())) {
-        fail(std::string("Failed to load Wasm module due to an import type mismatch: ") +
-             std::string(module) + "." + std::string(name) +
-             ", want: " + printValTypes(import_type->func()->params()) + " -> " +
-             printValTypes(import_type->func()->results()) +
-             ", but host exports: " + printValTypes(func->type()->params()) + " -> " +
-             printValTypes(func->type()->results()));
+        fail(FailState::UnableToInitializeCode,
+             std::string("Failed to load Wasm module due to an import type mismatch: ") +
+                 std::string(module) + "." + std::string(name) +
+                 ", want: " + printValTypes(import_type->func()->params()) + " -> " +
+                 printValTypes(import_type->func()->results()) +
+                 ", but host exports: " + printValTypes(func->type()->params()) + " -> " +
+                 printValTypes(func->type()->results()));
         break;
       }
       imports.push_back(func);
@@ -402,8 +404,9 @@ bool V8::link(string_view debug_name) {
 
     case wasm::EXTERN_GLOBAL: {
       // TODO(PiotrSikora): add support when/if needed.
-      fail("Failed to load Wasm module due to a missing import: " + std::string(module) + "." +
-           std::string(name));
+      fail(FailState::UnableToInitializeCode,
+           "Failed to load Wasm module due to a missing import: " + std::string(module) + "." +
+               std::string(name));
     } break;
 
     case wasm::EXTERN_MEMORY: {
@@ -565,7 +568,8 @@ void V8::getModuleFunctionImpl(string_view function_name,
   const wasm::Func *func = it->second.get();
   if (!equalValTypes(func->type()->params(), convertArgsTupleToValTypes<std::tuple<Args...>>()) ||
       !equalValTypes(func->type()->results(), convertArgsTupleToValTypes<std::tuple<>>())) {
-    fail(std::string("Bad function signature for: ") + std::string(function_name));
+    fail(FailState::UnableToInitializeCode,
+         std::string("Bad function signature for: ") + std::string(function_name));
     *function = nullptr;
     return;
   }
@@ -574,8 +578,8 @@ void V8::getModuleFunctionImpl(string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, nullptr);
     if (trap) {
-      fail("Function: " + std::string(function_name) +
-           " failed: " + std::string(trap->message().get(), trap->message().size()));
+      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
+                                        std::string(trap->message().get(), trap->message().size()));
     }
   };
 }
@@ -591,7 +595,8 @@ void V8::getModuleFunctionImpl(string_view function_name,
   const wasm::Func *func = it->second.get();
   if (!equalValTypes(func->type()->params(), convertArgsTupleToValTypes<std::tuple<Args...>>()) ||
       !equalValTypes(func->type()->results(), convertArgsTupleToValTypes<std::tuple<R>>())) {
-    fail("Bad function signature for: " + std::string(function_name));
+    fail(FailState::UnableToInitializeCode,
+         "Bad function signature for: " + std::string(function_name));
     *function = nullptr;
     return;
   }
@@ -601,8 +606,8 @@ void V8::getModuleFunctionImpl(string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, results);
     if (trap) {
-      fail("Function: " + std::string(function_name) +
-           " failed: " + std::string(trap->message().get(), trap->message().size()));
+      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
+                                        std::string(trap->message().get(), trap->message().size()));
       return R{};
     }
     R rvalue = results[0].get<typename ConvertWordTypeToUint32<R>::type>();
