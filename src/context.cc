@@ -129,9 +129,9 @@ public:
   }
 
   WasmResult enqueue(uint32_t token, string_view value) {
-    Queue *target_queue;
     std::string vm_key;
     uint32_t context_id;
+    CallOnThreadFunction call_on_thread;
 
     {
       std::lock_guard<std::mutex> lock(mutex_);
@@ -139,13 +139,14 @@ public:
       if (it == queues_.end()) {
         return WasmResult::NotFound;
       }
-      target_queue = &(it->second);
+      Queue *target_queue = &(it->second);
       vm_key = target_queue->vm_key;
       context_id = target_queue->context_id;
+      call_on_thread = target_queue->call_on_thread;
       target_queue->queue.push_back(std::string(value));
     }
 
-    target_queue->call_on_thread([vm_key, context_id, token] {
+    call_on_thread([vm_key, context_id, token] {
       // This code may or may not execute in another thread.
       // Make sure that the lock is no longer held here.
       auto wasm = getThreadLocalWasm(vm_key);
