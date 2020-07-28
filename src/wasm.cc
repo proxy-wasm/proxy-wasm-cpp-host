@@ -479,9 +479,10 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
 
 static std::shared_ptr<WasmHandleBase>
 createThreadLocalWasm(std::shared_ptr<WasmHandleBase> &base_wasm,
-                      std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory factory) {
-  auto wasm_handle = factory(base_wasm);
+                      std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory clone_factory) {
+  auto wasm_handle = clone_factory(base_wasm);
   if (!wasm_handle) {
+    wasm_handle->wasm()->fail(FailState::UnableToCloneVM, "Failed to clone Base Wasm");
     return nullptr;
   }
   if (!wasm_handle->wasm()->initialize(wasm_handle->wasm()->code(),
@@ -517,7 +518,8 @@ std::shared_ptr<WasmHandleBase> getThreadLocalWasm(string_view vm_key) {
 
 std::shared_ptr<WasmHandleBase>
 getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
-                           std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory factory) {
+                           std::shared_ptr<PluginBase> plugin,
+                           WasmHandleCloneFactory clone_factory) {
   auto wasm_handle = getThreadLocalWasm(base_wasm->wasm()->vm_key());
   if (wasm_handle) {
     auto root_context = wasm_handle->wasm()->getOrCreateRootContext(plugin);
@@ -528,7 +530,7 @@ getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
     }
     return wasm_handle;
   }
-  return createThreadLocalWasm(base_wasm, plugin, factory);
+  return createThreadLocalWasm(base_wasm, plugin, clone_factory);
 }
 
 void clearWasmCachesForTesting() {
