@@ -483,12 +483,14 @@ struct MetricsInterface {
   virtual ~MetricsInterface() = default;
   /**
    * Define a metric (Stat).
-   * @param type is the type of metric (e.g. Counter).
+   * @param type is the type of metric (e.g. Counter). This may be an element of MetricType from the
+   * SDK or some proxy-specific extension. It is the responsibility of the proxy-specific
+   * implementation to validate this parameter.
    * @param name is a string uniquely identifying the metric.
    * @param metric_id_ptr is a location to store a token used for subsequent operations on the
    * metric.
    */
-  virtual WasmResult defineMetric(MetricType /* type */, string_view /* name */,
+  virtual WasmResult defineMetric(uint32_t /* type */, string_view /* name */,
                                   uint32_t * /* metric_id_ptr */) = 0;
 
   /**

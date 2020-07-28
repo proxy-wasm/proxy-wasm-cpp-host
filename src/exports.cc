@@ -543,9 +543,6 @@ Word http_call(void *raw_context, Word uri_ptr, Word uri_size, Word header_pairs
 
 Word define_metric(void *raw_context, Word metric_type, Word name_ptr, Word name_size,
                    Word metric_id_ptr) {
-  if (metric_type > static_cast<uint64_t>(MetricType::Max)) {
-    return WasmResult::BadArgument;
-  }
   auto context = WASM_CONTEXT(raw_context);
   auto name = context->wasmVm()->getMemory(name_ptr, name_size);
   if (!name) {
@@ -553,7 +550,7 @@ Word define_metric(void *raw_context, Word metric_type, Word name_ptr, Word name
   }
   uint32_t metric_id = 0;
   auto result =
-      context->defineMetric(static_cast<MetricType>(metric_type.u64_), name.value(), &metric_id);
+      context->defineMetric(static_cast<uint32_t>(metric_type.u64_), name.value(), &metric_id);
   if (result != WasmResult::Ok) {
     return result;
   }
