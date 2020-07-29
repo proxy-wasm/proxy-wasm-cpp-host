@@ -40,7 +40,7 @@ RegisterForeignFunction compressFunction(
 
 RegisterForeignFunction
     uncompressFunction("uncompress",
-                       [](WasmBase &, absl::string_view arguments,
+                       [](WasmBase &, string_view arguments,
                           std::function<void *(size_t size)> alloc_result) -> WasmResult {
                          unsigned long dest_len = arguments.size() * 2 + 2; // output estimate.
                          while (1) {
