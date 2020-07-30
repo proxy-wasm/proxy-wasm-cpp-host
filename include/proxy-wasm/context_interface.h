@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "include/proxy-wasm/compat.h"
-
 #include <time.h>
 #include <atomic>
 #include <chrono>
@@ -31,8 +29,8 @@ namespace proxy_wasm {
 #include "proxy_wasm_common.h"
 #include "proxy_wasm_enums.h"
 
-using Pairs = std::vector<std::pair<string_view, string_view>>;
-using PairsWithStringValues = std::vector<std::pair<string_view, std::string>>;
+using Pairs = std::vector<std::pair<std::string_view, std::string_view>>;
+using PairsWithStringValues = std::vector<std::pair<std::string_view, std::string>>;
 using TimerToken = uint32_t;
 using HttpCallToken = uint32_t;
 using GrpcToken = uint32_t;
@@ -80,7 +78,7 @@ struct BufferInterface {
    * @param data the data to copy over the replaced region.
    * @return a WasmResult with any error or WasmResult::Ok.
    */
-  virtual WasmResult copyFrom(size_t start, size_t length, string_view data) = 0;
+  virtual WasmResult copyFrom(size_t start, size_t length, std::string_view data) = 0;
 };
 
 /**
@@ -175,7 +173,7 @@ struct RootInterface : public RootGrpcInterface {
    * shutting down.
    * @return true for stream contexts or for Root Context(s) if the VM can shutdown, false for Root
    * Context(s) if the VM should wait until the Root Context calls the proxy_done() ABI call.  Note:
-   * the VM may (optionally) shutdown after some configured timeout even if the Root Context does
+   * the VM may (std::optionally) shutdown after some configured timeout even if the Root Context does
    * not call proxy_done().
    */
   virtual bool onDone() = 0;
@@ -229,12 +227,12 @@ public:
    * @param response_code is the response code to send.
    * @param body is the body of the response.
    * @param additional_headers are additional headers to send in the response.
-   * @param grpc_status is an optional gRPC status if the connection is a gRPC connection.
+   * @param grpc_status is an std::optional gRPC status if the connection is a gRPC connection.
    * @param details are details of any (gRPC) error.
    */
-  virtual WasmResult sendLocalResponse(uint32_t response_code, string_view body,
+  virtual WasmResult sendLocalResponse(uint32_t response_code, std::string_view body,
                                        Pairs additional_headers, uint32_t grpc_status,
-                                       string_view details) = 0;
+                                       std::string_view details) = 0;
 
   // Call when the stream closes. See RootInterface.
   virtual bool onDone() = 0;
@@ -341,8 +339,8 @@ struct HeaderInterface {
    * @param key is the key (header).
    * @param value is the value (header value).
    */
-  virtual WasmResult addHeaderMapValue(WasmHeaderMapType type, string_view key,
-                                       string_view value) = 0;
+  virtual WasmResult addHeaderMapValue(WasmHeaderMapType type, std::string_view key,
+                                       std::string_view value) = 0;
 
   /**
    * Get a value from to a header map.
@@ -350,8 +348,8 @@ struct HeaderInterface {
    * @param key is the key (header).
    * @param result is a pointer to the returned header value.
    */
-  virtual WasmResult getHeaderMapValue(WasmHeaderMapType type, string_view key,
-                                       string_view *result) = 0;
+  virtual WasmResult getHeaderMapValue(WasmHeaderMapType type, std::string_view key,
+                                       std::string_view *result) = 0;
 
   /**
    * Get all the key-value pairs in a header map.
@@ -372,7 +370,7 @@ struct HeaderInterface {
    * @param type of the header map.
    * @param key of the header map.
    */
-  virtual WasmResult removeHeaderMapValue(WasmHeaderMapType type, string_view key) = 0;
+  virtual WasmResult removeHeaderMapValue(WasmHeaderMapType type, std::string_view key) = 0;
 
   /**
    * Replace (or set) a value in a header map.
@@ -380,8 +378,8 @@ struct HeaderInterface {
    * @param key of the header map.
    * @param value to set in the header map.
    */
-  virtual WasmResult replaceHeaderMapValue(WasmHeaderMapType type, string_view key,
-                                           string_view value) = 0;
+  virtual WasmResult replaceHeaderMapValue(WasmHeaderMapType type, std::string_view key,
+                                           std::string_view value) = 0;
 
   /**
    * Returns the number of entries in a header map.
@@ -407,8 +405,8 @@ struct HttpCallInterface {
    * Note: the response arrives on the ancestor RootContext as this call may outlive any stream.
    * Plugin writers should use the VM SDK setEffectiveContext() to switch to any waiting streams.
    */
-  virtual WasmResult httpCall(string_view target, const Pairs &request_headers,
-                              string_view request_body, const Pairs &request_trailers,
+  virtual WasmResult httpCall(std::string_view target, const Pairs &request_headers,
+                              std::string_view request_body, const Pairs &request_trailers,
                               int timeout_milliseconds, HttpCallToken *token_ptr) = 0;
 };
 
@@ -425,9 +423,9 @@ struct GrpcCallInterface {
    * @param token_ptr contains a pointer to a location to store the token which will be used with
    * the corresponding onGrpc and grpc calls.
    */
-  virtual WasmResult grpcCall(string_view /* grpc_service */, string_view /* service_name */,
-                              string_view /* method_name */, const Pairs & /* initial_metadata */,
-                              string_view /* request */, std::chrono::milliseconds /* timeout */,
+  virtual WasmResult grpcCall(std::string_view /* grpc_service */, std::string_view /* service_name */,
+                              std::string_view /* method_name */, const Pairs & /* initial_metadata */,
+                              std::string_view /* request */, std::chrono::milliseconds /* timeout */,
                               GrpcToken * /* token_ptr */) = 0;
 
   /**
@@ -456,8 +454,8 @@ struct GrpcStreamInterface {
    * @param token_ptr contains a pointer to a location to store the token which will be used with
    * the corresponding onGrpc and grpc calls.
    */
-  virtual WasmResult grpcStream(string_view grpc_service, string_view service_name,
-                                string_view method_name, const Pairs & /* initial_metadata */,
+  virtual WasmResult grpcStream(std::string_view grpc_service, std::string_view service_name,
+                                std::string_view method_name, const Pairs & /* initial_metadata */,
                                 GrpcToken *token_ptr) = 0;
 
   /**
@@ -467,7 +465,7 @@ struct GrpcStreamInterface {
    * @param end_stream indicates that the stream is now end_of_stream (e.g. WriteLast() or
    * WritesDone).
    */
-  virtual WasmResult grpcSend(GrpcToken token, string_view message, bool end_stream) = 0;
+  virtual WasmResult grpcSend(GrpcToken token, std::string_view message, bool end_stream) = 0;
 
   // See GrpcCallInterface.
   virtual WasmResult grpcClose(GrpcToken token) = 0;
@@ -490,7 +488,7 @@ struct MetricsInterface {
    * @param metric_id_ptr is a location to store a token used for subsequent operations on the
    * metric.
    */
-  virtual WasmResult defineMetric(uint32_t /* type */, string_view /* name */,
+  virtual WasmResult defineMetric(uint32_t /* type */, std::string_view /* name */,
                                   uint32_t * /* metric_id_ptr */) = 0;
 
   /**
@@ -521,7 +519,7 @@ struct GeneralInterface {
    * Will be called on severe Wasm errors. Callees may report and handle the error (e.g. via an
    * Exception) to prevent the proxy from crashing.
    */
-  virtual void error(string_view message) = 0;
+  virtual void error(std::string_view message) = 0;
 
   /**
    * Called by all functions which are not overridden with a proxy-specific implementation.
@@ -530,7 +528,7 @@ struct GeneralInterface {
   virtual WasmResult unimplemented() = 0;
 
   // Log a message.
-  virtual WasmResult log(uint32_t level, string_view message) = 0;
+  virtual WasmResult log(uint32_t level, std::string_view message) = 0;
 
   // Return the current log level in the host
   virtual uint32_t getLogLevel() = 0;
@@ -554,7 +552,7 @@ struct GeneralInterface {
    * Provides the status of the last call into the VM or out of the VM, similar to errno.
    * @return the status code and a descriptive string.
    */
-  virtual std::pair<uint32_t, string_view> getStatus() = 0;
+  virtual std::pair<uint32_t, std::string_view> getStatus() = 0;
 
   /**
    * Get the value of a property.  Some properties are proxy-independent (e.g. ["plugin_root_id"])
@@ -562,7 +560,7 @@ struct GeneralInterface {
    * @param path is a sequence of strings describing a path to a property.
    * @param result is a location to write the value of the property.
    */
-  virtual WasmResult getProperty(string_view path, std::string *result) = 0;
+  virtual WasmResult getProperty(std::string_view path, std::string *result) = 0;
 
   /**
    * Set the value of a property.
@@ -570,7 +568,7 @@ struct GeneralInterface {
    * @param value the value to set.  For non-string, non-integral types, the value may be
    * serialized..
    */
-  virtual WasmResult setProperty(string_view key, string_view value) = 0;
+  virtual WasmResult setProperty(std::string_view key, std::string_view value) = 0;
 
   /**
    * Custom extension call into the VM. Data is provided as WasmBufferType::CallData.
@@ -597,7 +595,7 @@ struct SharedDataInterface {
    * compare-and-swap value which can be used with setSharedData for safe concurrent updates.
    */
   virtual WasmResult
-  getSharedData(string_view key, std::pair<std::string /* value */, uint32_t /* cas */> *data) = 0;
+  getSharedData(std::string_view key, std::pair<std::string /* value */, uint32_t /* cas */> *data) = 0;
 
   /**
    * Set a key-value data shared between VMs.
@@ -606,7 +604,7 @@ struct SharedDataInterface {
    * the cas associated with the value.
    * @param data is a location to store the returned value.
    */
-  virtual WasmResult setSharedData(string_view key, string_view value, uint32_t cas) = 0;
+  virtual WasmResult setSharedData(std::string_view key, std::string_view value, uint32_t cas) = 0;
 }; // namespace proxy_wasm
 
 struct SharedQueueInterface {
@@ -617,7 +615,7 @@ struct SharedQueueInterface {
    * to make a unique identifier for the queue.
    * @param token_ptr a location to store a token corresponding to the queue.
    */
-  virtual WasmResult registerSharedQueue(string_view queue_name,
+  virtual WasmResult registerSharedQueue(std::string_view queue_name,
                                          SharedQueueDequeueToken *token_ptr) = 0;
 
   /**
@@ -627,7 +625,7 @@ struct SharedQueueInterface {
    * to make a unique identifier for the queue.
    * @param token_ptr a location to store a token corresponding to the queue.
    */
-  virtual WasmResult lookupSharedQueue(string_view vm_id, string_view queue_name,
+  virtual WasmResult lookupSharedQueue(std::string_view vm_id, std::string_view queue_name,
                                        SharedQueueEnqueueToken *token_ptr) = 0;
 
   /**
@@ -642,7 +640,7 @@ struct SharedQueueInterface {
    * @param token is a token returned by resolveSharedQueue();
    * @param data is the data to be queued.
    */
-  virtual WasmResult enqueueSharedQueue(SharedQueueEnqueueToken token, string_view data) = 0;
+  virtual WasmResult enqueueSharedQueue(SharedQueueEnqueueToken token, std::string_view data) = 0;
 };
 
 } // namespace proxy_wasm

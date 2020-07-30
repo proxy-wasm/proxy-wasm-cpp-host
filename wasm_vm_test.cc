@@ -35,13 +35,13 @@ RegisterNullVmPluginFactory register_test_null_vm_plugin("test_null_vm_plugin", 
 });
 
 TEST(WasmVm, Compat) {
-  string_view foo = "foo";
+  std::string_view foo = "foo";
   std::string bar = "bar";
 
   EXPECT_NE(foo, bar);
   EXPECT_EQ(foo, "foo");
 
-  optional<int> o = PROXY_WASM_NULLOPT;
+  std::optional<int> o = std::nullopt;
   EXPECT_FALSE(o);
 
   o = 1;

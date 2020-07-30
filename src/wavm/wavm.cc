@@ -58,14 +58,14 @@ namespace proxy_wasm {
 
 // Forward declarations.
 template <typename R, typename... Args>
-void getFunctionWavm(WasmVm *vm, string_view function_name,
+void getFunctionWavm(WasmVm *vm, std::string_view function_name,
                      std::function<R(ContextBase *, Args...)> *function);
 template <typename R, typename... Args>
-void registerCallbackWavm(WasmVm *vm, string_view module_name, string_view function_name,
+void registerCallbackWavm(WasmVm *vm, std::string_view module_name, std::string_view function_name,
                           R (*)(Args...));
 template <typename F, typename R, typename... Args>
-void registerCallbackWavm(WasmVm *vm, string_view module_name, string_view function_name, F,
-                          R (*)(Args...));
+void registerCallbackWavm(WasmVm *vm, std::string_view module_name, std::string_view function_name,
+                          F, R (*)(Args...));
 
 namespace Wavm {
 
@@ -177,28 +177,28 @@ struct Wavm : public WasmVmBase {
   ~Wavm() override;
 
   // WasmVm
-  string_view runtime() override { return WasmRuntimeNames::get().Wavm; }
+  std::string_view runtime() override { return WasmRuntimeNames::get().Wavm; }
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
   std::unique_ptr<WasmVm> clone() override;
   bool load(const std::string &code, bool allow_precompiled) override;
-  void link(string_view debug_name) override;
+  void link(std::string_view debug_name) override;
   uint64_t getMemorySize() override;
-  optional<string_view> getMemory(uint64_t pointer, uint64_t size) override;
+  std::optional<std::string_view> getMemory(uint64_t pointer, uint64_t size) override;
   bool setMemory(uint64_t pointer, uint64_t size, const void *data) override;
   bool getWord(uint64_t pointer, Word *data) override;
   bool setWord(uint64_t pointer, Word data) override;
-  string_view getCustomSection(string_view name) override;
-  string_view getPrecompiledSectionName() override;
+  std::string_view getCustomSection(std::string_view name) override;
+  std::string_view getPrecompiledSectionName() override;
 
 #define _GET_FUNCTION(_T)                                                                          \
-  void getFunction(string_view function_name, _T *f) override {                                    \
+  void getFunction(std::string_view function_name, _T *f) override {                               \
     getFunctionWavm(this, function_name, f);                                                       \
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_FUNCTION)
 #undef _GET_FUNCTION
 
 #define _REGISTER_CALLBACK(_T)                                                                     \
-  void registerCallback(string_view module_name, string_view function_name, _T,                    \
+  void registerCallback(std::string_view module_name, std::string_view function_name, _T,          \
                         typename ConvertFunctionTypeWordToUint32<_T>::type f) override {           \
     registerCallbackWavm(this, module_name, function_name, f);                                     \
   };
@@ -271,7 +271,7 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
   return true;
 }
 
-void Wavm::link(string_view debug_name) {
+void Wavm::link(std::string_view debug_name) {
   RootResolver rootResolver(compartment_);
   for (auto &p : intrinsic_modules_) {
     auto instance = Intrinsics::instantiateModule(compartment_, {&intrinsic_modules_[p.first]},
@@ -288,12 +288,12 @@ void Wavm::link(string_view debug_name) {
 
 uint64_t Wavm::getMemorySize() { return WAVM::Runtime::getMemoryNumPages(memory_) * WasmPageSize; }
 
-optional<string_view> Wavm::getMemory(uint64_t pointer, uint64_t size) {
+std::optional<std::string_view> Wavm::getMemory(uint64_t pointer, uint64_t size) {
   auto memory_num_bytes = WAVM::Runtime::getMemoryNumPages(memory_) * WasmPageSize;
   if (pointer + size > memory_num_bytes) {
-    return PROXY_WASM_NULLOPT;
+    return std::nullopt;
   }
-  return string_view(reinterpret_cast<char *>(memory_base_ + pointer), size);
+  return std::string_view(reinterpret_cast<char *>(memory_base_ + pointer), size);
 }
 
 bool Wavm::setMemory(uint64_t pointer, uint64_t size, const void *data) {
@@ -323,7 +323,7 @@ bool Wavm::setWord(uint64_t pointer, Word data) {
   return setMemory(pointer, sizeof(uint32_t), &data32);
 }
 
-string_view Wavm::getCustomSection(string_view name) {
+std::string_view Wavm::getCustomSection(string_view name) {
   for (auto &section : ir_module_.customSections) {
     if (section.name == name) {
       return {reinterpret_cast<char *>(section.data.data()), section.data.size()};
@@ -332,7 +332,7 @@ string_view Wavm::getCustomSection(string_view name) {
   return {};
 }
 
-string_view Wavm::getPrecompiledSectionName() { return "wavm.precompiled_object"; }
+std::string_view Wavm::getPrecompiledSectionName() { return "wavm.precompiled_object"; }
 
 std::unique_ptr<WasmVm> createVm(Stats::ScopeSharedPtr scope) {
   return std::make_unique<Wavm>(scope);
@@ -349,7 +349,7 @@ IR::FunctionType inferEnvoyFunctionType(R (*)(void *, Args...)) {
 using namespace Wavm;
 
 template <typename R, typename... Args>
-void registerCallbackWavm(WasmVm *vm, string_view module_name, string_view function_name,
+void registerCallbackWavm(WasmVm *vm, std::string_view module_name, std::string_view function_name,
                           R (*f)(Args...)) {
   auto wavm = static_cast<Wavm *>(vm);
   wavm->envoyFunctions_.emplace_back(
@@ -357,82 +357,84 @@ void registerCallbackWavm(WasmVm *vm, string_view module_name, string_view funct
                                reinterpret_cast<void *>(f), inferEnvoyFunctionType(f)));
 }
 
-template void registerCallbackWavm<void, void *>(WasmVm *vm, string_view module_name,
-                                                 string_view function_name, void (*f)(void *));
-template void registerCallbackWavm<void, void *, U32>(WasmVm *vm, string_view module_name,
-                                                      string_view function_name,
+template void registerCallbackWavm<void, void *>(WasmVm *vm, std::string_view module_name,
+                                                 std::string_view function_name, void (*f)(void *));
+template void registerCallbackWavm<void, void *, U32>(WasmVm *vm, std::string_view module_name,
+                                                      std::string_view function_name,
                                                       void (*f)(void *, U32));
-template void registerCallbackWavm<void, void *, U32, U32>(WasmVm *vm, string_view module_name,
-                                                           string_view function_name,
+template void registerCallbackWavm<void, void *, U32, U32>(WasmVm *vm, std::string_view module_name,
+                                                           std::string_view function_name,
                                                            void (*f)(void *, U32, U32));
-template void registerCallbackWavm<void, void *, U32, U32, U32>(WasmVm *vm, string_view module_name,
-                                                                string_view function_name,
+template void registerCallbackWavm<void, void *, U32, U32, U32>(WasmVm *vm,
+                                                                std::string_view module_name,
+                                                                std::string_view function_name,
                                                                 void (*f)(void *, U32, U32, U32));
 template void
-registerCallbackWavm<void, void *, U32, U32, U32, U32>(WasmVm *vm, string_view module_name,
-                                                       string_view function_name,
+registerCallbackWavm<void, void *, U32, U32, U32, U32>(WasmVm *vm, std::string_view module_name,
+                                                       std::string_view function_name,
                                                        void (*f)(void *, U32, U32, U32, U32));
 template void registerCallbackWavm<void, void *, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     void (*f)(void *, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<void, void *, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     void (*f)(void *, U32, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<void, void *, U32, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     void (*f)(void *, U32, U32, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<void, void *, U32, U32, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     void (*f)(void *, U32, U32, U32, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<void, void *, U32, U32, U32, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     void (*f)(void *, U32, U32, U32, U32, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<void, void *, U32, U32, U32, U32, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     void (*f)(void *, U32, U32, U32, U32, U32, U32, U32, U32, U32, U32));
 
-template void registerCallbackWavm<U32, void *>(WasmVm *vm, string_view module_name,
-                                                string_view function_name, U32 (*f)(void *));
-template void registerCallbackWavm<U32, void *, U32>(WasmVm *vm, string_view module_name,
-                                                     string_view function_name,
+template void registerCallbackWavm<U32, void *>(WasmVm *vm, std::string_view module_name,
+                                                std::string_view function_name, U32 (*f)(void *));
+template void registerCallbackWavm<U32, void *, U32>(WasmVm *vm, std::string_view module_name,
+                                                     std::string_view function_name,
                                                      U32 (*f)(void *, U32));
-template void registerCallbackWavm<U32, void *, U32, U32>(WasmVm *vm, string_view module_name,
-                                                          string_view function_name,
+template void registerCallbackWavm<U32, void *, U32, U32>(WasmVm *vm, std::string_view module_name,
+                                                          std::string_view function_name,
                                                           U32 (*f)(void *, U32, U32));
-template void registerCallbackWavm<U32, void *, U32, U32, U32>(WasmVm *vm, string_view module_name,
-                                                               string_view function_name,
+template void registerCallbackWavm<U32, void *, U32, U32, U32>(WasmVm *vm,
+                                                               std::string_view module_name,
+                                                               std::string_view function_name,
                                                                U32 (*f)(void *, U32, U32, U32));
 template void
-registerCallbackWavm<U32, void *, U32, U32, U32, U32>(WasmVm *vm, string_view module_name,
-                                                      string_view function_name,
+registerCallbackWavm<U32, void *, U32, U32, U32, U32>(WasmVm *vm, std::string_view module_name,
+                                                      std::string_view function_name,
                                                       U32 (*f)(void *, U32, U32, U32, U32));
 template void registerCallbackWavm<U32, void *, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     U32 (*f)(void *, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<U32, void *, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     U32 (*f)(void *, U32, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<U32, void *, U32, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     U32 (*f)(void *, U32, U32, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<U32, void *, U32, U32, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     U32 (*f)(void *, U32, U32, U32, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<U32, void *, U32, U32, U32, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     U32 (*f)(void *, U32, U32, U32, U32, U32, U32, U32, U32, U32));
 template void registerCallbackWavm<U32, void *, U32, U32, U32, U32, U32, U32, U32, U32, U32, U32>(
-    WasmVm *vm, string_view module_name, string_view function_name,
+    WasmVm *vm, std::string_view module_name, std::string_view function_name,
     U32 (*f)(void *, U32, U32, U32, U32, U32, U32, U32, U32, U32, U32));
 
-template void registerCallbackWavm<U64, void *, U32>(WasmVm *vm, string_view module_name,
-                                                     string_view function_name,
+template void registerCallbackWavm<U64, void *, U32>(WasmVm *vm, std::string_view module_name,
+                                                     std::string_view function_name,
                                                      U64 (*f)(void *, U32));
-template void registerCallbackWavm<void, void *, U32, I64>(WasmVm *vm, string_view module_name,
-                                                           string_view function_name,
+template void registerCallbackWavm<void, void *, U32, I64>(WasmVm *vm, std::string_view module_name,
+                                                           std::string_view function_name,
                                                            void (*f)(void *, U32, I64));
-template void registerCallbackWavm<void, void *, U32, U64>(WasmVm *vm, string_view module_name,
-                                                           string_view function_name,
+template void registerCallbackWavm<void, void *, U32, U64>(WasmVm *vm, std::string_view module_name,
+                                                           std::string_view function_name,
                                                            void (*f)(void *, U32, U64));
 
 template <typename R, typename... Args>
@@ -445,7 +447,7 @@ static bool checkFunctionType(WAVM::Runtime::Function *f, IR::FunctionType t) {
 }
 
 template <typename R, typename... Args>
-void getFunctionWavmReturn(WasmVm *vm, string_view function_name,
+void getFunctionWavmReturn(WasmVm *vm, std::string_view function_name,
                            std::function<R(ContextBase *, Args...)> *function, uint32_t) {
   auto wavm = static_cast<proxy_wasm::Wavm *>(vm);
   auto f =
@@ -476,7 +478,7 @@ void getFunctionWavmReturn(WasmVm *vm, string_view function_name,
 struct Void {};
 
 template <typename R, typename... Args>
-void getFunctionWavmReturn(WasmVm *vm, string_view function_name,
+void getFunctionWavmReturn(WasmVm *vm, std::string_view function_name,
                            std::function<R(ContextBase *, Args...)> *function, Void) {
   auto wavm = static_cast<proxy_wasm::Wavm *>(vm);
   auto f =
@@ -505,80 +507,82 @@ void getFunctionWavmReturn(WasmVm *vm, string_view function_name,
 // we use 'Void' for template matching. Note that the template implementation above
 // which matchers on 'bool' does not use 'Void' in the implemenation.
 template <typename R, typename... Args>
-void getFunctionWavm(WasmVm *vm, string_view function_name,
+void getFunctionWavm(WasmVm *vm, std::string_view function_name,
                      std::function<R(ContextBase *, Args...)> *function) {
   typename std::conditional<std::is_void<R>::value, Void, uint32_t>::type x{};
   getFunctionWavmReturn(vm, function_name, function, x);
 }
 
-template void getFunctionWavm<void>(WasmVm *, string_view, std::function<void(ContextBase *)> *);
-template void getFunctionWavm<void, uint32_t>(WasmVm *, string_view,
+template void getFunctionWavm<void>(WasmVm *, std::string_view,
+                                    std::function<void(ContextBase *)> *);
+template void getFunctionWavm<void, uint32_t>(WasmVm *, std::string_view,
                                               std::function<void(ContextBase *, uint32_t)> *);
 template void
-getFunctionWavm<void, uint32_t, uint32_t>(WasmVm *, string_view,
+getFunctionWavm<void, uint32_t, uint32_t>(WasmVm *, std::string_view,
                                           std::function<void(ContextBase *, uint32_t, uint32_t)> *);
 template void getFunctionWavm<void, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view, std::function<void(ContextBase *, uint32_t, uint32_t, uint32_t)> *);
+    WasmVm *, std::string_view, std::function<void(ContextBase *, uint32_t, uint32_t, uint32_t)> *);
 template void getFunctionWavm<void, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<void(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t)> *);
 template void getFunctionWavm<void, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<void(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t)> *);
 template void getFunctionWavm<void, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<void(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t)>
         *);
 template void getFunctionWavm<void, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<void(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                        uint32_t)> *);
 template void getFunctionWavm<void, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<void(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                        uint32_t, uint32_t)> *);
 template void getFunctionWavm<void, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<void(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                        uint32_t, uint32_t, uint32_t)> *);
 template void getFunctionWavm<void, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<void(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                        uint32_t, uint32_t, uint32_t, uint32_t)> *);
 
-template void getFunctionWavm<uint32_t>(WasmVm *, string_view,
+template void getFunctionWavm<uint32_t>(WasmVm *, std::string_view,
                                         std::function<uint32_t(ContextBase *)> *);
 template void
-getFunctionWavm<uint32_t, uint32_t>(WasmVm *, string_view,
+getFunctionWavm<uint32_t, uint32_t>(WasmVm *, std::string_view,
                                     std::function<uint32_t(ContextBase *, uint32_t)> *);
 template void getFunctionWavm<uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view, std::function<uint32_t(ContextBase *, uint32_t, uint32_t)> *);
+    WasmVm *, std::string_view, std::function<uint32_t(ContextBase *, uint32_t, uint32_t)> *);
 template void getFunctionWavm<uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view, std::function<uint32_t(ContextBase *, uint32_t, uint32_t, uint32_t)> *);
+    WasmVm *, std::string_view,
+    std::function<uint32_t(ContextBase *, uint32_t, uint32_t, uint32_t)> *);
 template void getFunctionWavm<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<uint32_t(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t)> *);
 template void getFunctionWavm<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<uint32_t(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t)> *);
 template void getFunctionWavm<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<uint32_t(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                            uint32_t)> *);
 template void getFunctionWavm<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<uint32_t(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                            uint32_t, uint32_t)> *);
 template void getFunctionWavm<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<uint32_t(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                            uint32_t, uint32_t, uint32_t)> *);
 template void getFunctionWavm<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<uint32_t(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                            uint32_t, uint32_t, uint32_t, uint32_t)> *);
 template void getFunctionWavm<uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t>(
-    WasmVm *, string_view,
+    WasmVm *, std::string_view,
     std::function<uint32_t(ContextBase *, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
                            uint32_t, uint32_t, uint32_t, uint32_t, uint32_t)> *);
 

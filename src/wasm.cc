@@ -60,13 +60,13 @@ const uint8_t *decodeVarint(const uint8_t *pos, const uint8_t *end, uint32_t *ou
   return pos;
 }
 
-std::string Sha256(string_view data) {
+std::string Sha256(std::string_view data) {
   std::vector<unsigned char> hash(picosha2::k_digest_size);
   picosha2::hash256(data.begin(), data.end(), hash.begin(), hash.end());
   return std::string(reinterpret_cast<const char *>(&hash[0]), hash.size());
 }
 
-std::string Xor(string_view a, string_view b) {
+std::string Xor(std::string_view a, std::string_view b) {
   assert(a.size() == b.size());
   std::string result;
   result.reserve(a.size());
@@ -78,7 +78,7 @@ std::string Xor(string_view a, string_view b) {
 
 } // namespace
 
-std::string makeVmKey(string_view vm_id, string_view vm_configuration, string_view code) {
+std::string makeVmKey(std::string_view vm_id, std::string_view vm_configuration, std::string_view code) {
   std::string vm_key = Sha256(vm_id);
   vm_key = Xor(vm_key, Sha256(vm_configuration));
   vm_key = Xor(vm_key, Sha256(code));
@@ -257,8 +257,8 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
   }
 }
 
-WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, string_view vm_id, string_view vm_configuration,
-                   string_view vm_key)
+WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id, std::string_view vm_configuration,
+                   std::string_view vm_key)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
       vm_configuration_(std::string(vm_configuration)) {
   if (!wasm_vm_) {
@@ -414,7 +414,7 @@ void WasmBase::finishShutdown() {
   }
 }
 
-WasmForeignFunction WasmBase::getForeignFunction(string_view function_name) {
+WasmForeignFunction WasmBase::getForeignFunction(std::string_view function_name) {
   auto it = foreign_functions->find(std::string(function_name));
   if (it != foreign_functions->end()) {
     return it->second;
@@ -504,7 +504,7 @@ createThreadLocalWasm(std::shared_ptr<WasmHandleBase> &base_wasm,
   return wasm_handle;
 }
 
-std::shared_ptr<WasmHandleBase> getThreadLocalWasm(string_view vm_key) {
+std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_key) {
   auto it = local_wasms.find(std::string(vm_key));
   if (it == local_wasms.end()) {
     return nullptr;

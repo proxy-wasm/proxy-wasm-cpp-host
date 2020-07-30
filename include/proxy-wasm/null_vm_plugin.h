@@ -28,7 +28,7 @@ public:
   // NB: These are defined rather than declared PURE because gmock uses __LINE__ internally for
   // uniqueness, making it impossible to use FOR_ALL_WASM_VM_EXPORTS with MOCK_METHOD.
 #define _DEFINE_GET_FUNCTION(_T)                                                                   \
-  virtual void getFunction(string_view, _T *f) { *f = nullptr; }
+  virtual void getFunction(std::string_view, _T *f) { *f = nullptr; }
   FOR_ALL_WASM_VM_EXPORTS(_DEFINE_GET_FUNCTION)
 #undef _DEFIN_GET_FUNCTIONE
 
@@ -38,7 +38,7 @@ public:
 using NullVmPluginFactory = std::function<std::unique_ptr<NullVmPlugin>()>;
 
 struct RegisterNullVmPluginFactory {
-  RegisterNullVmPluginFactory(string_view name, NullVmPluginFactory factory);
+  RegisterNullVmPluginFactory(std::string_view name, NullVmPluginFactory factory);
 };
 
 } // namespace proxy_wasm

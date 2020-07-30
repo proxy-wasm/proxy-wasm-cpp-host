@@ -50,7 +50,7 @@ using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
 class SharedData {
 public:
-  WasmResult get(string_view vm_id, const string_view key,
+  WasmResult get(std::string_view vm_id, const std::string_view key,
                  std::pair<std::string, uint32_t> *result) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto map = data_.find(std::string(vm_id));
@@ -65,7 +65,7 @@ public:
     return WasmResult::NotFound;
   }
 
-  WasmResult set(string_view vm_id, string_view key, string_view value, uint32_t cas) {
+  WasmResult set(std::string_view vm_id, std::string_view key, std::string_view value, uint32_t cas) {
     std::lock_guard<std::mutex> lock(mutex_);
     std::unordered_map<std::string, std::pair<std::string, uint32_t>> *map;
     auto map_it = data_.find(std::string(vm_id));
@@ -86,8 +86,8 @@ public:
     return WasmResult::Ok;
   }
 
-  uint32_t registerQueue(string_view vm_id, string_view queue_name, uint32_t context_id,
-                         CallOnThreadFunction call_on_thread, string_view vm_key) {
+  uint32_t registerQueue(std::string_view vm_id, std::string_view queue_name, uint32_t context_id,
+                         CallOnThreadFunction call_on_thread, std::string_view vm_key) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto key = std::make_pair(std::string(vm_id), std::string(queue_name));
     auto it = queue_tokens_.insert(std::make_pair(key, static_cast<uint32_t>(0)));
@@ -104,7 +104,7 @@ public:
     return token;
   }
 
-  uint32_t resolveQueue(string_view vm_id, string_view queue_name) {
+  uint32_t resolveQueue(std::string_view vm_id, std::string_view queue_name) {
     std::lock_guard<std::mutex> lock(mutex_);
     auto key = std::make_pair(std::string(vm_id), std::string(queue_name));
     auto it = queue_tokens_.find(key);
@@ -128,7 +128,7 @@ public:
     return WasmResult::Ok;
   }
 
-  WasmResult enqueue(uint32_t token, string_view value) {
+  WasmResult enqueue(uint32_t token, std::string_view value) {
     std::string vm_key;
     uint32_t context_id;
     CallOnThreadFunction call_on_thread;
@@ -213,13 +213,13 @@ DeferAfterCallActions::~DeferAfterCallActions() { wasm_->doAfterVmCallActions();
 WasmResult BufferBase::copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
                               uint64_t size_ptr) const {
   if (owned_data_) {
-    string_view s(owned_data_.get() + start, length);
+    std::string_view s(owned_data_.get() + start, length);
     if (!wasm->copyToPointerSize(s, ptr_ptr, size_ptr)) {
       return WasmResult::InvalidMemoryAccess;
     }
     return WasmResult::Ok;
   }
-  string_view s = data_.substr(start, length);
+  std::string_view s = data_.substr(start, length);
   if (!wasm->copyToPointerSize(s, ptr_ptr, size_ptr)) {
     return WasmResult::InvalidMemoryAccess;
   }
@@ -228,7 +228,7 @@ WasmResult BufferBase::copyTo(WasmBase *wasm, size_t start, size_t length, uint6
 
 // Test support.
 
-uint32_t resolveQueueForTest(string_view vm_id, string_view queue_name) {
+uint32_t resolveQueueForTest(std::string_view vm_id, std::string_view queue_name) {
   return global_shared_data.resolveQueue(vm_id, queue_name);
 }
 
@@ -280,7 +280,7 @@ void ContextBase::initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase>
   wasm_->contexts_[id_] = this;
 }
 
-std::string ContextBase::makeRootLogPrefix(string_view vm_id) const {
+std::string ContextBase::makeRootLogPrefix(std::string_view vm_id) const {
   std::string prefix;
   if (!root_id_.empty()) {
     prefix = prefix + " " + std::string(root_id_);
@@ -337,17 +337,17 @@ void ContextBase::onCreate() {
 }
 
 // Shared Data
-WasmResult ContextBase::getSharedData(string_view key, std::pair<std::string, uint32_t> *data) {
+WasmResult ContextBase::getSharedData(std::string_view key, std::pair<std::string, uint32_t> *data) {
   return global_shared_data.get(wasm_->vm_id(), key, data);
 }
 
-WasmResult ContextBase::setSharedData(string_view key, string_view value, uint32_t cas) {
+WasmResult ContextBase::setSharedData(std::string_view key, std::string_view value, uint32_t cas) {
   return global_shared_data.set(wasm_->vm_id(), key, value, cas);
 }
 
 // Shared Queue
 
-WasmResult ContextBase::registerSharedQueue(string_view queue_name,
+WasmResult ContextBase::registerSharedQueue(std::string_view queue_name,
                                             SharedQueueDequeueToken *result) {
   // Get the id of the root context if this is a stream context because onQueueReady is on the
   // root.
@@ -357,7 +357,7 @@ WasmResult ContextBase::registerSharedQueue(string_view queue_name,
   return WasmResult::Ok;
 }
 
-WasmResult ContextBase::lookupSharedQueue(string_view vm_id, string_view queue_name,
+WasmResult ContextBase::lookupSharedQueue(std::string_view vm_id, std::string_view queue_name,
                                           uint32_t *token_ptr) {
   uint32_t token = global_shared_data.resolveQueue(vm_id, queue_name);
   if (isFailed() || !token) {
@@ -371,7 +371,7 @@ WasmResult ContextBase::dequeueSharedQueue(uint32_t token, std::string *data) {
   return global_shared_data.dequeue(token, data);
 }
 
-WasmResult ContextBase::enqueueSharedQueue(uint32_t token, string_view value) {
+WasmResult ContextBase::enqueueSharedQueue(uint32_t token, std::string_view value) {
   return global_shared_data.enqueue(token, value);
 }
 void ContextBase::destroy() {

@@ -28,7 +28,7 @@ namespace proxy_wasm {
 
 std::unordered_map<std::string, NullVmPluginFactory> *null_vm_plugin_factories_ = nullptr;
 
-RegisterNullVmPluginFactory::RegisterNullVmPluginFactory(string_view name,
+RegisterNullVmPluginFactory::RegisterNullVmPluginFactory(std::string_view name,
                                                          NullVmPluginFactory factory) {
   if (!null_vm_plugin_factories_)
     null_vm_plugin_factories_ =
@@ -57,16 +57,16 @@ bool NullVm::load(const std::string &name, bool /* allow_precompiled */) {
   return true;
 }
 
-bool NullVm::link(string_view /* name */) { return true; }
+bool NullVm::link(std::string_view /* name */) { return true; }
 
 uint64_t NullVm::getMemorySize() { return std::numeric_limits<uint64_t>::max(); }
 
 // NulVm pointers are just native pointers.
-optional<string_view> NullVm::getMemory(uint64_t pointer, uint64_t size) {
+std::optional<std::string_view> NullVm::getMemory(uint64_t pointer, uint64_t size) {
   if (pointer == 0 && size != 0) {
-    return PROXY_WASM_NULLOPT;
+    return std::nullopt;
   }
-  return string_view(reinterpret_cast<char *>(pointer), static_cast<size_t>(size));
+  return std::string_view(reinterpret_cast<char *>(pointer), static_cast<size_t>(size));
 }
 
 bool NullVm::setMemory(uint64_t pointer, uint64_t size, const void *data) {
@@ -100,12 +100,12 @@ bool NullVm::getWord(uint64_t pointer, Word *data) {
   return true;
 }
 
-string_view NullVm::getCustomSection(string_view /* name */) {
+std::string_view NullVm::getCustomSection(std::string_view /* name */) {
   // Return nothing: there is no WASM file.
   return {};
 }
 
-string_view NullVm::getPrecompiledSectionName() {
+std::string_view NullVm::getPrecompiledSectionName() {
   // Return nothing: there is no WASM file.
   return {};
 }

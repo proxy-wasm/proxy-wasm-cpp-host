@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "include/proxy-wasm/compat.h"
 #include "include/proxy-wasm/v8.h"
 
 #include <cassert>
@@ -51,24 +50,24 @@ public:
   V8() {}
 
   // WasmVm
-  string_view runtime() override { return "v8"; }
+  std::string_view runtime() override { return "v8"; }
 
   bool load(const std::string &code, bool allow_precompiled) override;
-  string_view getCustomSection(string_view name) override;
-  string_view getPrecompiledSectionName() override;
-  bool link(string_view debug_name) override;
+  std::string_view getCustomSection(std::string_view name) override;
+  std::string_view getPrecompiledSectionName() override;
+  bool link(std::string_view debug_name) override;
 
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::unique_ptr<WasmVm> clone() override;
 
   uint64_t getMemorySize() override;
-  optional<string_view> getMemory(uint64_t pointer, uint64_t size) override;
+  std::optional<std::string_view> getMemory(uint64_t pointer, uint64_t size) override;
   bool setMemory(uint64_t pointer, uint64_t size, const void *data) override;
   bool getWord(uint64_t pointer, Word *word) override;
   bool setWord(uint64_t pointer, Word word) override;
 
 #define _REGISTER_HOST_FUNCTION(T)                                                                 \
-  void registerCallback(string_view module_name, string_view function_name, T,                     \
+  void registerCallback(std::string_view module_name, std::string_view function_name, T,           \
                         typename ConvertFunctionTypeWordToUint32<T>::type f) override {            \
     registerHostFunctionImpl(module_name, function_name, f);                                       \
   };
@@ -76,7 +75,7 @@ public:
 #undef _REGISTER_HOST_FUNCTION
 
 #define _GET_MODULE_FUNCTION(T)                                                                    \
-  void getFunction(string_view function_name, T *f) override {                                     \
+  void getFunction(std::string_view function_name, T *f) override {                                \
     getModuleFunctionImpl(function_name, f);                                                       \
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
@@ -86,19 +85,19 @@ private:
   wasm::vec<byte_t> getStrippedSource();
 
   template <typename... Args>
-  void registerHostFunctionImpl(string_view module_name, string_view function_name,
+  void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
                                 void (*function)(void *, Args...));
 
   template <typename R, typename... Args>
-  void registerHostFunctionImpl(string_view module_name, string_view function_name,
+  void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
                                 R (*function)(void *, Args...));
 
   template <typename... Args>
-  void getModuleFunctionImpl(string_view function_name,
+  void getModuleFunctionImpl(std::string_view function_name,
                              std::function<void(ContextBase *, Args...)> *function);
 
   template <typename R, typename... Args>
-  void getModuleFunctionImpl(string_view function_name,
+  void getModuleFunctionImpl(std::string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
 
   wasm::vec<byte_t> source_ = wasm::vec<byte_t>::invalid();
@@ -315,7 +314,7 @@ wasm::vec<byte_t> V8::getStrippedSource() {
   return wasm::vec<byte_t>::make(stripped.size(), stripped.data());
 }
 
-string_view V8::getCustomSection(string_view name) {
+std::string_view V8::getCustomSection(std::string_view name) {
   assert(source_.get() != nullptr);
 
   const byte_t *pos = source_.get() + 8 /* Wasm header */;
@@ -356,7 +355,7 @@ string_view V8::getCustomSection(string_view name) {
 #define WEE8_PLATFORM ""
 #endif
 
-string_view V8::getPrecompiledSectionName() {
+std::string_view V8::getPrecompiledSectionName() {
   static const auto name =
       sizeof(WEE8_PLATFORM) - 1 > 0
           ? ("precompiled_wee8_v" + std::to_string(V8_MAJOR_VERSION) + "." +
@@ -366,15 +365,15 @@ string_view V8::getPrecompiledSectionName() {
   return name;
 }
 
-bool V8::link(string_view debug_name) {
+bool V8::link(std::string_view debug_name) {
   assert(module_ != nullptr);
 
   const auto import_types = module_.get()->imports();
   std::vector<const wasm::Extern *> imports;
 
   for (size_t i = 0; i < import_types.size(); i++) {
-    string_view module(import_types[i]->module().get(), import_types[i]->module().size());
-    string_view name(import_types[i]->name().get(), import_types[i]->name().size());
+    std::string_view module(import_types[i]->module().get(), import_types[i]->module().size());
+    std::string_view name(import_types[i]->name().get(), import_types[i]->name().size());
     auto import_type = import_types[i]->type();
 
     switch (import_type->kind()) {
@@ -438,7 +437,7 @@ bool V8::link(string_view debug_name) {
   assert(export_types.size() == exports.size());
 
   for (size_t i = 0; i < export_types.size(); i++) {
-    string_view name(export_types[i]->name().get(), export_types[i]->name().size());
+    std::string_view name(export_types[i]->name().get(), export_types[i]->name().size());
     auto export_type = export_types[i]->type();
     auto export_item = exports[i].get();
     assert(export_type->kind() == export_item->kind());
@@ -470,12 +469,12 @@ bool V8::link(string_view debug_name) {
 
 uint64_t V8::getMemorySize() { return memory_->data_size(); }
 
-optional<string_view> V8::getMemory(uint64_t pointer, uint64_t size) {
+std::optional<std::string_view> V8::getMemory(uint64_t pointer, uint64_t size) {
   assert(memory_ != nullptr);
   if (pointer + size > memory_->data_size()) {
-    return PROXY_WASM_NULLOPT;
+    return std::nullopt;
   }
-  return string_view(memory_->data() + pointer, size);
+  return std::string_view(memory_->data() + pointer, size);
 }
 
 bool V8::setMemory(uint64_t pointer, uint64_t size, const void *data) {
@@ -509,7 +508,7 @@ bool V8::setWord(uint64_t pointer, Word word) {
 }
 
 template <typename... Args>
-void V8::registerHostFunctionImpl(string_view module_name, string_view function_name,
+void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
                                   void (*function)(void *, Args...)) {
   auto data =
       std::make_unique<FuncData>(std::string(module_name) + "." + std::string(function_name));
@@ -533,7 +532,7 @@ void V8::registerHostFunctionImpl(string_view module_name, string_view function_
 }
 
 template <typename R, typename... Args>
-void V8::registerHostFunctionImpl(string_view module_name, string_view function_name,
+void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
                                   R (*function)(void *, Args...)) {
   auto data =
       std::make_unique<FuncData>(std::string(module_name) + "." + std::string(function_name));
@@ -558,7 +557,7 @@ void V8::registerHostFunctionImpl(string_view module_name, string_view function_
 }
 
 template <typename... Args>
-void V8::getModuleFunctionImpl(string_view function_name,
+void V8::getModuleFunctionImpl(std::string_view function_name,
                                std::function<void(ContextBase *, Args...)> *function) {
   auto it = module_functions_.find(std::string(function_name));
   if (it == module_functions_.end()) {
@@ -585,7 +584,7 @@ void V8::getModuleFunctionImpl(string_view function_name,
 }
 
 template <typename R, typename... Args>
-void V8::getModuleFunctionImpl(string_view function_name,
+void V8::getModuleFunctionImpl(std::string_view function_name,
                                std::function<R(ContextBase *, Args...)> *function) {
   auto it = module_functions_.find(std::string(function_name));
   if (it == module_functions_.end()) {

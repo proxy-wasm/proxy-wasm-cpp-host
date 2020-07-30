@@ -32,21 +32,21 @@ struct NullVm : public WasmVm {
   NullVm(const NullVm &other) : plugin_name_(other.plugin_name_) {}
 
   // WasmVm
-  string_view runtime() override { return "null"; }
+  std::string_view runtime() override { return "null"; }
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
   std::unique_ptr<WasmVm> clone() override;
   bool load(const std::string &code, bool allow_precompiled) override;
-  bool link(string_view debug_name) override;
+  bool link(std::string_view debug_name) override;
   uint64_t getMemorySize() override;
-  optional<string_view> getMemory(uint64_t pointer, uint64_t size) override;
+  std::optional<std::string_view> getMemory(uint64_t pointer, uint64_t size) override;
   bool setMemory(uint64_t pointer, uint64_t size, const void *data) override;
   bool setWord(uint64_t pointer, Word data) override;
   bool getWord(uint64_t pointer, Word *data) override;
-  string_view getCustomSection(string_view name) override;
-  string_view getPrecompiledSectionName() override;
+  std::string_view getCustomSection(std::string_view name) override;
+  std::string_view getPrecompiledSectionName() override;
 
 #define _FORWARD_GET_FUNCTION(_T)                                                                  \
-  void getFunction(string_view function_name, _T *f) override {                                    \
+  void getFunction(std::string_view function_name, _T *f) override {                               \
     plugin_->getFunction(function_name, f);                                                        \
   }
   FOR_ALL_WASM_VM_EXPORTS(_FORWARD_GET_FUNCTION)
@@ -54,7 +54,7 @@ struct NullVm : public WasmVm {
 
   // These are not needed for NullVm which invokes the handlers directly.
 #define _REGISTER_CALLBACK(_T)                                                                     \
-  void registerCallback(string_view, string_view, _T,                                              \
+  void registerCallback(std::string_view, std::string_view, _T,                                    \
                         typename ConvertFunctionTypeWordToUint32<_T>::type) override{};
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
