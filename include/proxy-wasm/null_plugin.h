@@ -128,7 +128,7 @@ private:
   struct RegisterContextFactory {                                                                  \
     explicit RegisterContextFactory(null_plugin::ContextFactory context_factory,                   \
                                     null_plugin::RootFactory root_factory,                         \
-                                    std::string_view root_id = "") {                                     \
+                                    std::string_view root_id = "") {                               \
       if (!context_registry_) {                                                                    \
         context_registry_ = new NullPluginRegistry;                                                \
       }                                                                                            \
@@ -136,14 +136,14 @@ private:
       context_registry_->root_factories[std::string(root_id)] = root_factory;                      \
     }                                                                                              \
     explicit RegisterContextFactory(null_plugin::ContextFactory context_factory,                   \
-                                    std::string_view root_id = "") {                                     \
+                                    std::string_view root_id = "") {                               \
       if (!context_registry_) {                                                                    \
         context_registry_ = new NullPluginRegistry;                                                \
       }                                                                                            \
       context_registry_->context_factories[std::string(root_id)] = context_factory;                \
     }                                                                                              \
     explicit RegisterContextFactory(null_plugin::RootFactory root_factory,                         \
-                                    std::string_view root_id = "") {                                     \
+                                    std::string_view root_id = "") {                               \
       if (!context_registry_) {                                                                    \
         context_registry_ = new NullPluginRegistry;                                                \
       }                                                                                            \

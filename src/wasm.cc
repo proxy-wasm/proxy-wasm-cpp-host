@@ -78,7 +78,8 @@ std::string Xor(std::string_view a, std::string_view b) {
 
 } // namespace
 
-std::string makeVmKey(std::string_view vm_id, std::string_view vm_configuration, std::string_view code) {
+std::string makeVmKey(std::string_view vm_id, std::string_view vm_configuration,
+                      std::string_view code) {
   std::string vm_key = Sha256(vm_id);
   vm_key = Xor(vm_key, Sha256(vm_configuration));
   vm_key = Xor(vm_key, Sha256(code));
@@ -257,8 +258,8 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
   }
 }
 
-WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id, std::string_view vm_configuration,
-                   std::string_view vm_key)
+WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
+                   std::string_view vm_configuration, std::string_view vm_key)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
       vm_configuration_(std::string(vm_configuration)) {
   if (!wasm_vm_) {

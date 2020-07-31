@@ -46,8 +46,8 @@ class WasmVm;
  * @param fail_open if true the plugin will pass traffic as opposed to close all streams.
  */
 struct PluginBase {
-  PluginBase(std::string_view name, std::string_view root_id, std::string_view vm_id, std::string_view runtime,
-             std::string_view plugin_configuration, bool fail_open)
+  PluginBase(std::string_view name, std::string_view root_id, std::string_view vm_id,
+             std::string_view runtime, std::string_view plugin_configuration, bool fail_open)
       : name_(std::string(name)), root_id_(std::string(root_id)), vm_id_(std::string(vm_id)),
         runtime_(std::string(runtime)), plugin_configuration_(plugin_configuration),
         fail_open_(fail_open) {}
@@ -79,7 +79,8 @@ struct BufferBase : public BufferInterface {
   }
   WasmResult copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
                     uint64_t size_ptr) const override;
-  WasmResult copyFrom(size_t /* start */, size_t /* length */, std::string_view /* data */) override {
+  WasmResult copyFrom(size_t /* start */, size_t /* length */,
+                      std::string_view /* data */) override {
     // Setting a string buffer not supported (no use case).
     return WasmResult::BadArgument;
   }
@@ -302,7 +303,8 @@ public:
   WasmResult getProperty(std::string_view /* path */, std::string * /* result */) override {
     return unimplemented();
   }
-  WasmResult setProperty(std::string_view /* key */, std::string_view /* serialized_value */) override {
+  WasmResult setProperty(std::string_view /* key */,
+                         std::string_view /* serialized_value */) override {
     return unimplemented();
   }
 
@@ -345,7 +347,8 @@ public:
     return unimplemented();
   }
 
-  WasmResult removeHeaderMapValue(WasmHeaderMapType /* type */, std::string_view /* key */) override {
+  WasmResult removeHeaderMapValue(WasmHeaderMapType /* type */,
+                                  std::string_view /* key */) override {
     return unimplemented();
   }
   WasmResult replaceHeaderMapValue(WasmHeaderMapType /* type */, std::string_view /* key */,

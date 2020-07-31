@@ -44,8 +44,8 @@ using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 // Wasm execution instance. Manages the host side of the Wasm interface.
 class WasmBase : public std::enable_shared_from_this<WasmBase> {
 public:
-  WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id, std::string_view vm_configuration,
-           std::string_view vm_key);
+  WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
+           std::string_view vm_configuration, std::string_view vm_key);
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
@@ -272,7 +272,8 @@ protected:
   std::shared_ptr<WasmBase> wasm_base_;
 };
 
-std::string makeVmKey(std::string_view vm_id, std::string_view configuration, std::string_view code);
+std::string makeVmKey(std::string_view vm_id, std::string_view configuration,
+                      std::string_view code);
 
 using WasmHandleFactory = std::function<std::shared_ptr<WasmHandleBase>(std::string_view vm_id)>;
 using WasmHandleCloneFactory =

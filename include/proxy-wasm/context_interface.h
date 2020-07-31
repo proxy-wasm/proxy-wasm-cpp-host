@@ -173,8 +173,8 @@ struct RootInterface : public RootGrpcInterface {
    * shutting down.
    * @return true for stream contexts or for Root Context(s) if the VM can shutdown, false for Root
    * Context(s) if the VM should wait until the Root Context calls the proxy_done() ABI call.  Note:
-   * the VM may (std::optionally) shutdown after some configured timeout even if the Root Context does
-   * not call proxy_done().
+   * the VM may (std::optionally) shutdown after some configured timeout even if the Root Context
+   * does not call proxy_done().
    */
   virtual bool onDone() = 0;
 
@@ -423,9 +423,11 @@ struct GrpcCallInterface {
    * @param token_ptr contains a pointer to a location to store the token which will be used with
    * the corresponding onGrpc and grpc calls.
    */
-  virtual WasmResult grpcCall(std::string_view /* grpc_service */, std::string_view /* service_name */,
-                              std::string_view /* method_name */, const Pairs & /* initial_metadata */,
-                              std::string_view /* request */, std::chrono::milliseconds /* timeout */,
+  virtual WasmResult grpcCall(std::string_view /* grpc_service */,
+                              std::string_view /* service_name */,
+                              std::string_view /* method_name */,
+                              const Pairs & /* initial_metadata */, std::string_view /* request */,
+                              std::chrono::milliseconds /* timeout */,
                               GrpcToken * /* token_ptr */) = 0;
 
   /**
@@ -595,7 +597,8 @@ struct SharedDataInterface {
    * compare-and-swap value which can be used with setSharedData for safe concurrent updates.
    */
   virtual WasmResult
-  getSharedData(std::string_view key, std::pair<std::string /* value */, uint32_t /* cas */> *data) = 0;
+  getSharedData(std::string_view key,
+                std::pair<std::string /* value */, uint32_t /* cas */> *data) = 0;
 
   /**
    * Set a key-value data shared between VMs.

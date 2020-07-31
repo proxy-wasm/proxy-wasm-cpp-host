@@ -65,7 +65,8 @@ public:
     return WasmResult::NotFound;
   }
 
-  WasmResult set(std::string_view vm_id, std::string_view key, std::string_view value, uint32_t cas) {
+  WasmResult set(std::string_view vm_id, std::string_view key, std::string_view value,
+                 uint32_t cas) {
     std::lock_guard<std::mutex> lock(mutex_);
     std::unordered_map<std::string, std::pair<std::string, uint32_t>> *map;
     auto map_it = data_.find(std::string(vm_id));
@@ -337,7 +338,8 @@ void ContextBase::onCreate() {
 }
 
 // Shared Data
-WasmResult ContextBase::getSharedData(std::string_view key, std::pair<std::string, uint32_t> *data) {
+WasmResult ContextBase::getSharedData(std::string_view key,
+                                      std::pair<std::string, uint32_t> *data) {
   return global_shared_data.get(wasm_->vm_id(), key, data);
 }
 
