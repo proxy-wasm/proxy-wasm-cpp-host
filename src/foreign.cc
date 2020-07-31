@@ -25,7 +25,7 @@ namespace {
 #ifndef WITHOUT_ZLIB
 RegisterForeignFunction compressFunction(
     "compress",
-    [](WasmBase &, string_view arguments,
+    [](WasmBase &, std::string_view arguments,
        std::function<void *(size_t size)> alloc_result) -> WasmResult {
       unsigned long dest_len = compressBound(arguments.size());
       std::unique_ptr<unsigned char[]> b(new unsigned char[dest_len]);
@@ -40,7 +40,7 @@ RegisterForeignFunction compressFunction(
 
 RegisterForeignFunction
     uncompressFunction("uncompress",
-                       [](WasmBase &, string_view arguments,
+                       [](WasmBase &, std::string_view arguments,
                           std::function<void *(size_t size)> alloc_result) -> WasmResult {
                          unsigned long dest_len = arguments.size() * 2 + 2; // output estimate.
                          while (1) {

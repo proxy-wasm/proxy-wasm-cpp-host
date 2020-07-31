@@ -40,7 +40,7 @@ ContextBase *ContextOrEffectiveContext(ContextBase *context) {
 
 namespace {
 
-Pairs toPairs(string_view buffer) {
+Pairs toPairs(std::string_view buffer) {
   Pairs result;
   const char *b = buffer.data();
   if (buffer.size() < sizeof(uint32_t)) {
@@ -53,15 +53,15 @@ Pairs toPairs(string_view buffer) {
   }
   result.resize(size);
   for (uint32_t i = 0; i < size; i++) {
-    result[i].first = string_view(nullptr, *reinterpret_cast<const uint32_t *>(b));
+    result[i].first = std::string_view(nullptr, *reinterpret_cast<const uint32_t *>(b));
     b += sizeof(uint32_t);
-    result[i].second = string_view(nullptr, *reinterpret_cast<const uint32_t *>(b));
+    result[i].second = std::string_view(nullptr, *reinterpret_cast<const uint32_t *>(b));
     b += sizeof(uint32_t);
   }
   for (auto &p : result) {
-    p.first = string_view(b, p.first.size());
+    p.first = std::string_view(b, p.first.size());
     b += p.first.size() + 1;
-    p.second = string_view(b, p.second.size());
+    p.second = std::string_view(b, p.second.size());
     b += p.second.size() + 1;
   }
   return result;
@@ -374,7 +374,7 @@ Word get_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_s
   if (!key) {
     return WasmResult::InvalidMemoryAccess;
   }
-  string_view value;
+  std::string_view value;
   auto result =
       context->getHeaderMapValue(static_cast<WasmHeaderMapType>(type.u64_), key.value(), &value);
   if (result != WasmResult::Ok) {

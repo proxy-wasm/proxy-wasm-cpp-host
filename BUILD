@@ -27,30 +27,6 @@ cc_library(
     ],
 )
 
-# TODO: remove when dependent projects have been upgraded.
-cc_library(
-    name = "lib14",
-    srcs = glob(
-        ["src/**/*.cc"],
-        exclude = [
-            "src/**/wavm*",
-            "src/**/v8*",
-        ],
-    ) + glob(["src/**/*.h"]),
-    copts = [
-        "-std=c++14",
-        "-DWITHOUT_ZLIB=1",
-    ],
-    deps = [
-        ":include",
-        "@com_google_absl//absl/base",
-        "@com_google_absl//absl/strings",
-        "@com_google_absl//absl/types:optional",
-        "@com_google_protobuf//:protobuf_lite",
-        "@proxy_wasm_cpp_sdk//:api_lib",
-    ],
-)
-
 cc_test(
     name = "wasm_vm_test",
     srcs = ["wasm_vm_test.cc"],
@@ -66,21 +42,6 @@ cc_test(
     srcs = ["context_test.cc"],
     deps = [
         ":include",
-        "@com_google_googletest//:gtest",
-        "@com_google_googletest//:gtest_main",
-    ],
-)
-
-# TODO: remove when dependent projects have been upgraded.
-cc_test(
-    name = "context_14_test",
-    srcs = ["context_test.cc"],
-    copts = ["-std=c++14"],
-    deps = [
-        ":include",
-        "@com_google_absl//absl/base",
-        "@com_google_absl//absl/strings",
-        "@com_google_absl//absl/types:optional",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],

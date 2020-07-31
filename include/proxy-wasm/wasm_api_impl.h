@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "include/proxy-wasm/compat.h"
-
 namespace proxy_wasm {
 namespace null_plugin {
 
@@ -258,7 +256,7 @@ inline WasmResult proxy_call_foreign_function(const char *function_name, size_t 
 
 #include "proxy_wasm_api.h"
 
-RootContext *getRoot(string_view root_id);
+RootContext *getRoot(std::string_view root_id);
 Context *getContext(uint32_t context_id);
 
 } // namespace null_plugin

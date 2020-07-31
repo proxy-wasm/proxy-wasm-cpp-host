@@ -24,7 +24,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "include/proxy-wasm/compat.h"
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/wasm_vm.h"
@@ -38,15 +37,15 @@ class WasmBase;
 class WasmHandleBase;
 
 using WasmForeignFunction =
-    std::function<WasmResult(WasmBase &, string_view, std::function<void *(size_t size)>)>;
+    std::function<WasmResult(WasmBase &, std::string_view, std::function<void *(size_t size)>)>;
 using WasmVmFactory = std::function<std::unique_ptr<WasmVm>()>;
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
 // Wasm execution instance. Manages the host side of the Wasm interface.
 class WasmBase : public std::enable_shared_from_this<WasmBase> {
 public:
-  WasmBase(std::unique_ptr<WasmVm> wasm_vm, string_view vm_id, string_view vm_configuration,
-           string_view vm_key);
+  WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
+           std::string_view vm_configuration, std::string_view vm_key);
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
@@ -56,11 +55,11 @@ public:
   // Returns the root ContextBase or nullptr if onStart returns false.
   ContextBase *start(std::shared_ptr<PluginBase> plugin);
 
-  string_view vm_id() const { return vm_id_; }
-  string_view vm_key() const { return vm_key_; }
+  std::string_view vm_id() const { return vm_id_; }
+  std::string_view vm_key() const { return vm_key_; }
   WasmVm *wasm_vm() const { return wasm_vm_.get(); }
   ContextBase *vm_context() const { return vm_context_.get(); }
-  ContextBase *getRootContext(string_view root_id) {
+  ContextBase *getRootContext(std::string_view root_id) {
     return root_contexts_[std::string(root_id)].get();
   }
   ContextBase *getOrCreateRootContext(const std::shared_ptr<PluginBase> &plugin);
@@ -109,18 +108,18 @@ public:
   //
   void *allocMemory(uint64_t size, uint64_t *address);
   // Allocate a null-terminated string in the VM and return the pointer to use as a call arguments.
-  uint64_t copyString(string_view s);
+  uint64_t copyString(std::string_view s);
   // Copy the data in 's' into the VM along with the pointer-size pair. Returns true on success.
-  bool copyToPointerSize(string_view s, uint64_t ptr_ptr, uint64_t size_ptr);
+  bool copyToPointerSize(std::string_view s, uint64_t ptr_ptr, uint64_t size_ptr);
   template <typename T> bool setDatatype(uint64_t ptr, const T &t);
 
-  WasmForeignFunction getForeignFunction(string_view function_name);
+  WasmForeignFunction getForeignFunction(std::string_view function_name);
 
-  void fail(FailState fail_state, string_view message) {
+  void fail(FailState fail_state, std::string_view message) {
     error(message);
     failed_ = fail_state;
   }
-  virtual void error(string_view message) { std::cerr << message << "\n"; }
+  virtual void error(std::string_view message) { std::cerr << message << "\n"; }
   virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
 
   bool getEmscriptenVersion(uint32_t *emscripten_metadata_major_version,
@@ -273,9 +272,10 @@ protected:
   std::shared_ptr<WasmBase> wasm_base_;
 };
 
-std::string makeVmKey(string_view vm_id, string_view configuration, string_view code);
+std::string makeVmKey(std::string_view vm_id, std::string_view configuration,
+                      std::string_view code);
 
-using WasmHandleFactory = std::function<std::shared_ptr<WasmHandleBase>(string_view vm_id)>;
+using WasmHandleFactory = std::function<std::shared_ptr<WasmHandleBase>(std::string_view vm_id)>;
 using WasmHandleCloneFactory =
     std::function<std::shared_ptr<WasmHandleBase>(std::shared_ptr<WasmHandleBase> wasm)>;
 
@@ -284,7 +284,7 @@ std::shared_ptr<WasmHandleBase>
 createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plugin,
            WasmHandleFactory factory, WasmHandleCloneFactory clone_factory, bool allow_precompiled);
 // Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
-std::shared_ptr<WasmHandleBase> getThreadLocalWasm(string_view vm_id);
+std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_id);
 // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
 // using it it as a template.
 std::shared_ptr<WasmHandleBase>
@@ -316,7 +316,7 @@ inline void *WasmBase::allocMemory(uint64_t size, uint64_t *address) {
   return const_cast<void *>(reinterpret_cast<const void *>(memory.value().data()));
 }
 
-inline uint64_t WasmBase::copyString(string_view s) {
+inline uint64_t WasmBase::copyString(std::string_view s) {
   if (s.empty()) {
     return 0; // nullptr
   }
@@ -327,7 +327,7 @@ inline uint64_t WasmBase::copyString(string_view s) {
   return pointer;
 }
 
-inline bool WasmBase::copyToPointerSize(string_view s, uint64_t ptr_ptr, uint64_t size_ptr) {
+inline bool WasmBase::copyToPointerSize(std::string_view s, uint64_t ptr_ptr, uint64_t size_ptr) {
   uint64_t pointer = 0;
   uint64_t size = s.size();
   void *p = nullptr;

@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "include/proxy-wasm/compat.h"
-
 #include <functional>
 #include <memory>
 
@@ -108,7 +106,7 @@ class NullPlugin;
 struct WasmVmIntegration {
   virtual ~WasmVmIntegration() {}
   virtual WasmVmIntegration *clone() = 0;
-  virtual void error(string_view message) = 0;
+  virtual void error(std::string_view message) = 0;
   // Get a NullVm implementation of a function.
   // @param function_name is the name of the function with the implementation specific prefix.
   // @param returns_word is true if the function returns a Word and false if it returns void.
@@ -119,7 +117,7 @@ struct WasmVmIntegration {
   // @return true if the function was found.  ptr_to_function_return could still be set to nullptr
   // (of the correct type) if the function has no implementation.  Returning true will prevent a
   // "Missing getFunction" error.
-  virtual bool getNullVmFunction(string_view function_name, bool returns_word,
+  virtual bool getNullVmFunction(std::string_view function_name, bool returns_word,
                                  int number_of_arguments, NullPlugin *plugin,
                                  void *ptr_to_function_return) = 0;
 };
@@ -143,7 +141,7 @@ public:
    * Return the runtime identifier.
    * @return one of WasmRuntimeValues from well_known_names.h (e.g. "v8").
    */
-  virtual string_view runtime() = 0;
+  virtual std::string_view runtime() = 0;
 
   /**
    * Whether or not the VM implementation supports cloning. Cloning is VM system dependent.
@@ -184,7 +182,7 @@ public:
    * @param debug_name user-provided name for use in log and error messages.
    * @return whether or not the link was successful.
    */
-  virtual bool link(string_view debug_name) = 0;
+  virtual bool link(std::string_view debug_name) = 0;
 
   /**
    * Get size of the currently allocated memory in the VM.
@@ -193,13 +191,13 @@ public:
   virtual uint64_t getMemorySize() = 0;
 
   /**
-   * Convert a block of memory in the VM to a string_view.
+   * Convert a block of memory in the VM to a std::string_view.
    * @param pointer the offset into VM memory of the requested VM memory block.
    * @param size the size of the requested VM memory block.
    * @return if std::nullopt then the pointer/size pair were invalid, otherwise returns
-   * a host string_view pointing to the pointer/size pair in VM memory.
+   * a host std::string_view pointing to the pointer/size pair in VM memory.
    */
-  virtual optional<string_view> getMemory(uint64_t pointer, uint64_t size) = 0;
+  virtual std::optional<std::string_view> getMemory(uint64_t pointer, uint64_t size) = 0;
 
   /**
    * Set a block of memory in the VM, returns true on success, false if the pointer/size is invalid.
@@ -237,18 +235,18 @@ public:
    * @return the contents of the custom section (if any). The result will be empty if there
    * is no such section.
    */
-  virtual string_view getCustomSection(string_view name) = 0;
+  virtual std::string_view getCustomSection(std::string_view name) = 0;
 
   /**
    * Get the name of the custom section that contains precompiled module.
    * @return the name of the custom section that contains precompiled module.
    */
-  virtual string_view getPrecompiledSectionName() = 0;
+  virtual std::string_view getPrecompiledSectionName() = 0;
 
   /**
    * Get typed function exported by the WASM module.
    */
-#define _GET_FUNCTION(_T) virtual void getFunction(string_view function_name, _T *f) = 0;
+#define _GET_FUNCTION(_T) virtual void getFunction(std::string_view function_name, _T *f) = 0;
   FOR_ALL_WASM_VM_EXPORTS(_GET_FUNCTION)
 #undef _GET_FUNCTION
 
@@ -256,13 +254,13 @@ public:
    * Register typed callbacks exported by the host environment.
    */
 #define _REGISTER_CALLBACK(_T)                                                                     \
-  virtual void registerCallback(string_view moduleName, string_view function_name, _T f,           \
+  virtual void registerCallback(std::string_view moduleName, std::string_view function_name, _T f, \
                                 typename ConvertFunctionTypeWordToUint32<_T>::type) = 0;
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
   bool isFailed() { return failed_ != FailState::Ok; }
-  void fail(FailState fail_state, string_view message) {
+  void fail(FailState fail_state, std::string_view message) {
     error(message);
     failed_ = fail_state;
     if (fail_callback_) {
@@ -275,7 +273,7 @@ public:
 
   // Integrator operations.
   std::unique_ptr<WasmVmIntegration> &integration() { return integration_; }
-  void error(string_view message) { integration()->error(message); }
+  void error(std::string_view message) { integration()->error(message); }
 
 protected:
   std::unique_ptr<WasmVmIntegration> integration_;

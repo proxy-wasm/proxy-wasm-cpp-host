@@ -32,7 +32,7 @@
 
 namespace proxy_wasm {
 
-void NullPlugin::getFunction(string_view function_name, WasmCallVoid<0> *f) {
+void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<0> *f) {
   if (function_name == "proxy_abi_version_0_1_0") {
     *f = [](ContextBase *) { /* dummy function */ };
   } else if (function_name == "_start") {
@@ -45,7 +45,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<0> *f) {
   }
 }
 
-void NullPlugin::getFunction(string_view function_name, WasmCallVoid<1> *f) {
+void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<1> *f) {
   auto plugin = this;
   if (function_name == "proxy_on_tick") {
     *f = [plugin](ContextBase *context, Word context_id) {
@@ -68,7 +68,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<1> *f) {
   }
 }
 
-void NullPlugin::getFunction(string_view function_name, WasmCallVoid<2> *f) {
+void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<2> *f) {
   auto plugin = this;
   if (function_name == "proxy_on_context_create") {
     *f = [plugin](ContextBase *context, Word context_id, Word parent_context_id) {
@@ -96,7 +96,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<2> *f) {
   }
 }
 
-void NullPlugin::getFunction(string_view function_name, WasmCallVoid<3> *f) {
+void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<3> *f) {
   auto plugin = this;
   if (function_name == "proxy_on_grpc_close") {
     *f = [plugin](ContextBase *context, Word context_id, Word token, Word status_code) {
@@ -129,7 +129,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<3> *f) {
   }
 }
 
-void NullPlugin::getFunction(string_view function_name, WasmCallVoid<5> *f) {
+void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<5> *f) {
   auto plugin = this;
   if (function_name == "proxy_on_http_call_response") {
     *f = [plugin](ContextBase *context, Word context_id, Word token, Word headers, Word body_size,
@@ -143,7 +143,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallVoid<5> *f) {
   }
 }
 
-void NullPlugin::getFunction(string_view function_name, WasmCallWord<1> *f) {
+void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<1> *f) {
   auto plugin = this;
   if (function_name == "malloc") {
     *f = [](ContextBase *, Word size) -> Word {
@@ -165,7 +165,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<1> *f) {
   }
 }
 
-void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
+void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<2> *f) {
   auto plugin = this;
   if (function_name == "proxy_on_vm_start") {
     *f = [plugin](ContextBase *context, Word context_id, Word configuration_size) {
@@ -208,7 +208,7 @@ void NullPlugin::getFunction(string_view function_name, WasmCallWord<2> *f) {
   }
 }
 
-void NullPlugin::getFunction(string_view function_name, WasmCallWord<3> *f) {
+void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<3> *f) {
   auto plugin = this;
   if (function_name == "proxy_on_downstream_data") {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
@@ -321,7 +321,7 @@ null_plugin::RootContext *NullPlugin::getRootContext(uint64_t context_id) {
   return it->second->asRoot();
 }
 
-null_plugin::RootContext *NullPlugin::getRoot(string_view root_id) {
+null_plugin::RootContext *NullPlugin::getRoot(std::string_view root_id) {
   auto it = root_context_map_.find(std::string(root_id));
   if (it == root_context_map_.end()) {
     return nullptr;
@@ -494,7 +494,7 @@ void NullPlugin::onDelete(uint64_t context_id) {
 
 namespace null_plugin {
 
-RootContext *nullVmGetRoot(string_view root_id) {
+RootContext *nullVmGetRoot(std::string_view root_id) {
   auto null_vm = static_cast<NullVm *>(current_context_->wasmVm());
   return static_cast<NullPlugin *>(null_vm->plugin_.get())->getRoot(root_id);
 }
@@ -504,7 +504,7 @@ Context *nullVmGetContext(uint32_t context_id) {
   return static_cast<NullPlugin *>(null_vm->plugin_.get())->getContext(context_id);
 }
 
-RootContext *getRoot(string_view root_id) { return nullVmGetRoot(root_id); }
+RootContext *getRoot(std::string_view root_id) { return nullVmGetRoot(root_id); }
 
 Context *getContext(uint32_t context_id) { return nullVmGetContext(context_id); }
 

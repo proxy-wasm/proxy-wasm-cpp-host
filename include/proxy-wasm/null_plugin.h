@@ -24,8 +24,6 @@
 
 namespace proxy_wasm {
 namespace null_plugin {
-template <typename T> using Optional = optional<T>;
-using StringView = string_view;
 #include "proxy_wasm_enums.h"
 } // namespace null_plugin
 } // namespace proxy_wasm
@@ -67,7 +65,7 @@ public:
   explicit NullPlugin(NullPluginRegistry *registry) : registry_(registry) {}
   NullPlugin(const NullPlugin &other) : registry_(other.registry_) {}
 
-#define _DECLARE_OVERRIDE(_t) void getFunction(string_view function_name, _t *f) override;
+#define _DECLARE_OVERRIDE(_t) void getFunction(std::string_view function_name, _t *f) override;
   FOR_ALL_WASM_VM_EXPORTS(_DECLARE_OVERRIDE)
 #undef _DECLARE_OVERRIDE
 
@@ -109,10 +107,10 @@ public:
   uint64_t onDone(uint64_t context_id);
   void onDelete(uint64_t context_id);
 
-  null_plugin::RootContext *getRoot(string_view root_id);
+  null_plugin::RootContext *getRoot(std::string_view root_id);
   null_plugin::Context *getContext(uint64_t context_id);
 
-  void error(string_view message) { wasm_vm_->error(message); }
+  void error(std::string_view message) { wasm_vm_->error(message); }
 
   null_plugin::Context *ensureContext(uint64_t context_id, uint64_t root_context_id);
   null_plugin::RootContext *ensureRootContext(uint64_t context_id);
@@ -130,7 +128,7 @@ private:
   struct RegisterContextFactory {                                                                  \
     explicit RegisterContextFactory(null_plugin::ContextFactory context_factory,                   \
                                     null_plugin::RootFactory root_factory,                         \
-                                    StringView root_id = "") {                                     \
+                                    std::string_view root_id = "") {                               \
       if (!context_registry_) {                                                                    \
         context_registry_ = new NullPluginRegistry;                                                \
       }                                                                                            \
@@ -138,14 +136,14 @@ private:
       context_registry_->root_factories[std::string(root_id)] = root_factory;                      \
     }                                                                                              \
     explicit RegisterContextFactory(null_plugin::ContextFactory context_factory,                   \
-                                    StringView root_id = "") {                                     \
+                                    std::string_view root_id = "") {                               \
       if (!context_registry_) {                                                                    \
         context_registry_ = new NullPluginRegistry;                                                \
       }                                                                                            \
       context_registry_->context_factories[std::string(root_id)] = context_factory;                \
     }                                                                                              \
     explicit RegisterContextFactory(null_plugin::RootFactory root_factory,                         \
-                                    StringView root_id = "") {                                     \
+                                    std::string_view root_id = "") {                               \
       if (!context_registry_) {                                                                    \
         context_registry_ = new NullPluginRegistry;                                                \
       }                                                                                            \
