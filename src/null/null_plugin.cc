@@ -33,7 +33,7 @@
 namespace proxy_wasm {
 
 void NullPlugin::getFunction(string_view function_name, WasmCallVoid<0> *f) {
-  if (function_name == "proxy_abi_version_0_1_0") {
+  if (function_name == "proxy_abi_version_0_2_0") {
     *f = [](ContextBase *) { /* dummy function */ };
   } else if (function_name == "_start") {
     *f = nullptr;

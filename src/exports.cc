@@ -148,6 +148,15 @@ Word get_property(void *raw_context, Word path_ptr, Word path_size, Word value_p
   return WasmResult::Ok;
 }
 
+Word get_configuration(void *raw_context, Word value_ptr_ptr, Word value_size_ptr) {
+  auto context = WASM_CONTEXT(raw_context);
+  auto value = context->getConfiguration();
+  if (!context->wasm()->copyToPointerSize(value, value_ptr_ptr, value_size_ptr)) {
+    return WasmResult::InvalidMemoryAccess;
+  }
+  return WasmResult::Ok;
+}
+
 Word get_status(void *raw_context, Word code_ptr, Word value_ptr_ptr, Word value_size_ptr) {
   auto context = WASM_CONTEXT(raw_context);
   auto status = context->getStatus();
@@ -163,6 +172,16 @@ Word get_status(void *raw_context, Word code_ptr, Word value_ptr_ptr, Word value
 // HTTP
 
 // Continue/Reply/Route
+Word continue_request(void *raw_context) {
+  auto context = WASM_CONTEXT(raw_context);
+  return context->continueStream(WasmStreamType::Request);
+}
+
+Word continue_response(void *raw_context) {
+  auto context = WASM_CONTEXT(raw_context);
+  return context->continueStream(WasmStreamType::Response);
+}
+
 Word continue_stream(void *raw_context, Word type) {
   auto context = WASM_CONTEXT(raw_context);
   if (type > static_cast<uint64_t>(WasmStreamType::MAX)) {
@@ -195,6 +214,12 @@ Word send_local_response(void *raw_context, Word response_code, Word response_co
   auto additional_headers = toPairs(additional_response_header_pairs.value());
   context->sendLocalResponse(response_code, body.value(), std::move(additional_headers), grpc_code,
                              details.value());
+  return WasmResult::Ok;
+}
+
+Word clear_route_cache(void *raw_context) {
+  auto context = WASM_CONTEXT(raw_context);
+  context->clearRouteCache();
   return WasmResult::Ok;
 }
 
