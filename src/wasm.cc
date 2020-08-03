@@ -214,7 +214,7 @@ void WasmBase::getFunctions() {
   if (!abi_version_0_1_0_ && !abi_version_0_2_0_) {
     fail("Wasm module is missing the Proxy-Wasm ABI version or requires an unsupported version.");
   } else if (abi_version_0_1_0_ && abi_version_0_2_0_) {
-    fail( "Wasm multiple versions of the Proxy-Wasm ABI are declared by the module.");
+    fail("Wasm multiple versions of the Proxy-Wasm ABI are declared by the module.");
   }
 
   _GET_PROXY(validate_configuration);
