@@ -122,6 +122,8 @@ public:
   virtual void error(std::string_view message) { std::cerr << message << "\n"; }
   virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
 
+  AbiVersion abiVersion() { return abi_version_; }
+
   bool getEmscriptenVersion(uint32_t *emscripten_metadata_major_version,
                             uint32_t *emscripten_metadata_minor_version,
                             uint32_t *emscripten_abi_major_version,
@@ -184,9 +186,6 @@ protected:
   std::unique_ptr<ShutdownHandle> shutdown_handle_;
   std::unordered_set<ContextBase *> pending_done_; // Root contexts not done during shutdown.
 
-  WasmCallVoid<0> abi_version_0_1_0_;
-  WasmCallVoid<0> abi_version_0_2_0_;
-
   WasmCallVoid<0> _start_; /* Emscripten v1.39.0+ */
   WasmCallVoid<0> __wasm_call_ctors_;
 
@@ -240,6 +239,9 @@ protected:
   std::string vm_configuration_;
   bool allow_precompiled_ = false;
   FailState failed_ = FailState::Ok; // Wasm VM fatal error.
+
+  // ABI version.
+  AbiVersion abi_version_ = AbiVersion::Unknown;
 
   bool is_emscripten_ = false;
   uint32_t emscripten_metadata_major_version_ = 0;

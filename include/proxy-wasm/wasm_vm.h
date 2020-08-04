@@ -101,6 +101,8 @@ enum class Cloneable {
   InstantiatedModule // VMs can be cloned from an instantiated module.
 };
 
+enum class AbiVersion { ProxyWasm_0_1_0, ProxyWasm_0_2_0, Unknown };
+
 class NullPlugin;
 
 // Integrator specific WasmVm operations.
@@ -184,6 +186,12 @@ public:
    * @return whether or not the link was successful.
    */
   virtual bool link(std::string_view debug_name) = 0;
+
+  /**
+   * Get ABI version of the module.
+   * @return the ABI version.
+   */
+  virtual AbiVersion getAbiVersion() = 0;
 
   /**
    * Get size of the currently allocated memory in the VM.
