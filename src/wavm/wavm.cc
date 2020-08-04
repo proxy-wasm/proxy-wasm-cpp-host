@@ -47,7 +47,7 @@
 #include "WAVM/WASTParse/WASTParse.h"
 
 #ifdef NDEBUG
-#define ASSERT(_X) _x
+#define ASSERT(_x) _x
 #else
 #define ASSERT(_x)                                                                                 \
   do {                                                                                             \
