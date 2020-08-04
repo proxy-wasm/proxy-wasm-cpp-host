@@ -290,7 +290,17 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
   return true;
 }
 
-bool Wavm::link(std::string_view debug_name) {
+AbiVersion Wavm::getAbiVersion() {
+  if (asFunctionNullable(getInstanceExport(module_instance_, "proxy_abi_version_0_1_0")) {
+    return AbiVersion::ProxyWasm_0_1_0;
+  }
+  if (asFunctionNullable(getInstanceExport(module_instance_, "proxy_abi_version_0_2_0)")) {
+    return AbiVersion::ProxyWasm_0_2_0;
+  }
+  return AbiVersion::Unknown;
+}
+
+void Wavm::link(std::string_view debug_name) {
   RootResolver rootResolver(compartment_, this);
   for (auto &p : intrinsic_modules_) {
     auto instance = Intrinsics::instantiateModule(compartment_, {&intrinsic_modules_[p.first]},

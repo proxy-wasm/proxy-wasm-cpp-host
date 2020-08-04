@@ -29,18 +29,22 @@ namespace exports {
 
 // ABI functions exported from envoy to wasm.
 
+Word get_configuration(void *raw_context, Word address, Word size);
 Word get_status(void *raw_context, Word status_code, Word address, Word size);
 Word log(void *raw_context, Word level, Word address, Word size);
 Word get_log_level(void *raw_context, Word result_level_uint32_ptr);
 Word get_property(void *raw_context, Word path_ptr, Word path_size, Word value_ptr_ptr,
                   Word value_size_ptr);
 Word set_property(void *raw_context, Word key_ptr, Word key_size, Word value_ptr, Word value_size);
+Word continue_request(void *raw_context);
+Word continue_response(void *raw_context);
 Word continue_stream(void *raw_context, Word stream_type);
 Word close_stream(void *raw_context, Word stream_type);
 Word send_local_response(void *raw_context, Word response_code, Word response_code_details_ptr,
                          Word response_code_details_size, Word body_ptr, Word body_size,
                          Word additional_response_header_pairs_ptr,
                          Word additional_response_header_pairs_size, Word grpc_status);
+Word clear_route_cache(void *raw_context);
 Word get_shared_data(void *raw_context, Word key_ptr, Word key_size, Word value_ptr_ptr,
                      Word value_size_ptr, Word cas_ptr);
 Word set_shared_data(void *raw_context, Word key_ptr, Word key_size, Word value_ptr,

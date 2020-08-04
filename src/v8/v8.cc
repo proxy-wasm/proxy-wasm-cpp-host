@@ -54,6 +54,7 @@ public:
   std::string_view runtime() override { return "v8"; }
 
   bool load(const std::string &code, bool allow_precompiled) override;
+  AbiVersion getAbiVersion() override;
   std::string_view getCustomSection(std::string_view name) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
@@ -364,6 +365,24 @@ std::string_view V8::getPrecompiledSectionName() {
              std::to_string(V8_PATCH_LEVEL) + "_" + WEE8_PLATFORM)
           : "";
   return name;
+}
+
+AbiVersion V8::getAbiVersion() {
+  assert(module_ != nullptr);
+
+  const auto export_types = module_.get()->exports();
+  for (size_t i = 0; i < export_types.size(); i++) {
+    if (export_types[i]->type()->kind() == wasm::EXTERN_FUNC) {
+      std::string_view name(export_types[i]->name().get(), export_types[i]->name().size());
+      if (name == "proxy_abi_version_0_1_0") {
+        return AbiVersion::ProxyWasm_0_1_0;
+      } else if (name == "proxy_abi_version_0_2_0") {
+        return AbiVersion::ProxyWasm_0_2_0;
+      }
+    }
+  }
+
+  return AbiVersion::Unknown;
 }
 
 bool V8::link(std::string_view debug_name) {
