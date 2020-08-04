@@ -57,6 +57,8 @@ bool NullVm::load(const std::string &name, bool /* allow_precompiled */) {
   return true;
 }
 
+AbiVersion NullVm::getAbiVersion() { return AbiVersion::ProxyWasm_0_2_0; }
+
 bool NullVm::link(std::string_view /* name */) { return true; }
 
 uint64_t NullVm::getMemorySize() { return std::numeric_limits<uint64_t>::max(); }
