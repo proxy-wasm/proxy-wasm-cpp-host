@@ -141,18 +141,12 @@ void WasmBase::registerCallbacks() {
                                    exports::_fn>::convertFunctionWordToUint32);
   _REGISTER_PROXY(log);
 
-  _REGISTER_PROXY(get_configuration);
   _REGISTER_PROXY(get_status);
 
   _REGISTER_PROXY(set_property);
   _REGISTER_PROXY(get_property);
 
-  _REGISTER_PROXY(continue_request);
-  _REGISTER_PROXY(continue_response);
-  _REGISTER_PROXY(continue_stream);
-  _REGISTER_PROXY(close_stream);
   _REGISTER_PROXY(send_local_response);
-  _REGISTER_PROXY(clear_route_cache);
 
   _REGISTER_PROXY(get_shared_data);
   _REGISTER_PROXY(set_shared_data);
@@ -193,6 +187,16 @@ void WasmBase::registerCallbacks() {
   _REGISTER_PROXY(set_effective_context);
   _REGISTER_PROXY(done);
   _REGISTER_PROXY(call_foreign_function);
+
+  if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
+    _REGISTER_PROXY(get_configuration);
+    _REGISTER_PROXY(continue_request);
+    _REGISTER_PROXY(continue_response);
+    _REGISTER_PROXY(clear_route_cache);
+  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0) {
+    _REGISTER_PROXY(continue_stream);
+    _REGISTER_PROXY(close_stream);
+  }
 #undef _REGISTER_PROXY
 }
 
@@ -209,19 +213,10 @@ void WasmBase::getFunctions() {
 
 #define _GET_PROXY(_fn) wasm_vm_->getFunction("proxy_" #_fn, &_fn##_);
 #define _GET_PROXY_ABI(_fn, _abi) wasm_vm_->getFunction("proxy_" #_fn, &_fn##_abi##_);
-  _GET_PROXY(abi_version_0_1_0);
-  _GET_PROXY(abi_version_0_2_0);
-  if (!abi_version_0_1_0_ && !abi_version_0_2_0_) {
-    fail("Wasm module is missing the Proxy-Wasm ABI version or requires an unsupported version.");
-  } else if (abi_version_0_1_0_ && abi_version_0_2_0_) {
-    fail("Wasm multiple versions of the Proxy-Wasm ABI are declared by the module.");
-  }
-
   _GET_PROXY(validate_configuration);
   _GET_PROXY(on_vm_start);
   _GET_PROXY(on_configure);
   _GET_PROXY(on_tick);
-  _GET_PROXY(on_foreign_function);
 
   _GET_PROXY(on_context_create);
 
@@ -231,13 +226,6 @@ void WasmBase::getFunctions() {
   _GET_PROXY(on_downstream_connection_close);
   _GET_PROXY(on_upstream_connection_close);
 
-  if (abi_version_0_1_0_) {
-    _GET_PROXY_ABI(on_request_headers, _abi_01);
-    _GET_PROXY_ABI(on_response_headers, _abi_01);
-  } else if (abi_version_0_2_0_) {
-    _GET_PROXY_ABI(on_request_headers, _abi_02);
-    _GET_PROXY_ABI(on_response_headers, _abi_02);
-  }
   _GET_PROXY(on_request_body);
   _GET_PROXY(on_request_trailers);
   _GET_PROXY(on_request_metadata);
@@ -253,6 +241,15 @@ void WasmBase::getFunctions() {
   _GET_PROXY(on_done);
   _GET_PROXY(on_log);
   _GET_PROXY(on_delete);
+
+  if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
+    _GET_PROXY_ABI(on_request_headers, _abi_01);
+    _GET_PROXY_ABI(on_response_headers, _abi_01);
+  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0) {
+    _GET_PROXY_ABI(on_request_headers, _abi_02);
+    _GET_PROXY_ABI(on_response_headers, _abi_02);
+    _GET_PROXY(on_foreign_function);
+  }
 #undef _GET_PROXY_ABI
 #undef _GET_PROXY
 }
@@ -329,6 +326,11 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
 
     code_ = code;
     allow_precompiled_ = allow_precompiled;
+  }
+
+  abi_version_ = wasm_vm_->getAbiVersion();
+  if (abi_version_ == AbiVersion::Unknown) {
+    return false;
   }
 
   if (started_from_ != Cloneable::InstantiatedModule) {
