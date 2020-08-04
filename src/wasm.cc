@@ -141,7 +141,6 @@ void WasmBase::registerCallbacks() {
       &ConvertFunctionWordToUint32<decltype(exports::_fn),                                         \
                                    exports::_fn>::convertFunctionWordToUint32);
   _REGISTER_PROXY(log);
-  _REGISTER_PROXY(get_log_level);
 
   _REGISTER_PROXY(get_status);
 
@@ -198,6 +197,10 @@ void WasmBase::registerCallbacks() {
   } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0) {
     _REGISTER_PROXY(continue_stream);
     _REGISTER_PROXY(close_stream);
+  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_1) {
+    _REGISTER_PROXY(continue_stream);
+    _REGISTER_PROXY(close_stream);
+    _REGISTER_PROXY(get_log_level);
   }
 #undef _REGISTER_PROXY
 }
