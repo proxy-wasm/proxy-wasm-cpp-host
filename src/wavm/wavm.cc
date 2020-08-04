@@ -237,6 +237,7 @@ struct Wavm : public WasmVm {
       intrinsic_module_instances_;
   std::vector<std::unique_ptr<Intrinsics::Function>> envoyFunctions_;
   uint8_t *memory_base_ = nullptr;
+  AbiVersion abi_version_ = AbiVersion::Unknown;
 };
 
 Wavm::~Wavm() {
@@ -256,6 +257,7 @@ std::unique_ptr<WasmVm> Wavm::clone() {
   wavm->memory_ = WAVM::Runtime::remapToClonedCompartment(memory_, wavm->compartment_);
   wavm->memory_base_ = WAVM::Runtime::getMemoryBaseAddress(wavm->memory_);
   wavm->context_ = WAVM::Runtime::createContext(wavm->compartment_);
+  wavm->abi_version_ = abi_version_;
   for (auto &p : intrinsic_module_instances_) {
     wavm->intrinsic_module_instances_.emplace(
         p.first, WAVM::Runtime::remapToClonedCompartment(p.second, wavm->compartment_));
@@ -273,7 +275,7 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
   if (!loadModule(code, ir_module_)) {
     return false;
   }
-  // todo check percompiled section is permitted
+  getAbiVersion(); // Cache ABI version.
   const CustomSection *precompiled_object_section = nullptr;
   if (allow_precompiled) {
     for (const CustomSection &customSection : ir_module_.customSections) {
@@ -292,12 +294,17 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
 }
 
 AbiVersion Wavm::getAbiVersion() {
+  if (abi_version_ != AbiVersion::Unknown) {
+    return abi_version_;
+  }
   for (auto &e : ir_module_.exports) {
     if (e.name == "proxy_abi_version_0_1_0") {
-      return AbiVersion::ProxyWasm_0_1_0;
+      abi_version_ = AbiVersion::ProxyWasm_0_1_0;
+      return abi_version_;
     }
     if (e.name == "proxy_abi_version_0_2_0") {
-      return AbiVersion::ProxyWasm_0_2_0;
+      abi_version_ = AbiVersion::ProxyWasm_0_2_0;
+      return abi_version_;
     }
   }
   return AbiVersion::Unknown;
