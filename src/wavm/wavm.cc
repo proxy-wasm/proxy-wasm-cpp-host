@@ -208,6 +208,7 @@ struct Wavm : public WasmVm {
   bool setWord(uint64_t pointer, Word data) override;
   std::string_view getCustomSection(std::string_view name) override;
   std::string_view getPrecompiledSectionName() override;
+  AbiVersion getAbiVersion() override;
 
 #define _GET_FUNCTION(_T)                                                                          \
   void getFunction(std::string_view function_name, _T *f) override {                               \
@@ -291,16 +292,18 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
 }
 
 AbiVersion Wavm::getAbiVersion() {
-  if (asFunctionNullable(getInstanceExport(module_instance_, "proxy_abi_version_0_1_0")) {
-    return AbiVersion::ProxyWasm_0_1_0;
-  }
-  if (asFunctionNullable(getInstanceExport(module_instance_, "proxy_abi_version_0_2_0)")) {
-    return AbiVersion::ProxyWasm_0_2_0;
+  for (auto &e : ir_module_.exports) {
+    if (e.name == "proxy_abi_version_0_1_0") {
+      return AbiVersion::ProxyWasm_0_1_0;
+    }
+    if (e.name == "proxy_abi_version_0_2_0") {
+      return AbiVersion::ProxyWasm_0_2_0;
+    }
   }
   return AbiVersion::Unknown;
 }
 
-void Wavm::link(std::string_view debug_name) {
+bool Wavm::link(std::string_view debug_name) {
   RootResolver rootResolver(compartment_, this);
   for (auto &p : intrinsic_modules_) {
     auto instance = Intrinsics::instantiateModule(compartment_, {&intrinsic_modules_[p.first]},
