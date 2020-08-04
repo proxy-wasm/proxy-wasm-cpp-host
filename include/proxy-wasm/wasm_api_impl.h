@@ -25,6 +25,13 @@ namespace null_plugin {
 
 inline WasmResult wordToWasmResult(Word w) { return static_cast<WasmResult>(w.u64_); }
 
+// Configuration and Status
+inline WasmResult proxy_get_configuration(const char **configuration_ptr,
+                                          size_t *configuration_size) {
+  return wordToWasmResult(
+      exports::get_configuration(current_context_, WR(configuration_ptr), WR(configuration_size)));
+}
+
 inline WasmResult proxy_get_status(uint32_t *code_ptr, const char **ptr, size_t *size) {
   return wordToWasmResult(exports::get_status(current_context_, WR(code_ptr), WR(ptr), WR(size)));
 }
@@ -57,6 +64,12 @@ inline WasmResult proxy_set_property(const char *key_ptr, size_t key_size, const
 }
 
 // Continue
+inline WasmResult proxy_continue_request() {
+  return wordToWasmResult(exports::continue_request(current_context_));
+}
+inline WasmResult proxy_continue_response() {
+  return wordToWasmResult(exports::continue_response(current_context_));
+}
 inline WasmResult proxy_continue_stream(WasmStreamType stream_type) {
   return wordToWasmResult(exports::continue_stream(current_context_, WS(stream_type)));
 }
@@ -73,6 +86,10 @@ proxy_send_local_response(uint32_t response_code, const char *response_code_deta
       WS(response_code_details_size), WR(body_ptr), WS(body_size),
       WR(additional_response_header_pairs_ptr), WS(additional_response_header_pairs_size),
       WS(grpc_status)));
+}
+
+inline WasmResult proxy_clear_route_cache() {
+  return wordToWasmResult(exports::clear_route_cache(current_context_));
 }
 
 // SharedData

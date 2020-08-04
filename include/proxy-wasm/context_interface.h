@@ -236,6 +236,9 @@ public:
                                        Pairs additional_headers, uint32_t grpc_status,
                                        string_view details) = 0;
 
+  // Clears the route cache for the current request.
+  virtual void clearRouteCache() = 0;
+
   // Call when the stream closes. See RootInterface.
   virtual bool onDone() = 0;
 
@@ -544,6 +547,9 @@ struct GeneralInterface {
 
   // Provides the current time in nanoseconds since the Unix epoch.
   virtual uint64_t getCurrentTimeNanoseconds() = 0;
+
+  // Returns plugin configuration.
+  virtual string_view getConfiguration() = 0;
 
   /**
    * Provides the status of the last call into the VM or out of the VM, similar to errno.

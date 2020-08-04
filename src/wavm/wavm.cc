@@ -271,6 +271,8 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
   return true;
 }
 
+AbiVersion Wavm::getAbiVersion() { return AbiVersion::Unknown; }
+
 void Wavm::link(string_view debug_name) {
   RootResolver rootResolver(compartment_);
   for (auto &p : intrinsic_modules_) {

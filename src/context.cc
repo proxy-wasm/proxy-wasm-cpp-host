@@ -37,8 +37,24 @@
     }                                                                                              \
   }
 
+#define CHECK_FAIL2(_call1, _call2, _stream_type, _return_open, _return_closed)                    \
+  if (isFailed()) {                                                                                \
+    if (plugin_->fail_open_) {                                                                     \
+      return _return_open;                                                                         \
+    } else {                                                                                       \
+      failStream(_stream_type);                                                                    \
+      return _return_closed;                                                                       \
+    }                                                                                              \
+  } else {                                                                                         \
+    if (!wasm_->_call1 && !wasm_->_call2) {                                                        \
+      return _return_open;                                                                         \
+    }                                                                                              \
+  }
+
 #define CHECK_HTTP(_call, _return_open, _return_closed)                                            \
   CHECK_FAIL(_call, WasmStreamType::Request, _return_open, _return_closed)
+#define CHECK_HTTP2(_call1, _call2, _return_open, _return_closed)                                  \
+  CHECK_FAIL2(_call1, _call2, WasmStreamType::Request, _return_open, _return_closed)
 #define CHECK_NET(_call, _return_open, _return_closed)                                             \
   CHECK_FAIL(_call, WasmStreamType::Downstream, _return_open, _return_closed)
 
@@ -429,11 +445,15 @@ void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
 template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
 
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_stream) {
-  CHECK_HTTP(on_request_headers_, FilterHeadersStatus::Continue,
-             FilterHeadersStatus::StopIteration);
+  CHECK_HTTP2(on_request_headers_abi_01_, on_request_headers_abi_02_, FilterHeadersStatus::Continue,
+              FilterHeadersStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  auto result =
-      wasm_->on_request_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream)).u64_;
+  auto result = wasm_->on_request_headers_abi_01_
+                    ? wasm_->on_request_headers_abi_01_(this, id_, headers).u64_
+                    : wasm_
+                          ->on_request_headers_abi_02_(this, id_, headers,
+                                                       static_cast<uint32_t>(end_of_stream))
+                          .u64_;
   if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
     return FilterHeadersStatus::StopAllIterationAndWatermark;
   return static_cast<FilterHeadersStatus>(result);
@@ -471,11 +491,15 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
 }
 
 FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of_stream) {
-  CHECK_HTTP(on_response_headers_, FilterHeadersStatus::Continue,
-             FilterHeadersStatus::StopIteration);
+  CHECK_HTTP2(on_response_headers_abi_01_, on_response_headers_abi_02_,
+              FilterHeadersStatus::Continue, FilterHeadersStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  auto result =
-      wasm_->on_response_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream)).u64_;
+  auto result = wasm_->on_response_headers_abi_01_
+                    ? wasm_->on_response_headers_abi_01_(this, id_, headers).u64_
+                    : wasm_
+                          ->on_response_headers_abi_02_(this, id_, headers,
+                                                        static_cast<uint32_t>(end_of_stream))
+                          .u64_;
   if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
     return FilterHeadersStatus::StopAllIterationAndWatermark;
   return static_cast<FilterHeadersStatus>(result);
