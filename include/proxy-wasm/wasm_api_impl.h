@@ -32,6 +32,9 @@ inline WasmResult proxy_log(LogLevel level, const char *logMessage, size_t messa
   return wordToWasmResult(
       exports::log(current_context_, WS(level), WR(logMessage), WS(messageSize)));
 }
+inline WasmResult proxy_get_log_level(LogLevel *level) {
+  return wordToWasmResult(exports::get_log_level(current_context_, WR(level)));
+}
 
 // Timer
 inline WasmResult proxy_set_tick_period_milliseconds(uint64_t millisecond) {
