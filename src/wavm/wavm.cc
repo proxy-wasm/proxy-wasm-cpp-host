@@ -306,6 +306,10 @@ AbiVersion Wavm::getAbiVersion() {
       abi_version_ = AbiVersion::ProxyWasm_0_2_0;
       return abi_version_;
     }
+    if (e.name == "proxy_abi_version_0_2_1") {
+      abi_version_ = AbiVersion::ProxyWasm_0_2_1;
+      return abi_version_;
+    }
   }
   return AbiVersion::Unknown;
 }
