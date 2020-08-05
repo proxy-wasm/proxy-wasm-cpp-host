@@ -250,7 +250,8 @@ void WasmBase::getFunctions() {
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
     _GET_PROXY_ABI(on_request_headers, _abi_01);
     _GET_PROXY_ABI(on_response_headers, _abi_01);
-  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0) {
+  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0 ||
+             abiVersion() == AbiVersion::ProxyWasm_0_2_1) {
     _GET_PROXY_ABI(on_request_headers, _abi_02);
     _GET_PROXY_ABI(on_response_headers, _abi_02);
     _GET_PROXY(on_foreign_function);
