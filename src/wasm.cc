@@ -341,7 +341,9 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
 
   if (started_from_ != Cloneable::InstantiatedModule) {
     registerCallbacks();
-    wasm_vm_->link(vm_id_);
+    if (!wasm_vm_->link(vm_id_)) {
+      return false;
+    }
   }
 
   vm_context_.reset(createVmContext());
