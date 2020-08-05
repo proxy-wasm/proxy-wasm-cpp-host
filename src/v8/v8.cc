@@ -378,6 +378,8 @@ AbiVersion V8::getAbiVersion() {
         return AbiVersion::ProxyWasm_0_1_0;
       } else if (name == "proxy_abi_version_0_2_0") {
         return AbiVersion::ProxyWasm_0_2_0;
+      } else if (name == "proxy_abi_version_0_2_1") {
+        return AbiVersion::ProxyWasm_0_2_1;
       }
     }
   }
