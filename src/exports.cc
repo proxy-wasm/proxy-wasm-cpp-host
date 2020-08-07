@@ -494,9 +494,13 @@ Word get_buffer_bytes(void *raw_context, Word type, Word start, Word length, Wor
   if (!buffer) {
     return WasmResult::NotFound;
   }
-  // check for overflow.
-  if (buffer->size() < start + length || start > start + length) {
+  // Check for overflow.
+  if (start > start + length) {
     return WasmResult::BadArgument;
+  }
+  // Don't overread.
+  if (start + length > buffer->size()) {
+    length = buffer->size() - start;
   }
   if (length > 0) {
     return buffer->copyTo(context->wasm(), start, length, ptr_ptr, size_ptr);
