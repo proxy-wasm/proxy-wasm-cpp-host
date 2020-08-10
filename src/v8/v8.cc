@@ -373,7 +373,7 @@ AbiVersion V8::getAbiVersion() {
   const auto export_types = module_.get()->exports();
   for (size_t i = 0; i < export_types.size(); i++) {
     if (export_types[i]->type()->kind() == wasm::EXTERN_FUNC) {
-      std::string_view name(export_types[i]->name().get(), export_types[i]->name().size());
+      string_view name(export_types[i]->name().get(), export_types[i]->name().size());
       if (name == "proxy_abi_version_0_1_0") {
         return AbiVersion::ProxyWasm_0_1_0;
       } else if (name == "proxy_abi_version_0_2_0") {
