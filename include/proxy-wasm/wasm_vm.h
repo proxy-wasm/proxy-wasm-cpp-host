@@ -17,6 +17,7 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 #include <optional>
 
 #include "include/proxy-wasm/word.h"
