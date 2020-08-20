@@ -2,6 +2,17 @@ licenses(["notice"])  # Apache 2
 
 package(default_visibility = ["//visibility:public"])
 
+COPTS = select({
+    "@bazel_tools//src/conditions:windows": [
+        "/std:c++17",
+        "-DWITHOUT_ZLIB",
+    ],
+    "//conditions:default": [
+        "-std=c++17",
+        "-DWITHOUT_ZLIB",
+    ],
+})
+
 cc_library(
     name = "include",
     hdrs = glob(["include/proxy-wasm/**/*.h"]),
@@ -19,7 +30,7 @@ cc_library(
             "src/**/v8*",
         ],
     ) + glob(["src/**/*.h"]),
-    copts = ["-DWITHOUT_ZLIB=1"],
+    copts = COPTS,
     deps = [
         ":include",
         "@com_google_protobuf//:protobuf_lite",
@@ -30,6 +41,7 @@ cc_library(
 cc_test(
     name = "wasm_vm_test",
     srcs = ["wasm_vm_test.cc"],
+    copts = COPTS,
     deps = [
         ":lib",
         "@com_google_googletest//:gtest",
@@ -40,6 +52,7 @@ cc_test(
 cc_test(
     name = "context_test",
     srcs = ["context_test.cc"],
+    copts = COPTS,
     deps = [
         ":include",
         "@com_google_googletest//:gtest",

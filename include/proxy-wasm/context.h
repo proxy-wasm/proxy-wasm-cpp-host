@@ -15,14 +15,14 @@
 
 #pragma once
 
-#include <time.h>
-
 #include <atomic>
 #include <chrono>
+#include <ctime>
 #include <functional>
 #include <iostream>
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "include/proxy-wasm/context_interface.h"
