@@ -285,7 +285,8 @@ null_plugin::RootContext *NullPlugin::ensureRootContext(uint64_t context_id) {
     context_map_[context_id] = std::move(context);
   } else {
     // Default handlers.
-    auto context = std::make_unique<null_plugin::RootContext>(context_id, root_id->view());
+    auto context = std::make_unique<null_plugin::RootContext>(static_cast<uint32_t>(context_id),
+                                                              root_id->view());
     root_context = context->asRoot();
     context_map_[context_id] = std::move(context);
   }
