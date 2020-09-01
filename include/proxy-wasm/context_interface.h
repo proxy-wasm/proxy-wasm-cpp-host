@@ -179,7 +179,7 @@ struct RootInterface : public RootGrpcInterface {
    */
   virtual bool onDone() = 0;
 
-  // Call when the for logging not associated with a stream lifecycle (e.g. logging only plugin).
+  // Call for logging not associated with a stream lifecycle (e.g. logging only plugin).
   virtual void onLog() = 0;
 
   /**
