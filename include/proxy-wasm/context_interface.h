@@ -179,6 +179,9 @@ struct RootInterface : public RootGrpcInterface {
    */
   virtual bool onDone() = 0;
 
+  // Call for logging not associated with a stream lifecycle (e.g. logging only plugin).
+  virtual void onLog() = 0;
+
   /**
    * Call when no further stream calls will occur.  This will cause the corresponding Context in the
    * VM to be deleted.
