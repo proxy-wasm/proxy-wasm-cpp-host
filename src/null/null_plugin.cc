@@ -472,7 +472,7 @@ void NullPlugin::onLog(uint64_t context_id) {
     registry_->proxy_on_log_(context_id);
     return;
   }
-  getContext(context_id)->onLog();
+  getContextBase(context_id)->onLog();
 }
 
 uint64_t NullPlugin::onDone(uint64_t context_id) {
