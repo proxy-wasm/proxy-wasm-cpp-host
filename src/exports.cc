@@ -385,8 +385,8 @@ Word add_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_s
   if (!key || !value) {
     return WasmResult::InvalidMemoryAccess;
   }
-  context->addHeaderMapValue(static_cast<WasmHeaderMapType>(type.u64_), key.value(), value.value());
-  return WasmResult::Ok;
+  return context->addHeaderMapValue(static_cast<WasmHeaderMapType>(type.u64_), key.value(),
+                                    value.value());
 }
 
 Word get_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_size,
@@ -405,7 +405,9 @@ Word get_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_s
   if (result != WasmResult::Ok) {
     return result;
   }
-  context->wasm()->copyToPointerSize(value, value_ptr_ptr, value_size_ptr);
+  if (!context->wasm()->copyToPointerSize(value, value_ptr_ptr, value_size_ptr)) {
+    return WasmResult::InvalidMemoryAccess;
+  }
   return WasmResult::Ok;
 }
 
@@ -420,9 +422,8 @@ Word replace_header_map_value(void *raw_context, Word type, Word key_ptr, Word k
   if (!key || !value) {
     return WasmResult::InvalidMemoryAccess;
   }
-  context->replaceHeaderMapValue(static_cast<WasmHeaderMapType>(type.u64_), key.value(),
-                                 value.value());
-  return WasmResult::Ok;
+  return context->replaceHeaderMapValue(static_cast<WasmHeaderMapType>(type.u64_), key.value(),
+                                        value.value());
 }
 
 Word remove_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_size) {
@@ -434,8 +435,7 @@ Word remove_header_map_value(void *raw_context, Word type, Word key_ptr, Word ke
   if (!key) {
     return WasmResult::InvalidMemoryAccess;
   }
-  context->removeHeaderMapValue(static_cast<WasmHeaderMapType>(type.u64_), key.value());
-  return WasmResult::Ok;
+  return context->removeHeaderMapValue(static_cast<WasmHeaderMapType>(type.u64_), key.value());
 }
 
 Word get_header_map_pairs(void *raw_context, Word type, Word ptr_ptr, Word size_ptr) {
@@ -463,8 +463,8 @@ Word set_header_map_pairs(void *raw_context, Word type, Word ptr, Word size) {
   if (!data) {
     return WasmResult::InvalidMemoryAccess;
   }
-  context->setHeaderMapPairs(static_cast<WasmHeaderMapType>(type.u64_), toPairs(data.value()));
-  return WasmResult::Ok;
+  return context->setHeaderMapPairs(static_cast<WasmHeaderMapType>(type.u64_),
+                                    toPairs(data.value()));
 }
 
 Word get_header_map_size(void *raw_context, Word type, Word result_ptr) {
