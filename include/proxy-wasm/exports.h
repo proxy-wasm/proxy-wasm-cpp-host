@@ -27,6 +27,11 @@ extern thread_local ContextBase *current_context_;
 
 namespace exports {
 
+template <typename Pairs> size_t pairsSize(const Pairs &result);
+template <typename Pairs> void marshalPairs(const Pairs &result, char *buffer);
+template <typename Pairs>
+bool getPairs(ContextBase *context, const Pairs &result, uint64_t ptr_ptr, uint64_t size_ptr);
+
 // ABI functions exported from envoy to wasm.
 
 Word get_configuration(void *raw_context, Word address, Word size);

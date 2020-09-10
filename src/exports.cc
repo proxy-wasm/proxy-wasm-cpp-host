@@ -67,6 +67,8 @@ Pairs toPairs(std::string_view buffer) {
   return result;
 }
 
+} // namespace
+
 template <typename Pairs> size_t pairsSize(const Pairs &result) {
   size_t size = 4; // number of headers
   for (auto &p : result) {
@@ -114,8 +116,6 @@ bool getPairs(ContextBase *context, const Pairs &result, uint64_t ptr_ptr, uint6
   }
   return true;
 }
-
-} // namespace
 
 // General ABI.
 
