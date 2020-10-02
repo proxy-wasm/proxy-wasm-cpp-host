@@ -512,8 +512,8 @@ createThreadLocalWasm(std::shared_ptr<WasmHandleBase> &base_wasm,
     wasm_handle->wasm()->fail(FailState::UnableToCloneVM, "Failed to clone Base Wasm");
     return nullptr;
   }
-  if (!wasm_handle->wasm()->initialize(wasm_handle->wasm()->code(),
-                                       wasm_handle->wasm()->allow_precompiled())) {
+  if (!wasm_handle->wasm()->initialize(base_wasm->wasm()->code(),
+                                       base_wasm->wasm()->allow_precompiled())) {
     wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
     return nullptr;
   }
