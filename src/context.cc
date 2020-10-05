@@ -331,9 +331,15 @@ bool ContextBase::onStart(std::shared_ptr<PluginBase> plugin) {
 }
 
 bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
+  if (!in_vm_context_created_ && wasm_->on_context_create_) {
+    wasm_->on_context_create_(this, id_, 0);
+    in_vm_context_created_ = true;
+  }
+
   if (isFailed() || !wasm_->on_configure_) {
     return true;
   }
+
   DeferAfterCallActions actions(this);
   plugin_ = plugin;
   auto result =
