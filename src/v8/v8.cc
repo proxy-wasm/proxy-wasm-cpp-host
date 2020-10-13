@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <utility>
 #include <vector>
 
@@ -112,6 +113,9 @@ private:
 
   absl::flat_hash_map<std::string, FuncDataPtr> host_functions_;
   absl::flat_hash_map<std::string, wasm::own<wasm::Func>> module_functions_;
+
+  std::string_view name_section;
+  std::string get_fail_message(std::string function_name, wasm::own<wasm::Trap> trap);
 };
 
 // Helper functions.
@@ -263,6 +267,7 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     assert((shared_module_ != nullptr));
   }
 
+  name_section = getCustomSection("name");
   return module_ != nullptr;
 }
 
@@ -274,7 +279,7 @@ std::unique_ptr<WasmVm> V8::clone() {
   clone->store_ = wasm::Store::make(engine());
 
   clone->module_ = wasm::Module::obtain(clone->store_.get(), shared_module_.get());
-
+  clone->name_section = name_section;
   return clone;
 }
 
@@ -591,7 +596,6 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
   host_functions_.insert_or_assign(std::string(module_name) + "." + std::string(function_name),
                                    std::move(data));
 }
-
 template <typename... Args>
 void V8::getModuleFunctionImpl(std::string_view function_name,
                                std::function<void(ContextBase *, Args...)> *function) {
@@ -618,8 +622,8 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, nullptr);
     if (trap) {
-      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
-                                        std::string(trap->message().get(), trap->message().size()));
+      auto message = this->get_fail_message(std::string(function_name), std::move(trap));
+      fail(FailState::RuntimeError, message);
     }
   };
 }
@@ -651,13 +655,77 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, results);
     if (trap) {
-      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
-                                        std::string(trap->message().get(), trap->message().size()));
+      auto message = this->get_fail_message(std::string(function_name), std::move(trap));
+      fail(FailState::RuntimeError, message);
       return R{};
     }
     R rvalue = results[0].get<typename ConvertWordTypeToUint32<R>::type>();
     return rvalue;
   };
+}
+
+std::string V8::get_fail_message(std::string function_name, wasm::own<wasm::Trap> trap) {
+  auto message = "Function: " + function_name + " failed:\n";
+  message +=
+      "message from V8: " + std::string(trap->message().get(), trap->message().size()) + "\n";
+
+  auto trace = trap->trace();
+
+  if (!trace.size() || !name_section.size()) {
+    return message;
+  }
+
+  const byte_t *pos = name_section.data();
+  const byte_t *end = name_section.data() + name_section.size();
+
+  std::unordered_map<uint32_t, std::string> function_names{};
+  // https://webassembly.github.io/spec/core/appendix/custom.html#binary-namesubsection
+
+  if (*pos == 0) { // module name section
+    pos++;
+    parseVarint(pos, end); // skip subsubsection size
+    const uint32_t module_name_size = parseVarint(pos, end);
+    message += "module name: " + std::string(pos, module_name_size) + "\n";
+    pos += module_name_size;
+  }
+
+  if (*pos == 1) { //  function name section
+    pos++;
+    parseVarint(pos, end); // skip subsection size
+    const uint32_t namemap_vector_size = parseVarint(pos, end);
+    for (auto i = 0; i < namemap_vector_size; i++) {
+      const uint32_t func_index = parseVarint(pos, end);
+      const uint32_t func_name_size = parseVarint(pos, end);
+      function_names.insert({func_index, std::string(pos, func_name_size)});
+      pos += func_name_size;
+    }
+  }
+
+  if (function_names.empty()) {
+    return message;
+  }
+
+  message += "wasm backtrace:\n";
+
+  for (size_t i = 0; i < trace.size(); ++i) {
+    auto frame = trace[i].get();
+    message += "  " + std::to_string(i) + ": ";
+
+    std::stringstream address;
+    address << std::hex << frame->module_offset();
+    message += " 0x" + address.str() + " - ";
+
+    auto func_index = frame->func_index();
+    auto it = function_names.find(func_index);
+    std::string function_name;
+    if (it != function_names.end()) {
+      function_name = it->second;
+    } else {
+      function_name = "unknown(function index:" + std::to_string(func_index) + ")";
+    }
+    message += function_name + "\n";
+  }
+  return message;
 }
 
 } // namespace
