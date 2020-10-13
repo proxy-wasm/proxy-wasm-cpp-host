@@ -666,8 +666,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
 
 std::string V8::get_fail_message(std::string function_name, wasm::own<wasm::Trap> trap) {
   auto message = "Function: " + function_name + " failed:\n";
-  message +=
-      "message from V8: " + std::string(trap->message().get(), trap->message().size()) + "\n";
+  message += "V8 message: " + std::string(trap->message().get(), trap->message().size()) + "\n";
 
   auto trace = trap->trace();
 
@@ -677,8 +676,6 @@ std::string V8::get_fail_message(std::string function_name, wasm::own<wasm::Trap
 
   const byte_t *pos = name_section.data();
   const byte_t *end = name_section.data() + name_section.size();
-
-  std::unordered_map<uint32_t, std::string> function_names{};
   // https://webassembly.github.io/spec/core/appendix/custom.html#binary-namesubsection
 
   if (*pos == 0) { // module name section
@@ -690,6 +687,7 @@ std::string V8::get_fail_message(std::string function_name, wasm::own<wasm::Trap
   }
 
   if (*pos == 1) { //  function name section
+    std::unordered_map<uint32_t, std::string> function_names{};
     pos++;
     parseVarint(pos, end); // skip subsection size
     const uint32_t namemap_vector_size = parseVarint(pos, end);
@@ -699,31 +697,26 @@ std::string V8::get_fail_message(std::string function_name, wasm::own<wasm::Trap
       function_names.insert({func_index, std::string(pos, func_name_size)});
       pos += func_name_size;
     }
-  }
 
-  if (function_names.empty()) {
-    return message;
-  }
+    message += "wasm backtrace:\n";
+    for (size_t i = 0; i < trace.size(); ++i) {
+      auto frame = trace[i].get();
+      message += "  " + std::to_string(i) + ": ";
 
-  message += "wasm backtrace:\n";
+      std::stringstream address;
+      address << std::hex << frame->module_offset();
+      message += " 0x" + address.str() + " - ";
 
-  for (size_t i = 0; i < trace.size(); ++i) {
-    auto frame = trace[i].get();
-    message += "  " + std::to_string(i) + ": ";
-
-    std::stringstream address;
-    address << std::hex << frame->module_offset();
-    message += " 0x" + address.str() + " - ";
-
-    auto func_index = frame->func_index();
-    auto it = function_names.find(func_index);
-    std::string function_name;
-    if (it != function_names.end()) {
-      function_name = it->second;
-    } else {
-      function_name = "unknown(function index:" + std::to_string(func_index) + ")";
+      auto func_index = frame->func_index();
+      auto it = function_names.find(func_index);
+      std::string function_name;
+      if (it != function_names.end()) {
+        function_name = it->second;
+      } else {
+        function_name = "unknown(function index:" + std::to_string(func_index) + ")";
+      }
+      message += function_name + "\n";
     }
-    message += function_name + "\n";
   }
   return message;
 }
