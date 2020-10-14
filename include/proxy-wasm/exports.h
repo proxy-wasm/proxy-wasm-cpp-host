@@ -144,7 +144,7 @@ Word wasi_unstable_environ_sizes_get(void *raw_context, Word count_ptr, Word buf
 Word wasi_unstable_args_get(void *raw_context, Word argc_ptr, Word argv_buf_size_ptr);
 Word wasi_unstable_args_sizes_get(void *raw_context, Word argc_ptr, Word argv_buf_size_ptr);
 void wasi_unstable_proc_exit(void *, Word);
-void wasi_unstable_proc_exit(void *, Word);
+Word wasi_unstable_clock_time_get(void *, Word, uint64_t, Word);
 Word pthread_equal(void *, Word left, Word right);
 
 // Support for embedders, not exported to Wasm.

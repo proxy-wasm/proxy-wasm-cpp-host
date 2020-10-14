@@ -17,8 +17,8 @@
 
 #include <functional>
 #include <memory>
-#include <string>
 #include <optional>
+#include <string>
 
 #include "include/proxy-wasm/word.h"
 
@@ -78,6 +78,7 @@ template <size_t N> using WasmCallbackWord = WasmFuncType<N, Word, void *, Word>
 using WasmCallback_WWl = Word (*)(void *, Word, int64_t);
 using WasmCallback_WWlWW = Word (*)(void *, Word, int64_t, Word, Word);
 using WasmCallback_WWm = Word (*)(void *, Word, uint64_t);
+using WasmCallback_WWmW = Word (*)(void *, Word, uint64_t, Word);
 using WasmCallback_dd = double (*)(void *, double);
 
 #define FOR_ALL_WASM_VM_IMPORTS(_f)                                                                \
@@ -94,7 +95,8 @@ using WasmCallback_dd = double (*)(void *, double);
                                           _f(proxy_wasm::WasmCallback_WWl)                         \
                                               _f(proxy_wasm::WasmCallback_WWlWW)                   \
                                                   _f(proxy_wasm::WasmCallback_WWm)                 \
-                                                      _f(proxy_wasm::WasmCallback_dd)
+                                                      _f(proxy_wasm::WasmCallback_WWmW)            \
+                                                          _f(proxy_wasm::WasmCallback_dd)
 
 enum class Cloneable {
   NotCloneable,      // VMs can not be cloned and should be created from scratch.

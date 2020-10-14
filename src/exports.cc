@@ -798,6 +798,22 @@ Word wasi_unstable_args_sizes_get(void *raw_context, Word argc_ptr, Word argv_bu
   return 0; // __WASI_ESUCCESS
 }
 
+// __wasi_errno_t __wasi_clock_time_get(uint32_t id, uint64_t precision, uint64_t* time);
+Word wasi_unstable_clock_time_get(void *raw_context, Word clock_id, uint64_t precision,
+                                  Word result_time_uint64_ptr) {
+
+  if (clock_id != 0 /* realtime */) {
+    return 58; // __WASI_ENOTSUP
+  }
+
+  auto context = WASM_CONTEXT(raw_context);
+  uint64_t result = context->getCurrentTimeNanoseconds();
+  if (!context->wasm()->setDatatype(result_time_uint64_ptr, result)) {
+    return 21; // __WASI_EFAULT
+  }
+  return 0; // __WASI_ESUCCESS
+}
+
 // void __wasi_proc_exit(__wasi_exitcode_t rval);
 void wasi_unstable_proc_exit(void *raw_context, Word) {
   auto context = WASM_CONTEXT(raw_context);
