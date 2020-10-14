@@ -131,6 +131,7 @@ void WasmBase::registerCallbacks() {
   _REGISTER_WASI(environ_sizes_get);
   _REGISTER_WASI(args_get);
   _REGISTER_WASI(args_sizes_get);
+  _REGISTER_WASI(clock_time_get);
   _REGISTER_WASI(proc_exit);
 #undef _REGISTER_WASI
 
