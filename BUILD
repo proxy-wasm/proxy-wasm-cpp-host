@@ -33,6 +33,7 @@ cc_library(
     copts = COPTS,
     deps = [
         ":include",
+        "@boringssl//:crypto",
         "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
     ],
