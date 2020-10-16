@@ -331,12 +331,21 @@ bool ContextBase::onStart(std::shared_ptr<PluginBase> plugin) {
 }
 
 bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
-  if (!in_vm_context_created_ && wasm_->on_context_create_) {
-    wasm_->on_context_create_(this, id_, 0);
-    in_vm_context_created_ = true;
+  if (isFailed()) {
+    return true;
   }
 
-  if (isFailed() || !wasm_->on_configure_) {
+  // on_context_create is yet to be executed for all the root contexts except the first one
+  if (!in_vm_context_created_ && wasm_->on_context_create_) {
+    DeferAfterCallActions actions(this);
+    wasm_->on_context_create_(this, id_, 0);
+  }
+
+  // NB: If no on_context_create function is registered the in-VM SDK is responsible for
+  // managing any required in-VM state.
+  in_vm_context_created_ = true;
+
+  if (!wasm_->on_configure_) {
     return true;
   }
 
