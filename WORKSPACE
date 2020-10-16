@@ -39,6 +39,13 @@ git_repository(
 )
 
 http_archive(
+    name = "boringssl",
+    sha256 = "bb55b0ed2f0cb548b5dce6a6b8307ce37f7f748eb9f1be6bfe2d266ff2b4d52b",
+    strip_prefix = "boringssl-2192bbc878822cf6ab5977d4257a1339453d9d39",
+    urls = ["https://github.com/google/boringssl/archive/2192bbc878822cf6ab5977d4257a1339453d9d39.tar.gz"],
+)
+
+http_archive(
     name = "com_google_googletest",
     sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
     strip_prefix = "googletest-release-1.10.0",

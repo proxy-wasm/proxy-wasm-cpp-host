@@ -15,6 +15,8 @@
 //
 #include "include/proxy-wasm/wasm.h"
 
+#include <openssl/rand.h>
+
 #define WASM_CONTEXT(_c)                                                                           \
   (ContextOrEffectiveContext(static_cast<ContextBase *>((void)_c, current_context_)))
 
@@ -809,6 +811,17 @@ Word wasi_unstable_clock_time_get(void *raw_context, Word clock_id, uint64_t pre
   auto context = WASM_CONTEXT(raw_context);
   uint64_t result = context->getCurrentTimeNanoseconds();
   if (!context->wasm()->setDatatype(result_time_uint64_ptr, result)) {
+    return 21; // __WASI_EFAULT
+  }
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_random_get(uint8_t *buf, size_t buf_len);
+Word wasi_unstable_random_get(void *raw_context, Word result_buf_ptr, Word buf_len) {
+  auto context = WASM_CONTEXT(raw_context);
+  std::vector<uint8_t> random(buf_len);
+  RAND_bytes(random.data(), random.size());
+  if (!context->wasmVm()->setMemory(result_buf_ptr, random.size(), random.data())) {
     return 21; // __WASI_EFAULT
   }
   return 0; // __WASI_ESUCCESS
