@@ -820,9 +820,7 @@ Word wasi_unstable_clock_time_get(void *raw_context, Word clock_id, uint64_t pre
 Word wasi_unstable_random_get(void *raw_context, Word result_buf_ptr, Word buf_len) {
   auto context = WASM_CONTEXT(raw_context);
   std::vector<uint8_t> random(buf_len);
-  if (!RAND_bytes(random.data(), random.size())) {
-    return 21; // __WASI_EFAULT
-  }
+  RAND_bytes(random.data(), random.size());
   if (!context->wasmVm()->setMemory(result_buf_ptr, random.size(), random.data())) {
     return 21; // __WASI_EFAULT
   }
