@@ -124,20 +124,6 @@ public:
 
   AbiVersion abiVersion() { return abi_version_; }
 
-  bool getEmscriptenVersion(uint32_t *emscripten_metadata_major_version,
-                            uint32_t *emscripten_metadata_minor_version,
-                            uint32_t *emscripten_abi_major_version,
-                            uint32_t *emscripten_abi_minor_version) {
-    if (!is_emscripten_) {
-      return false;
-    }
-    *emscripten_metadata_major_version = emscripten_metadata_major_version_;
-    *emscripten_metadata_minor_version = emscripten_metadata_minor_version_;
-    *emscripten_abi_major_version = emscripten_abi_major_version_;
-    *emscripten_abi_minor_version = emscripten_abi_minor_version_;
-    return true;
-  }
-
   void addAfterVmCallAction(std::function<void()> f) { after_vm_call_actions_.push_back(f); }
   void doAfterVmCallActions() {
     // NB: this may be deleted by a delayed function unless prevented.
@@ -242,13 +228,6 @@ protected:
 
   // ABI version.
   AbiVersion abi_version_ = AbiVersion::Unknown;
-
-  bool is_emscripten_ = false;
-  uint32_t emscripten_metadata_major_version_ = 0;
-  uint32_t emscripten_metadata_minor_version_ = 0;
-  uint32_t emscripten_abi_major_version_ = 0;
-  uint32_t emscripten_abi_minor_version_ = 0;
-  uint32_t emscripten_standalone_wasm_ = 0;
 
   // Plugin Stats/Metrics
   uint32_t next_counter_metric_id_ = static_cast<uint32_t>(MetricType::Counter);

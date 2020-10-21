@@ -44,22 +44,6 @@ std::unordered_map<std::string, WasmForeignFunction> *foreign_functions = nullpt
 
 const std::string INLINE_STRING = "<inline>";
 
-const uint8_t *decodeVarint(const uint8_t *pos, const uint8_t *end, uint32_t *out) {
-  uint32_t ret = 0;
-  int shift = 0;
-  while (pos < end && (*pos & 0x80)) {
-    ret |= (*pos & 0x7f) << shift;
-    shift += 7;
-    pos++;
-  }
-  if (pos < end) {
-    ret |= *pos << shift;
-    pos++;
-  }
-  *out = ret;
-  return pos;
-}
-
 std::string Sha256(std::string_view data) {
   std::vector<unsigned char> hash(picosha2::k_digest_size);
   picosha2::hash256(data.begin(), data.end(), hash.begin(), hash.end());
@@ -302,36 +286,6 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
     if (!ok) {
       return false;
     }
-    auto metadata = wasm_vm_->getCustomSection("emscripten_metadata");
-    if (!metadata.empty()) {
-      // See https://github.com/emscripten-core/emscripten/blob/incoming/tools/shared.py#L3059
-      is_emscripten_ = true;
-      auto start = reinterpret_cast<const uint8_t *>(metadata.data());
-      auto end = reinterpret_cast<const uint8_t *>(metadata.data() + metadata.size());
-      start = decodeVarint(start, end, &emscripten_metadata_major_version_);
-      start = decodeVarint(start, end, &emscripten_metadata_minor_version_);
-      start = decodeVarint(start, end, &emscripten_abi_major_version_);
-      start = decodeVarint(start, end, &emscripten_abi_minor_version_);
-      uint32_t temp;
-      if (emscripten_metadata_major_version_ > 0 || emscripten_metadata_minor_version_ > 1) {
-        // metadata 0.2 - added: wasm_backend.
-        start = decodeVarint(start, end, &temp);
-      }
-      start = decodeVarint(start, end, &temp);
-      start = decodeVarint(start, end, &temp);
-      if (emscripten_metadata_major_version_ > 0 || emscripten_metadata_minor_version_ > 0) {
-        // metadata 0.1 - added: global_base, dynamic_base, dynamictop_ptr and tempdouble_ptr.
-        start = decodeVarint(start, end, &temp);
-        start = decodeVarint(start, end, &temp);
-        start = decodeVarint(start, end, &temp);
-        decodeVarint(start, end, &temp);
-        if (emscripten_metadata_major_version_ > 0 || emscripten_metadata_minor_version_ > 2) {
-          // metadata 0.3 - added: standalone_wasm.
-          start = decodeVarint(start, end, &emscripten_standalone_wasm_);
-        }
-      }
-    }
-
     code_ = code;
     allow_precompiled_ = allow_precompiled;
   }
