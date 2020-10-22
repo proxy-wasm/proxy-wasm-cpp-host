@@ -172,7 +172,8 @@ protected:
   std::unique_ptr<ShutdownHandle> shutdown_handle_;
   std::unordered_set<ContextBase *> pending_done_; // Root contexts not done during shutdown.
 
-  WasmCallVoid<0> _start_; /* Emscripten v1.39.0+ */
+  WasmCallVoid<0> _initialize_; /* Emscripten v1.39.17+ */
+  WasmCallVoid<0> _start_;      /* Emscripten v1.39.0+ */
   WasmCallVoid<0> __wasm_call_ctors_;
 
   WasmCallWord<1> malloc_;

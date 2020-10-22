@@ -193,6 +193,7 @@ void WasmBase::registerCallbacks() {
 
 void WasmBase::getFunctions() {
 #define _GET(_fn) wasm_vm_->getFunction(#_fn, &_fn##_);
+  _GET(_initialize);
   _GET(_start);
   _GET(__wasm_call_ctors);
 
@@ -324,8 +325,9 @@ ContextBase *WasmBase::getOrCreateRootContext(const std::shared_ptr<PluginBase> 
 }
 
 void WasmBase::startVm(ContextBase *root_context) {
-  /* Call "_start" function, and fallback to "__wasm_call_ctors" if the former is not available. */
-  if (_start_) {
+  if (_initialize_) {
+    _initialize_(root_context);
+  } else if (_start_) {
     _start_(root_context);
   } else if (__wasm_call_ctors_) {
     __wasm_call_ctors_(root_context);
