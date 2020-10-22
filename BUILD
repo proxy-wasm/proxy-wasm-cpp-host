@@ -1,17 +1,8 @@
+load("//:variables.bzl", "COPTS", "LINKOPTS")
+
 licenses(["notice"])  # Apache 2
 
 package(default_visibility = ["//visibility:public"])
-
-COPTS = select({
-    "@bazel_tools//src/conditions:windows": [
-        "/std:c++17",
-        "-DWITHOUT_ZLIB",
-    ],
-    "//conditions:default": [
-        "-std=c++17",
-        "-DWITHOUT_ZLIB",
-    ],
-})
 
 cc_library(
     name = "include",
@@ -28,6 +19,7 @@ cc_library(
         exclude = [
             "src/**/wavm*",
             "src/**/v8*",
+            "src/**/wasmtime*",
         ],
     ) + glob(["src/**/*.h"]),
     copts = COPTS,
@@ -39,24 +31,23 @@ cc_library(
     ],
 )
 
-cc_test(
-    name = "wasm_vm_test",
-    srcs = ["wasm_vm_test.cc"],
+cc_library(
+    name = "lib_test",
+    srcs = glob(
+        ["src/**/*.cc"],
+        exclude = [
+            # TODO: test WAVM, v8 here
+            "src/**/wavm*",
+            "src/**/v8*",
+        ],
+    ) + glob(["src/**/*.h"]),
     copts = COPTS,
-    deps = [
-        ":lib",
-        "@com_google_googletest//:gtest",
-        "@com_google_googletest//:gtest_main",
-    ],
-)
-
-cc_test(
-    name = "context_test",
-    srcs = ["context_test.cc"],
-    copts = COPTS,
+    linkopts = LINKOPTS,
     deps = [
         ":include",
-        "@com_google_googletest//:gtest",
-        "@com_google_googletest//:gtest_main",
+        "@boringssl//:crypto",
+        "@com_google_protobuf//:protobuf_lite",
+        "@proxy_wasm_cpp_sdk//:api_lib",
+        "@wasmtime//:c_api",
     ],
 )
