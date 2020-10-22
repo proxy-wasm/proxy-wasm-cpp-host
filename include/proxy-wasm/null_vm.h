@@ -45,18 +45,26 @@ struct NullVm : public WasmVm {
   bool getWord(uint64_t pointer, Word *data) override;
   std::string_view getCustomSection(std::string_view name) override;
   std::string_view getPrecompiledSectionName() override;
+  std::unordered_set<std::string_view> module_functions_;
+  std::unordered_set<std::string_view> host_functions_;
 
 #define _FORWARD_GET_FUNCTION(_T)                                                                  \
   void getFunction(std::string_view function_name, _T *f) override {                               \
-    plugin_->getFunction(function_name, f);                                                        \
-  }
+    if (isFunctionExposed(function_name)) {                                                        \
+      plugin_->getFunction(function_name, f);                                                      \
+      module_functions_.insert(function_name);                                                     \
+    }                                                                                              \
+  };
   FOR_ALL_WASM_VM_EXPORTS(_FORWARD_GET_FUNCTION)
 #undef _FORWARD_GET_FUNCTION
 
-  // These are not needed for NullVm which invokes the handlers directly.
-#define _REGISTER_CALLBACK(_T)                                                                     \
-  void registerCallback(std::string_view, std::string_view, _T,                                    \
-                        typename ConvertFunctionTypeWordToUint32<_T>::type) override{};
+#define _REGISTER_CALLBACK(T)                                                                      \
+  void registerCallback(std::string_view module_name, std::string_view function_name, T,           \
+                        typename ConvertFunctionTypeWordToUint32<T>::type f) override {            \
+    if (isFunctionExposed(function_name)) {                                                        \
+      host_functions_.insert(function_name);                                                       \
+    }                                                                                              \
+  };
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 

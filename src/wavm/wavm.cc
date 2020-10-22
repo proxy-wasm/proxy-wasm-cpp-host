@@ -212,7 +212,9 @@ struct Wavm : public WasmVm {
 
 #define _GET_FUNCTION(_T)                                                                          \
   void getFunction(std::string_view function_name, _T *f) override {                               \
-    getFunctionWavm(this, function_name, f);                                                       \
+    if (isFunctionExposed(function_name)) {                                                        \
+      getFunctionWavm(this, function_name, f);                                                     \
+    }                                                                                              \
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_FUNCTION)
 #undef _GET_FUNCTION
@@ -220,7 +222,9 @@ struct Wavm : public WasmVm {
 #define _REGISTER_CALLBACK(_T)                                                                     \
   void registerCallback(std::string_view module_name, std::string_view function_name, _T,          \
                         typename ConvertFunctionTypeWordToUint32<_T>::type f) override {           \
-    registerCallbackWavm(this, module_name, function_name, f);                                     \
+    if (isFunctionExposed(function_name)) {                                                        \
+      registerCallbackWavm(this, module_name, function_name, f);                                   \
+    }                                                                                              \
   };
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK

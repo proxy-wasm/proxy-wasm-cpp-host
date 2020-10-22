@@ -71,14 +71,18 @@ public:
 #define _REGISTER_HOST_FUNCTION(T)                                                                 \
   void registerCallback(std::string_view module_name, std::string_view function_name, T,           \
                         typename ConvertFunctionTypeWordToUint32<T>::type f) override {            \
-    registerHostFunctionImpl(module_name, function_name, f);                                       \
+    if (isFunctionExposed(function_name)) {                                                        \
+      registerHostFunctionImpl(module_name, function_name, f);                                     \
+    }                                                                                              \
   };
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_HOST_FUNCTION)
 #undef _REGISTER_HOST_FUNCTION
 
 #define _GET_MODULE_FUNCTION(T)                                                                    \
   void getFunction(std::string_view function_name, T *f) override {                                \
-    getModuleFunctionImpl(function_name, f);                                                       \
+    if (isFunctionExposed(function_name)) {                                                        \
+      getModuleFunctionImpl(function_name, f);                                                     \
+    }                                                                                              \
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
 #undef _GET_MODULE_FUNCTION

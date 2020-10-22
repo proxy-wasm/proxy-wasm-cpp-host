@@ -19,6 +19,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_set>
 
 #include "include/proxy-wasm/word.h"
 
@@ -287,10 +288,19 @@ public:
   std::unique_ptr<WasmVmIntegration> &integration() { return integration_; }
   void error(std::string_view message) { integration()->error(message); }
 
+  bool isFunctionExposed(std::string_view function_name) {
+    return exposed_functions_.find(function_name) == exposed_functions_.end();
+  }
+
+  void exposeFunction(std::string_view function_name) {
+    exposed_functions_.insert(function_name);
+  }
+
 protected:
   std::unique_ptr<WasmVmIntegration> integration_;
   FailState failed_ = FailState::Ok;
   std::function<void(FailState)> fail_callback_;
+  std::unordered_set<std::string_view> exposed_functions_;
 };
 
 // Thread local state set during a call into a WASM VM so that calls coming out of the
