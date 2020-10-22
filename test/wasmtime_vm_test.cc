@@ -51,7 +51,9 @@ class WasmtimeTestVM : public testing::Test {
 public:
   std::unique_ptr<proxy_wasm::WasmVm> vm_;
 
-  WasmtimeTestVM() : vm_(proxy_wasm::createWasmtimeVm()) {}
+  WasmtimeTestVM() : vm_(proxy_wasm::createWasmtimeVm()) {
+    vm_->integration().reset(new DummyIntegration{});
+  }
 
   void initialize(std::string wat_str) {
     wasm_byte_vec_t wat;
@@ -65,8 +67,6 @@ public:
 
     wasm_byte_vec_delete(&wat);
     wasm_byte_vec_delete(&source);
-
-    vm_->integration().reset(new DummyIntegration{});
   }
   std::string source_;
 };

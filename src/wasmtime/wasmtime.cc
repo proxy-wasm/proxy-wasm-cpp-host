@@ -17,6 +17,7 @@
 #include "include/proxy-wasm/wasmtime.h"
 #include "include/proxy-wasm/wasm_vm.h"
 #include "src/wasmtime/pointers.h"
+
 #include <array>
 #include <cassert>
 #include <cstring>
@@ -28,7 +29,6 @@
 #include <vector>
 
 #include "wasmtime/include/wasm.h"
-#include "wasmtime/include/wasmtime.h"
 
 namespace proxy_wasm {
 namespace wasmtime {
@@ -157,6 +157,41 @@ static bool equalValTypes(const wasm_valtype_vec_t *left, const wasm_valtype_vec
   return true;
 }
 
+static const char *printValKind(wasm_valkind_t kind) {
+  switch (kind) {
+  case WASM_I32:
+    return "i32";
+  case WASM_I64:
+    return "i64";
+  case WASM_F32:
+    return "f32";
+  case WASM_F64:
+    return "f64";
+  case WASM_ANYREF:
+    return "anyref";
+  case WASM_FUNCREF:
+    return "funcref";
+  default:
+    return "unknown";
+  }
+}
+
+static std::string printValTypes(const wasm_valtype_vec_t *types) {
+  if (types->size == 0) {
+    return "void";
+  }
+
+  std::string s;
+  s.reserve(types->size * 8 /* max size + " " */ - 1);
+  for (size_t i = 0; i < types->size; i++) {
+    if (i) {
+      s.append(" ");
+    }
+    s.append(printValKind(wasm_valtype_kind(types->data[i])));
+  }
+  return s;
+}
+
 bool Wasmtime::link(std::string_view debug_name) {
   assert(module_ != nullptr);
 
@@ -173,8 +208,6 @@ bool Wasmtime::link(std::string_view debug_name) {
     std::string_view module_name(module_name_ptr->data, module_name_ptr->size);
     std::string_view name(name_ptr->data, name_ptr->size);
     assert(name_ptr->size > 0);
-    std::cout << "imports: " << module_name << "." << name << "\n";
-
     switch (wasm_externtype_kind(extern_type)) {
     case WASM_EXTERN_FUNC: {
       auto it = host_functions_.find(std::string(module_name) + "." + std::string(name));
@@ -191,9 +224,14 @@ bool Wasmtime::link(std::string_view debug_name) {
       if (!equalValTypes(wasm_functype_params(exp_type), wasm_functype_params(actual_type.get())) ||
           !equalValTypes(wasm_functype_results(exp_type),
                          wasm_functype_results(actual_type.get()))) {
-        // TODO: add mismatch detail
-        fail(FailState::UnableToInitializeCode,
-             "Failed to load Wasm module due to an import type mismatch");
+        fail(
+            FailState::UnableToInitializeCode,
+            std::string("Failed to load Wasm module due to an import type mismatch for function ") +
+                std::string(module_name) + "." + std::string(name) +
+                ", want: " + printValTypes(wasm_functype_params(exp_type)) + " -> " +
+                printValTypes(wasm_functype_results(exp_type)) +
+                ", but host exports: " + printValTypes(wasm_functype_params(actual_type.get())) +
+                " -> " + printValTypes(wasm_functype_results(actual_type.get())));
         break;
       }
       auto a = wasm_func_as_extern(it->second->callback_.get());
@@ -523,20 +561,24 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
 
-  wasm_valtype_vec_t args, returns;
-  convertArgsTupleToValTypes<std::tuple<Args...>>(&args);
-  convertArgsTupleToValTypes<std::tuple<>>(&returns);
+  wasm_valtype_vec_t exp_args, exp_returns;
+  convertArgsTupleToValTypes<std::tuple<Args...>>(&exp_args);
+  convertArgsTupleToValTypes<std::tuple<>>(&exp_returns);
   wasm_func_t *func = it->second.get();
-  WasmFunctypePtr func_type{wasm_func_type(func)};
-  if (!equalValTypes(wasm_functype_params(func_type.get()), &args) ||
-      !equalValTypes(wasm_functype_results(func_type.get()), &returns)) {
+  WasmFunctypePtr func_type = wasm_func_type(func);
+
+  if (!equalValTypes(wasm_functype_params(func_type.get()), &exp_args) ||
+      !equalValTypes(wasm_functype_results(func_type.get()), &exp_returns)) {
     fail(FailState::UnableToInitializeCode,
-         "Bad function signature for: " + std::string(function_name));
+         "Bad function signature for: " + std::string(function_name) +
+             ", want: " + printValTypes(&exp_args) + " -> " + printValTypes(&exp_returns) +
+             ", but the module exports: " + printValTypes(wasm_functype_params(func_type.get())) +
+             " -> " + printValTypes(wasm_functype_results(func_type.get())));
     return;
   }
 
-  wasm_valtype_vec_delete(&args);
-  wasm_valtype_vec_delete(&returns);
+  wasm_valtype_vec_delete(&exp_args);
+  wasm_valtype_vec_delete(&exp_returns);
 
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
     wasm_val_t params[] = {makeVal(args)...};
@@ -547,7 +589,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
       fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed");
     }
   };
-};
+}; // namespace wasmtime
 
 template <typename R, typename... Args>
 void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
@@ -557,20 +599,23 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     *function = nullptr;
     return;
   }
-  wasm_valtype_vec_t args, returns;
-  convertArgsTupleToValTypes<std::tuple<Args...>>(&args);
-  convertArgsTupleToValTypes<std::tuple<R>>(&returns);
+  wasm_valtype_vec_t exp_args, exp_returns;
+  convertArgsTupleToValTypes<std::tuple<Args...>>(&exp_args);
+  convertArgsTupleToValTypes<std::tuple<R>>(&exp_returns);
   wasm_func_t *func = it->second.get();
   WasmFunctypePtr func_type{wasm_func_type(func)};
-  if (!equalValTypes(wasm_functype_params(func_type.get()), &args) ||
-      !equalValTypes(wasm_functype_results(func_type.get()), &returns)) {
+  if (!equalValTypes(wasm_functype_params(func_type.get()), &exp_args) ||
+      !equalValTypes(wasm_functype_results(func_type.get()), &exp_returns)) {
     fail(FailState::UnableToInitializeCode,
-         "Bad function signature for: " + std::string(function_name));
+         "Bad function signature for: " + std::string(function_name) +
+             ", want: " + printValTypes(&exp_args) + " -> " + printValTypes(&exp_returns) +
+             ", but the module exports: " + printValTypes(wasm_functype_params(func_type.get())) +
+             " -> " + printValTypes(wasm_functype_results(func_type.get())));
     return;
   }
 
-  wasm_valtype_vec_delete(&args);
-  wasm_valtype_vec_delete(&returns);
+  wasm_valtype_vec_delete(&exp_args);
+  wasm_valtype_vec_delete(&exp_returns);
 
   *function = [func, function_name, this](ContextBase *context, Args... args) -> R {
     wasm_val_t params[] = {makeVal(args)...};
