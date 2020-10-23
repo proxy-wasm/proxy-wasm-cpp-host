@@ -27,5 +27,14 @@ public:
   CSmartPtr(T *object) : std::unique_ptr<T, void (*)(T *)>(object, deleter) {}
 };
 
+template <typename T, void (*deleter)(T *)> class DeleterType {
+public:
+  ~DeleterType() { deleter(&item); }
+  T *get() { return &item; }
+
+private:
+  T item;
+};
+
 } // namespace common
 } // namespace proxy_wasm

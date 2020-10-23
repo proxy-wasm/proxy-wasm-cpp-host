@@ -2,7 +2,7 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 load("//:variables.bzl", "COPTS", "LINKOPTS")
 
 cc_test(
-    name = "leak",
+    name = "envoy",
     srcs = ["leak.cc"],
     copts = COPTS,
     linkopts = LINKOPTS,
