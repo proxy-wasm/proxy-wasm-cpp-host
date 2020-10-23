@@ -24,13 +24,18 @@ COPTS = select({
     ],
 })
 
+# https://bytecodealliance.github.io/wasmtime/c-api/
 LINKOPTS = select({
     "@bazel_tools//src/conditions:windows": [
-        # TODO: https://bytecodealliance.github.io/wasmtime/c-api/
+        "-",
+        "ws2_32.lib",
+        "advapi32.lib",
+        "userenv.lib",
+        "ntdll.lib",
+        "shell32.lib",
+        "ole32.lib",
     ],
-    "@bazel_tools//src/conditions:darwin": [
-        # no extra flags needed
-    ],
+    "@bazel_tools//src/conditions:darwin": [],
     "//conditions:default": [
         # required for linux
         "-lpthread",
