@@ -19,8 +19,7 @@ namespace wat_data {
 
 std::string AbiVersion = R"(
 (module
-  (memory 0 0)
-  (func (export "proxy_abi_version_0_2_0") (result i32) (memory.size))
+  (func (export "proxy_abi_version_0_2_0") (result i32) (i32.const 1))
 ))";
 
 std::string Memory = R"(
@@ -63,5 +62,4 @@ std::string Trap = R"(
   (func $one (call $two))
 )
 )";
-
 } // namespace wat_data

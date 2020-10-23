@@ -2,6 +2,19 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
 load("//:variables.bzl", "COPTS", "LINKOPTS")
 
 cc_test(
+    name = "leak",
+    srcs = ["leak.cc"],
+    copts = COPTS,
+    linkopts = LINKOPTS,
+    deps = [
+        "//:lib",
+        "//test:watdata",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "null_vm_test",
     srcs = ["null_vm_test.cc"],
     copts = COPTS,

@@ -31,7 +31,6 @@ using WasmTablePtr = common::CSmartPtr<wasm_table_t, wasm_table_delete>;
 using WasmInstancePtr = common::CSmartPtr<wasm_instance_t, wasm_instance_delete>;
 using WasmFunctypePtr = common::CSmartPtr<wasm_functype_t, wasm_functype_delete>;
 using WasmTrapPtr = common::CSmartPtr<wasm_trap_t, wasm_trap_delete>;
-
 } // namespace wasmtime
 
 } // namespace proxy_wasm

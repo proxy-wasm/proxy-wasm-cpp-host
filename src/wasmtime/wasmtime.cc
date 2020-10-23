@@ -218,6 +218,7 @@ bool Wasmtime::link(std::string_view debug_name) {
         break;
       }
 
+      auto func = it->second->callback_.get();
       const wasm_functype_t *exp_type =
           wasm_externtype_as_functype_const(extern_type); // this is owned by `import_types`
       const WasmFunctypePtr actual_type = wasm_func_type(it->second->callback_.get());
@@ -234,8 +235,7 @@ bool Wasmtime::link(std::string_view debug_name) {
                 " -> " + printValTypes(wasm_functype_results(actual_type.get())));
         break;
       }
-      auto a = wasm_func_as_extern(it->second->callback_.get());
-      imports.push_back(a);
+      imports.push_back(wasm_func_as_extern(func));
     } break;
     case WASM_EXTERN_GLOBAL: {
       // TODO(mathetake): add support when/if needed.
@@ -247,7 +247,7 @@ bool Wasmtime::link(std::string_view debug_name) {
       assert(memory_ == nullptr);
       const wasm_memorytype_t *memory_type =
           wasm_externtype_as_memorytype_const(extern_type); // owned by `extern_type`
-      memory_ = WasmMemoryPtr{wasm_memory_new(store_.get(), memory_type)};
+      memory_ = wasm_memory_new(store_.get(), memory_type);
       imports.push_back(wasm_memory_as_extern(memory_.get()));
     } break;
     case WASM_EXTERN_TABLE: {
@@ -282,7 +282,7 @@ bool Wasmtime::link(std::string_view debug_name) {
     assert(kind == wasm_externtype_kind(exp_extern_type));
     switch (kind) {
     case WASM_EXTERN_FUNC: {
-      wasm_func_t *func = wasm_extern_as_func(actual_extern);
+      wasm_func_t *func = wasm_func_copy(wasm_extern_as_func(actual_extern));
       const wasm_name_t *name_ptr = wasm_exporttype_name(export_types.data[i]);
       module_functions_.insert_or_assign(std::string(name_ptr->data, name_ptr->size), func);
     } break;
@@ -291,7 +291,7 @@ bool Wasmtime::link(std::string_view debug_name) {
     } break;
     case WASM_EXTERN_MEMORY: {
       assert(memory_ == nullptr);
-      memory_ = wasm_extern_as_memory(actual_extern);
+      memory_ = wasm_memory_copy(wasm_extern_as_memory(actual_extern));
       assert(memory_ != nullptr);
     } break;
     case WASM_EXTERN_TABLE: {
@@ -302,12 +302,7 @@ bool Wasmtime::link(std::string_view debug_name) {
 
   wasm_importtype_vec_delete(&import_types);
   wasm_exporttype_vec_delete(&export_types);
-  // TODO(mathetake): there seems like a bug or a flaw in wasm-c-api documentation/implementation:
-  // `wasm_extern_as_func` and `wasm_extern_as_memory` above take ownership of these arguments
-  // which are originally from `exports`, and therefore delete &exports here would cause double
-  // free() when instance exits. We need further investigation, or at least should consult wasmtime
-  // folks.
-  // wasm_extern_vec_delete(&exports);
+  wasm_extern_vec_delete(&exports);
   return true;
 }
 
@@ -476,6 +471,9 @@ void convertArgsTupleToValTypesImpl(wasm_valtype_vec_t *types, std::index_sequen
   auto ps = std::array<wasm_valtype_t *, std::tuple_size<T>::value>{
       convertArgToValTypePtr<typename std::tuple_element<I, T>::type>()...};
   wasm_valtype_vec_new(types, size, ps.data());
+  for (auto i = ps.begin(); i < ps.end(); i++) {
+    wasm_valtype_delete(*i);
+  }
 }
 
 template <typename T, typename Is = std::make_index_sequence<std::tuple_size<T>::value>>
@@ -509,7 +507,7 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
 
   WasmFunctypePtr type = newWasmNewFuncType<std::tuple<Args...>>();
   wasm_func_t *func = wasm_func_new_with_env(
-      store_.get(), type.release(),
+      store_.get(), type.get(),
       [](void *data, const wasm_val_t params[], wasm_val_t results[]) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<FuncData *>(data);
         auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
@@ -532,10 +530,8 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
   auto data =
       std::make_unique<FuncData>(std::string(module_name) + "." + std::string(function_name));
   WasmFunctypePtr type = newWasmNewFuncType<R, std::tuple<Args...>>();
-
-  // wasm_func_new_with_env takes the ownership of `type`
   wasm_func_t *func = wasm_func_new_with_env(
-      store_.get(), type.release(),
+      store_.get(), type.get(),
       [](void *data, const wasm_val_t params[], wasm_val_t results[]) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<FuncData *>(data);
         auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
