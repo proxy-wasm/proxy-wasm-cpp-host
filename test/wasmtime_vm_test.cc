@@ -40,13 +40,13 @@ struct DummyIntegration : public WasmVmIntegration {
   WasmVmIntegration *clone() override { return new DummyIntegration{}; }
   void error(std::string_view message) override {
     std::cout << "ERROR from integration: " << message << std::endl;
-    error_messages_ += message;
+    error_message_ = message;
   }
   bool getNullVmFunction(std::string_view function_name, bool returns_word, int number_of_arguments,
                          NullPlugin *plugin, void *ptr_to_function_return) override {
     return false;
   };
-  std::string error_messages_;
+  std::string error_message_;
 };
 
 class WasmtimeTestVM : public testing::Test {
@@ -54,8 +54,11 @@ public:
   std::unique_ptr<proxy_wasm::WasmVm> vm_;
 
   WasmtimeTestVM() : vm_(proxy_wasm::createWasmtimeVm()) {
-    vm_->integration().reset(new DummyIntegration{});
+    integration_ = new DummyIntegration{};
+    vm_->integration().reset(integration_);
   }
+
+  DummyIntegration *integration_;
 
   void initialize(std::string wat_str) {
     wasm_byte_vec_t wat;
@@ -94,40 +97,39 @@ TEST_F(WasmtimeTestVM, CustomSection) {
   ASSERT_EQ(name_section, "hello");
 }
 
-// TEST_F(WasmtimeTestVM, Memory) {
-//   initialize(wat_data::Memory);
-//   ASSERT_TRUE(vm_->load(source_, false));
-//   ASSERT_TRUE(vm_->link(""));
-//   ASSERT_EQ(vm_->getAbiVersion(), AbiVersion::Unknown);
+TEST_F(WasmtimeTestVM, Memory) {
+  initialize(wat_data::Memory);
+  ASSERT_TRUE(vm_->load(source_, false));
+  ASSERT_TRUE(vm_->link(""));
+  ASSERT_EQ(vm_->getAbiVersion(), AbiVersion::Unknown);
 
-//   ASSERT_EQ(vm_->getMemorySize(), 0x20000);
+  ASSERT_EQ(vm_->getMemorySize(), 0x20000);
 
-//   Word word;
-//   ASSERT_TRUE(vm_->getWord(0, &word));
-//   ASSERT_EQ(0, word);
-//   ASSERT_TRUE(vm_->getWord(0x1000, &word));
-//   ASSERT_EQ(1, word.u64_);
-//   ASSERT_TRUE(vm_->getWord(0x100c, &word));
-//   ASSERT_EQ(4, word.u64_);
+  Word word;
+  ASSERT_TRUE(vm_->getWord(0, &word));
+  ASSERT_EQ(0, word);
+  ASSERT_TRUE(vm_->getWord(0x1000, &word));
+  ASSERT_EQ(1, word.u64_);
+  ASSERT_TRUE(vm_->getWord(0x100c, &word));
+  ASSERT_EQ(4, word.u64_);
 
-//   ASSERT_TRUE(vm_->setWord(0x2000, Word(100)));
-//   ASSERT_TRUE(vm_->getWord(0x2000, &word));
-//   ASSERT_EQ(100, word.u64_);
+  ASSERT_TRUE(vm_->setWord(0x2000, Word(100)));
+  ASSERT_TRUE(vm_->getWord(0x2000, &word));
+  ASSERT_EQ(100, word.u64_);
 
-//   int32_t data[2] = {-1, 200};
-//   ASSERT_TRUE(vm_->setMemory(0x200, sizeof(int32_t) * 2, static_cast<void *>(data)));
-//   ASSERT_TRUE(vm_->getWord(0x200, &word));
-//   ASSERT_EQ(-1, static_cast<int32_t>(word.u64_));
-//   ASSERT_TRUE(vm_->getWord(0x204, &word));
-//   ASSERT_EQ(200, static_cast<int32_t>(word.u64_));
-// }
+  int32_t data[2] = {-1, 200};
+  ASSERT_TRUE(vm_->setMemory(0x200, sizeof(int32_t) * 2, static_cast<void *>(data)));
+  ASSERT_TRUE(vm_->getWord(0x200, &word));
+  ASSERT_EQ(-1, static_cast<int32_t>(word.u64_));
+  ASSERT_TRUE(vm_->getWord(0x204, &word));
+  ASSERT_EQ(200, static_cast<int32_t>(word.u64_));
+}
 
 TEST_F(WasmtimeTestVM, Clone) {
   initialize(wat_data::Memory);
   ASSERT_TRUE(vm_->load(source_, false));
   ASSERT_TRUE(vm_->link(""));
   const auto address = 0x2000;
-
   Word word;
   {
     auto clone = vm_->clone();
@@ -187,6 +189,41 @@ TEST_F(WasmtimeTestVM, Callback) {
   vm_->getFunction("run2", &run2);
   Word res = run2(current_context_, Word{0});
   ASSERT_EQ(res.u32(), 100100); // 10000 (global) + 100(in callback)
+}
+
+TEST_F(WasmtimeTestVM, Trap) {
+  initialize(wat_data::Trap);
+  ASSERT_TRUE(vm_->load(source_, false));
+  ASSERT_TRUE(vm_->link(""));
+  WasmCallVoid<0> trigger;
+  vm_->getFunction("trigger", &trigger);
+  EXPECT_TRUE(trigger != nullptr);
+  trigger(current_context_);
+  std::string exp_message = R"(Function: trigger failed:
+wasm trap: unreachable
+wasm backtrace:
+  0:   0x46 - <unknown>!three
+  1:   0x4a - <unknown>!two
+  2:   0x4f - <unknown>!one
+  3:   0x38 - <unknown>!trigger
+)";
+  ASSERT_EQ(
+      std::string(integration_->error_message_.begin(), integration_->error_message_.end() - 1),
+      exp_message);
+
+  WasmCallWord<1> trigger2;
+  vm_->getFunction("trigger2", &trigger2);
+  EXPECT_TRUE(trigger2 != nullptr);
+  trigger2(current_context_, 0);
+  exp_message = R"(Function: trigger2 failed:
+wasm trap: unreachable
+wasm backtrace:
+  0:   0x46 - <unknown>!three
+  1:   0x41 - <unknown>!trigger2
+)";
+  ASSERT_EQ(
+      std::string(integration_->error_message_.begin(), integration_->error_message_.end() - 1),
+      exp_message);
 }
 
 } // namespace

@@ -303,7 +303,7 @@ bool Wasmtime::link(std::string_view debug_name) {
   wasm_importtype_vec_delete(&import_types);
   wasm_exporttype_vec_delete(&export_types);
   // TODO(mathetake): there seems like a bug or a flaw in wasm-c-api documentation/implementation:
-  // `wasm_exporttype_name` and `wasm_extern_as_memory` above take ownership of these arguments
+  // `wasm_extern_as_func` and `wasm_extern_as_memory` above take ownership of these arguments
   // which are originally from `exports`, and therefore delete &exports here would cause double
   // free() when instance exits. We need further investigation, or at least should consult wasmtime
   // folks.
@@ -558,7 +558,6 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
                                      std::function<void(ContextBase *, Args...)> *function) {
 
   auto it = module_functions_.find(std::string(function_name));
-
   if (it == module_functions_.end()) {
     *function = nullptr;
     return;
@@ -588,8 +587,11 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     WasmTrapPtr trap{wasm_func_call(func, params, nullptr)};
     if (trap) {
-      // TODO: enhance message
-      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed");
+      wasm_byte_vec_t error_message;
+      wasm_trap_message(trap.get(), &error_message);
+      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed:\n" +
+                                        std::string(error_message.data, error_message.size));
+      wasm_byte_vec_delete(&error_message);
     }
   };
 }; // namespace wasmtime
@@ -626,8 +628,12 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     WasmTrapPtr trap{wasm_func_call(func, params, results)};
     if (trap) {
-      // TODO: enhance message
-      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed");
+      wasm_byte_vec_t error_message;
+      wasm_trap_message(trap.get(), &error_message);
+      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed:\n" +
+                                        std::string(error_message.data, error_message.size));
+      wasm_byte_vec_delete(&error_message);
+      return R{};
     }
     R ret = convertValueTypeToArg<R>(results[0]);
     return ret;

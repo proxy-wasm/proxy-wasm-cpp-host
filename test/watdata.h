@@ -54,4 +54,14 @@ std::string Callback = R"(
   (export "run2" (func 3)))
 )";
 
+std::string Trap = R"(
+(module
+  (func $trigger (export "trigger") (call $one))
+  (func $trigger2 (export "trigger2") (param i32) (result i32) (call $three (i32.const 100000)))
+  (func $three (unreachable))
+  (func $two (call $three))
+  (func $one (call $two))
+)
+)";
+
 } // namespace wat_data
