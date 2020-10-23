@@ -19,26 +19,6 @@ cc_library(
         exclude = [
             "src/**/wavm*",
             "src/**/v8*",
-            "src/**/wasmtime*",
-        ],
-    ) + glob(["src/**/*.h"]),
-    copts = COPTS,
-    deps = [
-        ":include",
-        "@boringssl//:crypto",
-        "@com_google_protobuf//:protobuf_lite",
-        "@proxy_wasm_cpp_sdk//:api_lib",
-    ],
-)
-
-cc_library(
-    name = "lib_test",
-    srcs = glob(
-        ["src/**/*.cc"],
-        exclude = [
-            # TODO: test WAVM, v8 here
-            "src/**/wavm*",
-            "src/**/v8*",
         ],
     ) + glob(["src/**/*.h"]),
     copts = COPTS,

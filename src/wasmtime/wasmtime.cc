@@ -53,11 +53,11 @@ public:
   Wasmtime(){};
   std::string_view runtime() override { return "wasmtime"; }
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
-  std::string_view getPrecompiledSectionName() { return ""; }
+  std::string_view getPrecompiledSectionName() override { return ""; }
 
   bool load(const std::string &code, bool allow_precompiled = false) override;
   AbiVersion getAbiVersion() override;
-  std::string_view getCustomSection(std::string_view name);
+  std::string_view getCustomSection(std::string_view name) override;
   bool link(std::string_view debug_name) override;
   std::unique_ptr<WasmVm> clone() override;
   uint64_t getMemorySize() override;

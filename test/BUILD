@@ -7,7 +7,7 @@ cc_test(
     copts = COPTS,
     linkopts = LINKOPTS,
     deps = [
-        "//:lib_test",
+        "//:lib",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],
@@ -19,7 +19,7 @@ cc_test(
     copts = COPTS,
     linkopts = LINKOPTS,
     deps = [
-        "//:lib_test",
+        "//:lib",
         "//test:watdata",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",

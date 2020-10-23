@@ -53,7 +53,7 @@ http_archive(
 )
 
 http_archive(
-    # TODO: use non-prebuild library, or download separate archives for each architecture
+    # TODO(@mathetake): use non-prebuild library, or download separate archives for each architecture
     name = "wasmtime",
     build_file = "//bazel/external:wasmtime.BUILD",
     sha256 = "fdbd6dbb58d15b3566abcc2c62ab18c348027e1620bc2ba0219017999504000e",
