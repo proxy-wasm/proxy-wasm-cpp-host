@@ -384,12 +384,15 @@ bool Wasmtime::setMemory(uint64_t pointer, uint64_t size, const void *data) {
 }
 
 bool Wasmtime::getWord(uint64_t pointer, Word *word) {
+  assert(memory_ != nullptr);
   constexpr auto size = sizeof(uint32_t);
   if (pointer + size > MEMORY_SIZE(memory_)) {
     return false;
   }
+
   uint32_t word32;
   ::memcpy(&word32, MEMORY_DATA(memory_) + pointer, size);
+
   word->u64_ = word32;
   return true;
 }

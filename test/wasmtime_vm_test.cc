@@ -40,11 +40,13 @@ struct DummyIntegration : public WasmVmIntegration {
   WasmVmIntegration *clone() override { return new DummyIntegration{}; }
   void error(std::string_view message) override {
     std::cout << "ERROR from integration: " << message << std::endl;
+    error_messages_ += message;
   }
   bool getNullVmFunction(std::string_view function_name, bool returns_word, int number_of_arguments,
                          NullPlugin *plugin, void *ptr_to_function_return) override {
     return false;
   };
+  std::string error_messages_;
 };
 
 class WasmtimeTestVM : public testing::Test {
@@ -71,17 +73,6 @@ public:
   std::string source_;
 };
 
-TEST_F(WasmtimeTestVM, Clone) {
-  initialize(wat_data::AbiVersion);
-  ASSERT_TRUE(vm_->load(source_, false));
-  {
-    auto clone = vm_->clone();
-    ASSERT_TRUE(clone != nullptr);
-    ASSERT_NE(vm_, clone);
-    ASSERT_EQ(clone->getAbiVersion(), AbiVersion::ProxyWasm_0_2_0);
-  }
-}
-
 TEST_F(WasmtimeTestVM, ABIVersion) {
   initialize(wat_data::AbiVersion);
   ASSERT_TRUE(vm_->load(source_, false));
@@ -103,32 +94,55 @@ TEST_F(WasmtimeTestVM, CustomSection) {
   ASSERT_EQ(name_section, "hello");
 }
 
-TEST_F(WasmtimeTestVM, Memory) {
+// TEST_F(WasmtimeTestVM, Memory) {
+//   initialize(wat_data::Memory);
+//   ASSERT_TRUE(vm_->load(source_, false));
+//   ASSERT_TRUE(vm_->link(""));
+//   ASSERT_EQ(vm_->getAbiVersion(), AbiVersion::Unknown);
+
+//   ASSERT_EQ(vm_->getMemorySize(), 0x20000);
+
+//   Word word;
+//   ASSERT_TRUE(vm_->getWord(0, &word));
+//   ASSERT_EQ(0, word);
+//   ASSERT_TRUE(vm_->getWord(0x1000, &word));
+//   ASSERT_EQ(1, word.u64_);
+//   ASSERT_TRUE(vm_->getWord(0x100c, &word));
+//   ASSERT_EQ(4, word.u64_);
+
+//   ASSERT_TRUE(vm_->setWord(0x2000, Word(100)));
+//   ASSERT_TRUE(vm_->getWord(0x2000, &word));
+//   ASSERT_EQ(100, word.u64_);
+
+//   int32_t data[2] = {-1, 200};
+//   ASSERT_TRUE(vm_->setMemory(0x200, sizeof(int32_t) * 2, static_cast<void *>(data)));
+//   ASSERT_TRUE(vm_->getWord(0x200, &word));
+//   ASSERT_EQ(-1, static_cast<int32_t>(word.u64_));
+//   ASSERT_TRUE(vm_->getWord(0x204, &word));
+//   ASSERT_EQ(200, static_cast<int32_t>(word.u64_));
+// }
+
+TEST_F(WasmtimeTestVM, Clone) {
   initialize(wat_data::Memory);
   ASSERT_TRUE(vm_->load(source_, false));
   ASSERT_TRUE(vm_->link(""));
-  ASSERT_EQ(vm_->getAbiVersion(), AbiVersion::Unknown);
-
-  ASSERT_EQ(vm_->getMemorySize(), 0x20000);
+  const auto address = 0x2000;
 
   Word word;
-  ASSERT_TRUE(vm_->getWord(0, &word));
-  ASSERT_EQ(0, word);
-  ASSERT_TRUE(vm_->getWord(0x1000, &word));
-  ASSERT_EQ(1, word.u64_);
-  ASSERT_TRUE(vm_->getWord(0x100c, &word));
-  ASSERT_EQ(4, word.u64_);
+  {
+    auto clone = vm_->clone();
+    ASSERT_TRUE(clone != nullptr);
+    ASSERT_NE(vm_, clone);
+    ASSERT_TRUE(clone->link(""));
 
-  ASSERT_TRUE(vm_->setWord(0x2000, Word(100)));
-  ASSERT_TRUE(vm_->getWord(0x2000, &word));
-  ASSERT_EQ(100, word.u64_);
+    ASSERT_TRUE(clone->setWord(address, Word(100)));
+    ASSERT_TRUE(clone->getWord(address, &word));
+    ASSERT_EQ(100, word.u64_);
+  }
 
-  int32_t data[2] = {-1, 200};
-  ASSERT_TRUE(vm_->setMemory(0x200, sizeof(int32_t) * 2, static_cast<void *>(data)));
-  ASSERT_TRUE(vm_->getWord(0x200, &word));
-  ASSERT_EQ(-1, static_cast<int32_t>(word.u64_));
-  ASSERT_TRUE(vm_->getWord(0x204, &word));
-  ASSERT_EQ(200, static_cast<int32_t>(word.u64_));
+  // check memory arrays are not overrapped
+  ASSERT_TRUE(vm_->getWord(address, &word));
+  ASSERT_NE(100, word.u64_);
 }
 
 class TestContext : public ContextBase {
