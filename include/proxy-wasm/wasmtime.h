@@ -21,4 +21,6 @@ namespace proxy_wasm {
 
 std::unique_ptr<WasmVm> createWasmtimeVm();
 
+void delete_engine();
+
 } // namespace proxy_wasm

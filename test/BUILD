@@ -3,7 +3,7 @@ load("//:variables.bzl", "COPTS", "LINKOPTS")
 
 cc_test(
     name = "envoy",
-    srcs = ["leak.cc"],
+    srcs = ["leak2.cc"],
     copts = COPTS,
     linkopts = LINKOPTS,
     deps = [

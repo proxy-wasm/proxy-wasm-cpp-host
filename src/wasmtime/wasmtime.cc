@@ -50,7 +50,8 @@ wasm_engine_t *engine() {
 
 class Wasmtime : public WasmVm {
 public:
-  Wasmtime(){};
+  Wasmtime() {}
+
   std::string_view runtime() override { return "wasmtime"; }
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::string_view getPrecompiledSectionName() override { return ""; }
@@ -498,6 +499,7 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
       std::make_unique<FuncData>(std::string(module_name) + "." + std::string(function_name));
 
   WasmFunctypePtr type = newWasmNewFuncType<std::tuple<Args...>>();
+
   WasmFuncPtr func = wasm_func_new_with_env(
       store_.get(), type.get(),
       [](void *data, const wasm_val_t params[], wasm_val_t results[]) -> wasm_trap_t * {
@@ -509,6 +511,7 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
         return nullptr;
       },
       data.get(), nullptr);
+
   data->callback_ = std::move(func);
   data->raw_func_ = reinterpret_cast<void *>(function);
   host_functions_.insert_or_assign(std::string(module_name) + "." + std::string(function_name),
@@ -593,7 +596,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   convertArgsTupleToValTypes<std::tuple<Args...>>(exp_args.get());
   convertArgsTupleToValTypes<std::tuple<R>>(exp_returns.get());
   wasm_func_t *func = it->second.get();
-  WasmFunctypePtr func_type{wasm_func_type(func)};
+  WasmFunctypePtr func_type = wasm_func_type(func);
   if (!equalValTypes(wasm_functype_params(func_type.get()), exp_args.get()) ||
       !equalValTypes(wasm_functype_results(func_type.get()), exp_returns.get())) {
     fail(FailState::UnableToInitializeCode,
@@ -646,6 +649,8 @@ AbiVersion Wasmtime::getAbiVersion() {
 }
 
 } // namespace wasmtime
+
+void delete_engine() { wasm_engine_delete(wasmtime::engine()); }
 
 std::unique_ptr<WasmVm> createWasmtimeVm() { return std::make_unique<wasmtime::Wasmtime>(); }
 
