@@ -650,8 +650,6 @@ AbiVersion Wasmtime::getAbiVersion() {
 
 } // namespace wasmtime
 
-void delete_engine() { wasm_engine_delete(wasmtime::engine()); }
-
 std::unique_ptr<WasmVm> createWasmtimeVm() { return std::make_unique<wasmtime::Wasmtime>(); }
 
 } // namespace proxy_wasm
