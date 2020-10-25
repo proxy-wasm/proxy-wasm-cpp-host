@@ -351,54 +351,47 @@ std::string_view Wasmtime::getCustomSection(std::string_view name) {
   return "";
 }
 
-#define MEMORY_SIZE(memory) wasm_memory_data_size(memory.get())
-#define MEMORY_DATA(memory) wasm_memory_data(memory.get())
-
-uint64_t Wasmtime::getMemorySize() { return MEMORY_SIZE(memory_); }
+uint64_t Wasmtime::getMemorySize() { return wasm_memory_data_size(memory_.get()); }
 
 std::optional<std::string_view> Wasmtime::getMemory(uint64_t pointer, uint64_t size) {
   assert(memory_ != nullptr);
-  if (pointer + size > MEMORY_SIZE(memory_)) {
+  if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return std::nullopt;
   }
-  return std::string_view(MEMORY_DATA(memory_) + pointer, size);
+  return std::string_view(wasm_memory_data(memory_.get()) + pointer, size);
 }
 
 bool Wasmtime::setMemory(uint64_t pointer, uint64_t size, const void *data) {
   assert(memory_ != nullptr);
-  if (pointer + size > MEMORY_SIZE(memory_)) {
+  if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return false;
   }
-  ::memcpy(MEMORY_DATA(memory_) + pointer, data, size);
+  ::memcpy(wasm_memory_data(memory_.get()) + pointer, data, size);
   return true;
 }
 
 bool Wasmtime::getWord(uint64_t pointer, Word *word) {
   assert(memory_ != nullptr);
   constexpr auto size = sizeof(uint32_t);
-  if (pointer + size > MEMORY_SIZE(memory_)) {
+  if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return false;
   }
 
   uint32_t word32;
-  ::memcpy(&word32, MEMORY_DATA(memory_) + pointer, size);
-
+  ::memcpy(&word32, wasm_memory_data(memory_.get()) + pointer, size);
   word->u64_ = word32;
   return true;
 }
 
 bool Wasmtime::setWord(uint64_t pointer, Word word) {
   constexpr auto size = sizeof(uint32_t);
-  if (pointer + size > MEMORY_SIZE(memory_)) {
+  if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return false;
   }
   uint32_t word32 = word.u32();
-  ::memcpy(MEMORY_DATA(memory_) + pointer, &word32, size);
+  ::memcpy(wasm_memory_data(memory_.get()) + pointer, &word32, size);
   return true;
 }
-
-#undef MEMORY_DATA
-#undef MEMORY_SIZE
 
 template <typename T> void assignVal(T t, wasm_val_t &val);
 template <> void assignVal<Word>(Word t, wasm_val_t &val) {
