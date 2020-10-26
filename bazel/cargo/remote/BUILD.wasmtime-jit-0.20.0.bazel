@@ -1,0 +1,86 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load(
+    "@io_bazel_rules_rust//rust:rust.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_test",
+)
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//bazel/cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
+])
+
+# Generated Targets
+
+rust_library(
+    name = "wasmtime_jit",
+    srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
+    crate_features = [
+        "jitdump",
+    ],
+    crate_root = "crates/jit/src/lib.rs",
+    crate_type = "lib",
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.20.0",
+    # buildifier: leave-alone
+    deps = [
+        "@raze__anyhow__1_0_33//:anyhow",
+        "@raze__cfg_if__0_1_10//:cfg_if",
+        "@raze__cranelift_codegen__0_67_0//:cranelift_codegen",
+        "@raze__cranelift_entity__0_67_0//:cranelift_entity",
+        "@raze__cranelift_frontend__0_67_0//:cranelift_frontend",
+        "@raze__cranelift_native__0_67_0//:cranelift_native",
+        "@raze__cranelift_wasm__0_67_0//:cranelift_wasm",
+        "@raze__gimli__0_22_0//:gimli",
+        "@raze__log__0_4_11//:log",
+        "@raze__more_asserts__0_2_1//:more_asserts",
+        "@raze__object__0_21_1//:object",
+        "@raze__region__2_2_0//:region",
+        "@raze__serde__1_0_117//:serde",
+        "@raze__target_lexicon__0_11_1//:target_lexicon",
+        "@raze__thiserror__1_0_21//:thiserror",
+        "@raze__wasmparser__0_59_0//:wasmparser",
+        "@raze__wasmtime_cranelift__0_20_0//:wasmtime_cranelift",
+        "@raze__wasmtime_debug__0_20_0//:wasmtime_debug",
+        "@raze__wasmtime_environ__0_20_0//:wasmtime_environ",
+        "@raze__wasmtime_obj__0_20_0//:wasmtime_obj",
+        "@raze__wasmtime_profiling__0_20_0//:wasmtime_profiling",
+        "@raze__wasmtime_runtime__0_20_0//:wasmtime_runtime",
+    ] + selects.with_or({
+        # cfg(target_os = "windows")
+        (
+            "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@raze__winapi__0_3_9//:winapi",
+        ],
+        "//conditions:default": [],
+    }),
+)

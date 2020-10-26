@@ -20,8 +20,8 @@
 #include "include/proxy-wasm/wasm.h"
 #include "include/proxy-wasm/wasmtime.h"
 
+#include "wasmtime/crates/c-api/include/wasmtime.h"
 #include "wasmtime/include/wasm.h"
-#include "wasmtime/include/wasmtime.h"
 
 #include "test/watdata.h"
 #include "gtest/gtest.h"
