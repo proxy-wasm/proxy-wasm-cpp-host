@@ -59,9 +59,7 @@ public:
   std::string_view vm_key() const { return vm_key_; }
   WasmVm *wasm_vm() const { return wasm_vm_.get(); }
   ContextBase *vm_context() const { return vm_context_.get(); }
-  ContextBase *getRootContext(std::string_view root_id) {
-    return root_contexts_[std::string(root_id)].get();
-  }
+  ContextBase *getRootContext(std::string_view root_id);
   ContextBase *getOrCreateRootContext(const std::shared_ptr<PluginBase> &plugin);
   ContextBase *getContext(uint32_t id) {
     auto it = contexts_.find(id);

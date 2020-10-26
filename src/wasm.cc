@@ -314,6 +314,14 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
   return !isFailed();
 }
 
+ContextBase *WasmBase::getRootContext(std::string_view root_id) {
+  auto it = root_contexts_.find(std::string(root_id));
+  if (it == root_contexts_.end()) {
+    return nullptr;
+  }
+  return it->second.get();
+}
+
 ContextBase *WasmBase::getOrCreateRootContext(const std::shared_ptr<PluginBase> &plugin) {
   auto root_context = getRootContext(plugin->root_id_);
   if (!root_context) {
