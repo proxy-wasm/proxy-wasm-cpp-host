@@ -302,8 +302,8 @@ wasm::vec<byte_t> V8::getStrippedSource() {
       if (section_name_len == static_cast<uint32_t>(-1) || pos + section_name_len > end) {
         return wasm::vec<byte_t>::invalid();
       }
-      if (section_name_len > sizeof("precompiled_") - 1 &&
-          ::memcmp(pos, "precompiled_", sizeof("precompiled_") - 1) == 0) {
+      auto section_name = std::string_view(pos, section_name_len);
+      if (section_name.find("precompiled_") != std::string::npos) {
         // If this is the first "precompiled_" section, then save everything
         // before it, otherwise skip it.
         if (stripped.empty()) {
