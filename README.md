@@ -28,3 +28,18 @@ If the error mentions the .cache folder, try running the following:
 ```
 bazel clean --expunge
 ```
+
+## File Structure
+
+- context_interface.h
+- context.{h,cc}
+- wasm.{h,cc}
+  - Creating VMs including managing lifetime, VM keys, emscripten versions, etc.
+- wasm_vm.h
+  - defines generic interfaces
+  - cloning, loading modules, linking to host functions
+- v8.cc
+  - implements wasm_vm in V8 engine
+- wavm.cc
+  - implements wasm_vm in WAVM engine
+- exports.{h, cc}
