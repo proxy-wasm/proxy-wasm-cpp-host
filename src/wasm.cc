@@ -193,14 +193,19 @@ void WasmBase::registerCallbacks() {
 
 void WasmBase::getFunctions() {
 #define _GET(_fn) wasm_vm_->getFunction(#_fn, &_fn##_);
+#define _GET_ALIAS(_fn, _alias) wasm_vm_->getFunction(#_alias, &_fn##_);
   _GET(_initialize);
   _GET(_start);
   _GET(__wasm_call_ctors);
 
   _GET(malloc);
   if (!malloc_) {
+    _GET_ALIAS(malloc, proxy_on_memory_allocate);
+  }
+  if (!malloc_) {
     fail(FailState::MissingFunction, "Wasm module is missing malloc function.");
   }
+#undef _GET_ALIAS
 #undef _GET
 
 #define _GET_PROXY(_fn) wasm_vm_->getFunction("proxy_" #_fn, &_fn##_);
