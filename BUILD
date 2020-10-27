@@ -34,7 +34,7 @@ cc_library(
 # TODO(mathetkae): once other runtimes(WAVM,V8) can be linked in this repos,
 #   use -define=wasm=v8|wavm|wasmtime and switch
 cc_library(
-    name = "lib_wasmtime",
+    name = "lib_runtime",
     srcs = glob(
         ["src/**/*.cc"],
         exclude = [

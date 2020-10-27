@@ -13,13 +13,17 @@ cc_test(
 )
 
 cc_test(
-    name = "wasmtime_vm_test",
-    srcs = ["wasmtime_vm_test.cc"],
+    name = "runtime_test",
+    srcs = ["runtime_test.cc"],
     copts = COPTS,
+    data = [
+        "//test/test_data:abi_export.wasm",
+        "//test/test_data:callback.wasm",
+        "//test/test_data:trap.wasm",
+    ],
     linkopts = LINKOPTS,
     deps = [
-        "//:lib_wasmtime",
-        "//test:watdata",
+        "//:lib_runtime",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],
@@ -34,9 +38,4 @@ cc_test(
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],
-)
-
-cc_library(
-    name = "watdata",
-    hdrs = ["watdata.h"],
 )

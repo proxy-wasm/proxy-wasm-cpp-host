@@ -13,27 +13,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "gtest/gtest.h"
+#include <fstream>
+#include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
+
+#if defined(WASM_V8)
+#include "include/proxy-wasm/v8.h"
+#endif
+#if defined(WASM_WAVM)
+#include "include/proxy-wasm/wavm.h"
+#endif
+#if defined(WASM_WASMTIME)
 #include "include/proxy-wasm/wasmtime.h"
-
-#include "wasmtime/crates/c-api/include/wasmtime.h"
-#include "wasmtime/include/wasm.h"
-
-#include "test/watdata.h"
-#include "gtest/gtest.h"
+#endif
 
 namespace proxy_wasm {
 namespace {
-
-TEST(Wasmtime, CreateVM) {
-  auto vm = proxy_wasm::createWasmtimeVm();
-  EXPECT_EQ(vm->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
-  EXPECT_EQ(vm->runtime(), "wasmtime");
-}
 
 struct DummyIntegration : public WasmVmIntegration {
   ~DummyIntegration() override{};
@@ -49,70 +51,98 @@ struct DummyIntegration : public WasmVmIntegration {
   std::string error_message_;
 };
 
-class WasmtimeTestVM : public testing::Test {
+class TestVM : public testing::TestWithParam<std::string> {
 public:
   std::unique_ptr<proxy_wasm::WasmVm> vm_;
 
-  WasmtimeTestVM() : vm_(proxy_wasm::createWasmtimeVm()) {
-    integration_ = new DummyIntegration{};
+  TestVM() : integration_(new DummyIntegration{}) {
+    runtime_ = GetParam();
+    if (runtime_ == "") {
+      EXPECT_TRUE(false) << "runtime must no be empty";
+#if defined(WASM_V8)
+    } else if (runtime_ == "v8") {
+      vm_ = proxy_wasm::createV8Vm();
+#endif
+#if defined(WASM_WAVM)
+    } else if (runtime_ == "wavm") {
+      vm_ = proxy_wasm::createWavmVm();
+#endif
+#if defined(WASM_WASMTIME)
+    } else if (runtime_ == "wasmtime") {
+      vm_ = proxy_wasm::createWasmtimeVm();
+#endif
+    }
     vm_->integration().reset(integration_);
   }
 
   DummyIntegration *integration_;
 
-  void initialize(std::string wat_str) {
-    wasm_byte_vec_t wat;
-    wasm_byte_vec_new_uninitialized(&wat, wat_str.size());
-    ::memcpy(wat.data, wat_str.data(), wat_str.size());
-
-    wasm_byte_vec_t source;
-    wasmtime_error_t *error = wasmtime_wat2wasm(&wat, &source);
-    EXPECT_TRUE(error == nullptr);
-    source_ = std::string(source.data, source.size);
-
-    wasm_byte_vec_delete(&wat);
-    wasm_byte_vec_delete(&source);
+  void initialize(std::string filename) {
+    auto path = "test/test_data/" + filename;
+    std::ifstream file(path, std::ios::binary);
+    EXPECT_FALSE(file.fail()) << "failed to open: " << path;
+    std::stringstream file_string_stream;
+    file_string_stream << file.rdbuf();
+    source_ = file_string_stream.str();
   }
+
   std::string source_;
+  std::string runtime_;
 };
 
-TEST_F(WasmtimeTestVM, ABIVersion) {
-  initialize(wat_data::AbiVersion);
+std::vector<std::string> getRuntimes() {
+  std::vector<std::string> runtimes = {
+#if defined(WASM_V8)
+    "v8",
+#endif
+#if defined(WASM_WAVM)
+    "wavm",
+#endif
+#if defined(WASM_WASMTIME)
+    "wasmtime",
+#endif
+    ""
+  };
+  runtimes.pop_back();
+  return runtimes;
+}
+
+auto test_values = testing::ValuesIn(getRuntimes());
+
+INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, test_values);
+
+TEST_P(TestVM, Basic) {
+  EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
+  EXPECT_EQ(vm_->runtime(), runtime_);
+}
+
+TEST_P(TestVM, ABIVersion) {
+  initialize("abi_export.wasm");
   ASSERT_TRUE(vm_->load(source_, false));
   ASSERT_EQ(vm_->getAbiVersion(), AbiVersion::ProxyWasm_0_2_0);
 }
 
-TEST_F(WasmtimeTestVM, CustomSection) {
-  initialize(wat_data::AbiVersion);
+TEST_P(TestVM, CustomSection) {
+  initialize("abi_export.wasm");
   char custom_section[12] = {
       0x00,                         // custom section id
       0x0a,                         // section length
-      0x04, 0x6e, 0x61, 0x6d, 0x65, // section name: "name"
+      0x04, 0x68, 0x65, 0x79, 0x21, // section name: "hey!"
       0x68, 0x65, 0x6c, 0x6c, 0x6f, // content: "hello"
   };
 
   source_ = source_.append(&custom_section[0], 12);
   ASSERT_TRUE(vm_->load(source_, false));
-  auto name_section = vm_->getCustomSection("name");
+  auto name_section = vm_->getCustomSection("hey!");
   ASSERT_EQ(name_section, "hello");
 }
 
-TEST_F(WasmtimeTestVM, Memory) {
-  initialize(wat_data::Memory);
+TEST_P(TestVM, Memory) {
+  initialize("abi_export.wasm");
   ASSERT_TRUE(vm_->load(source_, false));
   ASSERT_TRUE(vm_->link(""));
-  ASSERT_EQ(vm_->getAbiVersion(), AbiVersion::Unknown);
-
-  ASSERT_EQ(vm_->getMemorySize(), 0x20000);
 
   Word word;
-  ASSERT_TRUE(vm_->getWord(0, &word));
-  ASSERT_EQ(0, word);
-  ASSERT_TRUE(vm_->getWord(0x1000, &word));
-  ASSERT_EQ(1, word.u64_);
-  ASSERT_TRUE(vm_->getWord(0x100c, &word));
-  ASSERT_EQ(4, word.u64_);
-
   ASSERT_TRUE(vm_->setWord(0x2000, Word(100)));
   ASSERT_TRUE(vm_->getWord(0x2000, &word));
   ASSERT_EQ(100, word.u64_);
@@ -125,8 +155,8 @@ TEST_F(WasmtimeTestVM, Memory) {
   ASSERT_EQ(200, static_cast<int32_t>(word.u64_));
 }
 
-TEST_F(WasmtimeTestVM, Clone) {
-  initialize(wat_data::Memory);
+TEST_P(TestVM, Clone) {
+  initialize("abi_export.wasm");
   ASSERT_TRUE(vm_->load(source_, false));
   ASSERT_TRUE(vm_->link(""));
   const auto address = 0x2000;
@@ -161,19 +191,19 @@ void callback(void *raw_context) {
 
 Word callback2(void *raw_context, Word val) { return val + 100; }
 
-TEST_F(WasmtimeTestVM, Callback) {
-  initialize(wat_data::Callback);
+TEST_P(TestVM, Callback) {
+  initialize("callback.wasm");
   ASSERT_TRUE(vm_->load(source_, false));
 
   TestContext context;
   current_context_ = &context;
 
   vm_->registerCallback(
-      "hostenv", "callback", &callback,
+      "env", "callback", &callback,
       &ConvertFunctionWordToUint32<decltype(callback), callback>::convertFunctionWordToUint32);
 
   vm_->registerCallback(
-      "hostenv2", "callback2", &callback2,
+      "env", "callback2", &callback2,
       &ConvertFunctionWordToUint32<decltype(callback2), callback2>::convertFunctionWordToUint32);
 
   ASSERT_TRUE(vm_->link(""));
@@ -191,39 +221,23 @@ TEST_F(WasmtimeTestVM, Callback) {
   ASSERT_EQ(res.u32(), 100100); // 10000 (global) + 100(in callback)
 }
 
-TEST_F(WasmtimeTestVM, Trap) {
-  initialize(wat_data::Trap);
+TEST_P(TestVM, Trap) {
+  initialize("trap.wasm");
   ASSERT_TRUE(vm_->load(source_, false));
   ASSERT_TRUE(vm_->link(""));
   WasmCallVoid<0> trigger;
   vm_->getFunction("trigger", &trigger);
   EXPECT_TRUE(trigger != nullptr);
   trigger(current_context_);
-  std::string exp_message = R"(Function: trigger failed:
-wasm trap: unreachable
-wasm backtrace:
-  0:   0x46 - <unknown>!three
-  1:   0x4a - <unknown>!two
-  2:   0x4f - <unknown>!one
-  3:   0x38 - <unknown>!trigger
-)";
-  ASSERT_EQ(
-      std::string(integration_->error_message_.begin(), integration_->error_message_.end() - 1),
-      exp_message);
+  std::string exp_message = "Function: trigger failed";
+  ASSERT_TRUE(integration_->error_message_.find(exp_message) != std::string::npos);
 
   WasmCallWord<1> trigger2;
   vm_->getFunction("trigger2", &trigger2);
   EXPECT_TRUE(trigger2 != nullptr);
   trigger2(current_context_, 0);
-  exp_message = R"(Function: trigger2 failed:
-wasm trap: unreachable
-wasm backtrace:
-  0:   0x46 - <unknown>!three
-  1:   0x41 - <unknown>!trigger2
-)";
-  ASSERT_EQ(
-      std::string(integration_->error_message_.begin(), integration_->error_message_.end() - 1),
-      exp_message);
+  exp_message = "Function: trigger2 failed:";
+  ASSERT_TRUE(integration_->error_message_.find(exp_message) != std::string::npos);
 }
 
 } // namespace

@@ -44,6 +44,7 @@ cc_library(
         "crates/c-api/include/wasmtime.h",
         "@wasm-c-api//:include/wasm.h",
     ],
+    defines = ["WASM_WASMTIME"],
     include_prefix = "wasmtime",
     includes = [
         "crates/c-api/include/",
