@@ -14,6 +14,7 @@
 // limitations under the License.
 
 #include "include/proxy-wasm/wavm.h"
+#include "include/proxy-wasm/wasm_vm.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -23,8 +24,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-#include "include/proxy-wasm/wasm_vm.h"
 
 #include "WAVM/IR/Module.h"
 #include "WAVM/IR/Operators.h"
@@ -253,6 +252,8 @@ Wavm::~Wavm() {
 
 std::unique_ptr<WasmVm> Wavm::clone() {
   auto wavm = std::make_unique<Wavm>();
+  wavm->integration().reset(integration()->clone());
+
   wavm->compartment_ = WAVM::Runtime::cloneCompartment(compartment_);
   wavm->memory_ = WAVM::Runtime::remapToClonedCompartment(memory_, wavm->compartment_);
   wavm->memory_base_ = WAVM::Runtime::getMemoryBaseAddress(wavm->memory_);
