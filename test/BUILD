@@ -5,7 +5,6 @@ cc_test(
     name = "null_vm_test",
     srcs = ["null_vm_test.cc"],
     copts = COPTS,
-    linkopts = LINKOPTS,
     deps = [
         "//:lib",
         "@com_google_googletest//:gtest",
@@ -19,7 +18,7 @@ cc_test(
     copts = COPTS,
     linkopts = LINKOPTS,
     deps = [
-        "//:lib",
+        "//:lib_wasmtime",
         "//test:watdata",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
@@ -30,7 +29,6 @@ cc_test(
     name = "context_test",
     srcs = ["context_test.cc"],
     copts = COPTS,
-    linkopts = LINKOPTS,
     deps = [
         "//:include",
         "@com_google_googletest//:gtest",
