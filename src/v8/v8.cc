@@ -85,6 +85,7 @@ public:
 #undef _GET_MODULE_FUNCTION
 
 private:
+  std::string getFailMessage(std::string function_name, wasm::own<wasm::Trap> trap);
   wasm::vec<byte_t> getStrippedSource();
 
   template <typename... Args>
@@ -114,8 +115,7 @@ private:
   absl::flat_hash_map<std::string, FuncDataPtr> host_functions_;
   absl::flat_hash_map<std::string, wasm::own<wasm::Func>> module_functions_;
 
-  std::string_view name_section;
-  std::string get_fail_message(std::string function_name, wasm::own<wasm::Trap> trap);
+  std::string_view name_section_;
 };
 
 // Helper functions.
@@ -267,7 +267,7 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     assert((shared_module_ != nullptr));
   }
 
-  name_section = getCustomSection("name");
+  name_section_ = getCustomSection("name");
   return module_ != nullptr;
 }
 
@@ -279,7 +279,7 @@ std::unique_ptr<WasmVm> V8::clone() {
   clone->store_ = wasm::Store::make(engine());
 
   clone->module_ = wasm::Module::obtain(clone->store_.get(), shared_module_.get());
-  clone->name_section = name_section;
+  clone->name_section_ = name_section;
   return clone;
 }
 
@@ -596,6 +596,7 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
   host_functions_.insert_or_assign(std::string(module_name) + "." + std::string(function_name),
                                    std::move(data));
 }
+
 template <typename... Args>
 void V8::getModuleFunctionImpl(std::string_view function_name,
                                std::function<void(ContextBase *, Args...)> *function) {
@@ -622,7 +623,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, nullptr);
     if (trap) {
-      auto message = this->get_fail_message(std::string(function_name), std::move(trap));
+      auto message = this->getFailMessage(std::string(function_name), std::move(trap));
       fail(FailState::RuntimeError, message);
     }
   };
@@ -655,7 +656,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, results);
     if (trap) {
-      auto message = this->get_fail_message(std::string(function_name), std::move(trap));
+      auto message = this->getFailMessage(std::string(function_name), std::move(trap));
       fail(FailState::RuntimeError, message);
       return R{};
     }
@@ -664,18 +665,18 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
   };
 }
 
-std::string V8::get_fail_message(std::string function_name, wasm::own<wasm::Trap> trap) {
+std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {
   auto message = "Function: " + function_name + " failed:\n";
   message += "V8 message: " + std::string(trap->message().get(), trap->message().size()) + "\n";
 
   auto trace = trap->trace();
 
-  if (!trace.size() || !name_section.size()) {
+  if (!trace.size() || !name_section_.size()) {
     return message;
   }
 
-  const byte_t *pos = name_section.data();
-  const byte_t *end = name_section.data() + name_section.size();
+  const byte_t *pos = name_section_.data();
+  const byte_t *end = name_section_.data() + name_section_.size();
   // https://webassembly.github.io/spec/core/appendix/custom.html#binary-namesubsection
 
   if (*pos == 0) { // module name section
