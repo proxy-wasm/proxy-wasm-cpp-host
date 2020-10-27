@@ -780,12 +780,6 @@ def raze_fetch_remote_crates():
         type = "tar.gz",
         sha256 = "fda28d4b4830b807a8b43f7b0e6b5df875311b3e7621d84577188c175b6ec1ec",
         strip_prefix = "scroll-0.10.2",
-        patches = [
-            "//bazel/patches:scroll-0.10.2-remove_doc_requirement.diff",
-        ],
-        patch_args = [
-            "-p1",
-        ],
         build_file = Label("//bazel/cargo/remote:BUILD.scroll-0.10.2.bazel"),
     )
 
