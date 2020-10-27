@@ -77,10 +77,6 @@ http_archive(
 http_archive(
     name = "wasmtime",
     build_file = "//bazel/external:wasmtime.BUILD",
-    patch_args = ["-p1"],
-    patches = [
-        "//:bazel/patches/wasmtime-0.20.0-fix-include-path.diff",
-    ],
     sha256 = "feb29c96e053d16fe3dc91b93d7a28ab24b9c390fbdf2580547ae7fa0b8eae95",
     strip_prefix = "wasmtime-0.20.0",
     url = "https://github.com/bytecodealliance/wasmtime/archive/v0.20.0.tar.gz",

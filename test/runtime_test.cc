@@ -90,7 +90,7 @@ public:
   std::string runtime_;
 };
 
-std::vector<std::string> getRuntimes() {
+static std::vector<std::string> getRuntimes() {
   std::vector<std::string> runtimes = {
 #if defined(WASM_V8)
     "v8",

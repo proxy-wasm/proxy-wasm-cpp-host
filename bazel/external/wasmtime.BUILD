@@ -17,7 +17,6 @@ rust_library(
     srcs = glob(["crates/c-api/src/**/*.rs"]),
     crate_features = [
         "jitdump",
-        "wat",
         "cache",
     ],
     crate_root = "crates/c-api/src/lib.rs",
@@ -33,25 +32,20 @@ rust_library(
         "@proxy_wasm_cpp_host//bazel/cargo:env_logger",
         "@proxy_wasm_cpp_host//bazel/cargo:once_cell",
         "@proxy_wasm_cpp_host//bazel/cargo:wasmtime",
-        "@proxy_wasm_cpp_host//bazel/cargo:wat",
     ],
 )
 
 cc_library(
     name = "c_api",
     hdrs = [
-        "crates/c-api/include/wasi.h",
-        "crates/c-api/include/wasmtime.h",
         "@wasm-c-api//:include/wasm.h",
     ],
     defines = ["WASM_WASMTIME"],
     include_prefix = "wasmtime",
     includes = [
-        "crates/c-api/include/",
         "include/",
     ],
     deps = [
-        ":helpers_lib",
         ":rust_c_api",
     ],
 )
