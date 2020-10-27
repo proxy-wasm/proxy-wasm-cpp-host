@@ -58,7 +58,7 @@ public:
   TestVM() : integration_(new DummyIntegration{}) {
     runtime_ = GetParam();
     if (runtime_ == "") {
-      EXPECT_TRUE(false) << "runtime must no be empty";
+      EXPECT_TRUE(false) << "runtime must not be empty";
 #if defined(WASM_V8)
     } else if (runtime_ == "v8") {
       vm_ = proxy_wasm::createV8Vm();

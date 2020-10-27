@@ -38,7 +38,7 @@ rust_library(
 cc_library(
     name = "c_api",
     hdrs = [
-        "@wasm-c-api//:include/wasm.h",
+        "@wasm_c_api//:include/wasm.h",
     ],
     defines = ["WASM_WASMTIME"],
     include_prefix = "wasmtime",

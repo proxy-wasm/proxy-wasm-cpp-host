@@ -83,7 +83,7 @@ http_archive(
 )
 
 http_archive(
-    name = "wasm-c-api",
+    name = "wasm_c_api",
     build_file = "//bazel/external:wasm-c-api.BUILD",
     sha256 = "aea8cd095e9937f1e14f2c93e026317b197eb2345e7a817fe3932062eb7b792c",
     strip_prefix = "wasm-c-api-d9a80099d496b5cdba6f3fe8fc77586e0e505ddc",
