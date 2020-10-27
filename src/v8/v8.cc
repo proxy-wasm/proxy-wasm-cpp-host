@@ -586,11 +586,17 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     *function = nullptr;
     return;
   }
+
   const wasm::Func *func = it->second.get();
-  if (!equalValTypes(func->type()->params(), convertArgsTupleToValTypes<std::tuple<Args...>>()) ||
-      !equalValTypes(func->type()->results(), convertArgsTupleToValTypes<std::tuple<>>())) {
+  auto arg_valtypes = convertArgsTupleToValTypes<std::tuple<Args...>>();
+  auto result_valtypes = convertArgsTupleToValTypes<std::tuple<>>();
+  if (!equalValTypes(func->type()->params(), arg_valtypes) ||
+      !equalValTypes(func->type()->results(), result_valtypes)) {
     fail(FailState::UnableToInitializeCode,
-         std::string("Bad function signature for: ") + std::string(function_name));
+         "Bad function signature for: " + std::string(function_name) +
+             ", want: " + printValTypes(arg_valtypes) + " -> " + printValTypes(result_valtypes) +
+             ", but the module exports: " + printValTypes(func->type()->params()) + " -> " +
+             printValTypes(result_valtypes));
     *function = nullptr;
     return;
   }
@@ -614,10 +620,15 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
   const wasm::Func *func = it->second.get();
-  if (!equalValTypes(func->type()->params(), convertArgsTupleToValTypes<std::tuple<Args...>>()) ||
-      !equalValTypes(func->type()->results(), convertArgsTupleToValTypes<std::tuple<R>>())) {
+  auto arg_valtypes = convertArgsTupleToValTypes<std::tuple<Args...>>();
+  auto result_valtypes = convertArgsTupleToValTypes<std::tuple<R>>();
+  if (!equalValTypes(func->type()->params(), arg_valtypes) ||
+      !equalValTypes(func->type()->results(), result_valtypes)) {
     fail(FailState::UnableToInitializeCode,
-         "Bad function signature for: " + std::string(function_name));
+         "Bad function signature for: " + std::string(function_name) +
+             ", want: " + printValTypes(arg_valtypes) + " -> " + printValTypes(result_valtypes) +
+             ", but the module exports: " + printValTypes(func->type()->params()) + " -> " +
+             printValTypes(result_valtypes));
     *function = nullptr;
     return;
   }
