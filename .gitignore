@@ -2,3 +2,4 @@
 .clangd*
 .vscode*
 compile_commands.json
+*.wasm
