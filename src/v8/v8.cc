@@ -296,14 +296,28 @@ wasm::vec<byte_t> V8::getStrippedSource() {
     if (section_len == static_cast<uint32_t>(-1) || pos + section_len > end) {
       return wasm::vec<byte_t>::invalid();
     }
-    pos += section_len;
     if (section_type == 0 /* custom section */) {
-      if (stripped.empty()) {
-        const byte_t *start = source_.get();
-        stripped.insert(stripped.end(), start, section_start);
+      const auto section_data_start = pos;
+      const auto section_name_len = parseVarint(pos, end);
+      if (section_name_len == static_cast<uint32_t>(-1) || pos + section_name_len > end) {
+        return wasm::vec<byte_t>::invalid();
       }
-    } else if (!stripped.empty()) {
-      stripped.insert(stripped.end(), section_start, pos /* section end */);
+      auto section_name = std::string_view(pos, section_name_len);
+      if (section_name.find("precompiled_") != std::string::npos) {
+        // If this is the first "precompiled_" section, then save everything
+        // before it, otherwise skip it.
+        if (stripped.empty()) {
+          const byte_t *start = source_.get();
+          stripped.insert(stripped.end(), start, section_start);
+        }
+      }
+      pos = section_data_start + section_len;
+    } else {
+      pos += section_len;
+      // Save this section if we already saw a custom "precompiled_" section.
+      if (!stripped.empty()) {
+        stripped.insert(stripped.end(), section_start, pos /* section end */);
+      }
     }
   }
 
