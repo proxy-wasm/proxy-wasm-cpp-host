@@ -586,7 +586,6 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     *function = nullptr;
     return;
   }
-
   const wasm::Func *func = it->second.get();
   auto arg_valtypes = convertArgsTupleToValTypes<std::tuple<Args...>>();
   auto result_valtypes = convertArgsTupleToValTypes<std::tuple<>>();
