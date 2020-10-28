@@ -42,6 +42,7 @@
 #include "WAVM/Runtime/Intrinsics.h"
 #include "WAVM/Runtime/Linker.h"
 #include "WAVM/Runtime/Runtime.h"
+#include "WAVM/RuntimeABI/RuntimeABI.h"
 #include "WAVM/WASM/WASM.h"
 #include "WAVM/WASTParse/WASTParse.h"
 
@@ -90,15 +91,34 @@ namespace {
       WAVM::Runtime::catchRuntimeExceptions(                                                       \
           [&] { _x; },                                                                             \
           [&](WAVM::Runtime::Exception *exception) {                                               \
-            auto description = describeException(exception);                                       \
-            _wavm->fail(FailState::RuntimeError,                                                   \
-                        "Function: " + std::string(function_name) + " failed: " + description);    \
-            destroyException(exception);                                                           \
+            _wavm->fail(FailState::RuntimeError, getFailMessage(function_name, exception));        \
             throw std::exception();                                                                \
           });                                                                                      \
     } catch (...) {                                                                                \
     }                                                                                              \
   } while (0)
+
+std::string getFailMessage(std::string_view function_name, WAVM::Runtime::Exception *exception) {
+  std::string message = "Function " + std::string(function_name) + " failed:\n" +
+                        "WAVM message: " + WAVM::Runtime::describeExceptionType(exception->type) +
+                        "\nwasm backrace:\n";
+  std::vector<std::string> callstack_descriptions =
+      WAVM::Runtime::describeCallStack(exception->callStack);
+
+  // Since the first frame is on host and useless for developers, e.g.: `host!envoy+112901013`
+  // we start with index 1 here
+  for (size_t i = 1; i < callstack_descriptions.size(); i++) {
+    std::string description = callstack_descriptions[i];
+    if (description.find("wasm!") == std::string::npos) {
+      // end of WASM's call stack
+      break;
+    }
+    message += "  " + std::to_string(i) + ": " + description + "\n";
+  }
+
+  WAVM::Runtime::destroyException(exception);
+  return message;
+}
 
 struct WasmUntaggedValue : public WAVM::IR::UntaggedValue {
   WasmUntaggedValue() = default;
