@@ -17,10 +17,12 @@
 #include "include/proxy-wasm/wasm_vm.h"
 
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -108,12 +110,14 @@ std::string getFailMessage(std::string_view function_name, WAVM::Runtime::Except
   // Since the first frame is on host and useless for developers, e.g.: `host!envoy+112901013`
   // we start with index 1 here
   for (size_t i = 1; i < callstack_descriptions.size(); i++) {
+    std::ostringstream oss;
     std::string description = callstack_descriptions[i];
     if (description.find("wasm!") == std::string::npos) {
       // end of WASM's call stack
       break;
     }
-    message += "  " + std::to_string(i) + ": " + description + "\n";
+    oss << std::setw(3) << std::setfill(' ') << std::to_string(i);
+    message += oss.str() + ": " + description + "\n";
   }
 
   WAVM::Runtime::destroyException(exception);
