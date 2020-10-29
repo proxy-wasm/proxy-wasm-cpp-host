@@ -17,10 +17,12 @@
 #include "include/proxy-wasm/wasm_vm.h"
 
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -42,6 +44,7 @@
 #include "WAVM/Runtime/Intrinsics.h"
 #include "WAVM/Runtime/Linker.h"
 #include "WAVM/Runtime/Runtime.h"
+#include "WAVM/RuntimeABI/RuntimeABI.h"
 #include "WAVM/WASM/WASM.h"
 #include "WAVM/WASTParse/WASTParse.h"
 
@@ -90,15 +93,36 @@ namespace {
       WAVM::Runtime::catchRuntimeExceptions(                                                       \
           [&] { _x; },                                                                             \
           [&](WAVM::Runtime::Exception *exception) {                                               \
-            auto description = describeException(exception);                                       \
-            _wavm->fail(FailState::RuntimeError,                                                   \
-                        "Function: " + std::string(function_name) + " failed: " + description);    \
-            destroyException(exception);                                                           \
+            _wavm->fail(FailState::RuntimeError, getFailMessage(function_name, exception));        \
             throw std::exception();                                                                \
           });                                                                                      \
     } catch (...) {                                                                                \
     }                                                                                              \
   } while (0)
+
+std::string getFailMessage(std::string_view function_name, WAVM::Runtime::Exception *exception) {
+  std::string message = "Function " + std::string(function_name) +
+                        " failed: " + WAVM::Runtime::describeExceptionType(exception->type) +
+                        "\nProxy-Wasm plugin in-VM backtrace:\n";
+  std::vector<std::string> callstack_descriptions =
+      WAVM::Runtime::describeCallStack(exception->callStack);
+
+  // Since the first frame is on host and useless for developers, e.g.: `host!envoy+112901013`
+  // we start with index 1 here
+  for (size_t i = 1; i < callstack_descriptions.size(); i++) {
+    std::ostringstream oss;
+    std::string description = callstack_descriptions[i];
+    if (description.find("wasm!") == std::string::npos) {
+      // end of WASM's call stack
+      break;
+    }
+    oss << std::setw(3) << std::setfill(' ') << std::to_string(i);
+    message += oss.str() + ": " + description + "\n";
+  }
+
+  WAVM::Runtime::destroyException(exception);
+  return message;
+}
 
 struct WasmUntaggedValue : public WAVM::IR::UntaggedValue {
   WasmUntaggedValue() = default;
