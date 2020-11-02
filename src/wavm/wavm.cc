@@ -258,7 +258,7 @@ struct Wavm : public WasmVm {
   std::map<std::string, Intrinsics::Module> intrinsic_modules_;
   std::map<std::string, WAVM::Runtime::GCPointer<WAVM::Runtime::Instance>>
       intrinsic_module_instances_;
-  std::vector<std::unique_ptr<Intrinsics::Function>> hostFunctions_;
+  std::vector<std::unique_ptr<Intrinsics::Function>> host_functions_;
   uint8_t *memory_base_ = nullptr;
   AbiVersion abi_version_ = AbiVersion::Unknown;
 };
@@ -268,7 +268,7 @@ Wavm::~Wavm() {
   context_ = nullptr;
   intrinsic_module_instances_.clear();
   intrinsic_modules_.clear();
-  hostFunctions_.clear();
+  host_functions_.clear();
   if (compartment_) {
     ASSERT(tryCollectCompartment(std::move(compartment_)));
   }
@@ -426,7 +426,7 @@ template <typename R, typename... Args>
 void registerCallbackWavm(WasmVm *vm, std::string_view module_name, std::string_view function_name,
                           R (*f)(Args...)) {
   auto wavm = static_cast<proxy_wasm::Wavm::Wavm *>(vm);
-  wavm->hostFunctions_.emplace_back(new Intrinsics::Function(
+  wavm->host_functions_.emplace_back(new Intrinsics::Function(
       &wavm->intrinsic_modules_[std::string(module_name)], function_name.data(),
       reinterpret_cast<void *>(f), inferHostFunctionType(f)));
 }
