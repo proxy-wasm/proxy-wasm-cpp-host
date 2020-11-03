@@ -120,12 +120,21 @@ void WasmBase::registerCallbacks() {
   _REGISTER_WASI(proc_exit);
 #undef _REGISTER_WASI
 
-  // Calls with the "proxy_" prefix.
+  // Register the capability with the VM if it has been allowed, otherwise register a stub.
 #define _REGISTER_PROXY(_fn)                                                                       \
-  wasm_vm_->registerCallback(                                                                      \
-      "env", "proxy_" #_fn, &exports::_fn,                                                         \
-      &ConvertFunctionWordToUint32<decltype(exports::_fn),                                         \
-                                   exports::_fn>::convertFunctionWordToUint32);
+  if (capabilityAllowed("proxy_" #_fn)) {                                                          \
+    wasm_vm_->registerCallback(                                                                    \
+        "env", "proxy_" #_fn, &exports::_fn,                                                       \
+        &ConvertFunctionWordToUint32<decltype(exports::_fn),                                       \
+                                     exports::_fn>::convertFunctionWordToUint32);                  \
+  } else {                                                                                         \
+    typedef decltype(exports::_fn) export_type;                                                    \
+    constexpr export_type *stub = &ExportStub<export_type>::exportStub;                            \
+    wasm_vm_->registerCallback(                                                                    \
+        "env", "proxy_" #_fn, stub,                                                                \
+        &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
+  }
+
   _REGISTER_PROXY(log);
 
   _REGISTER_PROXY(get_status);
@@ -208,8 +217,19 @@ void WasmBase::getFunctions() {
 #undef _GET_ALIAS
 #undef _GET
 
-#define _GET_PROXY(_fn) wasm_vm_->getFunction("proxy_" #_fn, &_fn##_);
-#define _GET_PROXY_ABI(_fn, _abi) wasm_vm_->getFunction("proxy_" #_fn, &_fn##_abi##_);
+  // Try to point the capability to one of the module exports, if the capability has been allowed.
+#define _GET_PROXY(_fn)                                                                            \
+  if (capabilityAllowed("proxy_" #_fn)) {                                                          \
+    wasm_vm_->getFunction("proxy_" #_fn, &_fn##_);                                                 \
+  } else {                                                                                         \
+    _fn##_ = nullptr;                                                                              \
+  }
+#define _GET_PROXY_ABI(_fn, _abi)                                                                  \
+  if (capabilityAllowed("proxy_" #_fn)) {                                                          \
+    wasm_vm_->getFunction("proxy_" #_fn, &_fn##_abi##_);                                           \
+  } else {                                                                                         \
+    _fn##_abi##_ = nullptr;                                                                        \
+  }
   _GET_PROXY(validate_configuration);
   _GET_PROXY(on_vm_start);
   _GET_PROXY(on_configure);
@@ -256,6 +276,8 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
     : std::enable_shared_from_this<WasmBase>(*base_wasm_handle->wasm()),
       vm_id_(base_wasm_handle->wasm()->vm_id_), vm_key_(base_wasm_handle->wasm()->vm_key_),
       started_from_(base_wasm_handle->wasm()->wasm_vm()->cloneable()),
+      enforce_capability_restriction_(base_wasm_handle->wasm()->enforce_capability_restriction_),
+      allowed_capabilities_(base_wasm_handle->wasm()->allowed_capabilities_),
       base_wasm_handle_(base_wasm_handle) {
   if (started_from_ != Cloneable::NotCloneable) {
     wasm_vm_ = base_wasm_handle->wasm()->wasm_vm()->clone();

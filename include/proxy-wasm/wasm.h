@@ -91,6 +91,27 @@ public:
     return nullptr;
   }
 
+  // Capability restriction (restricting/exposing the ABI).
+  bool capabilityAllowed(std::string capability_name) {
+    return !enforce_capability_restriction_ ||
+           (allowed_capabilities_.find(capability_name) != allowed_capabilities_.end());
+  }
+  void allowCapability(std::string capability_name) {
+    allowed_capabilities_.insert(capability_name);
+  }
+  void enforceCapabilityRestriction() { enforce_capability_restriction_ = true; }
+
+  // Helper for generating a stub to pass to VM in place of a restricted export
+  template <typename F> struct ExportStub;
+  template <typename... Args> struct ExportStub<Word(void *, Args...)> {
+    static Word exportStub(void *raw_context, Args...) {
+      auto context = exports::ContextOrEffectiveContext(
+          static_cast<ContextBase *>((void)raw_context, current_context_));
+      context->wasmVm()->error("Attempted call to restricted capability");
+      return WasmResult::InternalFailure;
+    }
+  };
+
   virtual ContextBase *createVmContext() { return new ContextBase(this); }
   virtual ContextBase *createRootContext(const std::shared_ptr<PluginBase> &plugin) {
     return new ContextBase(this, plugin);
@@ -216,6 +237,10 @@ protected:
   WasmCallWord<1> on_done_;
   WasmCallVoid<1> on_log_;
   WasmCallVoid<1> on_delete_;
+
+  // Capability restriction (restricting/exposing the ABI).
+  bool enforce_capability_restriction_ = false;
+  std::unordered_set<std::string> allowed_capabilities_;
 
   std::shared_ptr<WasmHandleBase> base_wasm_handle_;
 
