@@ -476,8 +476,12 @@ FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_
                           ->on_request_headers_abi_02_(this, id_, headers,
                                                        static_cast<uint32_t>(end_of_stream))
                           .u64_;
-  if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
+
+  if (stop_iteration_) {
+    return FilterHeadersStatus::StopIteration;
+  } else if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark)) {
     return FilterHeadersStatus::StopAllIterationAndWatermark;
+  }
   return static_cast<FilterHeadersStatus>(result);
 }
 
@@ -486,7 +490,7 @@ FilterDataStatus ContextBase::onRequestBody(uint32_t data_length, bool end_of_st
   DeferAfterCallActions actions(this);
   auto result =
       wasm_->on_request_body_(this, id_, data_length, static_cast<uint32_t>(end_of_stream)).u64_;
-  if (result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer))
+  if (stop_iteration_ || result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer))
     return FilterDataStatus::StopIterationNoBuffer;
   return static_cast<FilterDataStatus>(result);
 }
@@ -495,8 +499,9 @@ FilterTrailersStatus ContextBase::onRequestTrailers(uint32_t trailers) {
   CHECK_HTTP(on_request_trailers_, FilterTrailersStatus::Continue,
              FilterTrailersStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  if (static_cast<FilterTrailersStatus>(wasm_->on_request_trailers_(this, id_, trailers).u64_) ==
-      FilterTrailersStatus::Continue) {
+  if (!stop_iteration_ &&
+      static_cast<FilterTrailersStatus>(wasm_->on_request_trailers_(this, id_, trailers).u64_) ==
+          FilterTrailersStatus::Continue) {
     return FilterTrailersStatus::Continue;
   }
   return FilterTrailersStatus::StopIteration;
@@ -522,8 +527,12 @@ FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of
                           ->on_response_headers_abi_02_(this, id_, headers,
                                                         static_cast<uint32_t>(end_of_stream))
                           .u64_;
-  if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
+
+  if (stop_iteration_) {
+    return FilterHeadersStatus::StopIteration;
+  } else if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark)) {
     return FilterHeadersStatus::StopAllIterationAndWatermark;
+  }
   return static_cast<FilterHeadersStatus>(result);
 }
 
@@ -533,7 +542,8 @@ FilterDataStatus ContextBase::onResponseBody(uint32_t body_length, bool end_of_s
   DeferAfterCallActions actions(this);
   auto result =
       wasm_->on_response_body_(this, id_, body_length, static_cast<uint32_t>(end_of_stream)).u64_;
-  if (result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer))
+
+  if (stop_iteration_ || result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer))
     return FilterDataStatus::StopIterationNoBuffer;
   return static_cast<FilterDataStatus>(result);
 }
@@ -542,8 +552,9 @@ FilterTrailersStatus ContextBase::onResponseTrailers(uint32_t trailers) {
   CHECK_HTTP(on_response_trailers_, FilterTrailersStatus::Continue,
              FilterTrailersStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  if (static_cast<FilterTrailersStatus>(wasm_->on_response_trailers_(this, id_, trailers).u64_) ==
-      FilterTrailersStatus::Continue) {
+  if (!stop_iteration_ &&
+      static_cast<FilterTrailersStatus>(wasm_->on_response_trailers_(this, id_, trailers).u64_) ==
+          FilterTrailersStatus::Continue) {
     return FilterTrailersStatus::Continue;
   }
   return FilterTrailersStatus::StopIteration;
