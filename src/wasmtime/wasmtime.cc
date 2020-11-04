@@ -98,7 +98,7 @@ private:
   void getModuleFunctionImpl(std::string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
 
-  std::string source_;
+  WasmByteVec source_;
   WasmStorePtr store_;
   WasmModulePtr module_;
   WasmSharedModulePtr shared_module_;
@@ -128,19 +128,21 @@ static uint32_t parseVarint(const byte_t *&pos, const byte_t *end) {
 }
 
 bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
-  source_ = code;
   store_ = wasm_store_new(engine());
+
   // Wasm file header is 8 bytes (magic number + version).
   static const uint8_t magic_number[4] = {0x00, 0x61, 0x73, 0x6d};
-  if (source_.size() < 8 || ::memcmp(source_.data(), magic_number, 4) != 0) {
+  if (code.size() < 8 || ::memcmp(code.data(), magic_number, 4) != 0) {
     return false;
   }
 
-  WasmByteVec source_vec;
-  wasm_byte_vec_new_uninitialized(source_vec.get(), source_.size());
-  ::memcpy(source_vec.get()->data, source_.data(), source_.size());
-  getStrippedSource(&source_vec);
-  module_ = wasm_module_new(store_.get(), source_vec.get());
+  wasm_byte_vec_new_uninitialized(source_.get(), code.size());
+  ::memcpy(source_.get()->data, code.data(), code.size());
+
+  WasmByteVec stripped;
+  wasm_byte_vec_new_empty(stripped.get());
+  module_ =
+      wasm_module_new(store_.get(), getStrippedSource(&stripped) ? stripped.get() : source_.get());
 
   if (module_) {
     shared_module_ = wasm_module_share(module_.get());
@@ -157,6 +159,7 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
   clone->integration().reset(integration()->clone());
   clone->store_ = wasm_store_new(engine());
   clone->module_ = wasm_module_obtain(clone->store_.get(), shared_module_.get());
+  wasm_byte_vec_new_empty(clone->source_.get()); // to avoid freeing on nullptr in wasmtime
   return clone;
 }
 
@@ -164,8 +167,8 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
 bool Wasmtime::getStrippedSource(WasmByteVec *out) {
   std::vector<byte_t> stripped;
 
-  const byte_t *pos = source_.data() + 8 /* Wasm header */;
-  const byte_t *end = source_.data() + source_.size();
+  const byte_t *pos = source_.get()->data + 8 /* Wasm header */;
+  const byte_t *end = source_.get()->data + source_.get()->size;
   while (pos < end) {
     const auto section_start = pos;
     if (pos + 1 > end) {
@@ -187,7 +190,7 @@ bool Wasmtime::getStrippedSource(WasmByteVec *out) {
         // If this is the first "precompiled_" section, then save everything
         // before it, otherwise skip it.
         if (stripped.empty()) {
-          const byte_t *start = source_.data();
+          const byte_t *start = source_.get()->data;
           stripped.insert(stripped.end(), start, section_start);
         }
       }
@@ -202,11 +205,11 @@ bool Wasmtime::getStrippedSource(WasmByteVec *out) {
   }
 
   if (!stripped.empty()) {
-    wasm_byte_vec_delete(out->get()); // delete the original
     wasm_byte_vec_new_uninitialized(out->get(), stripped.size());
     ::memcpy(out->get()->data, stripped.data(), stripped.size());
+    return true;
   }
-  return true;
+  return false;
 }
 
 static bool equalValTypes(const wasm_valtype_vec_t *left, const wasm_valtype_vec_t *right) {
@@ -367,8 +370,8 @@ bool Wasmtime::link(std::string_view debug_name) {
 }
 
 std::string_view Wasmtime::getCustomSection(std::string_view name) {
-  const byte_t *pos = source_.data() + 8 /* Wasm header */;
-  const byte_t *end = source_.data() + source_.size();
+  const byte_t *pos = source_.get()->data + 8 /* Wasm header */;
+  const byte_t *end = source_.get()->data + source_.get()->size;
   while (pos < end) {
     if (pos + 1 > end) {
       fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
