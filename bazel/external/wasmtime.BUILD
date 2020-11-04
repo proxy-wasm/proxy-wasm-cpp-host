@@ -25,27 +25,11 @@ rust_library(
     proc_macro_deps = [
         "@proxy_wasm_cpp_host//bazel/cargo:wasmtime_c_api_macros",
     ],
-    visibility = ["//visibility:private"],
     deps = [
         ":helpers_lib",
         "@proxy_wasm_cpp_host//bazel/cargo:anyhow",
         "@proxy_wasm_cpp_host//bazel/cargo:env_logger",
         "@proxy_wasm_cpp_host//bazel/cargo:once_cell",
         "@proxy_wasm_cpp_host//bazel/cargo:wasmtime",
-    ],
-)
-
-cc_library(
-    name = "c_api",
-    hdrs = [
-        "@wasm_c_api//:include/wasm.h",
-    ],
-    defines = ["WASM_WASMTIME"],
-    include_prefix = "wasmtime",
-    includes = [
-        "include/",
-    ],
-    deps = [
-        ":rust_c_api",
     ],
 )

@@ -76,16 +76,17 @@ http_archive(
 
 http_archive(
     name = "wasmtime",
-    build_file = "//bazel/external:wasmtime.BUILD",
+    build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
     sha256 = "feb29c96e053d16fe3dc91b93d7a28ab24b9c390fbdf2580547ae7fa0b8eae95",
     strip_prefix = "wasmtime-0.20.0",
     url = "https://github.com/bytecodealliance/wasmtime/archive/v0.20.0.tar.gz",
 )
 
 http_archive(
-    name = "wasm_c_api",
-    build_file = "//bazel/external:wasm-c-api.BUILD",
-    sha256 = "aea8cd095e9937f1e14f2c93e026317b197eb2345e7a817fe3932062eb7b792c",
-    strip_prefix = "wasm-c-api-d9a80099d496b5cdba6f3fe8fc77586e0e505ddc",
-    url = "https://github.com/WebAssembly/wasm-c-api/archive/d9a80099d496b5cdba6f3fe8fc77586e0e505ddc.tar.gz",
+    # used for extracting compatible header files
+    name = "wasmtime_c_api",
+    build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime-c-api.BUILD",
+    sha256 = "fdbd6dbb58d15b3566abcc2c62ab18c348027e1620bc2ba0219017999504000e",
+    strip_prefix = "wasmtime-v0.20.0-x86_64-linux-c-api",
+    url = "https://github.com/bytecodealliance/wasmtime/releases/download/v0.20.0/wasmtime-v0.20.0-x86_64-linx-c-api.tar.xz",
 )
