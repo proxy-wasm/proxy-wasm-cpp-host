@@ -21,7 +21,6 @@ cc_library(
         exclude = [
             "src/**/wavm*",
             "src/**/v8*",
-            "src/**/wasmtime*",
         ],
     ) + glob(["src/**/*.h"]),
     copts = COPTS,
@@ -30,5 +29,6 @@ cc_library(
         "@boringssl//:crypto",
         "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
+        "@wasmtime//:c_api",
     ],
 )
