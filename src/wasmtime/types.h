@@ -30,11 +30,20 @@ using WasmFunctypePtr = common::CSmartPtr<wasm_functype_t, wasm_functype_delete>
 using WasmTrapPtr = common::CSmartPtr<wasm_trap_t, wasm_trap_delete>;
 using WasmExternPtr = common::CSmartPtr<wasm_extern_t, wasm_extern_delete>;
 
-using WasmByteVec = common::DeleterType<wasm_byte_vec_t, wasm_byte_vec_delete>;
-using WasmImporttypeVec = common::DeleterType<wasm_importtype_vec_t, wasm_importtype_vec_delete>;
-using WasmExportTypeVec = common::DeleterType<wasm_exporttype_vec_t, wasm_exporttype_vec_delete>;
-using WasmExternVec = common::DeleterType<wasm_extern_vec_t, wasm_extern_vec_delete>;
-using WasmValtypeVec = common::DeleterType<wasm_valtype_vec_t, wasm_valtype_vec_delete>;
+using WasmByteVec = common::InitializerDeleterWrapper<wasm_byte_vec_t, wasm_byte_vec_new_empty,
+                                                      wasm_byte_vec_delete>;
+using WasmImporttypeVec =
+    common::InitializerDeleterWrapper<wasm_importtype_vec_t, wasm_importtype_vec_new_empty,
+                                      wasm_importtype_vec_delete>;
+using WasmExportTypeVec =
+    common::InitializerDeleterWrapper<wasm_exporttype_vec_t, wasm_exporttype_vec_new_empty,
+                                      wasm_exporttype_vec_delete>;
+using WasmExternVec =
+    common::InitializerDeleterWrapper<wasm_extern_vec_t, wasm_extern_vec_new_empty,
+                                      wasm_extern_vec_delete>;
+using WasmValtypeVec =
+    common::InitializerDeleterWrapper<wasm_valtype_vec_t, wasm_valtype_vec_new_empty,
+                                      wasm_valtype_vec_delete>;
 
 } // namespace wasmtime
 

@@ -140,7 +140,6 @@ bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
   ::memcpy(source_.get()->data, code.data(), code.size());
 
   WasmByteVec stripped;
-  wasm_byte_vec_new_empty(stripped.get());
   module_ =
       wasm_module_new(store_.get(), getStrippedSource(&stripped) ? stripped.get() : source_.get());
 
@@ -159,7 +158,6 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
   clone->integration().reset(integration()->clone());
   clone->store_ = wasm_store_new(engine());
   clone->module_ = wasm_module_obtain(clone->store_.get(), shared_module_.get());
-  wasm_byte_vec_new_empty(clone->source_.get()); // to avoid freeing on nullptr in wasmtime
   return clone;
 }
 

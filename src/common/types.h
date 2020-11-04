@@ -26,9 +26,11 @@ public:
   CSmartPtr(T *object) : std::unique_ptr<T, void (*)(T *)>(object, deleter) {}
 };
 
-template <typename T, void (*deleter)(T *)> class DeleterType {
+template <typename T, void (*initializer)(T *), void (*deleter)(T *)>
+class InitializerDeleterWrapper {
 public:
-  ~DeleterType() { deleter(&item); }
+  InitializerDeleterWrapper() { initializer(&item); }
+  ~InitializerDeleterWrapper() { deleter(&item); }
   T *get() { return &item; }
 
 private:
