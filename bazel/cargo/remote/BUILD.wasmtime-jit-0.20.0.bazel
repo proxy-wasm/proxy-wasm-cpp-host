@@ -51,7 +51,7 @@ rust_library(
     version = "0.20.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__anyhow__1_0_33//:anyhow",
+        "@raze__anyhow__1_0_34//:anyhow",
         "@raze__cfg_if__0_1_10//:cfg_if",
         "@raze__cranelift_codegen__0_67_0//:cranelift_codegen",
         "@raze__cranelift_entity__0_67_0//:cranelift_entity",
@@ -65,7 +65,7 @@ rust_library(
         "@raze__region__2_2_0//:region",
         "@raze__serde__1_0_117//:serde",
         "@raze__target_lexicon__0_11_1//:target_lexicon",
-        "@raze__thiserror__1_0_21//:thiserror",
+        "@raze__thiserror__1_0_22//:thiserror",
         "@raze__wasmparser__0_59_0//:wasmparser",
         "@raze__wasmtime_cranelift__0_20_0//:wasmtime_cranelift",
         "@raze__wasmtime_debug__0_20_0//:wasmtime_debug",

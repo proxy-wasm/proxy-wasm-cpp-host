@@ -99,6 +99,6 @@ rust_library(
         "@raze__serde__1_0_117//:serde",
         "@raze__smallvec__1_4_2//:smallvec",
         "@raze__target_lexicon__0_11_1//:target_lexicon",
-        "@raze__thiserror__1_0_21//:thiserror",
+        "@raze__thiserror__1_0_22//:thiserror",
     ],
 )

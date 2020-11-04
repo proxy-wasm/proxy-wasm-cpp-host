@@ -57,7 +57,7 @@ rust_library(
         "@raze__cranelift_frontend__0_67_0//:cranelift_frontend",
         "@raze__log__0_4_11//:log",
         "@raze__serde__1_0_117//:serde",
-        "@raze__thiserror__1_0_21//:thiserror",
+        "@raze__thiserror__1_0_22//:thiserror",
         "@raze__wasmparser__0_59_0//:wasmparser",
     ],
 )

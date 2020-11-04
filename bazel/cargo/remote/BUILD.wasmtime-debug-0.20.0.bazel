@@ -48,12 +48,12 @@ rust_library(
     version = "0.20.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__anyhow__1_0_33//:anyhow",
+        "@raze__anyhow__1_0_34//:anyhow",
         "@raze__gimli__0_22_0//:gimli",
         "@raze__more_asserts__0_2_1//:more_asserts",
         "@raze__object__0_21_1//:object",
         "@raze__target_lexicon__0_11_1//:target_lexicon",
-        "@raze__thiserror__1_0_21//:thiserror",
+        "@raze__thiserror__1_0_22//:thiserror",
         "@raze__wasmparser__0_59_0//:wasmparser",
         "@raze__wasmtime_environ__0_20_0//:wasmtime_environ",
     ],

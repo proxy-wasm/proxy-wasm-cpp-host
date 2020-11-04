@@ -47,10 +47,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.13.0",
+    version = "0.14.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__gimli__0_22_0//:gimli",
+        "@raze__gimli__0_23_0//:gimli",
     ],
 )
 

@@ -31,16 +31,13 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "thiserror",
+    name = "thiserror_impl",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
+    crate_type = "proc-macro",
     edition = "2018",
-    proc_macro_deps = [
-        "@raze__thiserror_impl__1_0_21//:thiserror_impl",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,32 +45,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.21",
+    version = "1.0.22",
     # buildifier: leave-alone
     deps = [
+        "@raze__proc_macro2__1_0_24//:proc_macro2",
+        "@raze__quote__1_0_7//:quote",
+        "@raze__syn__1_0_48//:syn",
     ],
 )
-
-# Unsupported target "compiletest" with type "test" omitted
-
-# Unsupported target "test_backtrace" with type "test" omitted
-
-# Unsupported target "test_deprecated" with type "test" omitted
-
-# Unsupported target "test_display" with type "test" omitted
-
-# Unsupported target "test_error" with type "test" omitted
-
-# Unsupported target "test_expr" with type "test" omitted
-
-# Unsupported target "test_from" with type "test" omitted
-
-# Unsupported target "test_lints" with type "test" omitted
-
-# Unsupported target "test_option" with type "test" omitted
-
-# Unsupported target "test_path" with type "test" omitted
-
-# Unsupported target "test_source" with type "test" omitted
-
-# Unsupported target "test_transparent" with type "test" omitted

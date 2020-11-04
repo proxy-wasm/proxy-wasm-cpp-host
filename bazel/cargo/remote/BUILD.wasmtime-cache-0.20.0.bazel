@@ -52,7 +52,7 @@ rust_library(
     version = "0.20.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__anyhow__1_0_33//:anyhow",
+        "@raze__anyhow__1_0_34//:anyhow",
         "@raze__base64__0_12_3//:base64",
         "@raze__bincode__1_3_1//:bincode",
         "@raze__directories__2_0_2//:directories",

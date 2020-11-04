@@ -48,7 +48,7 @@ rust_library(
     version = "0.20.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__anyhow__1_0_33//:anyhow",
+        "@raze__anyhow__1_0_34//:anyhow",
         "@raze__more_asserts__0_2_1//:more_asserts",
         "@raze__object__0_21_1//:object",
         "@raze__target_lexicon__0_11_1//:target_lexicon",
