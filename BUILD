@@ -1,4 +1,4 @@
-load("//:variables.bzl", "COPTS", "LINKOPTS")
+load("//:bazel/variables.bzl", "COPTS", "LINKOPTS")
 
 licenses(["notice"])  # Apache 2
 

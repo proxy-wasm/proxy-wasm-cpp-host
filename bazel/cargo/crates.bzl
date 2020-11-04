@@ -1009,7 +1009,7 @@ def raze_fetch_remote_crates():
         build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-cache-0.20.0.bazel"),
         init_submodules = True,
         patches = [
-            "//bazel/patches:wasmtime-0.20.0-fix-git-rev.diff",
+            "//bazel/external:wasmtime-0.20.0-fix-git-rev.diff",
         ],
         patch_args = [
             "-p1",
