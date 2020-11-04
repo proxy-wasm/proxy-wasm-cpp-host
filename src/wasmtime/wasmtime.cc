@@ -137,6 +137,8 @@ bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
   }
 
   WasmByteVec source_vec;
+  wasm_byte_vec_new_uninitialized(source_vec.get(), source_.size());
+  ::memcpy(source_vec.get()->data, source_.data(), source_.size());
   getStrippedSource(&source_vec);
   module_ = wasm_module_new(store_.get(), source_vec.get());
 
@@ -199,10 +201,8 @@ bool Wasmtime::getStrippedSource(WasmByteVec *out) {
     }
   }
 
-  if (stripped.empty()) {
-    wasm_byte_vec_new_uninitialized(out->get(), source_.size());
-    ::memcpy(out->get()->data, source_.data(), source_.size());
-  } else {
+  if (!stripped.empty()) {
+    wasm_byte_vec_delete(out->get()); // delete the original
     wasm_byte_vec_new_uninitialized(out->get(), stripped.size());
     ::memcpy(out->get()->data, stripped.data(), stripped.size());
   }
