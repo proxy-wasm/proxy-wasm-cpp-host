@@ -171,7 +171,7 @@ public:
   virtual void destroy();
 
   // Called to raise the flag which indicates that the context should stop iteration regardless of
-  // returned filter status from WASM extensions. For example, we ignore
+  // returned filter status from Proxy-wasm extensions. For example, we ignore
   // FilterHeadersStatus::Continue after a local reponse is sent by the host.
   void stopIteration() { stop_iteration_ = true; };
 
