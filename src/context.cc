@@ -615,10 +615,9 @@ WasmResult ContextBase::setTimerPeriod(std::chrono::milliseconds period,
 }
 
 FilterHeadersStatus ContextBase::convertVmCallResultToFilterHeadersStatus(uint64_t result) {
-  if (stop_iteration_) {
+  if (stop_iteration_ ||
+      result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark)) {
     stop_iteration_ = false;
-    return FilterHeadersStatus::StopIteration;
-  } else if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark)) {
     return FilterHeadersStatus::StopAllIterationAndWatermark;
   }
   return static_cast<FilterHeadersStatus>(result);
@@ -633,12 +632,11 @@ FilterDataStatus ContextBase::convertVmCallResultToFilterDataStatus(uint64_t res
 }
 
 FilterTrailersStatus ContextBase::convertVmCallResultToFilterTrailersStatus(uint64_t result) {
-  if (!stop_iteration_ &&
-      static_cast<FilterTrailersStatus>(result) == FilterTrailersStatus::Continue) {
-    return FilterTrailersStatus::Continue;
+  if (stop_iteration_ || result > static_cast<uint64_t>(FilterTrailersStatus::StopIteration)) {
+    stop_iteration_ = false;
+    return FilterTrailersStatus::StopIteration;
   }
-  stop_iteration_ = false;
-  return FilterTrailersStatus::StopIteration;
+  return static_cast<FilterTrailersStatus>(result);
 }
 
 FilterMetadataStatus ContextBase::convertVmCallResultToFilterMetadataStatus(uint64_t result) {
