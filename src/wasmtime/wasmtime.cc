@@ -1,5 +1,3 @@
-
-// Copyright 2016-2019 Envoy Project Authors
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +13,6 @@
 // limitations under the License.
 
 #include "include/proxy-wasm/wasmtime.h"
-#include "include/proxy-wasm/wasm_vm.h"
-#include "src/wasmtime/types.h"
 
 #include <array>
 #include <cassert>
@@ -28,6 +24,8 @@
 #include <utility>
 #include <vector>
 
+#include "include/proxy-wasm/wasm_vm.h"
+#include "src/wasmtime/types.h"
 #include "wasmtime/include/wasm.h"
 
 namespace proxy_wasm {
@@ -487,12 +485,10 @@ template <typename... Args>
 void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
                                         std::string_view function_name,
                                         void (*function)(void *, Args...)) {
-
   auto data =
       std::make_unique<FuncData>(std::string(module_name) + "." + std::string(function_name));
 
   WasmFunctypePtr type = newWasmNewFuncType<std::tuple<Args...>>();
-
   WasmFuncPtr func = wasm_func_new_with_env(
       store_.get(), type.get(),
       [](void *data, const wasm_val_t params[], wasm_val_t results[]) -> wasm_trap_t * {
@@ -575,7 +571,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
                std::string(error_message.get()->data, error_message.get()->size));
     }
   };
-}; // namespace wasmtime
+};
 
 template <typename R, typename... Args>
 void Wasmtime::getModuleFunctionImpl(std::string_view function_name,

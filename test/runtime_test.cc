@@ -1,4 +1,3 @@
-// Copyright 2016-2019 Envoy Project Authors
 // Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -211,8 +210,9 @@ TEST_P(TestVM, Callback) {
   WasmCallVoid<0> run;
   vm_->getFunction("run", &run);
   EXPECT_TRUE(run != nullptr);
-  for (auto i = 0; i < 100; i++)
+  for (auto i = 0; i < 100; i++) {
     run(current_context_);
+  }
   ASSERT_EQ(context.counter, 100);
 
   WasmCallWord<1> run2;

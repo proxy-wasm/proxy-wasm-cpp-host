@@ -23,7 +23,7 @@ cc_test(
     ],
     linkopts = LINKOPTS,
     deps = [
-        "//:lib_runtime",
+        "//:lib",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],
@@ -34,7 +34,7 @@ cc_test(
     srcs = ["context_test.cc"],
     copts = COPTS,
     deps = [
-        "//:include",
+        "//:lib",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],

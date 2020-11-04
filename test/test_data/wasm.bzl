@@ -1,4 +1,3 @@
-# Copyright 2016-2019 Envoy Project Authors
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
