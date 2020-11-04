@@ -16,7 +16,7 @@
 #include "include/proxy-wasm/v8.h"
 
 #include <cassert>
-
+#include <iomanip>
 #include <memory>
 #include <optional>
 #include <sstream>
@@ -698,7 +698,9 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
   message += "wasm backtrace:\n";
   for (size_t i = 0; i < trace.size(); ++i) {
     auto frame = trace[i].get();
-    message += "  " + std::to_string(i) + ": ";
+    std::ostringstream oss;
+    oss << std::setw(3) << std::setfill(' ') << std::to_string(i);
+    message += oss.str() + ": ";
 
     std::stringstream address;
     address << std::hex << frame->module_offset();
