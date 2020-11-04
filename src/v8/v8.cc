@@ -268,10 +268,11 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
 
 std::unique_ptr<WasmVm> V8::clone() {
   assert(shared_module_ != nullptr);
+
   auto clone = std::make_unique<V8>();
   clone->integration().reset(integration()->clone());
-
   clone->store_ = wasm::Store::make(engine());
+
   clone->module_ = wasm::Module::obtain(clone->store_.get(), shared_module_.get());
 
   return clone;
