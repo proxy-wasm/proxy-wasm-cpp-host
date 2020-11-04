@@ -50,7 +50,7 @@ rust_library(
     version = "26.0.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__leb128__0_2_4//:leb128",
+        "@proxy_wasm_cpp_host_raze___leb128__0_2_4//:leb128",
     ],
 )
 

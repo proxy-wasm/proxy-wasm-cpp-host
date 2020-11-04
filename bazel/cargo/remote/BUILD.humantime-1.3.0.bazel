@@ -52,6 +52,6 @@ rust_library(
     version = "1.3.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__quick_error__1_2_3//:quick_error",
+        "@proxy_wasm_cpp_host_raze___quick_error__1_2_3//:quick_error",
     ],
 )

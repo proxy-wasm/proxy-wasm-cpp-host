@@ -52,16 +52,16 @@ rust_library(
     version = "0.20.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__anyhow__1_0_34//:anyhow",
-        "@raze__base64__0_12_3//:base64",
-        "@raze__bincode__1_3_1//:bincode",
-        "@raze__directories__2_0_2//:directories",
-        "@raze__file_per_thread_logger__0_1_4//:file_per_thread_logger",
-        "@raze__log__0_4_11//:log",
-        "@raze__serde__1_0_117//:serde",
-        "@raze__sha2__0_8_2//:sha2",
-        "@raze__toml__0_5_7//:toml",
-        "@raze__zstd__0_5_3_zstd_1_4_5//:zstd",
+        "@proxy_wasm_cpp_host_raze___anyhow__1_0_34//:anyhow",
+        "@proxy_wasm_cpp_host_raze___base64__0_12_3//:base64",
+        "@proxy_wasm_cpp_host_raze___bincode__1_3_1//:bincode",
+        "@proxy_wasm_cpp_host_raze___directories__2_0_2//:directories",
+        "@proxy_wasm_cpp_host_raze___file_per_thread_logger__0_1_4//:file_per_thread_logger",
+        "@proxy_wasm_cpp_host_raze___log__0_4_11//:log",
+        "@proxy_wasm_cpp_host_raze___serde__1_0_117//:serde",
+        "@proxy_wasm_cpp_host_raze___sha2__0_8_2//:sha2",
+        "@proxy_wasm_cpp_host_raze___toml__0_5_7//:toml",
+        "@proxy_wasm_cpp_host_raze___zstd__0_5_3_zstd_1_4_5//:zstd",
     ] + selects.with_or({
         # cfg(not(target_os = "windows"))
         (
@@ -82,8 +82,8 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__errno__0_2_7//:errno",
-            "@raze__libc__0_2_80//:libc",
+            "@proxy_wasm_cpp_host_raze___errno__0_2_7//:errno",
+            "@proxy_wasm_cpp_host_raze___libc__0_2_80//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -92,7 +92,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:i686-pc-windows-msvc",
             "@io_bazel_rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@raze__winapi__0_3_9//:winapi",
+            "@proxy_wasm_cpp_host_raze___winapi__0_3_9//:winapi",
         ],
         "//conditions:default": [],
     }),

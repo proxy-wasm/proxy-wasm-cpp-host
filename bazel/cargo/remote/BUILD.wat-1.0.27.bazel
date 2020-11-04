@@ -48,6 +48,6 @@ rust_library(
     version = "1.0.27",
     # buildifier: leave-alone
     deps = [
-        "@raze__wast__26_0_1//:wast",
+        "@proxy_wasm_cpp_host_raze___wast__26_0_1//:wast",
     ],
 )

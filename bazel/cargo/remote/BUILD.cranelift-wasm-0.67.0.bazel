@@ -52,13 +52,13 @@ rust_library(
     version = "0.67.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__cranelift_codegen__0_67_0//:cranelift_codegen",
-        "@raze__cranelift_entity__0_67_0//:cranelift_entity",
-        "@raze__cranelift_frontend__0_67_0//:cranelift_frontend",
-        "@raze__log__0_4_11//:log",
-        "@raze__serde__1_0_117//:serde",
-        "@raze__thiserror__1_0_22//:thiserror",
-        "@raze__wasmparser__0_59_0//:wasmparser",
+        "@proxy_wasm_cpp_host_raze___cranelift_codegen__0_67_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host_raze___cranelift_entity__0_67_0//:cranelift_entity",
+        "@proxy_wasm_cpp_host_raze___cranelift_frontend__0_67_0//:cranelift_frontend",
+        "@proxy_wasm_cpp_host_raze___log__0_4_11//:log",
+        "@proxy_wasm_cpp_host_raze___serde__1_0_117//:serde",
+        "@proxy_wasm_cpp_host_raze___thiserror__1_0_22//:thiserror",
+        "@proxy_wasm_cpp_host_raze___wasmparser__0_59_0//:wasmparser",
     ],
 )
 

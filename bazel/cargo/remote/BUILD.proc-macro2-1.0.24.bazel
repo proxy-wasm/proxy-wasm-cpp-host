@@ -53,7 +53,7 @@ rust_library(
     version = "1.0.24",
     # buildifier: leave-alone
     deps = [
-        "@raze__unicode_xid__0_2_1//:unicode_xid",
+        "@proxy_wasm_cpp_host_raze___unicode_xid__0_2_1//:unicode_xid",
     ],
 )
 

@@ -53,7 +53,7 @@ rust_binary(
     deps = [
         # Binaries get an implicit dependency on their crate's lib
         ":cc",
-        "@raze__jobserver__0_1_21//:jobserver",
+        "@proxy_wasm_cpp_host_raze___jobserver__0_1_21//:jobserver",
     ],
 )
 
@@ -77,7 +77,7 @@ rust_library(
     version = "1.0.61",
     # buildifier: leave-alone
     deps = [
-        "@raze__jobserver__0_1_21//:jobserver",
+        "@proxy_wasm_cpp_host_raze___jobserver__0_1_21//:jobserver",
     ],
 )
 

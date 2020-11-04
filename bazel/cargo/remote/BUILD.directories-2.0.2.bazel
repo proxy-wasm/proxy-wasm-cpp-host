@@ -50,7 +50,7 @@ rust_library(
     version = "2.0.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__cfg_if__0_1_10//:cfg_if",
-        "@raze__dirs_sys__0_3_5//:dirs_sys",
+        "@proxy_wasm_cpp_host_raze___cfg_if__0_1_10//:cfg_if",
+        "@proxy_wasm_cpp_host_raze___dirs_sys__0_3_5//:dirs_sys",
     ],
 )

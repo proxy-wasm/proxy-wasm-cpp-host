@@ -49,6 +49,6 @@ rust_library(
     version = "0.8.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__generic_array__0_12_3//:generic_array",
+        "@proxy_wasm_cpp_host_raze___generic_array__0_12_3//:generic_array",
     ],
 )

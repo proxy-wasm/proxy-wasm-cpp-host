@@ -59,10 +59,10 @@ rust_library(
     version = "0.8.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__base64__0_12_3//:base64",
-        "@raze__blake2b_simd__0_5_11//:blake2b_simd",
-        "@raze__constant_time_eq__0_1_5//:constant_time_eq",
-        "@raze__crossbeam_utils__0_7_2//:crossbeam_utils",
+        "@proxy_wasm_cpp_host_raze___base64__0_12_3//:base64",
+        "@proxy_wasm_cpp_host_raze___blake2b_simd__0_5_11//:blake2b_simd",
+        "@proxy_wasm_cpp_host_raze___constant_time_eq__0_1_5//:constant_time_eq",
+        "@proxy_wasm_cpp_host_raze___crossbeam_utils__0_7_2//:crossbeam_utils",
     ],
 )
 

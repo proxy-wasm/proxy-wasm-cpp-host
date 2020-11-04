@@ -54,6 +54,6 @@ rust_library(
     version = "1.2.1",
     # buildifier: leave-alone
     deps = [
-        "@raze__cfg_if__1_0_0//:cfg_if",
+        "@proxy_wasm_cpp_host_raze___cfg_if__1_0_0//:cfg_if",
     ],
 )

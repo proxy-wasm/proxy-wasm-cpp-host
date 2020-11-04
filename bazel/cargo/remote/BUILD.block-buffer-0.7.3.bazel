@@ -48,9 +48,9 @@ rust_library(
     version = "0.7.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__block_padding__0_1_5//:block_padding",
-        "@raze__byte_tools__0_3_1//:byte_tools",
-        "@raze__byteorder__1_3_4//:byteorder",
-        "@raze__generic_array__0_12_3//:generic_array",
+        "@proxy_wasm_cpp_host_raze___block_padding__0_1_5//:block_padding",
+        "@proxy_wasm_cpp_host_raze___byte_tools__0_3_1//:byte_tools",
+        "@proxy_wasm_cpp_host_raze___byteorder__1_3_4//:byteorder",
+        "@proxy_wasm_cpp_host_raze___generic_array__0_12_3//:generic_array",
     ],
 )

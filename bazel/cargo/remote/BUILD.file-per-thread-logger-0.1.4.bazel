@@ -48,8 +48,8 @@ rust_library(
     version = "0.1.4",
     # buildifier: leave-alone
     deps = [
-        "@raze__env_logger__0_7_1//:env_logger",
-        "@raze__log__0_4_11//:log",
+        "@proxy_wasm_cpp_host_raze___env_logger__0_7_1//:env_logger",
+        "@proxy_wasm_cpp_host_raze___log__0_4_11//:log",
     ],
 )
 

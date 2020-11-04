@@ -52,8 +52,8 @@ rust_library(
     version = "0.67.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__cranelift_codegen__0_67_0//:cranelift_codegen",
-        "@raze__target_lexicon__0_11_1//:target_lexicon",
+        "@proxy_wasm_cpp_host_raze___cranelift_codegen__0_67_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",
     ] + selects.with_or({
         # cfg(any(target_arch = "x86", target_arch = "x86_64"))
         (
@@ -69,7 +69,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__raw_cpuid__7_0_3//:raw_cpuid",
+            "@proxy_wasm_cpp_host_raze___raw_cpuid__7_0_3//:raw_cpuid",
         ],
         "//conditions:default": [],
     }),

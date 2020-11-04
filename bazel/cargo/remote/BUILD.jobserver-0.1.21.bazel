@@ -69,7 +69,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@io_bazel_rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@raze__libc__0_2_80//:libc",
+            "@proxy_wasm_cpp_host_raze___libc__0_2_80//:libc",
         ],
         "//conditions:default": [],
     }),

@@ -48,7 +48,7 @@ rust_library(
     version = "0.12.3",
     # buildifier: leave-alone
     deps = [
-        "@raze__typenum__1_12_0//:typenum",
+        "@proxy_wasm_cpp_host_raze___typenum__1_12_0//:typenum",
     ],
 )
 

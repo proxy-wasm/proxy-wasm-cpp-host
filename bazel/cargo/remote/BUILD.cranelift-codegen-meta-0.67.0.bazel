@@ -48,7 +48,7 @@ rust_library(
     version = "0.67.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__cranelift_codegen_shared__0_67_0//:cranelift_codegen_shared",
-        "@raze__cranelift_entity__0_67_0//:cranelift_entity",
+        "@proxy_wasm_cpp_host_raze___cranelift_codegen_shared__0_67_0//:cranelift_codegen_shared",
+        "@proxy_wasm_cpp_host_raze___cranelift_entity__0_67_0//:cranelift_entity",
     ],
 )

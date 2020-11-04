@@ -48,6 +48,6 @@ rust_library(
     version = "0.1.5",
     # buildifier: leave-alone
     deps = [
-        "@raze__byte_tools__0_3_1//:byte_tools",
+        "@proxy_wasm_cpp_host_raze___byte_tools__0_3_1//:byte_tools",
     ],
 )

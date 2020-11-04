@@ -60,7 +60,7 @@ cargo_build_script(
     version = "0.67.0",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__cranelift_codegen_meta__0_67_0//:cranelift_codegen_meta",
+        "@proxy_wasm_cpp_host_raze___cranelift_codegen_meta__0_67_0//:cranelift_codegen_meta",
     ],
 )
 
@@ -89,16 +89,16 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":cranelift_codegen_build_script",
-        "@raze__byteorder__1_3_4//:byteorder",
-        "@raze__cranelift_bforest__0_67_0//:cranelift_bforest",
-        "@raze__cranelift_codegen_shared__0_67_0//:cranelift_codegen_shared",
-        "@raze__cranelift_entity__0_67_0//:cranelift_entity",
-        "@raze__gimli__0_22_0//:gimli",
-        "@raze__log__0_4_11//:log",
-        "@raze__regalloc__0_0_30//:regalloc",
-        "@raze__serde__1_0_117//:serde",
-        "@raze__smallvec__1_4_2//:smallvec",
-        "@raze__target_lexicon__0_11_1//:target_lexicon",
-        "@raze__thiserror__1_0_22//:thiserror",
+        "@proxy_wasm_cpp_host_raze___byteorder__1_3_4//:byteorder",
+        "@proxy_wasm_cpp_host_raze___cranelift_bforest__0_67_0//:cranelift_bforest",
+        "@proxy_wasm_cpp_host_raze___cranelift_codegen_shared__0_67_0//:cranelift_codegen_shared",
+        "@proxy_wasm_cpp_host_raze___cranelift_entity__0_67_0//:cranelift_entity",
+        "@proxy_wasm_cpp_host_raze___gimli__0_22_0//:gimli",
+        "@proxy_wasm_cpp_host_raze___log__0_4_11//:log",
+        "@proxy_wasm_cpp_host_raze___regalloc__0_0_30//:regalloc",
+        "@proxy_wasm_cpp_host_raze___serde__1_0_117//:serde",
+        "@proxy_wasm_cpp_host_raze___smallvec__1_4_2//:smallvec",
+        "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",
+        "@proxy_wasm_cpp_host_raze___thiserror__1_0_22//:thiserror",
     ],
 )

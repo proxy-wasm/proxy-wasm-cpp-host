@@ -48,7 +48,7 @@ rust_library(
     data = ["README.md"],
     edition = "2018",
     proc_macro_deps = [
-        "@raze__scroll_derive__0_10_4//:scroll_derive",
+        "@proxy_wasm_cpp_host_raze___scroll_derive__0_10_4//:scroll_derive",
     ],
     rustc_flags = [
         "--cap-lints=allow",

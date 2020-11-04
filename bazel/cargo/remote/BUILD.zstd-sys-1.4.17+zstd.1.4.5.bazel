@@ -56,9 +56,9 @@ cargo_build_script(
     version = "1.4.17+zstd.1.4.5",
     visibility = ["//visibility:private"],
     deps = [
-        "@raze__cc__1_0_61//:cc",
-        "@raze__glob__0_3_0//:glob",
-        "@raze__itertools__0_9_0//:itertools",
+        "@proxy_wasm_cpp_host_raze___cc__1_0_61//:cc",
+        "@proxy_wasm_cpp_host_raze___glob__0_3_0//:glob",
+        "@proxy_wasm_cpp_host_raze___itertools__0_9_0//:itertools",
     ],
 )
 
@@ -84,6 +84,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":zstd_sys_build_script",
-        "@raze__libc__0_2_80//:libc",
+        "@proxy_wasm_cpp_host_raze___libc__0_2_80//:libc",
     ],
 )

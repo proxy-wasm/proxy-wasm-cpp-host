@@ -50,7 +50,7 @@ rust_library(
     version = "0.14.0",
     # buildifier: leave-alone
     deps = [
-        "@raze__gimli__0_23_0//:gimli",
+        "@proxy_wasm_cpp_host_raze___gimli__0_23_0//:gimli",
     ],
 )
 

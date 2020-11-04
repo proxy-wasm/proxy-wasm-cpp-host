@@ -29,12 +29,13 @@ jitdump = ["wasmtime/jitdump"]
 lightbeam = ["wasmtime/lightbeam"]
 
 [raze]
+gen_workspace_prefix = "proxy_wasm_cpp_host_raze_"
 genmode = "Remote"
 workspace_path = "//bazel/cargo"
 
 [raze.crates.wasmtime-cache.'0.20.0']
 patch_args = ["-p1"]
-patches = ["//bazel/external:wasmtime-0.20.0-fix-git-rev.diff"]
+patches = ["@proxy_wasm_cpp_host//bazel/external:wasmtime-0.20.0-fix-git-rev.diff"]
 
 [raze.crates.target-lexicon.'0.11.1']
 additional_flags = [

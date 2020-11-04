@@ -58,10 +58,10 @@ rust_library(
     version = "0.8.2",
     # buildifier: leave-alone
     deps = [
-        "@raze__block_buffer__0_7_3//:block_buffer",
-        "@raze__digest__0_8_1//:digest",
-        "@raze__fake_simd__0_1_2//:fake_simd",
-        "@raze__opaque_debug__0_2_3//:opaque_debug",
+        "@proxy_wasm_cpp_host_raze___block_buffer__0_7_3//:block_buffer",
+        "@proxy_wasm_cpp_host_raze___digest__0_8_1//:digest",
+        "@proxy_wasm_cpp_host_raze___fake_simd__0_1_2//:fake_simd",
+        "@proxy_wasm_cpp_host_raze___opaque_debug__0_2_3//:opaque_debug",
     ],
 )
 

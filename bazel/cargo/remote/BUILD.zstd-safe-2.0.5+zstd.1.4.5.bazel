@@ -50,7 +50,7 @@ rust_library(
     version = "2.0.5+zstd.1.4.5",
     # buildifier: leave-alone
     deps = [
-        "@raze__libc__0_2_80//:libc",
-        "@raze__zstd_sys__1_4_17_zstd_1_4_5//:zstd_sys",
+        "@proxy_wasm_cpp_host_raze___libc__0_2_80//:libc",
+        "@proxy_wasm_cpp_host_raze___zstd_sys__1_4_17_zstd_1_4_5//:zstd_sys",
     ],
 )

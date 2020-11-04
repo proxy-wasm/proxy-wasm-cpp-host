@@ -60,6 +60,6 @@ rust_library(
     version = "0.5.3+zstd.1.4.5",
     # buildifier: leave-alone
     deps = [
-        "@raze__zstd_safe__2_0_5_zstd_1_4_5//:zstd_safe",
+        "@proxy_wasm_cpp_host_raze___zstd_safe__2_0_5_zstd_1_4_5//:zstd_safe",
     ],
 )
