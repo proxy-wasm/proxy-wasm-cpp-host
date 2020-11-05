@@ -88,5 +88,5 @@ http_archive(
     build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime-c-api.BUILD",
     sha256 = "fdbd6dbb58d15b3566abcc2c62ab18c348027e1620bc2ba0219017999504000e",
     strip_prefix = "wasmtime-v0.20.0-x86_64-linux-c-api",
-    url = "https://github.com/bytecodealliance/wasmtime/releases/download/v0.20.0/wasmtime-v0.20.0-x86_64-linx-c-api.tar.xz",
+    url = "https://github.com/bytecodealliance/wasmtime/releases/download/v0.20.0/wasmtime-v0.20.0-x86_64-linux-c-api.tar.xz",
 )
