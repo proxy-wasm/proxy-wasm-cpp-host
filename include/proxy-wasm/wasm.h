@@ -101,17 +101,6 @@ public:
   }
   void enforceCapabilityRestriction() { enforce_capability_restriction_ = true; }
 
-  // Helper for generating a stub to pass to VM in place of a restricted export
-  template <typename F> struct ExportStub;
-  template <typename... Args> struct ExportStub<Word(void *, Args...)> {
-    static Word exportStub(void *raw_context, Args...) {
-      auto context = exports::ContextOrEffectiveContext(
-          static_cast<ContextBase *>((void)raw_context, current_context_));
-      context->wasmVm()->error("Attempted call to restricted capability");
-      return WasmResult::InternalFailure;
-    }
-  };
-
   virtual ContextBase *createVmContext() { return new ContextBase(this); }
   virtual ContextBase *createRootContext(const std::shared_ptr<PluginBase> &plugin) {
     return new ContextBase(this, plugin);

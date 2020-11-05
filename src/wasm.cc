@@ -129,60 +129,13 @@ void WasmBase::registerCallbacks() {
                                      exports::_fn>::convertFunctionWordToUint32);                  \
   } else {                                                                                         \
     typedef decltype(exports::_fn) export_type;                                                    \
-    constexpr export_type *stub = &ExportStub<export_type>::exportStub;                            \
+    constexpr export_type *stub = &exports::_fn##Stub<export_type>::stub;                          \
     wasm_vm_->registerCallback(                                                                    \
         "env", "proxy_" #_fn, stub,                                                                \
         &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
   }
 
-  _REGISTER_PROXY(log);
-
-  _REGISTER_PROXY(get_status);
-
-  _REGISTER_PROXY(set_property);
-  _REGISTER_PROXY(get_property);
-
-  _REGISTER_PROXY(send_local_response);
-
-  _REGISTER_PROXY(get_shared_data);
-  _REGISTER_PROXY(set_shared_data);
-
-  _REGISTER_PROXY(register_shared_queue);
-  _REGISTER_PROXY(resolve_shared_queue);
-  _REGISTER_PROXY(dequeue_shared_queue);
-  _REGISTER_PROXY(enqueue_shared_queue);
-
-  _REGISTER_PROXY(get_header_map_value);
-  _REGISTER_PROXY(add_header_map_value);
-  _REGISTER_PROXY(replace_header_map_value);
-  _REGISTER_PROXY(remove_header_map_value);
-  _REGISTER_PROXY(get_header_map_pairs);
-  _REGISTER_PROXY(set_header_map_pairs);
-  _REGISTER_PROXY(get_header_map_size);
-
-  _REGISTER_PROXY(get_buffer_status);
-  _REGISTER_PROXY(get_buffer_bytes);
-  _REGISTER_PROXY(set_buffer_bytes);
-
-  _REGISTER_PROXY(http_call);
-
-  _REGISTER_PROXY(grpc_call);
-  _REGISTER_PROXY(grpc_stream);
-  _REGISTER_PROXY(grpc_close);
-  _REGISTER_PROXY(grpc_cancel);
-  _REGISTER_PROXY(grpc_send);
-
-  _REGISTER_PROXY(set_tick_period_milliseconds);
-  _REGISTER_PROXY(get_current_time_nanoseconds);
-
-  _REGISTER_PROXY(define_metric);
-  _REGISTER_PROXY(increment_metric);
-  _REGISTER_PROXY(record_metric);
-  _REGISTER_PROXY(get_metric);
-
-  _REGISTER_PROXY(set_effective_context);
-  _REGISTER_PROXY(done);
-  _REGISTER_PROXY(call_foreign_function);
+  FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES(_REGISTER_PROXY);
 
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
     _REGISTER_PROXY(get_configuration);

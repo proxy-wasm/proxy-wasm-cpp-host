@@ -18,6 +18,7 @@
 #include <memory>
 
 #include "include/proxy-wasm/word.h"
+#include "include/proxy-wasm/wasm_vm.h"
 
 namespace proxy_wasm {
 
@@ -152,6 +153,39 @@ Word pthread_equal(void *, Word left, Word right);
 
 // Any currently executing Wasm call context.
 ::proxy_wasm::ContextBase *ContextOrEffectiveContext(::proxy_wasm::ContextBase *context);
+
+#define FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES(_f)                                                  \
+  _f(log) _f(get_status) _f(set_property) _f(get_property) _f(send_local_response)                 \
+      _f(get_shared_data) _f(set_shared_data) _f(register_shared_queue) _f(resolve_shared_queue)   \
+          _f(dequeue_shared_queue) _f(enqueue_shared_queue) _f(get_header_map_value)               \
+              _f(add_header_map_value) _f(replace_header_map_value) _f(remove_header_map_value)    \
+                  _f(get_header_map_pairs) _f(set_header_map_pairs) _f(get_header_map_size)        \
+                      _f(get_buffer_status) _f(get_buffer_bytes) _f(set_buffer_bytes)              \
+                          _f(http_call) _f(grpc_call) _f(grpc_stream) _f(grpc_close)               \
+                              _f(grpc_cancel) _f(grpc_send) _f(set_tick_period_milliseconds)       \
+                                  _f(get_current_time_nanoseconds) _f(define_metric)               \
+                                      _f(increment_metric) _f(record_metric) _f(get_metric)        \
+                                          _f(set_effective_context) _f(done)                       \
+                                              _f(call_foreign_function)
+
+#define FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES_ABI_SPECIFIC(_f)                                     \
+  _f(get_configuration) _f(continue_request) _f(continue_response) _f(clear_route_cache)           \
+      _f(continue_stream) _f(close_stream) _f(get_log_level)
+
+// Helpers to generate a stub to pass to VM, in place of a restricted export.
+#define _CREATE_EXPORT_STUB(_fn)                                                                   \
+  template <typename F> struct _fn##Stub;                                                          \
+  template <typename... Args> struct _fn##Stub<Word(void *, Args...)> {                            \
+    static Word stub(void *raw_context, Args...) {                                                 \
+      auto context = exports::ContextOrEffectiveContext(                                           \
+          static_cast<ContextBase *>((void)raw_context, current_context_));                        \
+      context->wasmVm()->error("Attempted call to restricted capability: proxy_" #_fn);            \
+      return WasmResult::InternalFailure;                                                          \
+    }                                                                                              \
+  };
+FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES(_CREATE_EXPORT_STUB)
+FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES_ABI_SPECIFIC(_CREATE_EXPORT_STUB)
+#undef _CREATE_EXPORT_STUB
 
 } // namespace exports
 } // namespace proxy_wasm
