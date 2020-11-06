@@ -59,7 +59,8 @@ public:
   std::string_view vm_key() const { return vm_key_; }
   WasmVm *wasm_vm() const { return wasm_vm_.get(); }
   ContextBase *vm_context() const { return vm_context_.get(); }
-  ContextBase *getRootContext(const std::shared_ptr<PluginBase> &plugin, bool allow_closed);
+  ContextBase *getRootContext(std::string_view root_id);
+  ContextBase *getOrCreateRootContext(const std::shared_ptr<PluginBase> &plugin);
   ContextBase *getContext(uint32_t id) {
     auto it = contexts_.find(id);
     if (it != contexts_.end())
@@ -77,7 +78,6 @@ public:
   void timerReady(uint32_t root_context_id);
   void queueReady(uint32_t root_context_id, uint32_t token);
 
-  void startShutdown(const std::shared_ptr<PluginBase> &plugin);
   void startShutdown();
   WasmResult done(ContextBase *root_context);
   void finishShutdown();
@@ -164,12 +164,11 @@ protected:
   uint32_t next_context_id_ = 1;            // 0 is reserved for the VM context.
   std::shared_ptr<ContextBase> vm_context_; // Context unrelated to any specific root or stream
                                             // (e.g. for global constructors).
-  std::unordered_map<std::string, std::unique_ptr<ContextBase>> root_contexts_; // Root contexts.
-  std::unordered_map<std::string, std::unique_ptr<ContextBase>> pending_done_;  // Root contexts.
-  std::unordered_set<std::unique_ptr<ContextBase>> pending_delete_;             // Root contexts.
+  std::unordered_map<std::string, std::unique_ptr<ContextBase>> root_contexts_;
   std::unordered_map<uint32_t, ContextBase *> contexts_;                 // Contains all contexts.
   std::unordered_map<uint32_t, std::chrono::milliseconds> timer_period_; // per root_id.
   std::unique_ptr<ShutdownHandle> shutdown_handle_;
+  std::unordered_set<ContextBase *> pending_done_; // Root contexts not done during shutdown.
 
   WasmCallVoid<0> _initialize_; /* Emscripten v1.39.17+ */
   WasmCallVoid<0> _start_;      /* Emscripten v1.39.0+ */
