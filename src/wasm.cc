@@ -280,11 +280,7 @@ WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
   }
 }
 
-WasmBase::~WasmBase() {
-  root_contexts_.clear();
-  pending_done_.clear();
-  pending_delete_.clear();
-}
+WasmBase::~WasmBase() {}
 
 bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
   if (!wasm_vm_) {
@@ -323,19 +319,22 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
   return !isFailed();
 }
 
-ContextBase *WasmBase::getRootContext(const std::shared_ptr<PluginBase> &plugin,
-                                      bool allow_closed) {
-  auto it = root_contexts_.find(plugin->key());
-  if (it != root_contexts_.end()) {
-    return it->second.get();
+ContextBase *WasmBase::getRootContext(std::string_view root_id) {
+  auto it = root_contexts_.find(std::string(root_id));
+  if (it == root_contexts_.end()) {
+    return nullptr;
   }
-  if (allow_closed) {
-    it = pending_done_.find(plugin->key());
-    if (it != pending_done_.end()) {
-      return it->second.get();
-    }
+  return it->second.get();
+}
+
+ContextBase *WasmBase::getOrCreateRootContext(const std::shared_ptr<PluginBase> &plugin) {
+  auto root_context = getRootContext(plugin->root_id_);
+  if (!root_context) {
+    auto context = std::unique_ptr<ContextBase>(createRootContext(plugin));
+    root_context = context.get();
+    root_contexts_[plugin->root_id_] = std::move(context);
   }
-  return nullptr;
+  return root_context;
 }
 
 void WasmBase::startVm(ContextBase *root_context) {
@@ -353,14 +352,15 @@ bool WasmBase::configure(ContextBase *root_context, std::shared_ptr<PluginBase> 
 }
 
 ContextBase *WasmBase::start(std::shared_ptr<PluginBase> plugin) {
-  auto it = root_contexts_.find(plugin->key());
+  auto root_id = plugin->root_id_;
+  auto it = root_contexts_.find(root_id);
   if (it != root_contexts_.end()) {
     it->second->onStart(plugin);
     return it->second.get();
   }
   auto context = std::unique_ptr<ContextBase>(createRootContext(plugin));
   auto context_ptr = context.get();
-  root_contexts_[plugin->key()] = std::move(context);
+  root_contexts_[root_id] = std::move(context);
   if (!context_ptr->onStart(plugin)) {
     return nullptr;
   }
@@ -377,49 +377,38 @@ uint32_t WasmBase::allocContextId() {
   }
 }
 
-void WasmBase::startShutdown(const std::shared_ptr<PluginBase> &plugin) {
-  auto it = root_contexts_.find(plugin->key());
-  if (it != root_contexts_.end()) {
-    if (it->second->onDone()) {
-      it->second->onDelete();
-    } else {
-      pending_done_[it->first] = std::move(it->second);
-    }
-    root_contexts_.erase(it);
-  }
-}
-
 void WasmBase::startShutdown() {
-  auto it = root_contexts_.begin();
-  while (it != root_contexts_.end()) {
-    if (it->second->onDone()) {
-      it->second->onDelete();
-    } else {
-      pending_done_[it->first] = std::move(it->second);
+  bool all_done = true;
+  for (auto &p : root_contexts_) {
+    if (!p.second->onDone()) {
+      all_done = false;
+      pending_done_.insert(p.second.get());
     }
-    it = root_contexts_.erase(it);
+  }
+  if (!all_done) {
+    shutdown_handle_ = std::make_unique<ShutdownHandle>(shared_from_this());
+  } else {
+    finishShutdown();
   }
 }
 
 WasmResult WasmBase::done(ContextBase *root_context) {
-  auto it = pending_done_.find(root_context->plugin_->key());
+  auto it = pending_done_.find(root_context);
   if (it == pending_done_.end()) {
     return WasmResult::NotFound;
   }
-  pending_delete_.insert(std::move(it->second));
   pending_done_.erase(it);
-  // Defer the delete so that onDelete is not called from within the done() handler.
-  shutdown_handle_ = std::make_unique<ShutdownHandle>(shared_from_this());
-  addAfterVmCallAction(
-      [shutdown_handle = shutdown_handle_.release()]() { delete shutdown_handle; });
+  if (pending_done_.empty() && shutdown_handle_) {
+    // Defer the delete so that onDelete is not called from within the done() handler.
+    addAfterVmCallAction(
+        [shutdown_handle = shutdown_handle_.release()]() { delete shutdown_handle; });
+  }
   return WasmResult::Ok;
 }
 
 void WasmBase::finishShutdown() {
-  auto it = pending_delete_.begin();
-  while (it != pending_delete_.end()) {
-    (*it)->onDelete();
-    it = pending_delete_.erase(it);
+  for (auto &p : root_contexts_) {
+    p.second->onDelete();
   }
 }
 
@@ -531,18 +520,11 @@ getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
                            WasmHandleCloneFactory clone_factory) {
   auto wasm_handle = getThreadLocalWasm(base_wasm->wasm()->vm_key());
   if (wasm_handle) {
-    auto root_context = wasm_handle->wasm()->getRootContext(plugin, false);
-    if (!root_context) {
-      root_context = wasm_handle->wasm()->start(plugin);
-      if (!root_context) {
-        base_wasm->wasm()->fail(FailState::StartFailed, "Failed to start thread-local Wasm");
-        return nullptr;
-      }
-      if (!wasm_handle->wasm()->configure(root_context, plugin)) {
-        base_wasm->wasm()->fail(FailState::ConfigureFailed,
-                                "Failed to configure thread-local Wasm plugin");
-        return nullptr;
-      }
+    auto root_context = wasm_handle->wasm()->getOrCreateRootContext(plugin);
+    if (!wasm_handle->wasm()->configure(root_context, plugin)) {
+      base_wasm->wasm()->fail(FailState::ConfigureFailed,
+                              "Failed to configure thread-local Wasm code");
+      return nullptr;
     }
     return wasm_handle;
   }
