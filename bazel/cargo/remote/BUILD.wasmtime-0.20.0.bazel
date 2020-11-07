@@ -36,9 +36,6 @@ rust_library(
     aliases = {
     },
     crate_features = [
-        "cache",
-        "jitdump",
-        "wasmtime-cache",
     ],
     crate_root = "crates/wasmtime/src/lib.rs",
     crate_type = "lib",
@@ -66,7 +63,6 @@ rust_library(
         "@proxy_wasm_cpp_host_raze___smallvec__1_4_2//:smallvec",
         "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",
         "@proxy_wasm_cpp_host_raze___wasmparser__0_59_0//:wasmparser",
-        "@proxy_wasm_cpp_host_raze___wasmtime_cache__0_20_0//:wasmtime_cache",
         "@proxy_wasm_cpp_host_raze___wasmtime_environ__0_20_0//:wasmtime_environ",
         "@proxy_wasm_cpp_host_raze___wasmtime_jit__0_20_0//:wasmtime_jit",
         "@proxy_wasm_cpp_host_raze___wasmtime_profiling__0_20_0//:wasmtime_profiling",

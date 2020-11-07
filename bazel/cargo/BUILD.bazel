@@ -74,12 +74,3 @@ alias(
         "manual",
     ],
 )
-
-alias(
-    name = "wat",
-    actual = "@proxy_wasm_cpp_host_raze___wat__1_0_27//:wat",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)

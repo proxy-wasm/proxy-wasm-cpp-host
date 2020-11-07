@@ -15,10 +15,7 @@ cc_library(
 rust_library(
     name = "rust_c_api",
     srcs = glob(["crates/c-api/src/**/*.rs"]),
-    crate_features = [
-        "jitdump",
-        "cache",
-    ],
+    crate_features = [],
     crate_root = "crates/c-api/src/lib.rs",
     crate_type = "staticlib",
     edition = "2018",

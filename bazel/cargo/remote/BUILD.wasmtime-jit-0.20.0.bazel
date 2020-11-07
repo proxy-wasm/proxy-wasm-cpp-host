@@ -36,7 +36,6 @@ rust_library(
     aliases = {
     },
     crate_features = [
-        "jitdump",
     ],
     crate_root = "crates/jit/src/lib.rs",
     crate_type = "lib",
