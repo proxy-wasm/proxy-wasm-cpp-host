@@ -57,10 +57,10 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.67.0",
+    version = "0.68.0",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host_raze___cranelift_codegen_meta__0_67_0//:cranelift_codegen_meta",
+        "@proxy_wasm_cpp_host_raze___cranelift_codegen_meta__0_68_0//:cranelift_codegen_meta",
     ],
 )
 
@@ -80,22 +80,24 @@ rust_library(
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
+        "--cfg=feature=\"enable-serde\"",
+        "--cfg=feature=\"bindgen\"",
     ],
     tags = [
         "cargo-raze",
         "manual",
     ],
-    version = "0.67.0",
+    version = "0.68.0",
     # buildifier: leave-alone
     deps = [
         ":cranelift_codegen_build_script",
         "@proxy_wasm_cpp_host_raze___byteorder__1_3_4//:byteorder",
-        "@proxy_wasm_cpp_host_raze___cranelift_bforest__0_67_0//:cranelift_bforest",
-        "@proxy_wasm_cpp_host_raze___cranelift_codegen_shared__0_67_0//:cranelift_codegen_shared",
-        "@proxy_wasm_cpp_host_raze___cranelift_entity__0_67_0//:cranelift_entity",
+        "@proxy_wasm_cpp_host_raze___cranelift_bforest__0_68_0//:cranelift_bforest",
+        "@proxy_wasm_cpp_host_raze___cranelift_codegen_shared__0_68_0//:cranelift_codegen_shared",
+        "@proxy_wasm_cpp_host_raze___cranelift_entity__0_68_0//:cranelift_entity",
         "@proxy_wasm_cpp_host_raze___gimli__0_22_0//:gimli",
         "@proxy_wasm_cpp_host_raze___log__0_4_11//:log",
-        "@proxy_wasm_cpp_host_raze___regalloc__0_0_30//:regalloc",
+        "@proxy_wasm_cpp_host_raze___regalloc__0_0_31//:regalloc",
         "@proxy_wasm_cpp_host_raze___serde__1_0_117//:serde",
         "@proxy_wasm_cpp_host_raze___smallvec__1_4_2//:smallvec",
         "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",

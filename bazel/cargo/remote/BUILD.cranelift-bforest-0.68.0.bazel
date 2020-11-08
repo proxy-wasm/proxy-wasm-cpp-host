@@ -45,9 +45,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.67.0",
+    version = "0.68.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___cranelift_entity__0_67_0//:cranelift_entity",
+        "@proxy_wasm_cpp_host_raze___cranelift_entity__0_68_0//:cranelift_entity",
     ],
 )

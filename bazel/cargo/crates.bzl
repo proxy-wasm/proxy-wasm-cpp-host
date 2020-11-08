@@ -143,73 +143,73 @@ def proxy_wasm_cpp_host_raze__fetch_remote_crates():
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___cranelift_bforest__0_67_0",
+        name = "proxy_wasm_cpp_host_raze___cranelift_bforest__0_68_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-bforest-0.67.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-bforest-0.68.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___cranelift_codegen__0_67_0",
+        name = "proxy_wasm_cpp_host_raze___cranelift_codegen__0_68_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-codegen-0.67.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-codegen-0.68.0.bazel"),
         init_submodules = False,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___cranelift_codegen_meta__0_67_0",
+        name = "proxy_wasm_cpp_host_raze___cranelift_codegen_meta__0_68_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-codegen-meta-0.67.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-codegen-meta-0.68.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___cranelift_codegen_shared__0_67_0",
+        name = "proxy_wasm_cpp_host_raze___cranelift_codegen_shared__0_68_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-codegen-shared-0.67.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-codegen-shared-0.68.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___cranelift_entity__0_67_0",
+        name = "proxy_wasm_cpp_host_raze___cranelift_entity__0_68_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-entity-0.67.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-entity-0.68.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___cranelift_frontend__0_67_0",
+        name = "proxy_wasm_cpp_host_raze___cranelift_frontend__0_68_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-frontend-0.67.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-frontend-0.68.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___cranelift_native__0_67_0",
+        name = "proxy_wasm_cpp_host_raze___cranelift_native__0_68_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-native-0.67.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-native-0.68.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___cranelift_wasm__0_67_0",
+        name = "proxy_wasm_cpp_host_raze___cranelift_wasm__0_68_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-wasm-0.67.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.cranelift-wasm-0.68.0.bazel"),
         init_submodules = True,
     )
 
@@ -225,12 +225,20 @@ def proxy_wasm_cpp_host_raze__fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host_raze___env_logger__0_7_1",
-        url = "https://crates.io/api/v1/crates/env_logger/0.7.1/download",
+        name = "proxy_wasm_cpp_host_raze___either__1_6_1",
+        url = "https://crates.io/api/v1/crates/either/1.6.1/download",
         type = "tar.gz",
-        sha256 = "44533bbbb3bb3c1fa17d9f2e4e38bbbaf8396ba82193c4cb1b6445d711445d36",
-        strip_prefix = "env_logger-0.7.1",
-        build_file = Label("//bazel/cargo/remote:BUILD.env_logger-0.7.1.bazel"),
+        strip_prefix = "either-1.6.1",
+        build_file = Label("//bazel/cargo/remote:BUILD.either-1.6.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "proxy_wasm_cpp_host_raze___env_logger__0_8_1",
+        url = "https://crates.io/api/v1/crates/env_logger/0.8.1/download",
+        type = "tar.gz",
+        strip_prefix = "env_logger-0.8.1",
+        build_file = Label("//bazel/cargo/remote:BUILD.env_logger-0.8.1.bazel"),
     )
 
     maybe(
@@ -275,12 +283,11 @@ def proxy_wasm_cpp_host_raze__fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host_raze___humantime__1_3_0",
-        url = "https://crates.io/api/v1/crates/humantime/1.3.0/download",
+        name = "proxy_wasm_cpp_host_raze___humantime__2_0_1",
+        url = "https://crates.io/api/v1/crates/humantime/2.0.1/download",
         type = "tar.gz",
-        sha256 = "df004cfca50ef23c36850aaaa59ad52cc70d0e90243c3c7737a4dd32dc7a3c4f",
-        strip_prefix = "humantime-1.3.0",
-        build_file = Label("//bazel/cargo/remote:BUILD.humantime-1.3.0.bazel"),
+        strip_prefix = "humantime-2.0.1",
+        build_file = Label("//bazel/cargo/remote:BUILD.humantime-2.0.1.bazel"),
     )
 
     maybe(
@@ -291,6 +298,15 @@ def proxy_wasm_cpp_host_raze__fetch_remote_crates():
         sha256 = "a4d6d89e0948bf10c08b9ecc8ac5b83f07f857ebe2c0cbe38de15b4e4f510356",
         strip_prefix = "indexmap-1.1.0",
         build_file = Label("//bazel/cargo/remote:BUILD.indexmap-1.1.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "proxy_wasm_cpp_host_raze___itertools__0_9_0",
+        url = "https://crates.io/api/v1/crates/itertools/0.9.0/download",
+        type = "tar.gz",
+        strip_prefix = "itertools-0.9.0",
+        build_file = Label("//bazel/cargo/remote:BUILD.itertools-0.9.0.bazel"),
     )
 
     maybe(
@@ -415,12 +431,11 @@ def proxy_wasm_cpp_host_raze__fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host_raze___quick_error__1_2_3",
-        url = "https://crates.io/api/v1/crates/quick-error/1.2.3/download",
+        name = "proxy_wasm_cpp_host_raze___psm__0_1_11",
+        url = "https://crates.io/api/v1/crates/psm/0.1.11/download",
         type = "tar.gz",
-        sha256 = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0",
-        strip_prefix = "quick-error-1.2.3",
-        build_file = Label("//bazel/cargo/remote:BUILD.quick-error-1.2.3.bazel"),
+        strip_prefix = "psm-0.1.11",
+        build_file = Label("//bazel/cargo/remote:BUILD.psm-0.1.11.bazel"),
     )
 
     maybe(
@@ -445,12 +460,11 @@ def proxy_wasm_cpp_host_raze__fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host_raze___regalloc__0_0_30",
-        url = "https://crates.io/api/v1/crates/regalloc/0.0.30/download",
+        name = "proxy_wasm_cpp_host_raze___regalloc__0_0_31",
+        url = "https://crates.io/api/v1/crates/regalloc/0.0.31/download",
         type = "tar.gz",
-        sha256 = "2041c2d34f6ff346d6f428974f03d8bf12679b0c816bb640dc5eb1d48848d8d1",
-        strip_prefix = "regalloc-0.0.30",
-        build_file = Label("//bazel/cargo/remote:BUILD.regalloc-0.0.30.bazel"),
+        strip_prefix = "regalloc-0.0.31",
+        build_file = Label("//bazel/cargo/remote:BUILD.regalloc-0.0.31.bazel"),
     )
 
     maybe(
@@ -655,20 +669,19 @@ def proxy_wasm_cpp_host_raze__fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host_raze___wasmparser__0_59_0",
-        url = "https://crates.io/api/v1/crates/wasmparser/0.59.0/download",
+        name = "proxy_wasm_cpp_host_raze___wasmparser__0_65_0",
+        url = "https://crates.io/api/v1/crates/wasmparser/0.65.0/download",
         type = "tar.gz",
-        sha256 = "a950e6a618f62147fd514ff445b2a0b53120d382751960797f85f058c7eda9b9",
-        strip_prefix = "wasmparser-0.59.0",
-        build_file = Label("//bazel/cargo/remote:BUILD.wasmparser-0.59.0.bazel"),
+        strip_prefix = "wasmparser-0.65.0",
+        build_file = Label("//bazel/cargo/remote:BUILD.wasmparser-0.65.0.bazel"),
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___wasmtime__0_20_0",
+        name = "proxy_wasm_cpp_host_raze___wasmtime__0_21_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-0.20.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-0.21.0.bazel"),
         init_submodules = True,
     )
 
@@ -676,71 +689,71 @@ def proxy_wasm_cpp_host_raze__fetch_remote_crates():
         new_git_repository,
         name = "proxy_wasm_cpp_host_raze___wasmtime_c_api_macros__0_19_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
         build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-c-api-macros-0.19.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___wasmtime_cranelift__0_20_0",
+        name = "proxy_wasm_cpp_host_raze___wasmtime_cranelift__0_21_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-cranelift-0.20.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-cranelift-0.21.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___wasmtime_debug__0_20_0",
+        name = "proxy_wasm_cpp_host_raze___wasmtime_debug__0_21_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-debug-0.20.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-debug-0.21.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___wasmtime_environ__0_20_0",
+        name = "proxy_wasm_cpp_host_raze___wasmtime_environ__0_21_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-environ-0.20.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-environ-0.21.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___wasmtime_jit__0_20_0",
+        name = "proxy_wasm_cpp_host_raze___wasmtime_jit__0_21_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-jit-0.20.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-jit-0.21.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___wasmtime_obj__0_20_0",
+        name = "proxy_wasm_cpp_host_raze___wasmtime_obj__0_21_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-obj-0.20.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-obj-0.21.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___wasmtime_profiling__0_20_0",
+        name = "proxy_wasm_cpp_host_raze___wasmtime_profiling__0_21_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-profiling-0.20.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-profiling-0.21.0.bazel"),
         init_submodules = True,
     )
 
     maybe(
         new_git_repository,
-        name = "proxy_wasm_cpp_host_raze___wasmtime_runtime__0_20_0",
+        name = "proxy_wasm_cpp_host_raze___wasmtime_runtime__0_21_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "a04001211cad679a4322dd70787050eee713fc89",
-        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-runtime-0.20.0.bazel"),
+        commit = "ab1958434a2b7a5b07d197e71b88200d9e06e026",
+        build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-runtime-0.21.0.bazel"),
         init_submodules = True,
     )
 

@@ -31,12 +31,11 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "regalloc",
+    name = "cranelift_codegen_meta",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
     ],
-    crate_root = "src/lib.rs",
+    crate_root = "cranelift/codegen/meta/src/lib.rs",
     crate_type = "lib",
     edition = "2018",
     rustc_flags = [
@@ -46,11 +45,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.0.30",
+    version = "0.68.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___log__0_4_11//:log",
-        "@proxy_wasm_cpp_host_raze___rustc_hash__1_1_0//:rustc_hash",
-        "@proxy_wasm_cpp_host_raze___smallvec__1_4_2//:smallvec",
+        "@proxy_wasm_cpp_host_raze___cranelift_codegen_shared__0_68_0//:cranelift_codegen_shared",
+        "@proxy_wasm_cpp_host_raze___cranelift_entity__0_68_0//:cranelift_entity",
     ],
 )

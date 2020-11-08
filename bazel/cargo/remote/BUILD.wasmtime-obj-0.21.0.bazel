@@ -31,11 +31,11 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "wasmtime_profiling",
+    name = "wasmtime_obj",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "crates/profiling/src/lib.rs",
+    crate_root = "crates/obj/src/lib.rs",
     crate_type = "lib",
     edition = "2018",
     rustc_flags = [
@@ -45,16 +45,14 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.20.0",
+    version = "0.21.0",
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host_raze___anyhow__1_0_34//:anyhow",
-        "@proxy_wasm_cpp_host_raze___cfg_if__0_1_10//:cfg_if",
-        "@proxy_wasm_cpp_host_raze___lazy_static__1_4_0//:lazy_static",
-        "@proxy_wasm_cpp_host_raze___libc__0_2_80//:libc",
-        "@proxy_wasm_cpp_host_raze___serde__1_0_117//:serde",
+        "@proxy_wasm_cpp_host_raze___more_asserts__0_2_1//:more_asserts",
+        "@proxy_wasm_cpp_host_raze___object__0_21_1//:object",
         "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",
-        "@proxy_wasm_cpp_host_raze___wasmtime_environ__0_20_0//:wasmtime_environ",
-        "@proxy_wasm_cpp_host_raze___wasmtime_runtime__0_20_0//:wasmtime_runtime",
+        "@proxy_wasm_cpp_host_raze___wasmtime_debug__0_21_0//:wasmtime_debug",
+        "@proxy_wasm_cpp_host_raze___wasmtime_environ__0_21_0//:wasmtime_environ",
     ],
 )

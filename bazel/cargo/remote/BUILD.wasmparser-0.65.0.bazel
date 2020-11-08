@@ -30,12 +30,16 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "benchmark" with type "bench" omitted
+
+# Unsupported target "simple" with type "example" omitted
+
 rust_library(
-    name = "cranelift_codegen_shared",
+    name = "wasmparser",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "cranelift/codegen/shared/src/lib.rs",
+    crate_root = "src/lib.rs",
     crate_type = "lib",
     edition = "2018",
     rustc_flags = [
@@ -45,7 +49,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.67.0",
+    version = "0.65.0",
     # buildifier: leave-alone
     deps = [
     ],

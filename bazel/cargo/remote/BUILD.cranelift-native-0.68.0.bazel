@@ -49,10 +49,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.67.0",
+    version = "0.68.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___cranelift_codegen__0_67_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host_raze___cranelift_codegen__0_68_0//:cranelift_codegen",
         "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",
     ] + selects.with_or({
         # cfg(any(target_arch = "x86", target_arch = "x86_64"))
