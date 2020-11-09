@@ -245,8 +245,12 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
 }
 
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
-                   std::string_view vm_configuration, std::string_view vm_key)
+                   std::string_view vm_configuration, std::string_view vm_key,
+                   bool enforce_capability_restriction,
+                   std::unordered_set<std::string> allowed_capabilities)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
+      enforce_capability_restriction_(enforce_capability_restriction),
+      allowed_capabilities_(std::move(allowed_capabilities)),
       vm_configuration_(std::string(vm_configuration)) {
   if (!wasm_vm_) {
     failed_ = FailState::UnableToCreateVM;

@@ -45,7 +45,9 @@ using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 class WasmBase : public std::enable_shared_from_this<WasmBase> {
 public:
   WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
-           std::string_view vm_configuration, std::string_view vm_key);
+           std::string_view vm_configuration, std::string_view vm_key,
+           bool enforce_capability_restriction,
+           std::unordered_set<std::string> allowed_capabilities);
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
@@ -96,10 +98,6 @@ public:
     return !enforce_capability_restriction_ ||
            (allowed_capabilities_.find(capability_name) != allowed_capabilities_.end());
   }
-  void allowCapability(std::string capability_name) {
-    allowed_capabilities_.insert(capability_name);
-  }
-  void enforceCapabilityRestriction() { enforce_capability_restriction_ = true; }
 
   virtual ContextBase *createVmContext() { return new ContextBase(this); }
   virtual ContextBase *createRootContext(const std::shared_ptr<PluginBase> &plugin) {
@@ -228,7 +226,7 @@ protected:
   WasmCallVoid<1> on_delete_;
 
   // Capability restriction (restricting/exposing the ABI).
-  bool enforce_capability_restriction_ = false;
+  bool enforce_capability_restriction_;
   std::unordered_set<std::string> allowed_capabilities_;
 
   std::shared_ptr<WasmHandleBase> base_wasm_handle_;
