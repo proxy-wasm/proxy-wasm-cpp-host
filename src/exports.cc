@@ -186,6 +186,7 @@ Word send_local_response(void *raw_context, Word response_code, Word response_co
   auto additional_headers = toPairs(additional_response_header_pairs.value());
   context->sendLocalResponse(response_code, body.value(), std::move(additional_headers), grpc_code,
                              details.value());
+  context->stopIteration();
   return WasmResult::Ok;
 }
 
