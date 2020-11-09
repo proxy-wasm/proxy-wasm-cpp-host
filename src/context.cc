@@ -269,8 +269,10 @@ ContextBase::ContextBase(WasmBase *wasm) : wasm_(wasm), parent_context_(this) {
   wasm_->contexts_[id_] = this;
 }
 
-ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
-  initializeRootBase(wasm, plugin);
+ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin)
+    : wasm_(wasm), id_(wasm->allocContextId()), parent_context_(this), root_id_(plugin->root_id_),
+      root_log_prefix_(makeRootLogPrefix(plugin->vm_id_)), plugin_(plugin) {
+  wasm_->contexts_[id_] = this;
 }
 
 // NB: wasm can be nullptr if it failed to be created successfully.
@@ -287,15 +289,6 @@ ContextBase::ContextBase(WasmBase *wasm, uint32_t parent_context_id,
 WasmVm *ContextBase::wasmVm() const { return wasm_->wasm_vm(); }
 
 bool ContextBase::isFailed() { return !wasm_ || wasm_->isFailed(); }
-
-void ContextBase::initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin) {
-  wasm_ = wasm;
-  id_ = wasm->allocContextId();
-  root_id_ = plugin->root_id_;
-  root_log_prefix_ = makeRootLogPrefix(plugin->vm_id_);
-  parent_context_ = this;
-  wasm_->contexts_[id_] = this;
-}
 
 std::string ContextBase::makeRootLogPrefix(std::string_view vm_id) const {
   std::string prefix;
@@ -315,10 +308,10 @@ bool ContextBase::onStart(std::shared_ptr<PluginBase> plugin) {
   DeferAfterCallActions actions(this);
   bool result = true;
   if (wasm_->on_context_create_) {
-    plugin_ = plugin;
+    temp_plugin_ = plugin;
     wasm_->on_context_create_(this, id_, 0);
     in_vm_context_created_ = true;
-    plugin_.reset();
+    temp_plugin_.reset();
   }
   if (wasm_->on_vm_start_) {
     // Do not set plugin_ as the on_vm_start handler should be independent of the plugin since the
@@ -350,11 +343,11 @@ bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
   }
 
   DeferAfterCallActions actions(this);
-  plugin_ = plugin;
+  temp_plugin_ = plugin;
   auto result =
       wasm_->on_configure_(this, id_, static_cast<uint32_t>(plugin->plugin_configuration_.size()))
           .u64_ != 0;
-  plugin_.reset();
+  temp_plugin_.reset();
   return result;
 }
 
@@ -654,8 +647,8 @@ FilterMetadataStatus ContextBase::convertVmCallResultToFilterMetadataStatus(uint
 }
 
 ContextBase::~ContextBase() {
-  // Do not remove vm or root contexts which have the same lifetime as wasm_.
-  if (parent_context_id_) {
+  // Do not remove vm context which has the same lifetime as wasm_.
+  if (id_) {
     wasm_->contexts_.erase(id_);
   }
 }
