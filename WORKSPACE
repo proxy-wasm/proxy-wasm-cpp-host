@@ -34,20 +34,18 @@ bazel_skylib_workspace()
 # rust rules
 http_archive(
     name = "io_bazel_rules_rust",
-    sha256 = "a9548f4d36082770e891149d68b17b7afe144b0b5321d603a5cb2c16027198ab",
-    strip_prefix = "rules_rust-9c889b057ddf4feddae7c5ae6913b7282154aa24",
-    url = "https://github.com/bazelbuild/rules_rust/archive/9c889b057ddf4feddae7c5ae6913b7282154aa24.tar.gz",
+    sha256 = "7401878bf966325bbec5224eeb4ff7e8762681070b401acaa168da68d383563a",
+    strip_prefix = "rules_rust-9741a32e50a8c50c504c0931111bb6048d6d6888",
+    url = "https://github.com/bazelbuild/rules_rust/archive/9741a32e50a8c50c504c0931111bb6048d6d6888.tar.gz",
 )
 
 load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
 
 rust_repositories()
 
-load("@io_bazel_rules_rust//:workspace.bzl", "bazel_version", "rust_workspace")
+load("@io_bazel_rules_rust//:workspace.bzl", "rust_workspace")
 
 rust_workspace()
-
-bazel_version(name = "bazel_version")
 
 load("//bazel/cargo:crates.bzl", "proxy_wasm_cpp_host_raze__fetch_remote_crates")
 
