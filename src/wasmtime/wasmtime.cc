@@ -21,7 +21,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <utility>
+#include <unordered_map>
 #include <vector>
 
 #include "include/proxy-wasm/wasm_vm.h"
