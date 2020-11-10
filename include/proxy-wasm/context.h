@@ -406,7 +406,6 @@ public:
   DeferAfterCallActions(ContextBase *context) : context_(context) {}
   ~DeferAfterCallActions();
 
-protected:
 private:
   ContextBase *const context_;
 };
