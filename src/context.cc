@@ -225,7 +225,10 @@ SharedData global_shared_data;
 
 } // namespace
 
-DeferAfterCallActions::~DeferAfterCallActions() { wasm_->doAfterVmCallActions(); }
+DeferAfterCallActions::~DeferAfterCallActions() {
+  context_->stop_iteration_ = false;
+  context_->wasm()->doAfterVmCallActions();
+}
 
 WasmResult BufferBase::copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
                               uint64_t size_ptr) const {

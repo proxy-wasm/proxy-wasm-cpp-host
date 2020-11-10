@@ -377,6 +377,7 @@ public:
 
 protected:
   friend class WasmBase;
+  friend class DeferAfterCallActions;
 
   void initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin);
   std::string makeRootLogPrefix(std::string_view vm_id) const;
@@ -402,11 +403,12 @@ private:
 
 class DeferAfterCallActions {
 public:
-  DeferAfterCallActions(ContextBase *context) : wasm_(context->wasm()) {}
+  DeferAfterCallActions(ContextBase *context) : context_(context) {}
   ~DeferAfterCallActions();
 
+protected:
 private:
-  WasmBase *const wasm_;
+  ContextBase *const context_;
 };
 
 uint32_t resolveQueueForTest(std::string_view vm_id, std::string_view queue_name);
