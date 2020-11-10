@@ -547,6 +547,7 @@ std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
   if (!wasm_handle) {
     return nullptr;
   }
+  // Create and initialize new thread-local Plugin.
   auto plugin_context = wasm_handle->wasm()->start(plugin);
   if (!plugin_context) {
     base_handle->wasm()->fail(FailState::StartFailed, "Failed to start thread-local Wasm");
