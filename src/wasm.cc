@@ -542,7 +542,7 @@ std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
     // Remove stale entry.
     local_plugins.erase(key);
   }
-  // Create and initialize new thread-local Plugin.
+  // Get thread-local WasmVM.
   auto wasm_handle = getOrCreateThreadLocalWasm(base_handle, clone_factory);
   if (!wasm_handle) {
     return nullptr;
