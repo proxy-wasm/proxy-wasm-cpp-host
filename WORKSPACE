@@ -81,10 +81,9 @@ http_archive(
 )
 
 http_archive(
-    # used for extracting compatible header files
-    name = "wasmtime_c_api",
-    build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime-c-api.BUILD",
-    sha256 = "c0d4c9209ee25933665c2cfd9d5ff0956c02d4c52f57dfd61fb31fb7baa37f2a",
-    strip_prefix = "wasmtime-v0.21.0-x86_64-linux-c-api",
-    url = "https://github.com/bytecodealliance/wasmtime/releases/download/v0.21.0/wasmtime-v0.21.0-x86_64-linux-c-api.tar.xz",
+    name = "wasm_c_api",
+    build_file = "@proxy_wasm_cpp_host//bazel/external:wasm-c-api.BUILD",
+    sha256 = "aea8cd095e9937f1e14f2c93e026317b197eb2345e7a817fe3932062eb7b792c",
+    strip_prefix = "wasm-c-api-d9a80099d496b5cdba6f3fe8fc77586e0e505ddc",
+    url = "https://github.com/WebAssembly/wasm-c-api/archive/d9a80099d496b5cdba6f3fe8fc77586e0e505ddc.tar.gz",
 )
