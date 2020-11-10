@@ -226,7 +226,7 @@ SharedData global_shared_data;
 } // namespace
 
 DeferAfterCallActions::~DeferAfterCallActions() {
-  context_->stop_iteration_ = false;
+  context_->wasm()->stopNextIteration(false);
   context_->wasm()->doAfterVmCallActions();
 }
 
@@ -625,7 +625,7 @@ WasmResult ContextBase::setTimerPeriod(std::chrono::milliseconds period,
 }
 
 FilterHeadersStatus ContextBase::convertVmCallResultToFilterHeadersStatus(uint64_t result) {
-  if (stop_iteration_ ||
+  if (wasm()->isNextIterationStopped() ||
       result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark)) {
     return FilterHeadersStatus::StopAllIterationAndWatermark;
   }
@@ -633,14 +633,16 @@ FilterHeadersStatus ContextBase::convertVmCallResultToFilterHeadersStatus(uint64
 }
 
 FilterDataStatus ContextBase::convertVmCallResultToFilterDataStatus(uint64_t result) {
-  if (stop_iteration_ || result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer)) {
+  if (wasm()->isNextIterationStopped() ||
+      result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer)) {
     return FilterDataStatus::StopIterationNoBuffer;
   }
   return static_cast<FilterDataStatus>(result);
 }
 
 FilterTrailersStatus ContextBase::convertVmCallResultToFilterTrailersStatus(uint64_t result) {
-  if (stop_iteration_ || result > static_cast<uint64_t>(FilterTrailersStatus::StopIteration)) {
+  if (wasm()->isNextIterationStopped() ||
+      result > static_cast<uint64_t>(FilterTrailersStatus::StopIteration)) {
     return FilterTrailersStatus::StopIteration;
   }
   return static_cast<FilterTrailersStatus>(result);
