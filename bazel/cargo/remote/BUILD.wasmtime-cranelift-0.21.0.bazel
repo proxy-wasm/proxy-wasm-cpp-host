@@ -35,7 +35,7 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
-    crate_root = "crates/cranelift/src/lib.rs",
+    crate_root = "src/lib.rs",
     crate_type = "lib",
     edition = "2018",
     rustc_flags = [

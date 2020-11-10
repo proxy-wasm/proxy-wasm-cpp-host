@@ -47,7 +47,7 @@ cargo_build_script(
         "std",
         "unwind",
     ],
-    crate_root = "cranelift/codegen/build.rs",
+    crate_root = "build.rs",
     data = glob(["**"]),
     edition = "2018",
     rustc_flags = [
@@ -75,7 +75,7 @@ rust_library(
         "std",
         "unwind",
     ],
-    crate_root = "cranelift/codegen/src/lib.rs",
+    crate_root = "src/lib.rs",
     crate_type = "lib",
     edition = "2018",
     rustc_flags = [

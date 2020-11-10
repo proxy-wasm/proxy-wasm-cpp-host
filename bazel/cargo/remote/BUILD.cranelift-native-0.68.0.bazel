@@ -39,7 +39,7 @@ rust_library(
         "default",
         "std",
     ],
-    crate_root = "cranelift/native/src/lib.rs",
+    crate_root = "src/lib.rs",
     crate_type = "lib",
     edition = "2018",
     rustc_flags = [
