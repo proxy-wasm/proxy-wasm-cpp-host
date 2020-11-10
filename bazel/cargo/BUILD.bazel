@@ -1,0 +1,76 @@
+"""
+@generated
+cargo-raze workspace build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+package(default_visibility = ["//visibility:public"])
+
+licenses([
+    "notice",  # See individual crates for specific licenses
+])
+
+# Aliased targets
+alias(
+    name = "anyhow",
+    actual = "@proxy_wasm_cpp_host_raze___anyhow__1_0_34//:anyhow",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "env_logger",
+    actual = "@proxy_wasm_cpp_host_raze___env_logger__0_8_1//:env_logger",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "indexmap",
+    actual = "@proxy_wasm_cpp_host_raze___indexmap__1_1_0//:indexmap",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "object",
+    actual = "@proxy_wasm_cpp_host_raze___object__0_21_1//:object",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "once_cell",
+    actual = "@proxy_wasm_cpp_host_raze___once_cell__1_4_1//:once_cell",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "wasmtime",
+    actual = "@proxy_wasm_cpp_host_raze___wasmtime__0_21_0//:wasmtime",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "wasmtime_c_api_macros",
+    actual = "@proxy_wasm_cpp_host_raze___wasmtime_c_api_macros__0_19_0//:wasmtime_c_api_macros",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
