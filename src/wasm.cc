@@ -37,6 +37,7 @@ namespace {
 
 // Map from Wasm Key to the local Wasm instance.
 thread_local std::unordered_map<std::string, std::weak_ptr<WasmHandleBase>> local_wasms;
+thread_local std::unordered_map<std::string, std::weak_ptr<PluginHandleBase>> local_plugins;
 // Map from Wasm Key to the base Wasm instance, using a pointer to avoid the initialization fiasco.
 std::mutex base_wasms_mutex;
 std::unordered_map<std::string, std::weak_ptr<WasmHandleBase>> *base_wasms = nullptr;
@@ -280,7 +281,11 @@ WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
   }
 }
 
-WasmBase::~WasmBase() {}
+WasmBase::~WasmBase() {
+  root_contexts_.clear();
+  pending_done_.clear();
+  pending_delete_.clear();
+}
 
 bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
   if (!wasm_vm_) {
@@ -319,22 +324,19 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
   return !isFailed();
 }
 
-ContextBase *WasmBase::getRootContext(std::string_view root_id) {
-  auto it = root_contexts_.find(std::string(root_id));
-  if (it == root_contexts_.end()) {
-    return nullptr;
+ContextBase *WasmBase::getRootContext(const std::shared_ptr<PluginBase> &plugin,
+                                      bool allow_closed) {
+  auto it = root_contexts_.find(plugin->key());
+  if (it != root_contexts_.end()) {
+    return it->second.get();
   }
-  return it->second.get();
-}
-
-ContextBase *WasmBase::getOrCreateRootContext(const std::shared_ptr<PluginBase> &plugin) {
-  auto root_context = getRootContext(plugin->root_id_);
-  if (!root_context) {
-    auto context = std::unique_ptr<ContextBase>(createRootContext(plugin));
-    root_context = context.get();
-    root_contexts_[plugin->root_id_] = std::move(context);
+  if (allow_closed) {
+    it = pending_done_.find(plugin->key());
+    if (it != pending_done_.end()) {
+      return it->second.get();
+    }
   }
-  return root_context;
+  return nullptr;
 }
 
 void WasmBase::startVm(ContextBase *root_context) {
@@ -352,15 +354,14 @@ bool WasmBase::configure(ContextBase *root_context, std::shared_ptr<PluginBase> 
 }
 
 ContextBase *WasmBase::start(std::shared_ptr<PluginBase> plugin) {
-  auto root_id = plugin->root_id_;
-  auto it = root_contexts_.find(root_id);
+  auto it = root_contexts_.find(plugin->key());
   if (it != root_contexts_.end()) {
     it->second->onStart(plugin);
     return it->second.get();
   }
   auto context = std::unique_ptr<ContextBase>(createRootContext(plugin));
   auto context_ptr = context.get();
-  root_contexts_[root_id] = std::move(context);
+  root_contexts_[plugin->key()] = std::move(context);
   if (!context_ptr->onStart(plugin)) {
     return nullptr;
   }
@@ -377,38 +378,49 @@ uint32_t WasmBase::allocContextId() {
   }
 }
 
-void WasmBase::startShutdown() {
-  bool all_done = true;
-  for (auto &p : root_contexts_) {
-    if (!p.second->onDone()) {
-      all_done = false;
-      pending_done_.insert(p.second.get());
+void WasmBase::startShutdown(std::string_view plugin_key) {
+  auto it = root_contexts_.find(std::string(plugin_key));
+  if (it != root_contexts_.end()) {
+    if (it->second->onDone()) {
+      it->second->onDelete();
+    } else {
+      pending_done_[it->first] = std::move(it->second);
     }
+    root_contexts_.erase(it);
   }
-  if (!all_done) {
-    shutdown_handle_ = std::make_unique<ShutdownHandle>(shared_from_this());
-  } else {
-    finishShutdown();
+}
+
+void WasmBase::startShutdown() {
+  auto it = root_contexts_.begin();
+  while (it != root_contexts_.end()) {
+    if (it->second->onDone()) {
+      it->second->onDelete();
+    } else {
+      pending_done_[it->first] = std::move(it->second);
+    }
+    it = root_contexts_.erase(it);
   }
 }
 
 WasmResult WasmBase::done(ContextBase *root_context) {
-  auto it = pending_done_.find(root_context);
+  auto it = pending_done_.find(root_context->plugin_->key());
   if (it == pending_done_.end()) {
     return WasmResult::NotFound;
   }
+  pending_delete_.insert(std::move(it->second));
   pending_done_.erase(it);
-  if (pending_done_.empty() && shutdown_handle_) {
-    // Defer the delete so that onDelete is not called from within the done() handler.
-    addAfterVmCallAction(
-        [shutdown_handle = shutdown_handle_.release()]() { delete shutdown_handle; });
-  }
+  // Defer the delete so that onDelete is not called from within the done() handler.
+  shutdown_handle_ = std::make_unique<ShutdownHandle>(shared_from_this());
+  addAfterVmCallAction(
+      [shutdown_handle = shutdown_handle_.release()]() { delete shutdown_handle; });
   return WasmResult::Ok;
 }
 
 void WasmBase::finishShutdown() {
-  for (auto &p : root_contexts_) {
-    p.second->onDelete();
+  auto it = pending_delete_.begin();
+  while (it != pending_delete_.end()) {
+    (*it)->onDelete();
+    it = pending_delete_.erase(it);
   }
 }
 
@@ -475,33 +487,6 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
   return wasm_handle;
 };
 
-static std::shared_ptr<WasmHandleBase>
-createThreadLocalWasm(std::shared_ptr<WasmHandleBase> &base_wasm,
-                      std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory clone_factory) {
-  auto wasm_handle = clone_factory(base_wasm);
-  if (!wasm_handle) {
-    wasm_handle->wasm()->fail(FailState::UnableToCloneVM, "Failed to clone Base Wasm");
-    return nullptr;
-  }
-  if (!wasm_handle->wasm()->initialize(base_wasm->wasm()->code(),
-                                       base_wasm->wasm()->allow_precompiled())) {
-    wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
-    return nullptr;
-  }
-  ContextBase *root_context = wasm_handle->wasm()->start(plugin);
-  if (!root_context) {
-    base_wasm->wasm()->fail(FailState::StartFailed, "Failed to start thread-local Wasm");
-    return nullptr;
-  }
-  if (!wasm_handle->wasm()->configure(root_context, plugin)) {
-    base_wasm->wasm()->fail(FailState::ConfigureFailed,
-                            "Failed to configure thread-local Wasm plugin");
-    return nullptr;
-  }
-  local_wasms[std::string(wasm_handle->wasm()->vm_key())] = wasm_handle;
-  return wasm_handle;
-}
-
 std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_key) {
   auto it = local_wasms.find(std::string(vm_key));
   if (it == local_wasms.end()) {
@@ -514,24 +499,72 @@ std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_key) {
   return wasm;
 }
 
-std::shared_ptr<WasmHandleBase>
-getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
-                           std::shared_ptr<PluginBase> plugin,
+static std::shared_ptr<WasmHandleBase>
+getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_handle,
                            WasmHandleCloneFactory clone_factory) {
-  auto wasm_handle = getThreadLocalWasm(base_wasm->wasm()->vm_key());
-  if (wasm_handle) {
-    auto root_context = wasm_handle->wasm()->getOrCreateRootContext(plugin);
-    if (!wasm_handle->wasm()->configure(root_context, plugin)) {
-      base_wasm->wasm()->fail(FailState::ConfigureFailed,
-                              "Failed to configure thread-local Wasm code");
-      return nullptr;
+  std::string vm_key(base_handle->wasm()->vm_key());
+  // Get existing thread-local WasmVM.
+  auto it = local_wasms.find(vm_key);
+  if (it != local_wasms.end()) {
+    auto wasm_handle = it->second.lock();
+    if (wasm_handle) {
+      return wasm_handle;
     }
-    return wasm_handle;
+    // Remove stale entry.
+    local_wasms.erase(vm_key);
   }
-  return createThreadLocalWasm(base_wasm, plugin, clone_factory);
+  // Create and initialize new thread-local WasmVM.
+  auto wasm_handle = clone_factory(base_handle);
+  if (!wasm_handle) {
+    base_handle->wasm()->fail(FailState::UnableToCloneVM, "Failed to clone Base Wasm");
+    return nullptr;
+  }
+  if (!wasm_handle->wasm()->initialize(base_handle->wasm()->code(),
+                                       base_handle->wasm()->allow_precompiled())) {
+    base_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
+    return nullptr;
+  }
+  local_wasms[vm_key] = wasm_handle;
+  return wasm_handle;
+}
+
+std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
+    std::shared_ptr<WasmHandleBase> base_handle, std::shared_ptr<PluginBase> plugin,
+    WasmHandleCloneFactory clone_factory, PluginHandleFactory plugin_factory) {
+  std::string key(std::string(base_handle->wasm()->vm_key()) + "||" + plugin->key());
+  // Get existing thread-local Plugin handle.
+  auto it = local_plugins.find(key);
+  if (it != local_plugins.end()) {
+    auto plugin_handle = it->second.lock();
+    if (plugin_handle) {
+      return plugin_handle;
+    }
+    // Remove stale entry.
+    local_plugins.erase(key);
+  }
+  // Get thread-local WasmVM.
+  auto wasm_handle = getOrCreateThreadLocalWasm(base_handle, clone_factory);
+  if (!wasm_handle) {
+    return nullptr;
+  }
+  // Create and initialize new thread-local Plugin.
+  auto plugin_context = wasm_handle->wasm()->start(plugin);
+  if (!plugin_context) {
+    base_handle->wasm()->fail(FailState::StartFailed, "Failed to start thread-local Wasm");
+    return nullptr;
+  }
+  if (!wasm_handle->wasm()->configure(plugin_context, plugin)) {
+    base_handle->wasm()->fail(FailState::ConfigureFailed,
+                              "Failed to configure thread-local Wasm plugin");
+    return nullptr;
+  }
+  auto plugin_handle = plugin_factory(wasm_handle, plugin->key());
+  local_plugins[key] = plugin_handle;
+  return plugin_handle;
 }
 
 void clearWasmCachesForTesting() {
+  local_plugins.clear();
   local_wasms.clear();
   std::lock_guard<std::mutex> guard(base_wasms_mutex);
   if (base_wasms) {

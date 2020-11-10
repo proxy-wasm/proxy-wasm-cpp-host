@@ -59,8 +59,7 @@ public:
   std::string_view vm_key() const { return vm_key_; }
   WasmVm *wasm_vm() const { return wasm_vm_.get(); }
   ContextBase *vm_context() const { return vm_context_.get(); }
-  ContextBase *getRootContext(std::string_view root_id);
-  ContextBase *getOrCreateRootContext(const std::shared_ptr<PluginBase> &plugin);
+  ContextBase *getRootContext(const std::shared_ptr<PluginBase> &plugin, bool allow_closed);
   ContextBase *getContext(uint32_t id) {
     auto it = contexts_.find(id);
     if (it != contexts_.end())
@@ -78,6 +77,7 @@ public:
   void timerReady(uint32_t root_context_id);
   void queueReady(uint32_t root_context_id, uint32_t token);
 
+  void startShutdown(std::string_view plugin_key);
   void startShutdown();
   WasmResult done(ContextBase *root_context);
   void finishShutdown();
@@ -170,11 +170,12 @@ protected:
   uint32_t next_context_id_ = 1;            // 0 is reserved for the VM context.
   std::shared_ptr<ContextBase> vm_context_; // Context unrelated to any specific root or stream
                                             // (e.g. for global constructors).
-  std::unordered_map<std::string, std::unique_ptr<ContextBase>> root_contexts_;
+  std::unordered_map<std::string, std::unique_ptr<ContextBase>> root_contexts_; // Root contexts.
+  std::unordered_map<std::string, std::unique_ptr<ContextBase>> pending_done_;  // Root contexts.
+  std::unordered_set<std::unique_ptr<ContextBase>> pending_delete_;             // Root contexts.
   std::unordered_map<uint32_t, ContextBase *> contexts_;                 // Contains all contexts.
   std::unordered_map<uint32_t, std::chrono::milliseconds> timer_period_; // per root_id.
   std::unique_ptr<ShutdownHandle> shutdown_handle_;
-  std::unordered_set<ContextBase *> pending_done_; // Root contexts not done during shutdown.
 
   WasmCallVoid<0> _initialize_; /* Emscripten v1.39.17+ */
   WasmCallVoid<0> _start_;      /* Emscripten v1.39.0+ */
@@ -275,11 +276,29 @@ createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plu
            WasmHandleFactory factory, WasmHandleCloneFactory clone_factory, bool allow_precompiled);
 // Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
 std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_id);
+
+class PluginHandleBase : public std::enable_shared_from_this<PluginHandleBase> {
+public:
+  explicit PluginHandleBase(std::shared_ptr<WasmHandleBase> wasm_handle,
+                            std::string_view plugin_key)
+      : wasm_handle_(wasm_handle), plugin_key_(plugin_key) {}
+  ~PluginHandleBase() { wasm_handle_->wasm()->startShutdown(plugin_key_); }
+
+  std::shared_ptr<WasmBase> &wasm() { return wasm_handle_->wasm(); }
+
+protected:
+  std::shared_ptr<WasmHandleBase> wasm_handle_;
+  std::string plugin_key_;
+};
+
+using PluginHandleFactory = std::function<std::shared_ptr<PluginHandleBase>(
+    std::shared_ptr<WasmHandleBase> base_wasm, std::string_view plugin_key)>;
+
 // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
 // using it it as a template.
-std::shared_ptr<WasmHandleBase>
-getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
-                           std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory factory);
+std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
+    std::shared_ptr<WasmHandleBase> base_wasm, std::shared_ptr<PluginBase> plugin,
+    WasmHandleCloneFactory clone_factory, PluginHandleFactory plugin_factory);
 
 // Clear Base Wasm cache and the thread-local Wasm sandbox cache for the calling thread.
 void clearWasmCachesForTesting();
