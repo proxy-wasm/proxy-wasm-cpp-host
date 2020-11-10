@@ -122,6 +122,12 @@ public:
 
   AbiVersion abiVersion() { return abi_version_; }
 
+  // Called to raise the flag which indicates that the context should stop iteration regardless of
+  // returned filter status from Proxy-Wasm extensions. For example, we ignore
+  // FilterHeadersStatus::Continue after a local reponse is sent by the host.
+  void stopNextIteration(bool stop) { stop_iteration_ = stop; };
+  bool isNextIterationStopped() { return stop_iteration_; };
+
   void addAfterVmCallAction(std::function<void()> f) { after_vm_call_actions_.push_back(f); }
   void doAfterVmCallActions() {
     // NB: this may be deleted by a delayed function unless prevented.
@@ -223,6 +229,7 @@ protected:
   std::string code_;
   std::string vm_configuration_;
   bool allow_precompiled_ = false;
+  bool stop_iteration_ = false;
   FailState failed_ = FailState::Ok; // Wasm VM fatal error.
 
   // ABI version.
