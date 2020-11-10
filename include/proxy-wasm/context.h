@@ -170,11 +170,6 @@ public:
   // Called before deleting the context.
   virtual void destroy();
 
-  // Called to raise the flag which indicates that the context should stop iteration regardless of
-  // returned filter status from Proxy-Wasm extensions. For example, we ignore
-  // FilterHeadersStatus::Continue after a local reponse is sent by the host.
-  void stopIteration() { stop_iteration_ = true; };
-
   /**
    * Calls into the VM.
    * These are implemented by the proxy-independent host code. They are virtual to support some
@@ -393,7 +388,6 @@ protected:
   std::shared_ptr<PluginBase> temp_plugin_; // Remove once ABI v0.1.0 is gone.
   bool in_vm_context_created_ = false;
   bool destroyed_ = false;
-  bool stop_iteration_ = false;
 
 private:
   // helper functions
