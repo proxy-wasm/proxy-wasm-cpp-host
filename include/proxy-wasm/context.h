@@ -388,6 +388,13 @@ protected:
   std::shared_ptr<PluginBase> temp_plugin_; // Remove once ABI v0.1.0 is gone.
   bool in_vm_context_created_ = false;
   bool destroyed_ = false;
+
+private:
+  // helper functions
+  FilterHeadersStatus convertVmCallResultToFilterHeadersStatus(uint64_t result);
+  FilterDataStatus convertVmCallResultToFilterDataStatus(uint64_t result);
+  FilterTrailersStatus convertVmCallResultToFilterTrailersStatus(uint64_t result);
+  FilterMetadataStatus convertVmCallResultToFilterMetadataStatus(uint64_t result);
 };
 
 class DeferAfterCallActions {

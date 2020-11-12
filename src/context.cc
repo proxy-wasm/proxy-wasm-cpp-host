@@ -225,7 +225,10 @@ SharedData global_shared_data;
 
 } // namespace
 
-DeferAfterCallActions::~DeferAfterCallActions() { wasm_->doAfterVmCallActions(); }
+DeferAfterCallActions::~DeferAfterCallActions() {
+  wasm_->stopNextIteration(false);
+  wasm_->doAfterVmCallActions();
+}
 
 WasmResult BufferBase::copyTo(WasmBase *wasm, size_t start, size_t length, uint64_t ptr_ptr,
                               uint64_t size_ptr) const {
@@ -470,93 +473,71 @@ FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_
   CHECK_HTTP2(on_request_headers_abi_01_, on_request_headers_abi_02_, FilterHeadersStatus::Continue,
               FilterHeadersStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  auto result = wasm_->on_request_headers_abi_01_
-                    ? wasm_->on_request_headers_abi_01_(this, id_, headers).u64_
-                    : wasm_
-                          ->on_request_headers_abi_02_(this, id_, headers,
-                                                       static_cast<uint32_t>(end_of_stream))
-                          .u64_;
-  if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
-    return FilterHeadersStatus::StopAllIterationAndWatermark;
-  return static_cast<FilterHeadersStatus>(result);
+  return convertVmCallResultToFilterHeadersStatus(
+      wasm_->on_request_headers_abi_01_
+          ? wasm_->on_request_headers_abi_01_(this, id_, headers).u64_
+          : wasm_
+                ->on_request_headers_abi_02_(this, id_, headers,
+                                             static_cast<uint32_t>(end_of_stream))
+                .u64_);
 }
 
 FilterDataStatus ContextBase::onRequestBody(uint32_t data_length, bool end_of_stream) {
   CHECK_HTTP(on_request_body_, FilterDataStatus::Continue, FilterDataStatus::StopIterationNoBuffer);
   DeferAfterCallActions actions(this);
-  auto result =
-      wasm_->on_request_body_(this, id_, data_length, static_cast<uint32_t>(end_of_stream)).u64_;
-  if (result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer))
-    return FilterDataStatus::StopIterationNoBuffer;
-  return static_cast<FilterDataStatus>(result);
+  return convertVmCallResultToFilterDataStatus(
+      wasm_->on_request_body_(this, id_, data_length, static_cast<uint32_t>(end_of_stream)).u64_);
 }
 
 FilterTrailersStatus ContextBase::onRequestTrailers(uint32_t trailers) {
   CHECK_HTTP(on_request_trailers_, FilterTrailersStatus::Continue,
              FilterTrailersStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  if (static_cast<FilterTrailersStatus>(wasm_->on_request_trailers_(this, id_, trailers).u64_) ==
-      FilterTrailersStatus::Continue) {
-    return FilterTrailersStatus::Continue;
-  }
-  return FilterTrailersStatus::StopIteration;
+  return convertVmCallResultToFilterTrailersStatus(
+      wasm_->on_request_trailers_(this, id_, trailers).u64_);
 }
 
 FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
   CHECK_HTTP(on_request_metadata_, FilterMetadataStatus::Continue, FilterMetadataStatus::Continue);
   DeferAfterCallActions actions(this);
-  if (static_cast<FilterMetadataStatus>(wasm_->on_request_metadata_(this, id_, elements).u64_) ==
-      FilterMetadataStatus::Continue) {
-    return FilterMetadataStatus::Continue;
-  }
-  return FilterMetadataStatus::Continue; // This is currently the only return code.
+  return convertVmCallResultToFilterMetadataStatus(
+      wasm_->on_request_metadata_(this, id_, elements).u64_);
 }
 
 FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of_stream) {
   CHECK_HTTP2(on_response_headers_abi_01_, on_response_headers_abi_02_,
               FilterHeadersStatus::Continue, FilterHeadersStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  auto result = wasm_->on_response_headers_abi_01_
-                    ? wasm_->on_response_headers_abi_01_(this, id_, headers).u64_
-                    : wasm_
-                          ->on_response_headers_abi_02_(this, id_, headers,
-                                                        static_cast<uint32_t>(end_of_stream))
-                          .u64_;
-  if (result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark))
-    return FilterHeadersStatus::StopAllIterationAndWatermark;
-  return static_cast<FilterHeadersStatus>(result);
+  return convertVmCallResultToFilterHeadersStatus(
+      wasm_->on_response_headers_abi_01_
+          ? wasm_->on_response_headers_abi_01_(this, id_, headers).u64_
+          : wasm_
+                ->on_response_headers_abi_02_(this, id_, headers,
+                                              static_cast<uint32_t>(end_of_stream))
+                .u64_);
 }
 
 FilterDataStatus ContextBase::onResponseBody(uint32_t body_length, bool end_of_stream) {
   CHECK_HTTP(on_response_body_, FilterDataStatus::Continue,
              FilterDataStatus::StopIterationNoBuffer);
   DeferAfterCallActions actions(this);
-  auto result =
-      wasm_->on_response_body_(this, id_, body_length, static_cast<uint32_t>(end_of_stream)).u64_;
-  if (result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer))
-    return FilterDataStatus::StopIterationNoBuffer;
-  return static_cast<FilterDataStatus>(result);
+  return convertVmCallResultToFilterDataStatus(
+      wasm_->on_response_body_(this, id_, body_length, static_cast<uint32_t>(end_of_stream)).u64_);
 }
 
 FilterTrailersStatus ContextBase::onResponseTrailers(uint32_t trailers) {
   CHECK_HTTP(on_response_trailers_, FilterTrailersStatus::Continue,
              FilterTrailersStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  if (static_cast<FilterTrailersStatus>(wasm_->on_response_trailers_(this, id_, trailers).u64_) ==
-      FilterTrailersStatus::Continue) {
-    return FilterTrailersStatus::Continue;
-  }
-  return FilterTrailersStatus::StopIteration;
+  return convertVmCallResultToFilterTrailersStatus(
+      wasm_->on_response_trailers_(this, id_, trailers).u64_);
 }
 
 FilterMetadataStatus ContextBase::onResponseMetadata(uint32_t elements) {
   CHECK_HTTP(on_response_metadata_, FilterMetadataStatus::Continue, FilterMetadataStatus::Continue);
   DeferAfterCallActions actions(this);
-  if (static_cast<FilterMetadataStatus>(wasm_->on_response_metadata_(this, id_, elements).u64_) ==
-      FilterMetadataStatus::Continue) {
-    return FilterMetadataStatus::Continue;
-  }
-  return FilterMetadataStatus::Continue; // This is currently the only return code.
+  return convertVmCallResultToFilterMetadataStatus(
+      wasm_->on_response_metadata_(this, id_, elements).u64_);
 }
 
 void ContextBase::onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t body_size,
@@ -634,6 +615,43 @@ WasmResult ContextBase::setTimerPeriod(std::chrono::milliseconds period,
   wasm()->setTimerPeriod(root_context()->id(), period);
   *timer_token_ptr = 0;
   return WasmResult::Ok;
+}
+
+FilterHeadersStatus ContextBase::convertVmCallResultToFilterHeadersStatus(uint64_t result) {
+  if (wasm()->isNextIterationStopped() ||
+      result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark)) {
+    return FilterHeadersStatus::StopAllIterationAndWatermark;
+  }
+  if (result == static_cast<uint64_t>(FilterHeadersStatus::StopIteration)) {
+    // Always convert StopIteration (pause processing headers, but continue processing body)
+    // to StopAllIterationAndWatermark (pause all processing), since the former breaks all
+    // assumptions about HTTP processing.
+    return FilterHeadersStatus::StopAllIterationAndWatermark;
+  }
+  return static_cast<FilterHeadersStatus>(result);
+}
+
+FilterDataStatus ContextBase::convertVmCallResultToFilterDataStatus(uint64_t result) {
+  if (wasm()->isNextIterationStopped() ||
+      result > static_cast<uint64_t>(FilterDataStatus::StopIterationNoBuffer)) {
+    return FilterDataStatus::StopIterationNoBuffer;
+  }
+  return static_cast<FilterDataStatus>(result);
+}
+
+FilterTrailersStatus ContextBase::convertVmCallResultToFilterTrailersStatus(uint64_t result) {
+  if (wasm()->isNextIterationStopped() ||
+      result > static_cast<uint64_t>(FilterTrailersStatus::StopIteration)) {
+    return FilterTrailersStatus::StopIteration;
+  }
+  return static_cast<FilterTrailersStatus>(result);
+}
+
+FilterMetadataStatus ContextBase::convertVmCallResultToFilterMetadataStatus(uint64_t result) {
+  if (static_cast<FilterMetadataStatus>(result) == FilterMetadataStatus::Continue) {
+    return FilterMetadataStatus::Continue;
+  }
+  return FilterMetadataStatus::Continue; // This is currently the only return code.
 }
 
 ContextBase::~ContextBase() {

@@ -77,7 +77,7 @@ public:
   void timerReady(uint32_t root_context_id);
   void queueReady(uint32_t root_context_id, uint32_t token);
 
-  void startShutdown(const std::shared_ptr<PluginBase> &plugin);
+  void startShutdown(std::string_view plugin_key);
   void startShutdown();
   WasmResult done(ContextBase *root_context);
   void finishShutdown();
@@ -121,6 +121,12 @@ public:
   virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
 
   AbiVersion abiVersion() { return abi_version_; }
+
+  // Called to raise the flag which indicates that the context should stop iteration regardless of
+  // returned filter status from Proxy-Wasm extensions. For example, we ignore
+  // FilterHeadersStatus::Continue after a local reponse is sent by the host.
+  void stopNextIteration(bool stop) { stop_iteration_ = stop; };
+  bool isNextIterationStopped() { return stop_iteration_; };
 
   void addAfterVmCallAction(std::function<void()> f) { after_vm_call_actions_.push_back(f); }
   void doAfterVmCallActions() {
@@ -224,6 +230,7 @@ protected:
   std::string code_;
   std::string vm_configuration_;
   bool allow_precompiled_ = false;
+  bool stop_iteration_ = false;
   FailState failed_ = FailState::Ok; // Wasm VM fatal error.
 
   // ABI version.
@@ -269,11 +276,29 @@ createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plu
            WasmHandleFactory factory, WasmHandleCloneFactory clone_factory, bool allow_precompiled);
 // Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
 std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_id);
+
+class PluginHandleBase : public std::enable_shared_from_this<PluginHandleBase> {
+public:
+  explicit PluginHandleBase(std::shared_ptr<WasmHandleBase> wasm_handle,
+                            std::string_view plugin_key)
+      : wasm_handle_(wasm_handle), plugin_key_(plugin_key) {}
+  ~PluginHandleBase() { wasm_handle_->wasm()->startShutdown(plugin_key_); }
+
+  std::shared_ptr<WasmBase> &wasm() { return wasm_handle_->wasm(); }
+
+protected:
+  std::shared_ptr<WasmHandleBase> wasm_handle_;
+  std::string plugin_key_;
+};
+
+using PluginHandleFactory = std::function<std::shared_ptr<PluginHandleBase>(
+    std::shared_ptr<WasmHandleBase> base_wasm, std::string_view plugin_key)>;
+
 // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
 // using it it as a template.
-std::shared_ptr<WasmHandleBase>
-getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_wasm,
-                           std::shared_ptr<PluginBase> plugin, WasmHandleCloneFactory factory);
+std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
+    std::shared_ptr<WasmHandleBase> base_wasm, std::shared_ptr<PluginBase> plugin,
+    WasmHandleCloneFactory clone_factory, PluginHandleFactory plugin_factory);
 
 // Clear Base Wasm cache and the thread-local Wasm sandbox cache for the calling thread.
 void clearWasmCachesForTesting();
