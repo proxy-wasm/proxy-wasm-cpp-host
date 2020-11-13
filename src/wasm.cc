@@ -229,7 +229,6 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
     : std::enable_shared_from_this<WasmBase>(*base_wasm_handle->wasm()),
       vm_id_(base_wasm_handle->wasm()->vm_id_), vm_key_(base_wasm_handle->wasm()->vm_key_),
       started_from_(base_wasm_handle->wasm()->wasm_vm()->cloneable()),
-      enforce_abi_restriction_(base_wasm_handle->wasm()->enforce_abi_restriction_),
       allowed_abi_functions_(base_wasm_handle->wasm()->allowed_abi_functions_),
       base_wasm_handle_(base_wasm_handle) {
   if (started_from_ != Cloneable::NotCloneable) {
@@ -246,10 +245,8 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
 
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
                    std::string_view vm_configuration, std::string_view vm_key,
-                   bool enforce_abi_restriction,
                    std::unordered_set<std::string> allowed_abi_functions)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
-      enforce_abi_restriction_(enforce_abi_restriction),
       allowed_abi_functions_(std::move(allowed_abi_functions)),
       vm_configuration_(std::string(vm_configuration)) {
   if (!wasm_vm_) {

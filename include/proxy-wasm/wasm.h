@@ -46,7 +46,6 @@ class WasmBase : public std::enable_shared_from_this<WasmBase> {
 public:
   WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
            std::string_view vm_configuration, std::string_view vm_key,
-           bool enforce_abi_restriction,
            std::unordered_set<std::string> allowed_abi_functions);
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
@@ -93,10 +92,10 @@ public:
     return nullptr;
   }
 
-  // ABI restriction (restricting/exposing the ABI).
+  // Return true if the named ABI function is allowed to be exposed to the module.
   bool abiFunctionAllowed(std::string abi_function_name) {
-    return !enforce_abi_restriction_ ||
-           (allowed_abi_functions_.find(abi_function_name) != allowed_abi_functions_.end());
+    return allowed_abi_functions_.empty() || 
+           allowed_abi_functions_.find(abi_function_name) != allowed_abi_functions_.end();
   }
 
   virtual ContextBase *createVmContext() { return new ContextBase(this); }
@@ -225,8 +224,8 @@ protected:
   WasmCallVoid<1> on_log_;
   WasmCallVoid<1> on_delete_;
 
-  // ABI restriction (restricting/exposing the ABI).
-  bool enforce_abi_restriction_;
+  // ABI functions which are allowed to be linked to the module. If this is empty, restriction
+  // is not enforced.
   std::unordered_set<std::string> allowed_abi_functions_;
 
   std::shared_ptr<WasmHandleBase> base_wasm_handle_;
