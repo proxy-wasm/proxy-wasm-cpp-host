@@ -120,9 +120,9 @@ void WasmBase::registerCallbacks() {
   _REGISTER_WASI(proc_exit);
 #undef _REGISTER_WASI
 
-  // Register the capability with the VM if it has been allowed, otherwise register a stub.
+  // Register the ABI function with the VM if it has been allowed, otherwise register a stub.
 #define _REGISTER_PROXY(_fn)                                                                       \
-  if (capabilityAllowed("proxy_" #_fn)) {                                                          \
+  if (abiFunctionAllowed("proxy_" #_fn)) {                                                         \
     wasm_vm_->registerCallback(                                                                    \
         "env", "proxy_" #_fn, &exports::_fn,                                                       \
         &ConvertFunctionWordToUint32<decltype(exports::_fn),                                       \
@@ -135,7 +135,7 @@ void WasmBase::registerCallbacks() {
         &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
   }
 
-  FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES(_REGISTER_PROXY);
+  FOR_ALL_HOST_IMPLEMENTED_ABI_FUNCTIONS(_REGISTER_PROXY);
 
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
     _REGISTER_PROXY(get_configuration);
@@ -170,15 +170,15 @@ void WasmBase::getFunctions() {
 #undef _GET_ALIAS
 #undef _GET
 
-  // Try to point the capability to one of the module exports, if the capability has been allowed.
+  // Try to point the ABI function to one of the module exports, if it has been allowed.
 #define _GET_PROXY(_fn)                                                                            \
-  if (capabilityAllowed("proxy_" #_fn)) {                                                          \
+  if (abiFunctionAllowed("proxy_" #_fn)) {                                                         \
     wasm_vm_->getFunction("proxy_" #_fn, &_fn##_);                                                 \
   } else {                                                                                         \
     _fn##_ = nullptr;                                                                              \
   }
 #define _GET_PROXY_ABI(_fn, _abi)                                                                  \
-  if (capabilityAllowed("proxy_" #_fn)) {                                                          \
+  if (abiFunctionAllowed("proxy_" #_fn)) {                                                         \
     wasm_vm_->getFunction("proxy_" #_fn, &_fn##_abi##_);                                           \
   } else {                                                                                         \
     _fn##_abi##_ = nullptr;                                                                        \
@@ -229,8 +229,8 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
     : std::enable_shared_from_this<WasmBase>(*base_wasm_handle->wasm()),
       vm_id_(base_wasm_handle->wasm()->vm_id_), vm_key_(base_wasm_handle->wasm()->vm_key_),
       started_from_(base_wasm_handle->wasm()->wasm_vm()->cloneable()),
-      enforce_capability_restriction_(base_wasm_handle->wasm()->enforce_capability_restriction_),
-      allowed_capabilities_(base_wasm_handle->wasm()->allowed_capabilities_),
+      enforce_abi_restriction_(base_wasm_handle->wasm()->enforce_abi_restriction_),
+      allowed_abi_functions_(base_wasm_handle->wasm()->allowed_abi_functions_),
       base_wasm_handle_(base_wasm_handle) {
   if (started_from_ != Cloneable::NotCloneable) {
     wasm_vm_ = base_wasm_handle->wasm()->wasm_vm()->clone();
@@ -246,11 +246,11 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
 
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
                    std::string_view vm_configuration, std::string_view vm_key,
-                   bool enforce_capability_restriction,
-                   std::unordered_set<std::string> allowed_capabilities)
+                   bool enforce_abi_restriction,
+                   std::unordered_set<std::string> allowed_abi_functions)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
-      enforce_capability_restriction_(enforce_capability_restriction),
-      allowed_capabilities_(std::move(allowed_capabilities)),
+      enforce_abi_restriction_(enforce_abi_restriction),
+      allowed_abi_functions_(std::move(allowed_abi_functions)),
       vm_configuration_(std::string(vm_configuration)) {
   if (!wasm_vm_) {
     failed_ = FailState::UnableToCreateVM;

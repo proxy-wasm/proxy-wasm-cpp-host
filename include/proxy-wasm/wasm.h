@@ -46,8 +46,8 @@ class WasmBase : public std::enable_shared_from_this<WasmBase> {
 public:
   WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
            std::string_view vm_configuration, std::string_view vm_key,
-           bool enforce_capability_restriction,
-           std::unordered_set<std::string> allowed_capabilities);
+           bool enforce_abi_restriction,
+           std::unordered_set<std::string> allowed_abi_functions);
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
@@ -93,10 +93,10 @@ public:
     return nullptr;
   }
 
-  // Capability restriction (restricting/exposing the ABI).
-  bool capabilityAllowed(std::string capability_name) {
-    return !enforce_capability_restriction_ ||
-           (allowed_capabilities_.find(capability_name) != allowed_capabilities_.end());
+  // ABI restriction (restricting/exposing the ABI).
+  bool abiFunctionAllowed(std::string abi_function_name) {
+    return !enforce_abi_restriction_ ||
+           (allowed_abi_functions_.find(abi_function_name) != allowed_abi_functions_.end());
   }
 
   virtual ContextBase *createVmContext() { return new ContextBase(this); }
@@ -225,9 +225,9 @@ protected:
   WasmCallVoid<1> on_log_;
   WasmCallVoid<1> on_delete_;
 
-  // Capability restriction (restricting/exposing the ABI).
-  bool enforce_capability_restriction_;
-  std::unordered_set<std::string> allowed_capabilities_;
+  // ABI restriction (restricting/exposing the ABI).
+  bool enforce_abi_restriction_;
+  std::unordered_set<std::string> allowed_abi_functions_;
 
   std::shared_ptr<WasmHandleBase> base_wasm_handle_;
 
