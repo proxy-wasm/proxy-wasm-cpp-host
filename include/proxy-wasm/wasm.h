@@ -94,7 +94,7 @@ public:
 
   // Return true if the named ABI function is allowed to be exposed to the module.
   bool abiFunctionAllowed(std::string abi_function_name) {
-    return allowed_abi_functions_.empty() || 
+    return allowed_abi_functions_.empty() ||
            allowed_abi_functions_.find(abi_function_name) != allowed_abi_functions_.end();
   }
 

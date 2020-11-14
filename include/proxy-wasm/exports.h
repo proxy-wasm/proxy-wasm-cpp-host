@@ -154,7 +154,7 @@ Word pthread_equal(void *, Word left, Word right);
 // Any currently executing Wasm call context.
 ::proxy_wasm::ContextBase *ContextOrEffectiveContext(::proxy_wasm::ContextBase *context);
 
-#define FOR_ALL_HOST_IMPLEMENTED_ABI_FUNCTIONS(_f)                                                  \
+#define FOR_ALL_HOST_IMPLEMENTED_ABI_FUNCTIONS(_f)                                                 \
   _f(log) _f(get_status) _f(set_property) _f(get_property) _f(send_local_response)                 \
       _f(get_shared_data) _f(set_shared_data) _f(register_shared_queue) _f(resolve_shared_queue)   \
           _f(dequeue_shared_queue) _f(enqueue_shared_queue) _f(get_header_map_value)               \
@@ -168,7 +168,7 @@ Word pthread_equal(void *, Word left, Word right);
                                           _f(set_effective_context) _f(done)                       \
                                               _f(call_foreign_function)
 
-#define FOR_ALL_HOST_IMPLEMENTED_ABI_FUNCTIONS_ABI_SPECIFIC(_f)                                     \
+#define FOR_ALL_HOST_IMPLEMENTED_ABI_FUNCTIONS_ABI_SPECIFIC(_f)                                    \
   _f(get_configuration) _f(continue_request) _f(continue_response) _f(clear_route_cache)           \
       _f(continue_stream) _f(close_stream) _f(get_log_level)
 
