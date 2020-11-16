@@ -1,4 +1,4 @@
-#include "src/shared_data.h"
+#include "src/shared_storage.h"
 
 #include <deque>
 #include <map>
@@ -8,6 +8,9 @@
 #include <unordered_set>
 
 namespace proxy_wasm {
+
+SharedData global_shared_data;
+SharedQueue global_shared_queue;
 
 WasmResult SharedData::get(std::string_view vm_id, const std::string_view key,
                            std::pair<std::string, uint32_t> *result) {
@@ -46,9 +49,9 @@ WasmResult SharedData::set(std::string_view vm_id, std::string_view key, std::st
   return WasmResult::Ok;
 }
 
-uint32_t SharedData::registerQueue(std::string_view vm_id, std::string_view queue_name,
-                                   uint32_t context_id, CallOnThreadFunction call_on_thread,
-                                   std::string_view vm_key) {
+uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view queue_name,
+                                    uint32_t context_id, CallOnThreadFunction call_on_thread,
+                                    std::string_view vm_key) {
   std::lock_guard<std::mutex> lock(mutex_);
   auto key = std::make_pair(std::string(vm_id), std::string(queue_name));
   auto it = queue_tokens_.insert(std::make_pair(key, static_cast<uint32_t>(0)));
@@ -65,7 +68,7 @@ uint32_t SharedData::registerQueue(std::string_view vm_id, std::string_view queu
   return token;
 }
 
-uint32_t SharedData::resolveQueue(std::string_view vm_id, std::string_view queue_name) {
+uint32_t SharedQueue::resolveQueue(std::string_view vm_id, std::string_view queue_name) {
   std::lock_guard<std::mutex> lock(mutex_);
   auto key = std::make_pair(std::string(vm_id), std::string(queue_name));
   auto it = queue_tokens_.find(key);
@@ -75,7 +78,7 @@ uint32_t SharedData::resolveQueue(std::string_view vm_id, std::string_view queue
   return 0; // N.B. zero indicates that the queue was not found.
 }
 
-WasmResult SharedData::dequeue(uint32_t token, std::string *data) {
+WasmResult SharedQueue::dequeue(uint32_t token, std::string *data) {
   std::lock_guard<std::mutex> lock(mutex_);
   auto it = queues_.find(token);
   if (it == queues_.end()) {
@@ -89,7 +92,7 @@ WasmResult SharedData::dequeue(uint32_t token, std::string *data) {
   return WasmResult::Ok;
 }
 
-WasmResult SharedData::enqueue(uint32_t token, std::string_view value) {
+WasmResult SharedQueue::enqueue(uint32_t token, std::string_view value) {
   std::string vm_key;
   uint32_t context_id;
   CallOnThreadFunction call_on_thread;

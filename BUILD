@@ -26,6 +26,7 @@ cc_library(
             "src/**/v8*",
         ],
     ),
+    hdrs = glob(["src/**/*.h"]),
     copts = COPTS,
     deps = [
         ":include",

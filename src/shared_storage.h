@@ -16,7 +16,6 @@
 
 #include <mutex>
 
-#include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
 
 namespace proxy_wasm {
@@ -28,13 +27,6 @@ public:
 
   WasmResult set(std::string_view vm_id, std::string_view key, std::string_view value,
                  uint32_t cas);
-
-  uint32_t registerQueue(std::string_view vm_id, std::string_view queue_name, uint32_t context_id,
-                         CallOnThreadFunction call_on_thread, std::string_view vm_key);
-  uint32_t resolveQueue(std::string_view vm_id, std::string_view queue_name);
-  WasmResult dequeue(uint32_t token, std::string *data);
-  WasmResult enqueue(uint32_t token, std::string_view value);
-
   uint32_t nextCas() {
     auto result = cas_;
     cas_++;
@@ -43,6 +35,21 @@ public:
     }
     return result;
   }
+
+private:
+  // TODO: use std::shared_mutex in C++17.
+  std::mutex mutex_;
+  uint32_t cas_ = 1;
+  std::map<std::string, std::unordered_map<std::string, std::pair<std::string, uint32_t>>> data_;
+};
+
+class SharedQueue {
+public:
+  uint32_t registerQueue(std::string_view vm_id, std::string_view queue_name, uint32_t context_id,
+                         CallOnThreadFunction call_on_thread, std::string_view vm_key);
+  uint32_t resolveQueue(std::string_view vm_id, std::string_view queue_name);
+  WasmResult dequeue(uint32_t token, std::string *data);
+  WasmResult enqueue(uint32_t token, std::string_view value);
 
 private:
   uint32_t nextQueueToken() {
@@ -66,10 +73,8 @@ private:
 
   // TODO: use std::shared_mutex in C++17.
   std::mutex mutex_;
-  uint32_t cas_ = 1;
-  uint32_t next_queue_token_ = 1;
-  std::map<std::string, std::unordered_map<std::string, std::pair<std::string, uint32_t>>> data_;
   std::map<uint32_t, Queue> queues_;
+  uint32_t next_queue_token_ = 1;
   struct pair_hash {
     template <class T1, class T2> std::size_t operator()(const std::pair<T1, T2> &pair) const {
       return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
@@ -79,8 +84,7 @@ private:
   std::unordered_set<uint32_t> queue_token_set_;
 };
 
-namespace {
-SharedData global_shared_data;
-} // namespace
+extern SharedData global_shared_data;
+extern SharedQueue global_shared_queue;
 
 } // namespace proxy_wasm
