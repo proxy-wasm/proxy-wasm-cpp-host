@@ -17,12 +17,15 @@ cc_library(
 cc_library(
     name = "lib",
     srcs = glob(
-        ["src/**/*.cc"],
+        [
+            "src/**/*.cc",
+            "src/**/*.h",
+        ],
         exclude = [
             "src/**/wavm*",
             "src/**/v8*",
         ],
-    ) + glob(["src/**/*.h"]),
+    ),
     copts = COPTS,
     deps = [
         ":include",
