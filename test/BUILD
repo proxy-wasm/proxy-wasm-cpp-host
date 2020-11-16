@@ -41,8 +41,8 @@ cc_test(
 )
 
 cc_test(
-    name = "shared_data_test",
-    srcs = ["shared_data_test.cc"],
+    name = "shared_storage",
+    srcs = ["shared_storage_test.cc"],
     copts = COPTS,
     deps = [
         "//:lib",
