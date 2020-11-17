@@ -690,12 +690,12 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
 }
 
 std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {
-  auto message = "Function: " + std::string(function_name) + " failed:\n";
-  message += "V8 message: " + std::string(trap->message().get(), trap->message().size()) + "\n";
+  auto message = "Function: " + std::string(function_name) + " failed: ";
+  message += std::string(trap->message().get(), trap->message().size()) + "\n";
 
   auto trace = trap->trace();
 
-  message += "wasm backtrace:\n";
+  message += "Proxy-Wasm plugin in-VM backtrace:\n";
   for (size_t i = 0; i < trace.size(); ++i) {
     auto frame = trace[i].get();
     std::ostringstream oss;
