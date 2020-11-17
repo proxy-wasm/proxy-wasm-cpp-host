@@ -14,6 +14,8 @@
 
 #include "src/shared_queue.h"
 
+#include <thread>
+
 #include "gtest/gtest.h"
 
 namespace proxy_wasm {
@@ -53,6 +55,47 @@ TEST(SharedQueue, SingleThread) {
   EXPECT_EQ(data, "value");
 }
 
-// TODO(mathetake): add test cases for concurrent read/write
+void enqueueData(SharedQueue *shared_queue, uint32_t token, size_t num) {
+  for (size_t i = 0; i < num; i++) {
+    shared_queue->enqueue(token, "a");
+  }
+}
+
+void dequeueData(SharedQueue *shared_queue, uint32_t token, size_t *dequeued_count) {
+  std::string data;
+  while (WasmResult::Ok == shared_queue->dequeue(token, &data)) {
+    (*dequeued_count)++;
+  }
+}
+
+TEST(SharedQueue, Concurrent) {
+  SharedQueue shared_queue;
+  std::string_view vm_id = "id";
+  std::string_view vm_key = "vm_key";
+  std::string_view queue_name = "name";
+  uint32_t context_id = 1;
+
+  auto queued_count = 0;
+  std::function<void(std::function<void()>)> call_on_thread =
+      [&queued_count](const std::function<void()> &f) {
+        queued_count++;
+        f(); // TODO(mathetake): test whether onQueueReady is called with mock WasmHandle
+      };
+  auto token = shared_queue.registerQueue(vm_id, queue_name, context_id, call_on_thread, vm_key);
+  EXPECT_EQ(1, token);
+
+  std::thread enqueue_first(enqueueData, &shared_queue, token, 100);
+  std::thread enqueue_second(enqueueData, &shared_queue, token, 100);
+  enqueue_first.join();
+  enqueue_second.join();
+  EXPECT_EQ(queued_count, 200);
+
+  size_t first_cnt = 0, second_cnt = 0;
+  std::thread dequeue_first(dequeueData, &shared_queue, token, &first_cnt);
+  std::thread dequeue_second(dequeueData, &shared_queue, token, &second_cnt);
+  dequeue_first.join();
+  dequeue_second.join();
+  EXPECT_EQ(first_cnt + second_cnt, 200);
+}
 
 } // namespace proxy_wasm
