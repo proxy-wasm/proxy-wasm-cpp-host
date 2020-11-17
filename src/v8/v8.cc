@@ -270,25 +270,27 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
   // build function index -> function name map for backtrace
   // https://webassembly.github.io/spec/core/appendix/custom.html#binary-namesubsection
   auto name_section = getCustomSection("name");
-  const byte_t *pos = name_section.data();
-  const byte_t *end = name_section.data() + name_section.size();
+  if (name_section.size()) {
+    const byte_t *pos = name_section.data();
+    const byte_t *end = name_section.data() + name_section.size();
 
-  // module name subsection (id=0) is currently unimplemented in LLVM but we handle the
-  // case just in case
-  if (*pos == 0) {
-    pos++;
-    pos += parseVarint(pos, end);
-  }
+    // module name subsection (id=0) is currently unimplemented in LLVM but we handle the
+    // case just in case
+    if (*pos == 0) {
+      pos++;
+      pos += parseVarint(pos, end);
+    }
 
-  if (*pos == 1) {
-    pos++;
-    parseVarint(pos, end); // skip subsection size
-    const uint32_t namemap_vector_size = parseVarint(pos, end);
-    for (auto i = 0; i < namemap_vector_size; i++) {
-      const uint32_t func_index = parseVarint(pos, end);
-      const uint32_t func_name_size = parseVarint(pos, end);
-      function_names_index_.insert({func_index, std::string(pos, func_name_size)});
-      pos += func_name_size;
+    if (*pos == 1) {
+      pos++;
+      parseVarint(pos, end); // skip subsection size
+      const uint32_t namemap_vector_size = parseVarint(pos, end);
+      for (auto i = 0; i < namemap_vector_size; i++) {
+        const uint32_t func_index = parseVarint(pos, end);
+        const uint32_t func_name_size = parseVarint(pos, end);
+        function_names_index_.insert({func_index, std::string(pos, func_name_size)});
+        pos += func_name_size;
+      }
     }
   }
   return module_ != nullptr;
@@ -693,8 +695,11 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
   auto message = "Function: " + std::string(function_name) + " failed: ";
   message += std::string(trap->message().get(), trap->message().size()) + "\n";
 
-  auto trace = trap->trace();
+  if (function_names_index_.empty()) {
+    return message;
+  }
 
+  auto trace = trap->trace();
   message += "Proxy-Wasm plugin in-VM backtrace:\n";
   for (size_t i = 0; i < trace.size(); ++i) {
     auto frame = trace[i].get();
