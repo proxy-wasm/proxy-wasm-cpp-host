@@ -20,30 +20,6 @@
 
 namespace proxy_wasm {
 
-class SharedData {
-public:
-  WasmResult get(std::string_view vm_id, const std::string_view key,
-                 std::pair<std::string, uint32_t> *result);
-
-  WasmResult set(std::string_view vm_id, std::string_view key, std::string_view value,
-                 uint32_t cas);
-
-private:
-  uint32_t nextCas() {
-    auto result = cas_;
-    cas_++;
-    if (!cas_) { // 0 is not a valid CAS value.
-      cas_++;
-    }
-    return result;
-  }
-
-  // TODO: use std::shared_mutex in C++17.
-  std::mutex mutex_;
-  uint32_t cas_ = 1;
-  std::map<std::string, std::unordered_map<std::string, std::pair<std::string, uint32_t>>> data_;
-};
-
 class SharedQueue {
 public:
   uint32_t registerQueue(std::string_view vm_id, std::string_view queue_name, uint32_t context_id,
@@ -85,7 +61,6 @@ private:
   std::unordered_set<uint32_t> queue_token_set_;
 };
 
-extern SharedData global_shared_data;
 extern SharedQueue global_shared_queue;
 
 } // namespace proxy_wasm

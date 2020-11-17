@@ -22,7 +22,8 @@
 
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
-#include "src/shared_storage.h"
+#include "src/shared_data.h"
+#include "src/shared_queue.h"
 
 #define CHECK_FAIL(_call, _stream_type, _return_open, _return_closed)                              \
   if (isFailed()) {                                                                                \

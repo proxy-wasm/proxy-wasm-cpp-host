@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "src/shared_storage.h"
+#include "src/shared_queue.h"
 
 #include <deque>
 #include <map>
@@ -23,45 +23,7 @@
 
 namespace proxy_wasm {
 
-SharedData global_shared_data;
 SharedQueue global_shared_queue;
-
-WasmResult SharedData::get(std::string_view vm_id, const std::string_view key,
-                           std::pair<std::string, uint32_t> *result) {
-  std::lock_guard<std::mutex> lock(mutex_);
-  auto map = data_.find(std::string(vm_id));
-  if (map == data_.end()) {
-    return WasmResult::NotFound;
-  }
-  auto it = map->second.find(std::string(key));
-  if (it != map->second.end()) {
-    *result = it->second;
-    return WasmResult::Ok;
-  }
-  return WasmResult::NotFound;
-}
-
-WasmResult SharedData::set(std::string_view vm_id, std::string_view key, std::string_view value,
-                           uint32_t cas) {
-  std::lock_guard<std::mutex> lock(mutex_);
-  std::unordered_map<std::string, std::pair<std::string, uint32_t>> *map;
-  auto map_it = data_.find(std::string(vm_id));
-  if (map_it == data_.end()) {
-    map = &data_[std::string(vm_id)];
-  } else {
-    map = &map_it->second;
-  }
-  auto it = map->find(std::string(key));
-  if (it != map->end()) {
-    if (cas && cas != it->second.second) {
-      return WasmResult::CasMismatch;
-    }
-    it->second = std::make_pair(std::string(value), nextCas());
-  } else {
-    map->emplace(key, std::make_pair(std::string(value), nextCas()));
-  }
-  return WasmResult::Ok;
-}
 
 uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view queue_name,
                                     uint32_t context_id, CallOnThreadFunction call_on_thread,

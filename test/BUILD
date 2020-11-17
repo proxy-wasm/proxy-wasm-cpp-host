@@ -41,8 +41,19 @@ cc_test(
 )
 
 cc_test(
-    name = "shared_storage",
-    srcs = ["shared_storage_test.cc"],
+    name = "shared_data",
+    srcs = ["shared_data_test.cc"],
+    copts = COPTS,
+    deps = [
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "shared_queue",
+    srcs = ["shared_queue_test.cc"],
     copts = COPTS,
     deps = [
         "//:lib",
