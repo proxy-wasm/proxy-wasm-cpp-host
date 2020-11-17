@@ -14,6 +14,8 @@
 
 #include "src/shared_data.h"
 
+#include <thread>
+
 #include "gtest/gtest.h"
 
 namespace proxy_wasm {
@@ -42,6 +44,37 @@ TEST(SharedData, SingleThread) {
   EXPECT_EQ(result.second, 3);
 }
 
-// TODO(mathetake): add test cases for concurrent read/write
+void incrementData(SharedData *shared_data, std::string_view vm_id, std::string_view key) {
+  std::pair<std::string, uint32_t> result;
+  for (auto i = 0; i < 10; i++) {
+    while (true) {
+      if (WasmResult::Ok != shared_data->get(vm_id, key, &result)) {
+        continue;
+      }
+      if (WasmResult::Ok != shared_data->set(vm_id, key, result.first + "a", result.second)) {
+        continue;
+      };
+      break;
+    }
+  }
+  return;
+}
+
+TEST(SharedData, Concurrent) {
+  SharedData shared_data;
+  std::pair<std::string, uint32_t> result;
+
+  std::string_view vm_id = "id";
+  std::string_view key = "key";
+  std::string_view value;
+  EXPECT_EQ(WasmResult::Ok, shared_data.set(vm_id, key, value, 0));
+  std::thread first(incrementData, &shared_data, vm_id, key);
+  std::thread second(incrementData, &shared_data, vm_id, key);
+  first.join();
+  second.join();
+
+  EXPECT_EQ(WasmResult::Ok, shared_data.get(vm_id, key, &result));
+  EXPECT_EQ(result.first, "aaaaaaaaaaaaaaaaaaaa");
+}
 
 } // namespace proxy_wasm
