@@ -53,6 +53,6 @@ TEST(SharedQueue, SingleThread) {
   EXPECT_EQ(data, "value");
 }
 
-// TODO(mathetake): add test cases for concurrenty read/write
+// TODO(mathetake): add test cases for concurrent read/write
 
 } // namespace proxy_wasm

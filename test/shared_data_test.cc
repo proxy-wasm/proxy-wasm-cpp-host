@@ -42,6 +42,6 @@ TEST(SharedData, SingleThread) {
   EXPECT_EQ(result.second, 3);
 }
 
-// TODO(mathetake): add test cases for concurrenty read/write
+// TODO(mathetake): add test cases for concurrent read/write
 
 } // namespace proxy_wasm
