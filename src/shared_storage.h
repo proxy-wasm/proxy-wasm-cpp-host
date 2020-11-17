@@ -27,6 +27,8 @@ public:
 
   WasmResult set(std::string_view vm_id, std::string_view key, std::string_view value,
                  uint32_t cas);
+
+private:
   uint32_t nextCas() {
     auto result = cas_;
     cas_++;
@@ -36,7 +38,6 @@ public:
     return result;
   }
 
-private:
   // TODO: use std::shared_mutex in C++17.
   std::mutex mutex_;
   uint32_t cas_ = 1;
