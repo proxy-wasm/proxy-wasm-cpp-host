@@ -22,10 +22,12 @@ namespace proxy_wasm {
 
 class SharedData {
 public:
+  SharedData();
   WasmResult get(std::string_view vm_id, const std::string_view key,
                  std::pair<std::string, uint32_t> *result);
   WasmResult set(std::string_view vm_id, std::string_view key, std::string_view value,
                  uint32_t cas);
+  void deleteByVmId(std::string_view vm_id);
 
 private:
   uint32_t nextCas() {

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "src/shared_data.h"
+#include "src/vm_id_handle.h"
 
 #include <deque>
 #include <map>
@@ -24,6 +25,15 @@
 namespace proxy_wasm {
 
 SharedData global_shared_data;
+
+SharedData::SharedData() {
+  registerVmIdHandleCallback([this](std::string_view vm_id) { this->deleteByVmId(vm_id); });
+}
+
+void SharedData::deleteByVmId(std::string_view vm_id) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  data_.erase(std::string(vm_id));
+}
 
 WasmResult SharedData::get(std::string_view vm_id, const std::string_view key,
                            std::pair<std::string, uint32_t> *result) {

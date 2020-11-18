@@ -61,3 +61,14 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
 )
+
+cc_test(
+    name = "vm_id_handle",
+    srcs = ["vm_id_handle_test.cc"],
+    copts = COPTS,
+    deps = [
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

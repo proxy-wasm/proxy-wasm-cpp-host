@@ -14,8 +14,6 @@
 // limitations under the License.
 
 #include "include/proxy-wasm/wasm.h"
-#include "src/third_party/base64.h"
-#include "src/third_party/picosha2.h"
 
 #include <cassert>
 #include <stdio.h>
@@ -27,6 +25,10 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+
+#include "src/third_party/base64.h"
+#include "src/third_party/picosha2.h"
+#include "src/vm_id_handle.h"
 
 namespace proxy_wasm {
 
@@ -273,7 +275,7 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
                    std::string_view vm_configuration, std::string_view vm_key)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
-      vm_configuration_(std::string(vm_configuration)) {
+      vm_configuration_(std::string(vm_configuration)), vm_id_handle_(getVmIdHandle(vm_id)) {
   if (!wasm_vm_) {
     failed_ = FailState::UnableToCreateVM;
   } else {
