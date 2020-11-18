@@ -50,20 +50,23 @@ struct PluginBase {
              std::string_view runtime, std::string_view plugin_configuration, bool fail_open)
       : name_(std::string(name)), root_id_(std::string(root_id)), vm_id_(std::string(vm_id)),
         runtime_(std::string(runtime)), plugin_configuration_(plugin_configuration),
-        fail_open_(fail_open) {}
+        fail_open_(fail_open), key_(root_id_ + "||" + plugin_configuration_) {}
 
   const std::string name_;
   const std::string root_id_;
   const std::string vm_id_;
   const std::string runtime_;
-  std::string plugin_configuration_;
+  const std::string plugin_configuration_;
   const bool fail_open_;
+
+  const std::string &key() const { return key_; }
   const std::string &log_prefix() const { return log_prefix_; }
 
 private:
   std::string makeLogPrefix() const;
 
-  std::string log_prefix_;
+  const std::string key_;
+  const std::string log_prefix_;
 };
 
 struct BufferBase : public BufferInterface {
@@ -373,18 +376,25 @@ public:
 protected:
   friend class WasmBase;
 
-  void initializeRootBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin);
   std::string makeRootLogPrefix(std::string_view vm_id) const;
 
   WasmBase *wasm_{nullptr};
   uint32_t id_{0};
-  uint32_t parent_context_id_{0};        // 0 for roots and the general context.
-  ContextBase *parent_context_{nullptr}; // set in all contexts.
-  std::string root_id_;                  // set only in root context.
-  std::string root_log_prefix_;          // set only in root context.
-  std::shared_ptr<PluginBase> plugin_;
+  uint32_t parent_context_id_{0};           // 0 for roots and the general context.
+  ContextBase *parent_context_{nullptr};    // set in all contexts.
+  std::string root_id_;                     // set only in root context.
+  std::string root_log_prefix_;             // set only in root context.
+  std::shared_ptr<PluginBase> plugin_;      // set in root and stream contexts.
+  std::shared_ptr<PluginBase> temp_plugin_; // Remove once ABI v0.1.0 is gone.
   bool in_vm_context_created_ = false;
   bool destroyed_ = false;
+
+private:
+  // helper functions
+  FilterHeadersStatus convertVmCallResultToFilterHeadersStatus(uint64_t result);
+  FilterDataStatus convertVmCallResultToFilterDataStatus(uint64_t result);
+  FilterTrailersStatus convertVmCallResultToFilterTrailersStatus(uint64_t result);
+  FilterMetadataStatus convertVmCallResultToFilterMetadataStatus(uint64_t result);
 };
 
 class DeferAfterCallActions {

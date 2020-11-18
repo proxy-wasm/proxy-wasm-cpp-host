@@ -1,17 +1,8 @@
+load("//:bazel/variables.bzl", "COPTS", "LINKOPTS")
+
 licenses(["notice"])  # Apache 2
 
 package(default_visibility = ["//visibility:public"])
-
-COPTS = select({
-    "@bazel_tools//src/conditions:windows": [
-        "/std:c++17",
-        "-DWITHOUT_ZLIB",
-    ],
-    "//conditions:default": [
-        "-std=c++17",
-        "-DWITHOUT_ZLIB",
-    ],
-})
 
 cc_library(
     name = "include",
@@ -21,42 +12,27 @@ cc_library(
     ],
 )
 
+# TODO(mathetkae): once other runtimes(WAVM,V8) can be linked in this repos,
+#   use -define=wasm=v8|wavm|wasmtime and switch
 cc_library(
     name = "lib",
     srcs = glob(
-        ["src/**/*.cc"],
+        [
+            "src/**/*.cc",
+            "src/**/*.h",
+        ],
         exclude = [
             "src/**/wavm*",
             "src/**/v8*",
         ],
-    ) + glob(["src/**/*.h"]),
+    ),
+    hdrs = glob(["src/**/*.h"]),
     copts = COPTS,
     deps = [
         ":include",
         "@boringssl//:crypto",
         "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
-    ],
-)
-
-cc_test(
-    name = "wasm_vm_test",
-    srcs = ["wasm_vm_test.cc"],
-    copts = COPTS,
-    deps = [
-        ":lib",
-        "@com_google_googletest//:gtest",
-        "@com_google_googletest//:gtest_main",
-    ],
-)
-
-cc_test(
-    name = "context_test",
-    srcs = ["context_test.cc"],
-    copts = COPTS,
-    deps = [
-        ":include",
-        "@com_google_googletest//:gtest",
-        "@com_google_googletest//:gtest_main",
+        "@wasm_c_api//:wasmtime_lib",
     ],
 )
