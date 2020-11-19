@@ -1,4 +1,5 @@
 load("//:bazel/variables.bzl", "COPTS", "LINKOPTS")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 licenses(["notice"])  # Apache 2
 
@@ -8,8 +9,8 @@ cc_library(
     name = "include",
     hdrs = glob(["include/proxy-wasm/**/*.h"]),
     deps = [
-        "@proxy_wasm_cpp_sdk//:common_lib",
         "@com_google_absl//absl/container:flat_hash_set",
+        "@proxy_wasm_cpp_sdk//:common_lib",
     ],
 )
 
