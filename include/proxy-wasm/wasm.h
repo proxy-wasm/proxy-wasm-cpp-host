@@ -27,7 +27,7 @@
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/wasm_vm.h"
-#include "src/vm_id_handle.h"
+#include "include/proxy-wasm/vm_id_handle.h"
 
 namespace proxy_wasm {
 

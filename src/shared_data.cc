@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "src/shared_data.h"
-#include "src/vm_id_handle.h"
 
 #include <deque>
 #include <map>
@@ -21,6 +20,8 @@
 #include <mutex>
 #include <unordered_map>
 #include <unordered_set>
+
+#include "include/proxy-wasm/vm_id_handle.h"
 
 namespace proxy_wasm {
 

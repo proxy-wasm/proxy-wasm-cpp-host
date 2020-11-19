@@ -28,7 +28,7 @@
 
 #include "src/third_party/base64.h"
 #include "src/third_party/picosha2.h"
-#include "src/vm_id_handle.h"
+#include "include/proxy-wasm/vm_id_handle.h"
 
 namespace proxy_wasm {
 
