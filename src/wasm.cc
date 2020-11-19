@@ -99,26 +99,28 @@ void WasmBase::registerCallbacks() {
 #undef _REGISTER
 
 #define _REGISTER_WASI(_fn)                                                                        \
-  wasm_vm_->registerCallback(                                                                      \
-      "wasi_unstable", #_fn, &exports::wasi_unstable_##_fn,                                        \
-      &ConvertFunctionWordToUint32<decltype(exports::wasi_unstable_##_fn),                         \
-                                   exports::wasi_unstable_##_fn>::convertFunctionWordToUint32);    \
-  wasm_vm_->registerCallback(                                                                      \
-      "wasi_snapshot_preview1", #_fn, &exports::wasi_unstable_##_fn,                               \
-      &ConvertFunctionWordToUint32<decltype(exports::wasi_unstable_##_fn),                         \
-                                   exports::wasi_unstable_##_fn>::convertFunctionWordToUint32)
-  _REGISTER_WASI(fd_write);
-  _REGISTER_WASI(fd_read);
-  _REGISTER_WASI(fd_seek);
-  _REGISTER_WASI(fd_close);
-  _REGISTER_WASI(fd_fdstat_get);
-  _REGISTER_WASI(environ_get);
-  _REGISTER_WASI(environ_sizes_get);
-  _REGISTER_WASI(args_get);
-  _REGISTER_WASI(args_sizes_get);
-  _REGISTER_WASI(clock_time_get);
-  _REGISTER_WASI(random_get);
-  _REGISTER_WASI(proc_exit);
+  if (capabilityAllowed(#_fn)) {                                                                   \
+    wasm_vm_->registerCallback(                                                                    \
+        "wasi_unstable", #_fn, &exports::wasi_unstable_##_fn,                                      \
+        &ConvertFunctionWordToUint32<decltype(exports::wasi_unstable_##_fn),                       \
+                                     exports::wasi_unstable_##_fn>::convertFunctionWordToUint32);  \
+    wasm_vm_->registerCallback(                                                                    \
+        "wasi_snapshot_preview1", #_fn, &exports::wasi_unstable_##_fn,                             \
+        &ConvertFunctionWordToUint32<decltype(exports::wasi_unstable_##_fn),                       \
+                                     exports::wasi_unstable_##_fn>::convertFunctionWordToUint32);  \
+  } else {                                                                                         \
+    typedef decltype(exports::wasi_unstable_##_fn) export_type;                                    \
+    constexpr export_type *stub = &exports::_fn##Stub<export_type>::stub;                          \
+    wasm_vm_->registerCallback(                                                                    \
+        "wasi_unstable", #_fn, stub,                                                               \
+        &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
+    wasm_vm_->registerCallback(                                                                    \
+        "wasi_snapshot_preview1", #_fn, stub,                                                      \
+        &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
+  }
+
+  FOR_ALL_WASI_CAPABILITIES(_REGISTER_WASI);
+
 #undef _REGISTER_WASI
 
   // Register the capability with the VM if it has been allowed, otherwise register a stub.

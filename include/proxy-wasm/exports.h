@@ -172,6 +172,11 @@ Word pthread_equal(void *, Word left, Word right);
   _f(get_configuration) _f(continue_request) _f(continue_response) _f(clear_route_cache)           \
       _f(continue_stream) _f(close_stream) _f(get_log_level)
 
+#define FOR_ALL_WASI_CAPABILITIES(_f)                                                              \
+  _f(fd_write) _f(fd_read) _f(fd_seek) _f(fd_close) _f(fd_fdstat_get) _f(environ_get)              \
+      _f(environ_sizes_get) _f(args_get) _f(args_sizes_get) _f(clock_time_get) _f(random_get)      \
+          _f(proc_exit)
+
 // Helpers to generate a stub to pass to VM, in place of a restricted export.
 #define _CREATE_EXPORT_STUB(_fn)                                                                   \
   template <typename F> struct _fn##Stub;                                                          \
@@ -182,9 +187,17 @@ Word pthread_equal(void *, Word left, Word right);
       context->wasmVm()->error("Attempted call to restricted capability: " #_fn);                  \
       return WasmResult::InternalFailure;                                                          \
     }                                                                                              \
+  };                                                                                               \
+  template <typename... Args> struct _fn##Stub<void(void *, Args...)> {                            \
+    static void stub(void *raw_context, Args...) {                                                 \
+      auto context = exports::ContextOrEffectiveContext(                                           \
+          static_cast<ContextBase *>((void)raw_context, current_context_));                        \
+      context->wasmVm()->error("Attempted call to restricted capability: " #_fn);                  \
+    }                                                                                              \
   };
-FOR_ALL_HOST_IMPLEMENTED_ABI_FUNCTIONS(_CREATE_EXPORT_STUB)
-FOR_ALL_HOST_IMPLEMENTED_ABI_FUNCTIONS_ABI_SPECIFIC(_CREATE_EXPORT_STUB)
+FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES(_CREATE_EXPORT_STUB)
+FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES_ABI_SPECIFIC(_CREATE_EXPORT_STUB)
+FOR_ALL_WASI_CAPABILITIES(_CREATE_EXPORT_STUB)
 #undef _CREATE_EXPORT_STUB
 
 } // namespace exports
