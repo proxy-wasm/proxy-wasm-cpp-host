@@ -246,7 +246,7 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
 
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
                    std::string_view vm_configuration, std::string_view vm_key,
-                   std::unordered_set<std::string> allowed_abi_functions)
+                   absl::flat_hash_set<std::string> allowed_abi_functions)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
       allowed_abi_functions_(std::move(allowed_abi_functions)),
       vm_configuration_(std::string(vm_configuration)) {

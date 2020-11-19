@@ -9,6 +9,7 @@ cc_library(
     hdrs = glob(["include/proxy-wasm/**/*.h"]),
     deps = [
         "@proxy_wasm_cpp_sdk//:common_lib",
+        "@com_google_absl//absl/container:flat_hash_set",
     ],
 )
 

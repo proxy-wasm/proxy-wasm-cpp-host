@@ -17,6 +17,13 @@ http_archive(
     urls = ["https://github.com/abseil/abseil-cpp/archive/37dd2562ec830d547a1524bb306be313ac3f2556.tar.gz"],
 )
 
+# required by com_google_absl
+http_archive(
+  name = "rules_cc",
+  urls = ["https://github.com/bazelbuild/rules_cc/archive/262ebec3c2296296526740db4aefce68c80de7fa.zip"],
+  strip_prefix = "rules_cc-262ebec3c2296296526740db4aefce68c80de7fa",
+)
+
 # required by com_google_protobuf
 http_archive(
     name = "bazel_skylib",
