@@ -295,6 +295,7 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
   if (started_from_ == Cloneable::NotCloneable) {
     auto ok = wasm_vm_->load(code, allow_precompiled);
     if (!ok) {
+      fail(FailState::UnableToInitializeCode, "Failed to load Wasm code");
       return false;
     }
     code_ = code;
@@ -303,6 +304,7 @@ bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
 
   abi_version_ = wasm_vm_->getAbiVersion();
   if (abi_version_ == AbiVersion::Unknown) {
+    fail(FailState::UnableToInitializeCode, "Missing or unknown Proxy-Wasm ABI version");
     return false;
   }
 
