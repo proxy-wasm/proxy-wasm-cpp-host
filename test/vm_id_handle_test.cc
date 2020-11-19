@@ -14,8 +14,6 @@
 
 #include "include/proxy-wasm/vm_id_handle.h"
 
-#include <thread>
-
 #include "gtest/gtest.h"
 
 namespace proxy_wasm {
