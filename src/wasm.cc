@@ -186,34 +186,8 @@ void WasmBase::getFunctions() {
   } else {                                                                                         \
     _fn##_abi##_ = nullptr;                                                                        \
   }
-  _GET_PROXY(validate_configuration);
-  _GET_PROXY(on_vm_start);
-  _GET_PROXY(on_configure);
-  _GET_PROXY(on_tick);
 
-  _GET_PROXY(on_context_create);
-
-  _GET_PROXY(on_new_connection);
-  _GET_PROXY(on_downstream_data);
-  _GET_PROXY(on_upstream_data);
-  _GET_PROXY(on_downstream_connection_close);
-  _GET_PROXY(on_upstream_connection_close);
-
-  _GET_PROXY(on_request_body);
-  _GET_PROXY(on_request_trailers);
-  _GET_PROXY(on_request_metadata);
-  _GET_PROXY(on_response_body);
-  _GET_PROXY(on_response_trailers);
-  _GET_PROXY(on_response_metadata);
-  _GET_PROXY(on_http_call_response);
-  _GET_PROXY(on_grpc_receive);
-  _GET_PROXY(on_grpc_close);
-  _GET_PROXY(on_grpc_receive_initial_metadata);
-  _GET_PROXY(on_grpc_receive_trailing_metadata);
-  _GET_PROXY(on_queue_ready);
-  _GET_PROXY(on_done);
-  _GET_PROXY(on_log);
-  _GET_PROXY(on_delete);
+  FOR_ALL_MODULE_FUNCTIONS(_GET_PROXY);
 
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
     _GET_PROXY_ABI(on_request_headers, _abi_01);

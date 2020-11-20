@@ -233,6 +233,16 @@ protected:
   WasmCallVoid<1> on_log_;
   WasmCallVoid<1> on_delete_;
 
+#define FOR_ALL_MODULE_FUNCTIONS(_f)                                                               \
+  _f(validate_configuration) _f(on_vm_start) _f(on_configure) _f(on_tick) _f(on_context_create)    \
+      _f(on_new_connection) _f(on_downstream_data) _f(on_upstream_data)                            \
+          _f(on_downstream_connection_close) _f(on_upstream_connection_close) _f(on_request_body)  \
+              _f(on_request_trailers) _f(on_request_metadata) _f(on_response_body)                 \
+                  _f(on_response_trailers) _f(on_response_metadata) _f(on_http_call_response)      \
+                      _f(on_grpc_receive) _f(on_grpc_close) _f(on_grpc_receive_initial_metadata)   \
+                          _f(on_grpc_receive_trailing_metadata) _f(on_queue_ready) _f(on_done)     \
+                              _f(on_log) _f(on_delete)
+
   // Capabilities which are allowed to be linked to the module. If this is empty, restriction
   // is not enforced.
   absl::flat_hash_set<std::string> allowed_capabilities_;
