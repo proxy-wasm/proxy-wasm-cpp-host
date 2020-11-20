@@ -90,46 +90,30 @@ RegisterForeignFunction::RegisterForeignFunction(std::string name, WasmForeignFu
 }
 
 void WasmBase::registerCallbacks() {
-#define _REGISTER_WASI(_fn)                                                                        \
-  if (capabilityAllowed(#_fn)) {                                                                   \
-    wasm_vm_->registerCallback(                                                                    \
-        "wasi_unstable", #_fn, &exports::wasi_unstable_##_fn,                                      \
-        &ConvertFunctionWordToUint32<decltype(exports::wasi_unstable_##_fn),                       \
-                                     exports::wasi_unstable_##_fn>::convertFunctionWordToUint32);  \
-    wasm_vm_->registerCallback(                                                                    \
-        "wasi_snapshot_preview1", #_fn, &exports::wasi_unstable_##_fn,                             \
-        &ConvertFunctionWordToUint32<decltype(exports::wasi_unstable_##_fn),                       \
-                                     exports::wasi_unstable_##_fn>::convertFunctionWordToUint32);  \
-  } else {                                                                                         \
-    typedef decltype(exports::wasi_unstable_##_fn) export_type;                                    \
-    constexpr export_type *stub = &exports::_fn##Stub<export_type>::stub;                          \
-    wasm_vm_->registerCallback(                                                                    \
-        "wasi_unstable", #_fn, stub,                                                               \
-        &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
-    wasm_vm_->registerCallback(                                                                    \
-        "wasi_snapshot_preview1", #_fn, stub,                                                      \
-        &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
-  }
-
-  FOR_ALL_WASI_FUNCTIONS(_REGISTER_WASI);
-
-#undef _REGISTER_WASI
 
   // Register the capability with the VM if it has been allowed, otherwise register a stub.
-#define _REGISTER_PROXY(_fn)                                                                       \
-  if (capabilityAllowed("proxy_" #_fn)) {                                                          \
+#define _REGISTER(module_name, name_prefix, export_prefix, _fn)                                    \
+  if (capabilityAllowed(name_prefix #_fn)) {                                                       \
     wasm_vm_->registerCallback(                                                                    \
-        "env", "proxy_" #_fn, &exports::_fn,                                                       \
-        &ConvertFunctionWordToUint32<decltype(exports::_fn),                                       \
-                                     exports::_fn>::convertFunctionWordToUint32);                  \
+        module_name, name_prefix #_fn, &exports::export_prefix##_fn,                               \
+        &ConvertFunctionWordToUint32<decltype(exports::export_prefix##_fn),                        \
+                                     exports::export_prefix##_fn>::convertFunctionWordToUint32);   \
   } else {                                                                                         \
-    typedef decltype(exports::_fn) export_type;                                                    \
+    typedef decltype(exports::export_prefix##_fn) export_type;                                     \
     constexpr export_type *stub = &exports::_fn##Stub<export_type>::stub;                          \
     wasm_vm_->registerCallback(                                                                    \
-        "env", "proxy_" #_fn, stub,                                                                \
+        module_name, name_prefix #_fn, stub,                                                       \
         &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
   }
 
+#define _REGISTER_WASI_UNSTABLE(_fn) _REGISTER("wasi_unstable", , wasi_unstable_, _fn)
+#define _REGISTER_WASI_SNAPSHOT(_fn) _REGISTER("wasi_snapshot_preview1", , wasi_unstable_, _fn)
+  FOR_ALL_WASI_FUNCTIONS(_REGISTER_WASI_UNSTABLE);
+  FOR_ALL_WASI_FUNCTIONS(_REGISTER_WASI_SNAPSHOT);
+#undef _REGISTER_WASI_UNSTABLE
+#undef _REGISTER_WASI_SNAPSHOT
+
+#define _REGISTER_PROXY(_fn) _REGISTER("env", "proxy_", , _fn)
   FOR_ALL_HOST_FUNCTIONS(_REGISTER_PROXY);
 
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
@@ -146,6 +130,8 @@ void WasmBase::registerCallbacks() {
     _REGISTER_PROXY(get_log_level);
   }
 #undef _REGISTER_PROXY
+
+#undef _REGISTER
 }
 
 void WasmBase::getFunctions() {
