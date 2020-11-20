@@ -119,7 +119,7 @@ void WasmBase::registerCallbacks() {
         &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
   }
 
-  FOR_ALL_WASI_CAPABILITIES(_REGISTER_WASI);
+  FOR_ALL_WASI_FUNCTIONS(_REGISTER_WASI);
 
 #undef _REGISTER_WASI
 
@@ -138,7 +138,7 @@ void WasmBase::registerCallbacks() {
         &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
   }
 
-  FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES(_REGISTER_PROXY);
+  FOR_ALL_HOST_FUNCTIONS(_REGISTER_PROXY);
 
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
     _REGISTER_PROXY(get_configuration);

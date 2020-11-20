@@ -58,7 +58,7 @@ template <typename Pairs> void marshalPairs(const Pairs &result, char *buffer) {
   }
 }
 
-// Capabilities exported from envoy to wasm.
+// ABI functions exported from host to wasm.
 
 Word get_configuration(void *raw_context, Word address, Word size);
 Word get_status(void *raw_context, Word status_code, Word address, Word size);
@@ -154,7 +154,7 @@ Word pthread_equal(void *, Word left, Word right);
 // Any currently executing Wasm call context.
 ::proxy_wasm::ContextBase *ContextOrEffectiveContext(::proxy_wasm::ContextBase *context);
 
-#define FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES(_f)                                                  \
+#define FOR_ALL_HOST_FUNCTIONS(_f)                                                                 \
   _f(log) _f(get_status) _f(set_property) _f(get_property) _f(send_local_response)                 \
       _f(get_shared_data) _f(set_shared_data) _f(register_shared_queue) _f(resolve_shared_queue)   \
           _f(dequeue_shared_queue) _f(enqueue_shared_queue) _f(get_header_map_value)               \
@@ -168,11 +168,11 @@ Word pthread_equal(void *, Word left, Word right);
                                           _f(set_effective_context) _f(done)                       \
                                               _f(call_foreign_function)
 
-#define FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES_ABI_SPECIFIC(_f)                                     \
+#define FOR_ALL_HOST_FUNCTIONS_ABI_SPECIFIC(_f)                                                    \
   _f(get_configuration) _f(continue_request) _f(continue_response) _f(clear_route_cache)           \
       _f(continue_stream) _f(close_stream) _f(get_log_level)
 
-#define FOR_ALL_WASI_CAPABILITIES(_f)                                                              \
+#define FOR_ALL_WASI_FUNCTIONS(_f)                                                                 \
   _f(fd_write) _f(fd_read) _f(fd_seek) _f(fd_close) _f(fd_fdstat_get) _f(environ_get)              \
       _f(environ_sizes_get) _f(args_get) _f(args_sizes_get) _f(clock_time_get) _f(random_get)      \
           _f(proc_exit)
@@ -195,9 +195,9 @@ Word pthread_equal(void *, Word left, Word right);
       context->wasmVm()->error("Attempted call to restricted capability: " #_fn);                  \
     }                                                                                              \
   };
-FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES(_CREATE_EXPORT_STUB)
-FOR_ALL_HOST_IMPLEMENTED_CAPABILITIES_ABI_SPECIFIC(_CREATE_EXPORT_STUB)
-FOR_ALL_WASI_CAPABILITIES(_CREATE_EXPORT_STUB)
+FOR_ALL_HOST_FUNCTIONS(_CREATE_EXPORT_STUB)
+FOR_ALL_HOST_FUNCTIONS_ABI_SPECIFIC(_CREATE_EXPORT_STUB)
+FOR_ALL_WASI_FUNCTIONS(_CREATE_EXPORT_STUB)
 #undef _CREATE_EXPORT_STUB
 
 } // namespace exports
