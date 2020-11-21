@@ -834,6 +834,8 @@ void wasi_unstable_proc_exit(void *raw_context, Word) {
   context->error("wasi_unstable proc_exit");
 }
 
+Word pthread_equal(void *, Word left, Word right) { return left == right; }
+
 Word set_tick_period_milliseconds(void *raw_context, Word period_milliseconds) {
   TimerToken token = 0;
   return WASM_CONTEXT(raw_context)
