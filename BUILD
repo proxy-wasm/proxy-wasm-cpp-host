@@ -1,4 +1,4 @@
-load("//:bazel/variables.bzl", "COPTS", "LINKOPTS")
+load("@proxy_wasm_cpp_host//bazel:variables.bzl", "COPTS", "LINKOPTS")
 
 licenses(["notice"])  # Apache 2
 
