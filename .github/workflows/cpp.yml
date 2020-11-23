@@ -53,6 +53,15 @@ jobs:
         export PATH=$PATH:$(go env GOPATH)/bin
         addlicense -check .
 
+    - name: Format (cargo raze)
+      run: |
+        cargo install cargo-raze --version 0.7.0
+        cp -p bazel/cargo/Cargo.lock .
+        rm -rf bazel/cargo/
+        cargo raze --output=bazel/cargo
+        mv Cargo.lock bazel/cargo/
+        git diff --exit-code
+
   build:
     runs-on: ubuntu-latest
     
