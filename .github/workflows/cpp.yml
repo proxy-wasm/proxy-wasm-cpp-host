@@ -53,13 +53,18 @@ jobs:
         export PATH=$PATH:$(go env GOPATH)/bin
         addlicense -check .
 
+    - name: Cache (Cargo)
+      uses: actions/cache@v2
+      with:
+        key: cargo-raze-0.7.0
+        path: |
+          ~/.cargo
+
     - name: Format (cargo raze)
+      working-directory: bazel/cargo
       run: |
         cargo install cargo-raze --version 0.7.0
-        cp -p bazel/cargo/Cargo.lock .
-        rm -rf bazel/cargo/
-        cargo raze --output=bazel/cargo
-        mv Cargo.lock bazel/cargo/
+        cargo raze
         git diff --exit-code
 
   build:
