@@ -21,46 +21,46 @@ once_cell = "1.3"
 wasmtime = {version = "0.21.0", default-features = false}
 wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v0.21.0", path = "crates/c-api/macros"}
 
-[raze]
+[package.metadata.raze]
 gen_workspace_prefix = "proxy_wasm_cpp_host_raze_"
 genmode = "Remote"
 workspace_path = "//bazel/cargo"
 
-[raze.crates.target-lexicon.'0.11.1']
+[package.metadata.raze.crates.target-lexicon.'0.11.1']
 additional_flags = [
   "--cfg=feature=\\\"force_unix_path_separator\\\"",
 ]
 gen_buildrs = true
 
-[raze.crates.proc-macro2.'1.0.24']
+[package.metadata.raze.crates.proc-macro2.'1.0.24']
 additional_flags = [
   "--cfg=use_proc_macro",
 ]
 
-[raze.crates.log.'0.4.11']
+[package.metadata.raze.crates.log.'0.4.11']
 additional_flags = [
   "--cfg=atomic_cas",
 ]
 
-[raze.crates.indexmap.'1.1.0']
+[package.metadata.raze.crates.indexmap.'1.1.0']
 additional_flags = [
   "--cfg=feature=\\\"serde-1\\\"",
 ]
 
-[raze.crates.raw-cpuid.'7.0.3']
+[package.metadata.raze.crates.raw-cpuid.'7.0.3']
 additional_flags = [
   "--cfg=feature=\\\"bindgen\\\"",
 ]
 gen_buildrs = true
 
-[raze.crates.cranelift-codegen.'0.68.0']
+[package.metadata.raze.crates.cranelift-codegen.'0.68.0']
 additional_flags = [
   "--cfg=feature=\\\"enable-serde\\\"",
   "--cfg=feature=\\\"bindgen\\\"",
 ]
 gen_buildrs = true
 
-[raze.crates.psm.'0.1.11']
+[package.metadata.raze.crates.psm.'0.1.11']
 additional_flags = [
   "--cfg=asm",
   "--cfg=feature=\\\"bindgen\\\"",
