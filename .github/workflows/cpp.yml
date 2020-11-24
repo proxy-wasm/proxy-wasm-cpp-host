@@ -56,7 +56,7 @@ jobs:
     - name: Cache (Cargo)
       uses: actions/cache@v2
       with:
-        key: cargo-raze-0.7.0
+        key: cargo
         path: |
           ~/.cargo
 

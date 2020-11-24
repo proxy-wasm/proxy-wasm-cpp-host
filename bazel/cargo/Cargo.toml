@@ -4,13 +4,7 @@ name = "wasmtime-c-api-bazel"
 version = "0.21.0"
 
 [lib]
-crate-type = ["staticlib", "cdylib"]
-doc = false
-doctest = false
-name = "wasmtime"
-path = "src/lib.rs"
-proc-macro = true
-test = false
+path = "fake_lib.rs"
 
 [dependencies]
 anyhow = "1.0"
