@@ -18,7 +18,6 @@ on:
   pull_request:
     branches:
     - master
-
   paths:
     - 'bazel/cargo/**'
 
