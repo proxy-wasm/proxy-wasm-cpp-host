@@ -18,14 +18,14 @@ on:
   pull_request:
     branches:
     - master
-  paths:
-    - 'bazel/cargo/**'
+    paths:
+      - 'bazel/cargo/**'
 
   push:
     branches:
     - master
-  paths:
-    - 'bazel/cargo/**'
+    paths:
+      - 'bazel/cargo/**'
 
 jobs:
 
