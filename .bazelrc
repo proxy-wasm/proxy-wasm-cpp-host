@@ -1,0 +1,5 @@
+build --copt=-fPIC
+build --cxxopt=-std=c++17
+build --conlyopt=-fexceptions
+build --fission=dbg,opt
+build --features=per_object_debug_info

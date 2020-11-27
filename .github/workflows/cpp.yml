@@ -76,13 +76,20 @@ jobs:
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test //test/...
 
-  integration: # TODO: add setup.sh
+  integration-test-envoy: # TODO: add setup.sh
     runs-on: ubuntu-latest
     container:
       image: gcr.io/envoy-ci/envoy-build:19a268cfe3d12625380e7c61d2467c8779b58b56
     steps:
     - uses: actions/checkout@v2
 
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/bazel
+        # TODO: find better keys
+        # ${ENVOY_HASH}-YYYY-MM-DD
+        key: 0f7952d1850be92620f2add304c8d95fce028f93-2020-11-27
+
     - name: Test
       run: |
-        "bazel" test //integration_test/... --define wasm=wasmtime --verbose_failures
+        "bazel" test //integration_test/envoy/... --define wasm=wasmtime --verbose_failures
