@@ -74,7 +74,7 @@ jobs:
 
     - name: Test
       run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" test //...
+        "${GITHUB_WORKSPACE}/bin/bazel" test //test/...
 
   integration: # TODO: add setup.sh
     runs-on: ubuntu-latest
