@@ -1,39 +1,27 @@
-# See bazel/README.md for details on how this system works.
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 EXTENSIONS = {
-    #
-    # Access loggers
-    #
     "envoy.access_loggers.wasm": "//source/extensions/access_loggers/wasm:config",
-
-    #
-    # WASM
-    #
     "envoy.bootstrap.wasm": "//source/extensions/bootstrap/wasm:config",
-
-    #
-    # HTTP filters
-    #
     "envoy.filters.http.router": "//source/extensions/filters/http/router:config",
     "envoy.filters.http.wasm": "//source/extensions/filters/http/wasm:config",
-
-    #
-    # Network filters
-    #
     "envoy.filters.network.http_connection_manager": "//source/extensions/filters/network/http_connection_manager:config",
     "envoy.filters.network.tcp_proxy": "//source/extensions/filters/network/tcp_proxy:config",
     "envoy.filters.network.wasm": "//source/extensions/filters/network/wasm:config",
-
-    #
-    # Stat sinks
-    #
     "envoy.stat_sinks.wasm": "//source/extensions/stat_sinks/wasm:config",
-
-    #
-    # WebAssembly runtimes
-    #
     "envoy.wasm.runtime.null": "//source/extensions/wasm_runtime/null:config",
-    "envoy.wasm.runtime.v8": "//source/extensions/wasm_runtime/v8:config",
-    "envoy.wasm.runtime.wavm": "//source/extensions/wasm_runtime/wavm:config",
     "envoy.wasm.runtime.wasmtime": "//source/extensions/wasm_runtime/wasmtime:config",
 }
 

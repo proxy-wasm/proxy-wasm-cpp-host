@@ -72,33 +72,6 @@ cc_library(
 )
 
 cc_library(
-    name = "v8_lib",
-    srcs = glob([
-        "src/v8/*.cc",
-    ]),
-    deps = [
-        ":common_lib",
-        "//external:wee8",
-    ],
-)
-
-cc_library(
-    name = "wavm_lib",
-    srcs = glob([
-        "src/wavm/*.cc",
-    ]),
-    copts = [
-        '-DWAVM_API=""',
-        "-Wno-non-virtual-dtor",
-        "-Wno-old-style-cast",
-    ],
-    deps = [
-        ":common_lib",
-        "@envoy//bazel/foreign_cc:wavm",
-    ],
-)
-
-cc_library(
     name = "wasmtime_lib",
     srcs = glob([
         "src/wasmtime/*.h",
