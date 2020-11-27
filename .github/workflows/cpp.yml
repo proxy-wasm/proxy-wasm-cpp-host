@@ -85,4 +85,4 @@ jobs:
 
     - name: Test
       run: |
-        "bazel" test //integration_test/...
+        "bazel" test //integration_test/... --define wasm=wasmtime --verbose_failures
