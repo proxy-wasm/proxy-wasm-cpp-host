@@ -3,7 +3,6 @@ EXTENSIONS = {
     #
     # Access loggers
     #
-    "envoy.access_loggers.file": "//source/extensions/access_loggers/file:config",
     "envoy.access_loggers.wasm": "//source/extensions/access_loggers/wasm:config",
 
     #
@@ -20,7 +19,6 @@ EXTENSIONS = {
     #
     # Network filters
     #
-    "envoy.filters.network.echo": "//source/extensions/filters/network/echo:config",
     "envoy.filters.network.http_connection_manager": "//source/extensions/filters/network/http_connection_manager:config",
     "envoy.filters.network.tcp_proxy": "//source/extensions/filters/network/tcp_proxy:config",
     "envoy.filters.network.wasm": "//source/extensions/filters/network/wasm:config",
@@ -29,12 +27,6 @@ EXTENSIONS = {
     # Stat sinks
     #
     "envoy.stat_sinks.wasm": "//source/extensions/stat_sinks/wasm:config",
-
-    #
-    # Http Upstreams (excepting envoy.upstreams.http.generic which is hard-coded into the build so not registered here)
-    #
-    "envoy.upstreams.http.http": "//source/extensions/upstreams/http/http:config",
-    "envoy.upstreams.http.tcp": "//source/extensions/upstreams/http/tcp:config",
 
     #
     # WebAssembly runtimes

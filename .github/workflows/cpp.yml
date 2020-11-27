@@ -76,7 +76,7 @@ jobs:
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test //test/...
 
-  integration-test-envoy: # TODO: add setup.sh
+  integration-test-envoy:
     runs-on: ubuntu-latest
     container:
       image: gcr.io/envoy-ci/envoy-build:19a268cfe3d12625380e7c61d2467c8779b58b56
