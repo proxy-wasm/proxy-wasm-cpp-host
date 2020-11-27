@@ -20,6 +20,13 @@ def dependencies(name = ""):
 
 def _http_archives():
     http_archive(
+        name = "rules_cc",
+        sha256 = "9d48151ea71b3e225adfb6867e6d2c7d0dce46cbdc8710d9a9a628574dfd40a0",
+        strip_prefix = "rules_cc-818289e5613731ae410efb54218a4077fb9dbb03",
+        urls = ["https://github.com/bazelbuild/rules_cc/archive/818289e5613731ae410efb54218a4077fb9dbb03.tar.gz"],
+    )
+
+    http_archive(
         name = "proxy_wasm_cpp_sdk",
         sha256 = "b97e3e716b1f38dc601487aa0bde72490bbc82b8f3ad73f1f3e69733984955df",
         strip_prefix = "proxy-wasm-cpp-sdk-956f0d500c380cc1656a2d861b7ee12c2515a664",
@@ -81,9 +88,9 @@ def _http_archives():
 
     http_archive(
         name = "com_google_protobuf",
-        sha256 = "59621f4011a95df270748dcc0ec1cc51946473f0e140d4848a2f20c8719e43aa",
-        strip_prefix = "protobuf-655310ca192a6e3a050e0ca0b7084a2968072260",
-        url = "https://github.com/protocolbuffers/protobuf/archive/655310ca192a6e3a050e0ca0b7084a2968072260.tar.gz",
+        sha256 = "465fd9367992a9b9c4fba34a549773735da200903678b81b25f367982e8df376",
+        strip_prefix = "protobuf-3.13.0",
+        url = "https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protobuf-all-3.13.0.tar.gz",
         patches = ["@envoy//bazel:protobuf.patch"],
         patch_args = ["-p1"],
     )

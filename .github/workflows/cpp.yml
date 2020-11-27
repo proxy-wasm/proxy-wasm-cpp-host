@@ -75,3 +75,14 @@ jobs:
     - name: Test
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test //...
+
+  integration: # TODO: add setup.sh
+    runs-on: ubuntu-latest
+        container:
+      image: gcr.io/envoy-ci/envoy-build:19a268cfe3d12625380e7c61d2467c8779b58b56
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Test
+      run: |
+        "bazel" test //integration_test/...
