@@ -14,7 +14,8 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-def dependencies():
+def dependencies(name = ""):
+    _envoy_deps()
     _http_archives()
 
 def _http_archives():
@@ -57,10 +58,9 @@ def _http_archives():
 
     http_archive(
         name = "com_google_absl",
-        sha256 = "19391fb4882601a65cb648d638c11aa301ce5f525ef02da1a9eafd22f72d7c59",
-        strip_prefix = "abseil-cpp-37dd2562ec830d547a1524bb306be313ac3f2556",
-        # 2020-01-29
-        urls = ["https://github.com/abseil/abseil-cpp/archive/37dd2562ec830d547a1524bb306be313ac3f2556.tar.gz"],
+        sha256 = "e3812f256dd7347a33bf9d93a950cf356c61c0596842ff07d8154cd415145d83",
+        strip_prefix = "abseil-cpp-5d8fc9192245f0ea67094af57399d7931d6bd53f",
+        urls = ["https://github.com/abseil/abseil-cpp/archive/5d8fc9192245f0ea67094af57399d7931d6bd53f.tar.gz"],
     )
 
     http_archive(
@@ -84,4 +84,20 @@ def _http_archives():
         sha256 = "59621f4011a95df270748dcc0ec1cc51946473f0e140d4848a2f20c8719e43aa",
         strip_prefix = "protobuf-655310ca192a6e3a050e0ca0b7084a2968072260",
         url = "https://github.com/protocolbuffers/protobuf/archive/655310ca192a6e3a050e0ca0b7084a2968072260.tar.gz",
+        patches = ["@envoy//bazel:protobuf.patch"],
+        patch_args = ["-p1"],
+    )
+
+def _envoy_deps():
+    native.new_local_repository(
+        name = "envoy_build_config",
+        path = "bazel/external/envoy",
+        build_file_content = "",
+    )
+
+    http_archive(
+        name = "envoy",
+        sha256 = "910ef0c163a0b9ff34506a6c787de7239d8f57c558ef8db92b3c71d15fc3a281",
+        strip_prefix = "envoy-0f7952d1850be92620f2add304c8d95fce028f93",
+        url = "https://github.com/envoyproxy/envoy/archive/0f7952d1850be92620f2add304c8d95fce028f93.tar.gz",
     )
