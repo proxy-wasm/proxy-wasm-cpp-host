@@ -28,7 +28,7 @@
 #include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/wasm_vm.h"
 
-#include "absl/container/flat_hash_set.h"
+#include "absl/container/flat_hash_map.h"
 
 namespace proxy_wasm {
 
@@ -42,13 +42,14 @@ using WasmForeignFunction =
     std::function<WasmResult(WasmBase &, std::string_view, std::function<void *(size_t size)>)>;
 using WasmVmFactory = std::function<std::unique_ptr<WasmVm>()>;
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
+using AllowedCapabilitiesMap = absl::flat_hash_map<std::string, std::vector<std::string>>;
 
 // Wasm execution instance. Manages the host side of the Wasm interface.
 class WasmBase : public std::enable_shared_from_this<WasmBase> {
 public:
   WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
            std::string_view vm_configuration, std::string_view vm_key,
-           absl::flat_hash_set<std::string> allowed_capabilities);
+           AllowedCapabilitiesMap allowed_capabilities);
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
@@ -245,7 +246,7 @@ protected:
 
   // Capabilities which are allowed to be linked to the module. If this is empty, restriction
   // is not enforced.
-  absl::flat_hash_set<std::string> allowed_capabilities_;
+  AllowedCapabilitiesMap allowed_capabilities_;
 
   std::shared_ptr<WasmHandleBase> base_wasm_handle_;
 
