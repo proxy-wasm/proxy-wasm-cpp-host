@@ -99,7 +99,7 @@ rust_library(
         "@proxy_wasm_cpp_host_raze___log__0_4_11//:log",
         "@proxy_wasm_cpp_host_raze___regalloc__0_0_31//:regalloc",
         "@proxy_wasm_cpp_host_raze___serde__1_0_117//:serde",
-        "@proxy_wasm_cpp_host_raze___smallvec__1_4_2//:smallvec",
+        "@proxy_wasm_cpp_host_raze___smallvec__1_5_0//:smallvec",
         "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",
         "@proxy_wasm_cpp_host_raze___thiserror__1_0_22//:thiserror",
     ],

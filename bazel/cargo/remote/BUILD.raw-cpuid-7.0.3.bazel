@@ -54,7 +54,7 @@ cargo_build_script(
     version = "7.0.3",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host_raze___cc__1_0_62//:cc",
+        "@proxy_wasm_cpp_host_raze___cc__1_0_66//:cc",
         "@proxy_wasm_cpp_host_raze___rustc_version__0_2_3//:rustc_version",
     ] + selects.with_or({
         # cfg(unix)

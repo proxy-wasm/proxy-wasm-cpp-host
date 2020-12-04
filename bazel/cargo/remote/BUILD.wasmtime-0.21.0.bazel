@@ -51,7 +51,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host_raze___anyhow__1_0_34//:anyhow",
-        "@proxy_wasm_cpp_host_raze___backtrace__0_3_54//:backtrace",
+        "@proxy_wasm_cpp_host_raze___backtrace__0_3_55//:backtrace",
         "@proxy_wasm_cpp_host_raze___bincode__1_3_1//:bincode",
         "@proxy_wasm_cpp_host_raze___cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host_raze___lazy_static__1_4_0//:lazy_static",
@@ -60,7 +60,7 @@ rust_library(
         "@proxy_wasm_cpp_host_raze___region__2_2_0//:region",
         "@proxy_wasm_cpp_host_raze___rustc_demangle__0_1_18//:rustc_demangle",
         "@proxy_wasm_cpp_host_raze___serde__1_0_117//:serde",
-        "@proxy_wasm_cpp_host_raze___smallvec__1_4_2//:smallvec",
+        "@proxy_wasm_cpp_host_raze___smallvec__1_5_0//:smallvec",
         "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",
         "@proxy_wasm_cpp_host_raze___wasmparser__0_65_0//:wasmparser",
         "@proxy_wasm_cpp_host_raze___wasmtime_environ__0_21_0//:wasmtime_environ",

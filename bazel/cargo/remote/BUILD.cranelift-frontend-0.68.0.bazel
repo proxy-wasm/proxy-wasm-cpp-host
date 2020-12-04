@@ -52,7 +52,7 @@ rust_library(
     deps = [
         "@proxy_wasm_cpp_host_raze___cranelift_codegen__0_68_0//:cranelift_codegen",
         "@proxy_wasm_cpp_host_raze___log__0_4_11//:log",
-        "@proxy_wasm_cpp_host_raze___smallvec__1_4_2//:smallvec",
+        "@proxy_wasm_cpp_host_raze___smallvec__1_5_0//:smallvec",
         "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",
     ],
 )

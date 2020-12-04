@@ -59,7 +59,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.54",
+    version = "0.3.55",
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host_raze___addr2line__0_14_0//:addr2line",

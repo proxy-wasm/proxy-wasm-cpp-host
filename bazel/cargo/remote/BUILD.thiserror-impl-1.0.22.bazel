@@ -50,6 +50,6 @@ rust_library(
     deps = [
         "@proxy_wasm_cpp_host_raze___proc_macro2__1_0_24//:proc_macro2",
         "@proxy_wasm_cpp_host_raze___quote__1_0_7//:quote",
-        "@proxy_wasm_cpp_host_raze___syn__1_0_48//:syn",
+        "@proxy_wasm_cpp_host_raze___syn__1_0_53//:syn",
     ],
 )

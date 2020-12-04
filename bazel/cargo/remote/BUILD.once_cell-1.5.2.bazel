@@ -48,6 +48,7 @@ rust_library(
     name = "once_cell",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "alloc",
         "default",
         "std",
     ],
@@ -61,10 +62,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.4.1",
+    version = "1.5.2",
     # buildifier: leave-alone
     deps = [
     ],
 )
 
-# Unsupported target "test" with type "test" omitted
+# Unsupported target "it" with type "test" omitted
