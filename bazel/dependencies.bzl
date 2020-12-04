@@ -65,18 +65,9 @@ def _http_archives():
 
     http_archive(
         name = "io_bazel_rules_rust",
-        sha256 = "7401878bf966325bbec5224eeb4ff7e8762681070b401acaa168da68d383563a",
-        strip_prefix = "rules_rust-9741a32e50a8c50c504c0931111bb6048d6d6888",
-        url = "https://github.com/bazelbuild/rules_rust/archive/9741a32e50a8c50c504c0931111bb6048d6d6888.tar.gz",
-    )
-
-    http_archive(
-        name = "bazel_skylib",
-        sha256 = "97e70364e9249702246c0e9444bccdc4b847bed1eb03c5a3ece4f83dfe6abc44",
-        urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
-            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.2/bazel-skylib-1.0.2.tar.gz",
-        ],
+        sha256 = "442a102e2a6f6c75e10d43f21c0c30218947a3e827d91529ced7380c5fec05f0",
+        strip_prefix = "rules_rust-39523e32ac0bd64f5d60154114a42e61e58ffd17",
+        url = "https://github.com/bazelbuild/rules_rust/archive/39523e32ac0bd64f5d60154114a42e61e58ffd17.tar.gz",
     )
 
     http_archive(
