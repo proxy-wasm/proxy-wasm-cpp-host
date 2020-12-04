@@ -15,11 +15,9 @@
 COPTS = select({
     "@bazel_tools//src/conditions:windows": [
         "/std:c++17",
-        "-DWITHOUT_ZLIB",
     ],
     "//conditions:default": [
         "-std=c++17",
-        "-DWITHOUT_ZLIB",
     ],
 })
 
