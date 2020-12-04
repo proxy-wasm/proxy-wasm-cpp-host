@@ -39,5 +39,6 @@ jobs:
       working-directory: bazel/cargo
       run: |
         cargo install cargo-raze --version 0.7.0
+        cargo generate-lockfile
         cargo raze
         git diff --exit-code
