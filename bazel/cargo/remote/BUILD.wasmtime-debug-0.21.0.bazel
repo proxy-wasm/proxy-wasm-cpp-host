@@ -48,7 +48,7 @@ rust_library(
     version = "0.21.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__anyhow__1_0_34//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_35//:anyhow",
         "@proxy_wasm_cpp_host__gimli__0_22_0//:gimli",
         "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",
         "@proxy_wasm_cpp_host__object__0_21_1//:object",

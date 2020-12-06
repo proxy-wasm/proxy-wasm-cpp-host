@@ -48,11 +48,11 @@ rust_library(
     version = "0.21.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__anyhow__1_0_34//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_35//:anyhow",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
         "@proxy_wasm_cpp_host__libc__0_2_80//:libc",
-        "@proxy_wasm_cpp_host__serde__1_0_117//:serde",
+        "@proxy_wasm_cpp_host__serde__1_0_118//:serde",
         "@proxy_wasm_cpp_host__target_lexicon__0_11_1//:target_lexicon",
         "@proxy_wasm_cpp_host__wasmtime_environ__0_21_0//:wasmtime_environ",
         "@proxy_wasm_cpp_host__wasmtime_runtime__0_21_0//:wasmtime_runtime",

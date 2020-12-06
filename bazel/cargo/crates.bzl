@@ -43,12 +43,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__anyhow__1_0_34",
-        url = "https://crates.io/api/v1/crates/anyhow/1.0.34/download",
+        name = "proxy_wasm_cpp_host__anyhow__1_0_35",
+        url = "https://crates.io/api/v1/crates/anyhow/1.0.35/download",
         type = "tar.gz",
-        sha256 = "bf8dcb5b4bbaa28653b647d8c77bd4ed40183b48882e130c1f1ffb73de069fd7",
-        strip_prefix = "anyhow-1.0.34",
-        build_file = Label("//bazel/cargo/remote:BUILD.anyhow-1.0.34.bazel"),
+        sha256 = "2c0df63cb2955042487fad3aefd2c6e3ae7389ac5dc1beb28921de0b69f779d4",
+        strip_prefix = "anyhow-1.0.35",
+        build_file = Label("//bazel/cargo/remote:BUILD.anyhow-1.0.35.bazel"),
     )
 
     maybe(
@@ -563,32 +563,32 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__serde__1_0_117",
-        url = "https://crates.io/api/v1/crates/serde/1.0.117/download",
+        name = "proxy_wasm_cpp_host__serde__1_0_118",
+        url = "https://crates.io/api/v1/crates/serde/1.0.118/download",
         type = "tar.gz",
-        sha256 = "b88fa983de7720629c9387e9f517353ed404164b1e482c970a90c1a4aaf7dc1a",
-        strip_prefix = "serde-1.0.117",
-        build_file = Label("//bazel/cargo/remote:BUILD.serde-1.0.117.bazel"),
+        sha256 = "06c64263859d87aa2eb554587e2d23183398d617427327cf2b3d0ed8c69e4800",
+        strip_prefix = "serde-1.0.118",
+        build_file = Label("//bazel/cargo/remote:BUILD.serde-1.0.118.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__serde_derive__1_0_117",
-        url = "https://crates.io/api/v1/crates/serde_derive/1.0.117/download",
+        name = "proxy_wasm_cpp_host__serde_derive__1_0_118",
+        url = "https://crates.io/api/v1/crates/serde_derive/1.0.118/download",
         type = "tar.gz",
-        sha256 = "cbd1ae72adb44aab48f325a02444a5fc079349a8d804c1fc922aed3f7454c74e",
-        strip_prefix = "serde_derive-1.0.117",
-        build_file = Label("//bazel/cargo/remote:BUILD.serde_derive-1.0.117.bazel"),
+        sha256 = "c84d3526699cd55261af4b941e4e725444df67aa4f9e6a3564f18030d12672df",
+        strip_prefix = "serde_derive-1.0.118",
+        build_file = Label("//bazel/cargo/remote:BUILD.serde_derive-1.0.118.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__smallvec__1_5_0",
-        url = "https://crates.io/api/v1/crates/smallvec/1.5.0/download",
+        name = "proxy_wasm_cpp_host__smallvec__1_5_1",
+        url = "https://crates.io/api/v1/crates/smallvec/1.5.1/download",
         type = "tar.gz",
-        sha256 = "7acad6f34eb9e8a259d3283d1e8c1d34d7415943d4895f65cc73813c7396fc85",
-        strip_prefix = "smallvec-1.5.0",
-        build_file = Label("//bazel/cargo/remote:BUILD.smallvec-1.5.0.bazel"),
+        sha256 = "ae524f056d7d770e174287294f562e95044c68e88dec909a00d2094805db9d75",
+        strip_prefix = "smallvec-1.5.1",
+        build_file = Label("//bazel/cargo/remote:BUILD.smallvec-1.5.1.bazel"),
     )
 
     maybe(

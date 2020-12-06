@@ -48,7 +48,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.117",
+    version = "1.0.118",
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host__proc_macro2__1_0_24//:proc_macro2",

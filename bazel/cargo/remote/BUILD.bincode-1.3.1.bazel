@@ -49,7 +49,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host__byteorder__1_3_4//:byteorder",
-        "@proxy_wasm_cpp_host__serde__1_0_117//:serde",
+        "@proxy_wasm_cpp_host__serde__1_0_118//:serde",
     ],
 )
 

@@ -14,7 +14,7 @@ licenses([
 # Aliased targets
 alias(
     name = "anyhow",
-    actual = "@proxy_wasm_cpp_host__anyhow__1_0_34//:anyhow",
+    actual = "@proxy_wasm_cpp_host__anyhow__1_0_35//:anyhow",
     tags = [
         "cargo-raze",
         "manual",

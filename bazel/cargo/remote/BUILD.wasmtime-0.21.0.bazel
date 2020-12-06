@@ -50,7 +50,7 @@ rust_library(
     version = "0.21.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__anyhow__1_0_34//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_35//:anyhow",
         "@proxy_wasm_cpp_host__backtrace__0_3_55//:backtrace",
         "@proxy_wasm_cpp_host__bincode__1_3_1//:bincode",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
@@ -59,8 +59,8 @@ rust_library(
         "@proxy_wasm_cpp_host__log__0_4_11//:log",
         "@proxy_wasm_cpp_host__region__2_2_0//:region",
         "@proxy_wasm_cpp_host__rustc_demangle__0_1_18//:rustc_demangle",
-        "@proxy_wasm_cpp_host__serde__1_0_117//:serde",
-        "@proxy_wasm_cpp_host__smallvec__1_5_0//:smallvec",
+        "@proxy_wasm_cpp_host__serde__1_0_118//:serde",
+        "@proxy_wasm_cpp_host__smallvec__1_5_1//:smallvec",
         "@proxy_wasm_cpp_host__target_lexicon__0_11_1//:target_lexicon",
         "@proxy_wasm_cpp_host__wasmparser__0_65_0//:wasmparser",
         "@proxy_wasm_cpp_host__wasmtime_environ__0_21_0//:wasmtime_environ",

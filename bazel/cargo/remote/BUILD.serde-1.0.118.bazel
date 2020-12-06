@@ -33,15 +33,20 @@ licenses([
 # Unsupported target "build-script-build" with type "custom-build" omitted
 
 rust_library(
-    name = "anyhow",
+    name = "serde",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
+        "derive",
+        "serde_derive",
         "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
-    edition = "2018",
+    edition = "2015",
+    proc_macro_deps = [
+        "@proxy_wasm_cpp_host__serde_derive__1_0_118//:serde_derive",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -49,32 +54,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.34",
+    version = "1.0.118",
     # buildifier: leave-alone
     deps = [
     ],
 )
-
-# Unsupported target "compiletest" with type "test" omitted
-
-# Unsupported target "test_autotrait" with type "test" omitted
-
-# Unsupported target "test_backtrace" with type "test" omitted
-
-# Unsupported target "test_boxed" with type "test" omitted
-
-# Unsupported target "test_chain" with type "test" omitted
-
-# Unsupported target "test_context" with type "test" omitted
-
-# Unsupported target "test_convert" with type "test" omitted
-
-# Unsupported target "test_downcast" with type "test" omitted
-
-# Unsupported target "test_fmt" with type "test" omitted
-
-# Unsupported target "test_macros" with type "test" omitted
-
-# Unsupported target "test_repr" with type "test" omitted
-
-# Unsupported target "test_source" with type "test" omitted
