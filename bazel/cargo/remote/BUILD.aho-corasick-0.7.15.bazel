@@ -50,6 +50,6 @@ rust_library(
     version = "0.7.15",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___memchr__2_3_4//:memchr",
+        "@proxy_wasm_cpp_host__memchr__2_3_4//:memchr",
     ],
 )

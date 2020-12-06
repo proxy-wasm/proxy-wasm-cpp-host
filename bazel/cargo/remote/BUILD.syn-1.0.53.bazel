@@ -62,9 +62,9 @@ rust_library(
     version = "1.0.53",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___proc_macro2__1_0_24//:proc_macro2",
-        "@proxy_wasm_cpp_host_raze___quote__1_0_7//:quote",
-        "@proxy_wasm_cpp_host_raze___unicode_xid__0_2_1//:unicode_xid",
+        "@proxy_wasm_cpp_host__proc_macro2__1_0_24//:proc_macro2",
+        "@proxy_wasm_cpp_host__quote__1_0_7//:quote",
+        "@proxy_wasm_cpp_host__unicode_xid__0_2_1//:unicode_xid",
     ],
 )
 

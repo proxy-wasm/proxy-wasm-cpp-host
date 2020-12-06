@@ -16,7 +16,7 @@ wasmtime = {version = "0.21.0", default-features = false}
 wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v0.21.0", path = "crates/c-api/macros"}
 
 [package.metadata.raze]
-gen_workspace_prefix = "proxy_wasm_cpp_host_raze_"
+gen_workspace_prefix = "proxy_wasm_cpp_host"
 genmode = "Remote"
 workspace_path = "//bazel/cargo"
 

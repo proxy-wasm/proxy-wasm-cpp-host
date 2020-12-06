@@ -54,7 +54,7 @@ cargo_build_script(
     version = "0.1.12",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host_raze___cc__1_0_66//:cc",
+        "@proxy_wasm_cpp_host__cc__1_0_66//:cc",
     ],
 )
 

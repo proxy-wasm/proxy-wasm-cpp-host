@@ -48,13 +48,13 @@ rust_library(
     version = "0.21.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___anyhow__1_0_34//:anyhow",
-        "@proxy_wasm_cpp_host_raze___gimli__0_22_0//:gimli",
-        "@proxy_wasm_cpp_host_raze___more_asserts__0_2_1//:more_asserts",
-        "@proxy_wasm_cpp_host_raze___object__0_21_1//:object",
-        "@proxy_wasm_cpp_host_raze___target_lexicon__0_11_1//:target_lexicon",
-        "@proxy_wasm_cpp_host_raze___thiserror__1_0_22//:thiserror",
-        "@proxy_wasm_cpp_host_raze___wasmparser__0_65_0//:wasmparser",
-        "@proxy_wasm_cpp_host_raze___wasmtime_environ__0_21_0//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__anyhow__1_0_34//:anyhow",
+        "@proxy_wasm_cpp_host__gimli__0_22_0//:gimli",
+        "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",
+        "@proxy_wasm_cpp_host__object__0_21_1//:object",
+        "@proxy_wasm_cpp_host__target_lexicon__0_11_1//:target_lexicon",
+        "@proxy_wasm_cpp_host__thiserror__1_0_22//:thiserror",
+        "@proxy_wasm_cpp_host__wasmparser__0_65_0//:wasmparser",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_21_0//:wasmtime_environ",
     ],
 )

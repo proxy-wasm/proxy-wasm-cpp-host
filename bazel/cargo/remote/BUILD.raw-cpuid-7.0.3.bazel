@@ -54,8 +54,8 @@ cargo_build_script(
     version = "7.0.3",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host_raze___cc__1_0_66//:cc",
-        "@proxy_wasm_cpp_host_raze___rustc_version__0_2_3//:rustc_version",
+        "@proxy_wasm_cpp_host__cc__1_0_66//:cc",
+        "@proxy_wasm_cpp_host__rustc_version__0_2_3//:rustc_version",
     ] + selects.with_or({
         # cfg(unix)
         (
@@ -105,7 +105,7 @@ rust_binary(
         # Binaries get an implicit dependency on their crate's lib
         ":raw_cpuid",
         ":raw_cpuid_build_script",
-        "@proxy_wasm_cpp_host_raze___bitflags__1_2_1//:bitflags",
+        "@proxy_wasm_cpp_host__bitflags__1_2_1//:bitflags",
     ] + selects.with_or({
         # cfg(unix)
         (
@@ -160,7 +160,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":raw_cpuid_build_script",
-        "@proxy_wasm_cpp_host_raze___bitflags__1_2_1//:bitflags",
+        "@proxy_wasm_cpp_host__bitflags__1_2_1//:bitflags",
     ] + selects.with_or({
         # cfg(unix)
         (

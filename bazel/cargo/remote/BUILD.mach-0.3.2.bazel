@@ -61,7 +61,7 @@ rust_library(
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@proxy_wasm_cpp_host_raze___libc__0_2_80//:libc",
+            "@proxy_wasm_cpp_host__libc__0_2_80//:libc",
         ],
         "//conditions:default": [],
     }),
