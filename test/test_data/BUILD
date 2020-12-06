@@ -1,4 +1,4 @@
-load("//test/test_data:wasm.bzl", "wasm_rust_binary")
+load("@proxy_wasm_cpp_host//bazel:wasm.bzl", "wasm_rust_binary")
 
 package(default_visibility = ["//visibility:public"])
 

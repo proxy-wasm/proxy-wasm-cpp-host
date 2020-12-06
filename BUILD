@@ -1,4 +1,5 @@
-load("//:bazel/variables.bzl", "COPTS", "LINKOPTS")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@proxy_wasm_cpp_host//bazel:variables.bzl", "COPTS")
 
 licenses(["notice"])  # Apache 2
 
