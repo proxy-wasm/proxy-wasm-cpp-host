@@ -47,9 +47,9 @@ load("@io_bazel_rules_rust//:workspace.bzl", "rust_workspace")
 
 rust_workspace()
 
-load("//bazel/cargo:crates.bzl", "proxy_wasm_cpp_host_raze__fetch_remote_crates")
+load("//bazel/cargo:crates.bzl", "proxy_wasm_cpp_host_fetch_remote_crates")
 
-proxy_wasm_cpp_host_raze__fetch_remote_crates()
+proxy_wasm_cpp_host_fetch_remote_crates()
 
 git_repository(
     name = "com_google_protobuf",
