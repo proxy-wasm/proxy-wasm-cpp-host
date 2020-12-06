@@ -1,5 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_test")
-load("//:bazel/variables.bzl", "COPTS", "LINKOPTS")
+load("@proxy_wasm_cpp_host//bazel:variables.bzl", "COPTS", "LINKOPTS")
 
 cc_test(
     name = "null_vm_test",
