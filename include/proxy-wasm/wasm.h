@@ -27,6 +27,7 @@
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/wasm_vm.h"
+#include "include/proxy-wasm/vm_id_handle.h"
 
 namespace proxy_wasm {
 
@@ -243,6 +244,8 @@ protected:
 
   // Actions to be done after the call into the VM returns.
   std::deque<std::function<void()>> after_vm_call_actions_;
+
+  std::shared_ptr<VmIdHandle> vm_id_handle_;
 };
 
 // Handle which enables shutdown operations to run post deletion (e.g. post listener drain).
