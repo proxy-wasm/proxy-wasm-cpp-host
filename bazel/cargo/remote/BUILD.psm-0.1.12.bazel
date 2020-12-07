@@ -51,10 +51,10 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.11",
+    version = "0.1.12",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host_raze___cc__1_0_62//:cc",
+        "@proxy_wasm_cpp_host__cc__1_0_66//:cc",
     ],
 )
 
@@ -87,7 +87,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.11",
+    version = "0.1.12",
     # buildifier: leave-alone
     deps = [
         ":psm_build_script",

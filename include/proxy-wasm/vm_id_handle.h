@@ -12,24 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[no_mangle]
-pub extern "C" fn trigger() {
-    one();
-}
-#[no_mangle]
-pub extern "C" fn trigger2(_val: i32) -> i32 {
-    three();
-    0
-}
+#pragma once
 
-fn one() {
-    two();
-}
+#include <functional>
+#include <mutex>
+#include <memory>
+#include <unordered_map>
 
-fn two() {
-    three();
-}
+namespace proxy_wasm {
 
-fn three(){
-    panic!("trap!");
-}
+class VmIdHandle {
+public:
+  VmIdHandle(std::string_view vm_id) : vm_id_(std::string(vm_id)){};
+  ~VmIdHandle();
+
+private:
+  std::string vm_id_;
+};
+
+std::shared_ptr<VmIdHandle> getVmIdHandle(std::string_view vm_id);
+void registerVmIdHandleCallback(std::function<void(std::string_view vm_id)> f);
+
+} // namespace proxy_wasm

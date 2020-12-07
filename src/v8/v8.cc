@@ -640,7 +640,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
          "Bad function signature for: " + std::string(function_name) +
              ", want: " + printValTypes(arg_valtypes) + " -> " + printValTypes(result_valtypes) +
              ", but the module exports: " + printValTypes(func->type()->params()) + " -> " +
-             printValTypes(result_valtypes));
+             printValTypes(func->type()->results()));
     *function = nullptr;
     return;
   }
@@ -671,7 +671,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
          "Bad function signature for: " + std::string(function_name) +
              ", want: " + printValTypes(arg_valtypes) + " -> " + printValTypes(result_valtypes) +
              ", but the module exports: " + printValTypes(func->type()->params()) + " -> " +
-             printValTypes(result_valtypes));
+             printValTypes(func->type()->results()));
     *function = nullptr;
     return;
   }
