@@ -55,7 +55,7 @@ rust_library(
         "@proxy_wasm_cpp_host__bincode__1_3_1//:bincode",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
-        "@proxy_wasm_cpp_host__libc__0_2_80//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_81//:libc",
         "@proxy_wasm_cpp_host__log__0_4_11//:log",
         "@proxy_wasm_cpp_host__region__2_2_0//:region",
         "@proxy_wasm_cpp_host__rustc_demangle__0_1_18//:rustc_demangle",

@@ -56,7 +56,7 @@ rust_library(
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__indexmap__1_1_0//:indexmap",
         "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
-        "@proxy_wasm_cpp_host__libc__0_2_80//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_81//:libc",
         "@proxy_wasm_cpp_host__log__0_4_11//:log",
         "@proxy_wasm_cpp_host__memoffset__0_5_6//:memoffset",
         "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",
