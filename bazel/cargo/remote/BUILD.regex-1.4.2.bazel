@@ -69,10 +69,10 @@ rust_library(
     version = "1.4.2",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___aho_corasick__0_7_15//:aho_corasick",
-        "@proxy_wasm_cpp_host_raze___memchr__2_3_4//:memchr",
-        "@proxy_wasm_cpp_host_raze___regex_syntax__0_6_21//:regex_syntax",
-        "@proxy_wasm_cpp_host_raze___thread_local__1_0_1//:thread_local",
+        "@proxy_wasm_cpp_host__aho_corasick__0_7_15//:aho_corasick",
+        "@proxy_wasm_cpp_host__memchr__2_3_4//:memchr",
+        "@proxy_wasm_cpp_host__regex_syntax__0_6_21//:regex_syntax",
+        "@proxy_wasm_cpp_host__thread_local__1_0_1//:thread_local",
     ],
 )
 

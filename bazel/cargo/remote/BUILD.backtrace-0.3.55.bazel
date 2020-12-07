@@ -59,15 +59,15 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.54",
+    version = "0.3.55",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___addr2line__0_14_0//:addr2line",
-        "@proxy_wasm_cpp_host_raze___cfg_if__1_0_0//:cfg_if",
-        "@proxy_wasm_cpp_host_raze___libc__0_2_80//:libc",
-        "@proxy_wasm_cpp_host_raze___miniz_oxide__0_4_3//:miniz_oxide",
-        "@proxy_wasm_cpp_host_raze___object__0_22_0//:object",
-        "@proxy_wasm_cpp_host_raze___rustc_demangle__0_1_18//:rustc_demangle",
+        "@proxy_wasm_cpp_host__addr2line__0_14_0//:addr2line",
+        "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
+        "@proxy_wasm_cpp_host__libc__0_2_81//:libc",
+        "@proxy_wasm_cpp_host__miniz_oxide__0_4_3//:miniz_oxide",
+        "@proxy_wasm_cpp_host__object__0_22_0//:object",
+        "@proxy_wasm_cpp_host__rustc_demangle__0_1_18//:rustc_demangle",
     ] + selects.with_or({
         # cfg(windows)
         (
