@@ -33,20 +33,15 @@ licenses([
 # Unsupported target "build-script-build" with type "custom-build" omitted
 
 rust_library(
-    name = "serde",
+    name = "libc",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
-        "derive",
-        "serde_derive",
         "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     edition = "2015",
-    proc_macro_deps = [
-        "@proxy_wasm_cpp_host_raze___serde_derive__1_0_117//:serde_derive",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -54,8 +49,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.117",
+    version = "0.2.81",
     # buildifier: leave-alone
     deps = [
     ],
 )
+
+# Unsupported target "const_fn" with type "test" omitted

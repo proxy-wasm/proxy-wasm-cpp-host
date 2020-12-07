@@ -47,6 +47,7 @@ jobs:
         go get -u github.com/bazelbuild/buildtools/buildifier
         export PATH=$PATH:$(go env GOPATH)/bin
         find . -name "BUILD" | xargs -n1 buildifier -mode=check
+
     - name: Format (addlicense)
       run: |
         go get -u github.com/google/addlicense

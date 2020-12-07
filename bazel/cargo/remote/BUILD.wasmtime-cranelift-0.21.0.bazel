@@ -48,10 +48,10 @@ rust_library(
     version = "0.21.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___cranelift_codegen__0_68_0//:cranelift_codegen",
-        "@proxy_wasm_cpp_host_raze___cranelift_entity__0_68_0//:cranelift_entity",
-        "@proxy_wasm_cpp_host_raze___cranelift_frontend__0_68_0//:cranelift_frontend",
-        "@proxy_wasm_cpp_host_raze___cranelift_wasm__0_68_0//:cranelift_wasm",
-        "@proxy_wasm_cpp_host_raze___wasmtime_environ__0_21_0//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_68_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__cranelift_entity__0_68_0//:cranelift_entity",
+        "@proxy_wasm_cpp_host__cranelift_frontend__0_68_0//:cranelift_frontend",
+        "@proxy_wasm_cpp_host__cranelift_wasm__0_68_0//:cranelift_wasm",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_21_0//:wasmtime_environ",
     ],
 )

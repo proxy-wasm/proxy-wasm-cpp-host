@@ -50,6 +50,6 @@ rust_library(
     version = "1.0.1",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___lazy_static__1_4_0//:lazy_static",
+        "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
     ],
 )

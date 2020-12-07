@@ -30,17 +30,16 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "build-script-build" with type "custom-build" omitted
+# Unsupported target "bench" with type "bench" omitted
 
 rust_library(
-    name = "serde_derive",
+    name = "smallvec",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "proc-macro",
-    edition = "2015",
+    crate_type = "lib",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,11 +47,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.117",
+    version = "1.5.1",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___proc_macro2__1_0_24//:proc_macro2",
-        "@proxy_wasm_cpp_host_raze___quote__1_0_7//:quote",
-        "@proxy_wasm_cpp_host_raze___syn__1_0_48//:syn",
     ],
 )
+
+# Unsupported target "macro" with type "test" omitted
