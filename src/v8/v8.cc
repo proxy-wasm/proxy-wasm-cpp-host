@@ -649,8 +649,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, nullptr);
     if (trap) {
-      fail(FailState::RuntimeError,
-           this->getFailMessage(std::string(function_name), std::move(trap)));
+      fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
     }
   };
 }
@@ -682,8 +681,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, results);
     if (trap) {
-      fail(FailState::RuntimeError,
-           this->getFailMessage(std::string(function_name), std::move(trap)));
+      fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return R{};
     }
     R rvalue = results[0].get<typename ConvertWordTypeToUint32<R>::type>();
