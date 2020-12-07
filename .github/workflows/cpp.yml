@@ -20,11 +20,13 @@ on:
     branches:
     - master
     - 'envoy-release/**'
+    - 'istio-release/**'
 
   push:
     branches:
     - master
     - 'envoy-release/**'
+    - 'istio-release/**'
 
 jobs:
 
@@ -45,6 +47,7 @@ jobs:
         go get -u github.com/bazelbuild/buildtools/buildifier
         export PATH=$PATH:$(go env GOPATH)/bin
         find . -name "BUILD" | xargs -n1 buildifier -mode=check
+
     - name: Format (addlicense)
       run: |
         go get -u github.com/google/addlicense
@@ -63,13 +66,7 @@ jobs:
         path: "/home/runner/.cache/bazel"
         key: bazel
 
-    - name: Install bazelisk
-      run: |
-        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.1.0/bazelisk-linux-amd64"
-        mkdir -p "${GITHUB_WORKSPACE}/bin/"
-        mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
-        chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
-
     - name: Test
       run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" test //...
+        bazel test //...
+

@@ -49,8 +49,8 @@ rust_library(
     version = "0.0.31",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host_raze___log__0_4_11//:log",
-        "@proxy_wasm_cpp_host_raze___rustc_hash__1_1_0//:rustc_hash",
-        "@proxy_wasm_cpp_host_raze___smallvec__1_4_2//:smallvec",
+        "@proxy_wasm_cpp_host__log__0_4_11//:log",
+        "@proxy_wasm_cpp_host__rustc_hash__1_1_0//:rustc_hash",
+        "@proxy_wasm_cpp_host__smallvec__1_5_1//:smallvec",
     ],
 )
