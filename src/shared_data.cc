@@ -27,8 +27,10 @@ namespace proxy_wasm {
 
 SharedData global_shared_data;
 
-SharedData::SharedData() {
-  registerVmIdHandleCallback([this](std::string_view vm_id) { this->deleteByVmId(vm_id); });
+SharedData::SharedData(bool register_vm_id_callback) {
+  if (register_vm_id_callback) {
+    registerVmIdHandleCallback([this](std::string_view vm_id) { this->deleteByVmId(vm_id); });
+  }
 }
 
 void SharedData::deleteByVmId(std::string_view vm_id) {

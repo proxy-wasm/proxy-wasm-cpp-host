@@ -22,26 +22,21 @@ namespace proxy_wasm {
 
 class SharedQueue {
 public:
-  SharedQueue();
+  SharedQueue(bool register_vm_id_callback = true);
+
   uint32_t registerQueue(std::string_view vm_id, std::string_view queue_name, uint32_t context_id,
                          CallOnThreadFunction call_on_thread, std::string_view vm_key);
   uint32_t resolveQueue(std::string_view vm_id, std::string_view queue_name);
   WasmResult dequeue(uint32_t token, std::string *data);
   WasmResult enqueue(uint32_t token, std::string_view value);
+
   void deleteByVmId(std::string_view vm_id);
+  uint32_t nextQueueToken();
 
 private:
-  uint32_t nextQueueToken() {
-    while (true) {
-      uint32_t token = next_queue_token_++;
-      if (token == 0) {
-        continue; // 0 is an illegal token.
-      }
-      if (queue_token_set_.find(token) == queue_token_set_.end()) {
-        return token;
-      }
-    }
-  }
+  std::size_t queueKeyHash(std::string_view vm_id, std::string_view queue_name) {
+    return std::hash<std::string_view>()(vm_id) ^ std::hash<std::string_view>()(queue_name);
+  };
 
   struct Queue {
     std::string vm_key;
@@ -52,15 +47,16 @@ private:
 
   // TODO: use std::shared_mutex in C++17.
   std::mutex mutex_;
-  std::map<uint32_t, Queue> queues_;
   uint32_t next_queue_token_ = 1;
-  struct pair_hash {
-    template <class T1, class T2> std::size_t operator()(const std::pair<T1, T2> &pair) const {
-      return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
-    }
-  };
-  std::unordered_map<std::pair<std::string, std::string>, uint32_t, pair_hash> queue_tokens_;
-  std::unordered_set<uint32_t> queue_token_set_;
+
+  // vm_id -> queue keys
+  std::unordered_map<std::string, std::unordered_set<std::size_t>> vm_queue_keys_;
+
+  // queue key -> token
+  std::unordered_map<std::size_t, uint32_t> queue_tokens_;
+
+  // token -> queue
+  std::map<uint32_t, Queue> queues_;
 };
 
 extern SharedQueue global_shared_queue;

@@ -91,7 +91,7 @@ TEST(SharedData, DeleteByVmId) {
   EXPECT_EQ(WasmResult::NotFound, shared_data.get(vm_id, key, &result));
 }
 
-TEST(SharedData, VmIdCleanup) {
+TEST(SharedData, VmIdHandleCleanup) {
   SharedData shared_data;
   std::string_view vm_id = "proxy_wasm_shared_data_test";
   auto handle = getVmIdHandle(vm_id);
