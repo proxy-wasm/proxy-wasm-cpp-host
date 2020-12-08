@@ -83,9 +83,6 @@ uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view que
   auto it = queue_tokens_.insert(std::make_pair(key, static_cast<uint32_t>(0)));
   if (it.second) {
     it.first->second = nextQueueToken();
-    if (it.first->second == 0) {
-      return 0; // queue overflows
-    }
   }
 
   uint32_t token = it.first->second;
