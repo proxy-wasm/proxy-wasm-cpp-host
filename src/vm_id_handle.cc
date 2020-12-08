@@ -19,6 +19,7 @@
 #include <mutex>
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 namespace proxy_wasm {
 
