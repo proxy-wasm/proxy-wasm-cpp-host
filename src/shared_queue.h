@@ -51,10 +51,8 @@ private:
 
   // vm_id -> queue keys
   std::unordered_map<std::string, std::unordered_set<std::size_t>> vm_queue_keys_;
-
   // queue key -> token
   std::unordered_map<std::size_t, uint32_t> queue_tokens_;
-
   // token -> queue
   std::map<uint32_t, Queue> queues_;
 };

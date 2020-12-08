@@ -49,8 +49,8 @@ void SharedQueue::deleteByVmId(std::string_view vm_id) {
 }
 
 uint32_t SharedQueue::nextQueueToken() {
-  // TODO(@mathetake): Handle the case where the queue overflows, i.e. the number of used
-  // tokens exceeds the max of uint32. If it overflows, the following loops never exits.
+  // TODO(@mathetake): Should we handle the case where the queue overflows, i.e. the number of used
+  // tokens exceeds the max of uint32? If it overflows, the following loop never exits.
   while (true) {
     uint32_t token = next_queue_token_++;
     if (token == 0) {
