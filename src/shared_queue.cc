@@ -21,9 +21,17 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "include/proxy-wasm/vm_id_handle.h"
+
 namespace proxy_wasm {
 
 SharedQueue global_shared_queue;
+
+SharedQueue::SharedQueue() {
+  registerVmIdHandleCallback([this](std::string_view vm_id) { this->deleteByVmId(vm_id); });
+}
+
+void SharedQueue::deleteByVmId(std::string_view vm_id) {}
 
 uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view queue_name,
                                     uint32_t context_id, CallOnThreadFunction call_on_thread,

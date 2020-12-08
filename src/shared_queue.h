@@ -22,11 +22,13 @@ namespace proxy_wasm {
 
 class SharedQueue {
 public:
+  SharedQueue();
   uint32_t registerQueue(std::string_view vm_id, std::string_view queue_name, uint32_t context_id,
                          CallOnThreadFunction call_on_thread, std::string_view vm_key);
   uint32_t resolveQueue(std::string_view vm_id, std::string_view queue_name);
   WasmResult dequeue(uint32_t token, std::string *data);
   WasmResult enqueue(uint32_t token, std::string_view value);
+  void deleteByVmId(std::string_view vm_id);
 
 private:
   uint32_t nextQueueToken() {
