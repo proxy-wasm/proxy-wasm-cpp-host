@@ -25,7 +25,10 @@
 
 namespace proxy_wasm {
 
-SharedQueue global_shared_queue;
+SharedQueue &getGlobalSharedQueue() {
+  static auto *ptr = new SharedQueue;
+  return *ptr;
+}
 
 SharedQueue::SharedQueue(bool register_vm_id_callback) {
   if (register_vm_id_callback) {

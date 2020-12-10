@@ -25,7 +25,10 @@
 
 namespace proxy_wasm {
 
-SharedData global_shared_data;
+SharedData &getGlobalSharedData() {
+  static auto *ptr = new SharedData;
+  return *ptr;
+};
 
 SharedData::SharedData(bool register_vm_id_callback) {
   if (register_vm_id_callback) {

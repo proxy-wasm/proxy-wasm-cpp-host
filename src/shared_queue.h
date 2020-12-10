@@ -57,6 +57,6 @@ private:
   std::map<uint32_t, Queue> queues_;
 };
 
-extern SharedQueue global_shared_queue;
+SharedQueue &getGlobalSharedQueue();
 
 } // namespace proxy_wasm
