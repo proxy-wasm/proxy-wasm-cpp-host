@@ -614,9 +614,14 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
-    wasm::Val params[] = {makeVal(args)...};
     SaveRestoreContext saved_context(context);
-    auto trap = func->call(params, nullptr);
+    wasm::own<wasm::Trap> trap = nullptr;
+    if constexpr(sizeof...(args) > 0) {
+      wasm::Val params[] = {makeVal(args)...};
+      trap = func->call(params, nullptr);
+    } else {
+      trap = func->call(nullptr, nullptr);
+    }
     if (trap) {
       fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
                                         std::string(trap->message().get(), trap->message().size()));
@@ -646,10 +651,15 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
   *function = [func, function_name, this](ContextBase *context, Args... args) -> R {
-    wasm::Val params[] = {makeVal(args)...};
-    wasm::Val results[1];
     SaveRestoreContext saved_context(context);
-    auto trap = func->call(params, results);
+    wasm::Val results[1];
+    wasm::own<wasm::Trap> trap = nullptr;
+    if constexpr(sizeof...(args) > 0) {
+      wasm::Val params[] = {makeVal(args)...};
+      trap = func->call(params, results);
+    } else {
+      trap = func->call(nullptr, results);
+    }
     if (trap) {
       fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
                                         std::string(trap->message().get(), trap->message().size()));
