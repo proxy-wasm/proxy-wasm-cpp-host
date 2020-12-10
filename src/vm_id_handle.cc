@@ -20,52 +20,54 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
+
 namespace proxy_wasm {
 
-std::mutex global_vm_id_handle_mutex;
-
-std::vector<std::function<void(std::string_view vm_id)>> *getVmIdHandlesCallbacks() {
-  static auto *ptr = new std::vector<std::function<void(std::string_view vm_id)>>;
-  return ptr;
+std::mutex &getGlobalIdHandleMutex() {
+  static auto *ptr = new std::mutex;
+  return *ptr;
 }
 
-std::unordered_map<std::string, std::weak_ptr<VmIdHandle>> *getVmIdHandles() {
+std::vector<std::function<void(std::string_view vm_id)>> &getVmIdHandlesCallbacks() {
+  static auto *ptr = new std::vector<std::function<void(std::string_view vm_id)>>;
+  return *ptr;
+}
+
+std::unordered_map<std::string, std::weak_ptr<VmIdHandle>> &getVmIdHandles() {
   static auto *ptr = new std::unordered_map<std::string, std::weak_ptr<VmIdHandle>>;
-  return ptr;
+  return *ptr;
 }
 
 std::shared_ptr<VmIdHandle> getVmIdHandle(std::string_view vm_id) {
-  std::lock_guard<std::mutex> lock(global_vm_id_handle_mutex);
+  std::lock_guard<std::mutex> lock(getGlobalIdHandleMutex());
   auto key = std::string(vm_id);
-  auto handles = getVmIdHandles();
+  auto &handles = getVmIdHandles();
 
-  auto it = handles->find(key);
-  if (it != handles->end()) {
+  auto it = handles.find(key);
+  if (it != handles.end()) {
     auto handle = it->second.lock();
     if (handle) {
-      std::cout << "found!!";
       return handle;
     }
-    handles->erase(key);
+    handles.erase(key);
   }
 
   auto handle = std::make_shared<VmIdHandle>(key);
-  (*handles)[key] = handle;
+  handles[key] = handle;
   return handle;
 };
 
 void registerVmIdHandleCallback(std::function<void(std::string_view vm_id)> f) {
-  std::lock_guard<std::mutex> lock(global_vm_id_handle_mutex);
-  getVmIdHandlesCallbacks()->push_back(f);
+  std::lock_guard<std::mutex> lock(getGlobalIdHandleMutex());
+  getVmIdHandlesCallbacks().push_back(f);
 }
 
 VmIdHandle::~VmIdHandle() {
-  std::lock_guard<std::mutex> lock(global_vm_id_handle_mutex);
-  for (auto f : *getVmIdHandlesCallbacks()) {
+  std::lock_guard<std::mutex> lock(getGlobalIdHandleMutex());
+  for (auto f : getVmIdHandlesCallbacks()) {
     f(vm_id_);
   }
-  getVmIdHandles()->erase(vm_id_);
+  getVmIdHandles().erase(vm_id_);
 }
 
 } // namespace proxy_wasm

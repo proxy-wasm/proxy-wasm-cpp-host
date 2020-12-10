@@ -23,10 +23,7 @@
 
 namespace proxy_wasm {
 
-std::mutex global_shared_queue_mutex;
-
 SharedQueue *getGlobalSharedQueue() {
-  std::lock_guard<std::mutex> lock(global_shared_queue_mutex);
   static auto *ptr = new SharedQueue;
   return ptr;
 }

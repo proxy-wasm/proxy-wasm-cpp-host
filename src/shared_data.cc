@@ -25,10 +25,7 @@
 
 namespace proxy_wasm {
 
-std::mutex global_shared_data_mutex;
-
 SharedData *getGlobalSharedData() {
-  std::lock_guard<std::mutex> lock(global_shared_data_mutex);
   static auto *ptr = new SharedData;
   return ptr;
 };
