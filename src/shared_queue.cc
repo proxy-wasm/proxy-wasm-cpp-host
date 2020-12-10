@@ -23,7 +23,13 @@
 
 namespace proxy_wasm {
 
-SharedQueue global_shared_queue;
+std::mutex global_shared_queue_mutex;
+
+SharedQueue *getGlobalSharedQueue() {
+  std::lock_guard<std::mutex> lock(global_shared_queue_mutex);
+  static auto *ptr = new SharedQueue;
+  return ptr;
+}
 
 uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view queue_name,
                                     uint32_t context_id, CallOnThreadFunction call_on_thread,

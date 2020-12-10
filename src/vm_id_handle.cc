@@ -20,57 +20,52 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-
+#include <iostream>
 namespace proxy_wasm {
 
-// NOTE(@mathetake): we expect these globals to be initialized in the main thread in the thread
-// safe manner. As long as we do not remove both global_shared_queue (in shared_queue.cc) and
-// global_shared_data (in shared_data.cc), this is safe.
-std::unordered_map<std::string, std::weak_ptr<VmIdHandle>> *global_vm_id_handles = nullptr;
-std::vector<std::function<void(std::string_view vm_id)>> *global_vm_id_handle_callbacks = nullptr;
-std::mutex *global_vm_id_handle_mutex;
+std::mutex global_vm_id_handle_mutex;
+
+std::vector<std::function<void(std::string_view vm_id)>> *getVmIdHandlesCallbacks() {
+  static auto *ptr = new std::vector<std::function<void(std::string_view vm_id)>>;
+  return ptr;
+}
+
+std::unordered_map<std::string, std::weak_ptr<VmIdHandle>> *getVmIdHandles() {
+  static auto *ptr = new std::unordered_map<std::string, std::weak_ptr<VmIdHandle>>;
+  return ptr;
+}
 
 std::shared_ptr<VmIdHandle> getVmIdHandle(std::string_view vm_id) {
-  if (!global_vm_id_handle_mutex) {
-    global_vm_id_handle_mutex = new std::mutex;
-    global_vm_id_handle_callbacks = new std::vector<std::function<void(std::string_view vm_id)>>;
-    global_vm_id_handles = new std::unordered_map<std::string, std::weak_ptr<VmIdHandle>>;
-  }
-
-  std::lock_guard<std::mutex> lock(*global_vm_id_handle_mutex);
+  std::lock_guard<std::mutex> lock(global_vm_id_handle_mutex);
   auto key = std::string(vm_id);
-  auto it = global_vm_id_handles->find(key);
-  if (it != global_vm_id_handles->end()) {
+  auto handles = getVmIdHandles();
+
+  auto it = handles->find(key);
+  if (it != handles->end()) {
     auto handle = it->second.lock();
     if (handle) {
+      std::cout << "found!!";
       return handle;
     }
-    global_vm_id_handles->erase(key);
+    handles->erase(key);
   }
 
   auto handle = std::make_shared<VmIdHandle>(key);
-  (*global_vm_id_handles)[key] = handle;
+  (*handles)[key] = handle;
   return handle;
 };
 
 void registerVmIdHandleCallback(std::function<void(std::string_view vm_id)> f) {
-  if (!global_vm_id_handle_mutex) {
-    global_vm_id_handle_mutex = new std::mutex;
-    global_vm_id_handle_callbacks = new std::vector<std::function<void(std::string_view vm_id)>>;
-    global_vm_id_handles = new std::unordered_map<std::string, std::weak_ptr<VmIdHandle>>;
-  }
-  std::lock_guard<std::mutex> lock(*global_vm_id_handle_mutex);
-  global_vm_id_handle_callbacks->push_back(f);
+  std::lock_guard<std::mutex> lock(global_vm_id_handle_mutex);
+  getVmIdHandlesCallbacks()->push_back(f);
 }
 
 VmIdHandle::~VmIdHandle() {
-  std::lock_guard<std::mutex> lock(*global_vm_id_handle_mutex);
-  if (global_vm_id_handle_mutex && global_vm_id_handle_callbacks) {
-    for (auto f : *global_vm_id_handle_callbacks) {
-      f(vm_id_);
-    }
-    global_vm_id_handles->erase(vm_id_);
+  std::lock_guard<std::mutex> lock(global_vm_id_handle_mutex);
+  for (auto f : *getVmIdHandlesCallbacks()) {
+    f(vm_id_);
   }
+  getVmIdHandles()->erase(vm_id_);
 }
 
 } // namespace proxy_wasm

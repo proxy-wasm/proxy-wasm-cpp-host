@@ -25,7 +25,13 @@
 
 namespace proxy_wasm {
 
-SharedData global_shared_data;
+std::mutex global_shared_data_mutex;
+
+SharedData *getGlobalSharedData() {
+  std::lock_guard<std::mutex> lock(global_shared_data_mutex);
+  static auto *ptr = new SharedData;
+  return ptr;
+};
 
 SharedData::SharedData() {
   registerVmIdHandleCallback([this](std::string_view vm_id) { this->deleteByVmId(vm_id); });
