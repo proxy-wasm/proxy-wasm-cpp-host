@@ -85,7 +85,7 @@ WasmResult BufferBase::copyTo(WasmBase *wasm, size_t start, size_t length, uint6
 
 // Test support.
 uint32_t resolveQueueForTest(std::string_view vm_id, std::string_view queue_name) {
-  return global_shared_queue.resolveQueue(vm_id, queue_name);
+  return getGlobalSharedQueue().resolveQueue(vm_id, queue_name);
 }
 
 std::string PluginBase::makeLogPrefix() const {
@@ -203,11 +203,11 @@ void ContextBase::onCreate() {
 // Shared Data
 WasmResult ContextBase::getSharedData(std::string_view key,
                                       std::pair<std::string, uint32_t> *data) {
-  return global_shared_data.get(wasm_->vm_id(), key, data);
+  return getGlobalSharedData().get(wasm_->vm_id(), key, data);
 }
 
 WasmResult ContextBase::setSharedData(std::string_view key, std::string_view value, uint32_t cas) {
-  return global_shared_data.set(wasm_->vm_id(), key, value, cas);
+  return getGlobalSharedData().set(wasm_->vm_id(), key, value, cas);
 }
 
 // Shared Queue
@@ -216,15 +216,15 @@ WasmResult ContextBase::registerSharedQueue(std::string_view queue_name,
                                             SharedQueueDequeueToken *result) {
   // Get the id of the root context if this is a stream context because onQueueReady is on the
   // root.
-  *result = global_shared_queue.registerQueue(wasm_->vm_id(), queue_name,
-                                              isRootContext() ? id_ : parent_context_id_,
-                                              wasm_->callOnThreadFunction(), wasm_->vm_key());
+  *result = getGlobalSharedQueue().registerQueue(wasm_->vm_id(), queue_name,
+                                                 isRootContext() ? id_ : parent_context_id_,
+                                                 wasm_->callOnThreadFunction(), wasm_->vm_key());
   return WasmResult::Ok;
 }
 
 WasmResult ContextBase::lookupSharedQueue(std::string_view vm_id, std::string_view queue_name,
                                           uint32_t *token_ptr) {
-  uint32_t token = global_shared_queue.resolveQueue(vm_id, queue_name);
+  uint32_t token = getGlobalSharedQueue().resolveQueue(vm_id, queue_name);
   if (isFailed() || !token) {
     return WasmResult::NotFound;
   }
@@ -233,11 +233,11 @@ WasmResult ContextBase::lookupSharedQueue(std::string_view vm_id, std::string_vi
 }
 
 WasmResult ContextBase::dequeueSharedQueue(uint32_t token, std::string *data) {
-  return global_shared_queue.dequeue(token, data);
+  return getGlobalSharedQueue().dequeue(token, data);
 }
 
 WasmResult ContextBase::enqueueSharedQueue(uint32_t token, std::string_view value) {
-  return global_shared_queue.enqueue(token, value);
+  return getGlobalSharedQueue().enqueue(token, value);
 }
 void ContextBase::destroy() {
   if (destroyed_) {
