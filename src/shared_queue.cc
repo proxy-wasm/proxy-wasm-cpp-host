@@ -23,9 +23,9 @@
 
 namespace proxy_wasm {
 
-SharedQueue *getGlobalSharedQueue() {
+SharedQueue &getGlobalSharedQueue() {
   static auto *ptr = new SharedQueue;
-  return ptr;
+  return *ptr;
 }
 
 uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view queue_name,

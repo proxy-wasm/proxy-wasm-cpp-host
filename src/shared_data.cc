@@ -25,9 +25,9 @@
 
 namespace proxy_wasm {
 
-SharedData *getGlobalSharedData() {
+SharedData &getGlobalSharedData() {
   static auto *ptr = new SharedData;
-  return ptr;
+  return *ptr;
 };
 
 SharedData::SharedData() {

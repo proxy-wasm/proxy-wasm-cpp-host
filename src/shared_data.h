@@ -45,6 +45,6 @@ private:
   std::map<std::string, std::unordered_map<std::string, std::pair<std::string, uint32_t>>> data_;
 };
 
-SharedData *getGlobalSharedData();
+SharedData &getGlobalSharedData();
 
 } // namespace proxy_wasm

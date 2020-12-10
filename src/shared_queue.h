@@ -61,6 +61,6 @@ private:
   std::unordered_set<uint32_t> queue_token_set_;
 };
 
-SharedQueue *getGlobalSharedQueue();
+SharedQueue &getGlobalSharedQueue();
 
 } // namespace proxy_wasm
