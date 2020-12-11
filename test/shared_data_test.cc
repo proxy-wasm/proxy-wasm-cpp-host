@@ -23,7 +23,7 @@
 namespace proxy_wasm {
 
 TEST(SharedData, SingleThread) {
-  SharedData shared_data;
+  SharedData shared_data(false);
   std::pair<std::string, uint32_t> result;
   EXPECT_EQ(WasmResult::NotFound, shared_data.get("non-exist", "non-exists", &result));
 
@@ -63,7 +63,7 @@ void incrementData(SharedData *shared_data, std::string_view vm_id, std::string_
 }
 
 TEST(SharedData, Concurrent) {
-  SharedData shared_data;
+  SharedData shared_data(false);
   std::pair<std::string, uint32_t> result;
 
   std::string_view vm_id = "id";
@@ -80,7 +80,7 @@ TEST(SharedData, Concurrent) {
 }
 
 TEST(SharedData, DeleteByVmId) {
-  SharedData shared_data;
+  SharedData shared_data(false);
   std::string_view vm_id = "id";
   std::string_view key = "key";
   std::string_view value;
