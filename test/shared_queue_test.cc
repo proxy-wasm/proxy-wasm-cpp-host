@@ -91,7 +91,7 @@ TEST(SharedQueue, Concurrent) {
   auto queued_count = 0;
   std::mutex mutex;
   std::function<void(std::function<void()>)> call_on_thread =
-      [&queued_count, &mutex](const std::function<void()> &f) {
+      [&mutex, &queued_count](const std::function<void()> &f) {
         std::lock_guard<std::mutex> lock(mutex);
         queued_count++;
         f(); // TODO(mathetake): test whether onQueueReady is called with mock WasmHandle
