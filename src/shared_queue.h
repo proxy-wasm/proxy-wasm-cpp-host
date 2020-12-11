@@ -54,7 +54,7 @@ private:
   // queue key -> token
   std::unordered_map<std::size_t, uint32_t> queue_tokens_;
   // token -> queue
-  std::map<uint32_t, Queue> queues_;
+  std::unordered_map<uint32_t, Queue> queues_;
 };
 
 SharedQueue &getGlobalSharedQueue();
