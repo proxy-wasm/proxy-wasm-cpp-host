@@ -85,8 +85,8 @@ public:
 #undef _GET_MODULE_FUNCTION
 
 private:
-  std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);
   wasm::vec<byte_t> getStrippedSource();
+  std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);
 
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
@@ -305,6 +305,7 @@ std::unique_ptr<WasmVm> V8::clone() {
 
   clone->module_ = wasm::Module::obtain(clone->store_.get(), shared_module_.get());
   clone->function_names_index_ = function_names_index_;
+
   return clone;
 }
 
@@ -698,12 +699,12 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
   }
 
   auto trace = trap->trace();
-  message += "\nProxy-Wasm plugin in-VM backtrace:\n";
+  message += "\nProxy-Wasm plugin in-VM backtrace:";
   for (size_t i = 0; i < trace.size(); ++i) {
     auto frame = trace[i].get();
     std::ostringstream oss;
     oss << std::setw(3) << std::setfill(' ') << std::to_string(i);
-    message += oss.str() + ": ";
+    message += "\n" + oss.str() + ": ";
 
     std::stringstream address;
     address << std::hex << frame->module_offset();
@@ -711,13 +712,11 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
 
     auto func_index = frame->func_index();
     auto it = function_names_index_.find(func_index);
-    std::string function_name;
     if (it != function_names_index_.end()) {
-      function_name = it->second;
+      message += it->second;
     } else {
-      function_name = "unknown(function index:" + std::to_string(func_index) + ")";
+      message += "unknown(function index:" + std::to_string(func_index) + ")";
     }
-    message += function_name + "\n";
   }
   return message;
 }
