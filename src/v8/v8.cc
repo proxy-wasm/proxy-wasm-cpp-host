@@ -85,6 +85,7 @@ public:
 #undef _GET_MODULE_FUNCTION
 
 private:
+  void buildFunctionNameIndex();
   wasm::vec<byte_t> getStrippedSource();
   std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);
 
@@ -267,33 +268,39 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     assert((shared_module_ != nullptr));
   }
 
+  buildFunctionNameIndex();
+
+  return module_ != nullptr;
+}
+
+void V8::buildFunctionNameIndex() {
   // build function index -> function name map for backtrace
   // https://webassembly.github.io/spec/core/appendix/custom.html#binary-namesubsection
   auto name_section = getCustomSection("name");
   if (name_section.size()) {
     const byte_t *pos = name_section.data();
     const byte_t *end = name_section.data() + name_section.size();
+    while (pos < end) {
+      if (*pos++ != 1) {
+        pos += parseVarint(pos, end);
+      } else {
+        auto size = parseVarint(pos, end);
+        auto start = pos;
+        const uint32_t namemap_vector_size = parseVarint(pos, end);
+        for (auto i = 0; i < namemap_vector_size; i++) {
+          const uint32_t func_index = parseVarint(pos, end);
+          const uint32_t func_name_size = parseVarint(pos, end);
+          function_names_index_.insert({func_index, std::string(pos, func_name_size)});
+          pos += func_name_size;
+        }
 
-    // module name subsection (id=0) is currently unimplemented in LLVM but we handle the
-    // case just in case
-    if (*pos == 0) {
-      pos++;
-      pos += parseVarint(pos, end);
-    }
-
-    if (*pos == 1) {
-      pos++;
-      parseVarint(pos, end); // skip subsection size
-      const uint32_t namemap_vector_size = parseVarint(pos, end);
-      for (auto i = 0; i < namemap_vector_size; i++) {
-        const uint32_t func_index = parseVarint(pos, end);
-        const uint32_t func_name_size = parseVarint(pos, end);
-        function_names_index_.insert({func_index, std::string(pos, func_name_size)});
-        pos += func_name_size;
+        if (start + size != pos) {
+          // indicates the mulformed function name subsection, so clear the stored indexes.
+          function_names_index_ = {};
+        }
       }
     }
   }
-  return module_ != nullptr;
 }
 
 std::unique_ptr<WasmVm> V8::clone() {
