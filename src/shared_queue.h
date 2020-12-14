@@ -34,10 +34,6 @@ public:
   uint32_t nextQueueToken();
 
 private:
-  std::size_t queueKeyHash(std::string_view vm_id, std::string_view queue_name) {
-    return std::hash<std::string_view>()(vm_id) ^ std::hash<std::string_view>()(queue_name);
-  };
-
   struct Queue {
     std::string vm_key;
     uint32_t context_id;
@@ -49,10 +45,18 @@ private:
   std::mutex mutex_;
   uint32_t next_queue_token_ = 1;
 
+  struct pair_hash {
+    template <class T1, class T2> std::size_t operator()(const std::pair<T1, T2> &pair) const {
+      return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
+    }
+  };
+
+  using QueueKeySet = std::unordered_set<std::pair<std::string, std::string>, pair_hash>;
+
   // vm_id -> queue keys
-  std::unordered_map<std::string, std::unordered_set<std::size_t>> vm_queue_keys_;
+  std::unordered_map<std::string, QueueKeySet> vm_queue_keys_;
   // queue key -> token
-  std::unordered_map<std::size_t, uint32_t> queue_tokens_;
+  std::unordered_map<std::pair<std::string, std::string>, uint32_t, pair_hash> queue_tokens_;
   // token -> queue
   std::unordered_map<uint32_t, Queue> queues_;
 };

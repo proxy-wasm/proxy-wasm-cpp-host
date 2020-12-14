@@ -40,7 +40,7 @@ void SharedQueue::deleteByVmId(std::string_view vm_id) {
   std::lock_guard<std::mutex> lock(mutex_);
   auto queue_keys = vm_queue_keys_.find(std::string(vm_id));
   if (queue_keys != vm_queue_keys_.end()) {
-    for (std::size_t queue_key : queue_keys->second) {
+    for (std::pair<std::string, std::string> queue_key : queue_keys->second) {
       auto token = queue_tokens_.find(queue_key);
       if (token != queue_tokens_.end()) {
         queues_.erase(token->second);
@@ -70,11 +70,10 @@ uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view que
                                     uint32_t context_id, CallOnThreadFunction call_on_thread,
                                     std::string_view vm_key) {
   std::lock_guard<std::mutex> lock(mutex_);
-
-  // TODO(mathetake): care about hash collision?
-  auto key = queueKeyHash(vm_id, queue_name);
-  std::unordered_set<std::size_t> *queue_keys;
   std::string vid = std::string(vm_id);
+  auto key = std::make_pair(vid, std::string(queue_name));
+
+  QueueKeySet *queue_keys;
   auto map_it = vm_queue_keys_.find(vid);
   if (map_it == vm_queue_keys_.end()) {
     queue_keys = &vm_queue_keys_[vid];
@@ -99,8 +98,7 @@ uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view que
 
 uint32_t SharedQueue::resolveQueue(std::string_view vm_id, std::string_view queue_name) {
   std::lock_guard<std::mutex> lock(mutex_);
-  auto key = queueKeyHash(vm_id, queue_name);
-  auto it = queue_tokens_.find(key);
+  auto it = queue_tokens_.find(std::make_pair(std::string(vm_id), std::string(queue_name)));
   if (it != queue_tokens_.end()) {
     return it->second;
   }
