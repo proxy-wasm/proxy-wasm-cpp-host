@@ -295,7 +295,7 @@ void V8::buildFunctionNameIndex() {
         }
 
         if (start + size != pos) {
-          // indicates the mulformed function name subsection, so clear the stored indexes.
+          // indicates the malformed function name subsection, so clear the stored indexes.
           function_names_index_ = {};
         }
       }
