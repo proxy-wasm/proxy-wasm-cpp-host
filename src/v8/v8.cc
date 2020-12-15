@@ -291,9 +291,22 @@ void V8::buildFunctionNameIndex() {
         }
         const auto start = pos;
         const auto namemap_vector_size = parseVarint(pos, end);
+        if (namemap_vector_size == static_cast<uint32_t>(-1) || pos + namemap_vector_size > end) {
+          function_names_index_ = {};
+          return;
+        }
         for (auto i = 0; i < namemap_vector_size; i++) {
           const auto func_index = parseVarint(pos, end);
+          if (func_index == static_cast<uint32_t>(-1) || pos + func_index > end) {
+            function_names_index_ = {};
+            return;
+          }
+
           const auto func_name_size = parseVarint(pos, end);
+          if (func_name_size == static_cast<uint32_t>(-1) || pos + func_name_size > end) {
+            function_names_index_ = {};
+            return;
+          }
           function_names_index_.insert({func_index, std::string(pos, func_name_size)});
           pos += func_name_size;
         }
