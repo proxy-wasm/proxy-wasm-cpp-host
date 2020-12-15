@@ -37,7 +37,7 @@ TEST(SharedQueue, SingleThread) {
   std::string_view queue_name = "name";
   uint32_t context_id = 1;
 
-  for (auto i = 0; i < 100; i++) {
+  for (auto i = 0; i < 3; i++) {
     // same token
     EXPECT_EQ(1, shared_queue.registerQueue(vm_id, queue_name, context_id, nullptr, vm_key));
   }
@@ -119,21 +119,26 @@ TEST(SharedQueue, DeleteByVmId) {
   auto vm_id_2 = "id_2";
   std::string_view vm_key = "vm_key";
   uint32_t context_id = 1;
+  auto queue_num_per_vm = 3;
 
-  for (auto i = 1; i < 10; i++) {
+  for (auto i = 1; i < queue_num_per_vm; i++) {
     EXPECT_EQ(i,
               shared_queue.registerQueue(vm_id_1, std::to_string(i), context_id, nullptr, vm_key));
     EXPECT_EQ(i, shared_queue.resolveQueue(vm_id_1, std::to_string(i)));
-    i++;
+  }
+
+  for (auto i = queue_num_per_vm; i < 2 * queue_num_per_vm; i++) {
     EXPECT_EQ(i,
               shared_queue.registerQueue(vm_id_2, std::to_string(i), context_id, nullptr, vm_key));
     EXPECT_EQ(i, shared_queue.resolveQueue(vm_id_2, std::to_string(i)));
   }
 
   shared_queue.deleteByVmId(vm_id_1);
-  for (auto i = 1; i < 10; i++) {
+  for (auto i = 1; i < queue_num_per_vm; i++) {
     EXPECT_EQ(0, shared_queue.resolveQueue(vm_id_1, std::to_string(i)));
-    i++;
+  }
+
+  for (auto i = queue_num_per_vm; i < 2 * queue_num_per_vm; i++) {
     EXPECT_EQ(i, shared_queue.resolveQueue(vm_id_2, std::to_string(i)));
   }
 }
