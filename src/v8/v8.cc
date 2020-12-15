@@ -585,9 +585,8 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
       store_.get(), type.get(),
       [](void *data, const wasm::Val params[], wasm::Val[]) -> wasm::own<wasm::Trap> {
         auto func_data = reinterpret_cast<FuncData *>(data);
-        func_data->vm_->integration()->trace(
-            "[vm->host] " + func_data->name_ + "(" +
-            printValues(params, std::tuple_size<std::tuple<Args...>>::value) + ")");
+        func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
+                                             printValues(params, sizeof...(Args)) + ")");
         auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
         auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
         auto function = reinterpret_cast<void (*)(void *, Args...)>(func_data->raw_func_);
@@ -615,9 +614,8 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
       store_.get(), type.get(),
       [](void *data, const wasm::Val params[], wasm::Val results[]) -> wasm::own<wasm::Trap> {
         auto func_data = reinterpret_cast<FuncData *>(data);
-        func_data->vm_->integration()->trace(
-            "[vm->host] " + func_data->name_ + "(" +
-            printValues(params, std::tuple_size<std::tuple<Args...>>::value) + ")");
+        func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
+                                             printValues(params, sizeof...(Args)) + ")");
         auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
         auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
         auto function = reinterpret_cast<R (*)(void *, Args...)>(func_data->raw_func_);
@@ -661,7 +659,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     wasm::Val params[] = {makeVal(args)...};
     SaveRestoreContext saved_context(context);
     integration()->trace("[host->vm] " + std::string(function_name) + "(" +
-                         printValues(params, std::tuple_size<std::tuple<Args...>>::value) + ")");
+                         printValues(params, sizeof...(Args)) + ")");
     auto trap = func->call(params, nullptr);
     if (trap) {
       fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
@@ -697,7 +695,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     wasm::Val results[1];
     SaveRestoreContext saved_context(context);
     integration()->trace("[host->vm] " + std::string(function_name) + "(" +
-                         printValues(params, std::tuple_size<std::tuple<Args...>>::value) + ")");
+                         printValues(params, sizeof...(Args)) + ")");
     auto trap = func->call(params, results);
     if (trap) {
       fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
