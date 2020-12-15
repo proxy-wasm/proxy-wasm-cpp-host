@@ -24,10 +24,10 @@ namespace proxy_wasm {
 
 TEST(SharedQueue, NextQueueToken) {
   SharedQueue shared_queue(false);
-  for (auto i = 1; i < 100; i++) {
+  for (auto i = 1; i < 5; i++) {
     EXPECT_EQ(i, shared_queue.nextQueueToken());
   }
-  EXPECT_EQ(100, shared_queue.registerQueue("a", "b", 1, nullptr, "c"));
+  EXPECT_EQ(5, shared_queue.registerQueue("a", "b", 1, nullptr, "c"));
 }
 
 TEST(SharedQueue, SingleThread) {
