@@ -284,18 +284,21 @@ void V8::buildFunctionNameIndex() {
       if (*pos++ != 1) {
         pos += parseVarint(pos, end);
       } else {
-        auto size = parseVarint(pos, end);
-        auto start = pos;
-        const uint32_t namemap_vector_size = parseVarint(pos, end);
+        const auto size = parseVarint(pos, end);
+        if (size == static_cast<uint32_t>(-1) || pos + size > end) {
+          function_names_index_ = {};
+          break;
+        }
+        const auto start = pos;
+        const auto namemap_vector_size = parseVarint(pos, end);
         for (auto i = 0; i < namemap_vector_size; i++) {
-          const uint32_t func_index = parseVarint(pos, end);
-          const uint32_t func_name_size = parseVarint(pos, end);
+          const auto func_index = parseVarint(pos, end);
+          const auto func_name_size = parseVarint(pos, end);
           function_names_index_.insert({func_index, std::string(pos, func_name_size)});
           pos += func_name_size;
         }
 
         if (start + size != pos) {
-          // indicates the malformed function name subsection, so clear the stored indexes.
           function_names_index_ = {};
           break;
         }
