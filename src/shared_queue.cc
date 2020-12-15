@@ -70,13 +70,13 @@ uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view que
                                     uint32_t context_id, CallOnThreadFunction call_on_thread,
                                     std::string_view vm_key) {
   std::lock_guard<std::mutex> lock(mutex_);
-  std::string vid = std::string(vm_id);
-  auto key = std::make_pair(vid, std::string(queue_name));
+  auto key = std::make_pair(std::string(vm_id), std::string(queue_name));
 
   auto it = queue_tokens_.insert(std::make_pair(key, static_cast<uint32_t>(0)));
   if (it.second) {
     it.first->second = nextQueueToken();
 
+    auto vid = std::string(vm_id);
     QueueKeySet *queue_keys;
     auto map_it = vm_queue_keys_.find(vid);
     if (map_it == vm_queue_keys_.end()) {
