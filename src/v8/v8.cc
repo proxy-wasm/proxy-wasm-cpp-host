@@ -287,7 +287,7 @@ void V8::buildFunctionNameIndex() {
         const auto size = parseVarint(pos, end);
         if (size == static_cast<uint32_t>(-1) || pos + size > end) {
           function_names_index_ = {};
-          break;
+          return;
         }
         const auto start = pos;
         const auto namemap_vector_size = parseVarint(pos, end);
@@ -300,7 +300,7 @@ void V8::buildFunctionNameIndex() {
 
         if (start + size != pos) {
           function_names_index_ = {};
-          break;
+          return;
         }
       }
     }
