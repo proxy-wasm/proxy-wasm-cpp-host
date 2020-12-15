@@ -297,7 +297,7 @@ void V8::buildFunctionNameIndex() {
         }
         for (auto i = 0; i < namemap_vector_size; i++) {
           const auto func_index = parseVarint(pos, end);
-          if (func_index == static_cast<uint32_t>(-1) || pos + func_index > end) {
+          if (func_index == static_cast<uint32_t>(-1)) {
             function_names_index_ = {};
             return;
           }
