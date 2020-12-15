@@ -16,9 +16,10 @@
 #include "include/proxy-wasm/v8.h"
 
 #include <cassert>
-
+#include <iomanip>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <utility>
 #include <vector>
 
@@ -84,7 +85,9 @@ public:
 #undef _GET_MODULE_FUNCTION
 
 private:
+  void buildFunctionNameIndex();
   wasm::vec<byte_t> getStrippedSource();
+  std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);
 
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
@@ -112,6 +115,8 @@ private:
 
   absl::flat_hash_map<std::string, FuncDataPtr> host_functions_;
   absl::flat_hash_map<std::string, wasm::own<wasm::Func>> module_functions_;
+
+  absl::flat_hash_map<uint32_t, std::string> function_names_index_;
 };
 
 // Helper functions.
@@ -263,7 +268,56 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     assert((shared_module_ != nullptr));
   }
 
+  buildFunctionNameIndex();
+
   return module_ != nullptr;
+}
+
+void V8::buildFunctionNameIndex() {
+  // build function index -> function name map for backtrace
+  // https://webassembly.github.io/spec/core/appendix/custom.html#binary-namesubsection
+  auto name_section = getCustomSection("name");
+  if (name_section.size()) {
+    const byte_t *pos = name_section.data();
+    const byte_t *end = name_section.data() + name_section.size();
+    while (pos < end) {
+      if (*pos++ != 1) {
+        pos += parseVarint(pos, end);
+      } else {
+        const auto size = parseVarint(pos, end);
+        if (size == static_cast<uint32_t>(-1) || pos + size > end) {
+          function_names_index_ = {};
+          return;
+        }
+        const auto start = pos;
+        const auto namemap_vector_size = parseVarint(pos, end);
+        if (namemap_vector_size == static_cast<uint32_t>(-1) || pos + namemap_vector_size > end) {
+          function_names_index_ = {};
+          return;
+        }
+        for (auto i = 0; i < namemap_vector_size; i++) {
+          const auto func_index = parseVarint(pos, end);
+          if (func_index == static_cast<uint32_t>(-1)) {
+            function_names_index_ = {};
+            return;
+          }
+
+          const auto func_name_size = parseVarint(pos, end);
+          if (func_name_size == static_cast<uint32_t>(-1) || pos + func_name_size > end) {
+            function_names_index_ = {};
+            return;
+          }
+          function_names_index_.insert({func_index, std::string(pos, func_name_size)});
+          pos += func_name_size;
+        }
+
+        if (start + size != pos) {
+          function_names_index_ = {};
+          return;
+        }
+      }
+    }
+  }
 }
 
 std::unique_ptr<WasmVm> V8::clone() {
@@ -274,6 +328,7 @@ std::unique_ptr<WasmVm> V8::clone() {
   clone->store_ = wasm::Store::make(engine());
 
   clone->module_ = wasm::Module::obtain(clone->store_.get(), shared_module_.get());
+  clone->function_names_index_ = function_names_index_;
 
   return clone;
 }
@@ -500,6 +555,7 @@ bool V8::link(std::string_view debug_name) {
     } break;
     }
   }
+
   return !isFailed();
 }
 
@@ -618,8 +674,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, nullptr);
     if (trap) {
-      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
-                                        std::string(trap->message().get(), trap->message().size()));
+      fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
     }
   };
 }
@@ -651,13 +706,43 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     auto trap = func->call(params, results);
     if (trap) {
-      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
-                                        std::string(trap->message().get(), trap->message().size()));
+      fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return R{};
     }
     R rvalue = results[0].get<typename ConvertWordTypeToUint32<R>::type>();
     return rvalue;
   };
+}
+
+std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {
+  auto message = "Function: " + std::string(function_name) + " failed: ";
+  message += std::string(trap->message().get(), trap->message().size());
+
+  if (function_names_index_.empty()) {
+    return message;
+  }
+
+  auto trace = trap->trace();
+  message += "\nProxy-Wasm plugin in-VM backtrace:";
+  for (size_t i = 0; i < trace.size(); ++i) {
+    auto frame = trace[i].get();
+    std::ostringstream oss;
+    oss << std::setw(3) << std::setfill(' ') << std::to_string(i);
+    message += "\n" + oss.str() + ": ";
+
+    std::stringstream address;
+    address << std::hex << frame->module_offset();
+    message += " 0x" + address.str() + " - ";
+
+    auto func_index = frame->func_index();
+    auto it = function_names_index_.find(func_index);
+    if (it != function_names_index_.end()) {
+      message += it->second;
+    } else {
+      message += "unknown(function index:" + std::to_string(func_index) + ")";
+    }
+  }
+  return message;
 }
 
 } // namespace
