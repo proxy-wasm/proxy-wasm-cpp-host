@@ -43,6 +43,9 @@ struct DummyIntegration : public WasmVmIntegration {
     std::cout << "ERROR from integration: " << message << std::endl;
     error_message_ = message;
   }
+  void trace(std::string_view message) override {
+    std::cout << "TRACE from integration: " << message << std::endl;
+  }
   bool getNullVmFunction(std::string_view function_name, bool returns_word, int number_of_arguments,
                          NullPlugin *plugin, void *ptr_to_function_return) override {
     return false;

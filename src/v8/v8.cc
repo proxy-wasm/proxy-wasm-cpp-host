@@ -616,7 +616,6 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
     wasm::Val params[] = {makeVal(args)...};
     SaveRestoreContext saved_context(context);
-    auto trap = func->call(params, nullptr);
     if (trap) {
       fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed: " +
                                         std::string(trap->message().get(), trap->message().size()));
