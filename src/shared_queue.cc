@@ -40,7 +40,7 @@ void SharedQueue::deleteByVmId(std::string_view vm_id) {
   std::lock_guard<std::mutex> lock(mutex_);
   auto queue_keys = vm_queue_keys_.find(std::string(vm_id));
   if (queue_keys != vm_queue_keys_.end()) {
-    for (std::pair<std::string, std::string> queue_key : queue_keys->second) {
+    for (auto queue_key : queue_keys->second) {
       auto token = queue_tokens_.find(queue_key);
       if (token != queue_tokens_.end()) {
         queues_.erase(token->second);
@@ -73,18 +73,18 @@ uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view que
   std::string vid = std::string(vm_id);
   auto key = std::make_pair(vid, std::string(queue_name));
 
-  QueueKeySet *queue_keys;
-  auto map_it = vm_queue_keys_.find(vid);
-  if (map_it == vm_queue_keys_.end()) {
-    queue_keys = &vm_queue_keys_[vid];
-  } else {
-    queue_keys = &map_it->second;
-  }
-  queue_keys->insert(key);
-
   auto it = queue_tokens_.insert(std::make_pair(key, static_cast<uint32_t>(0)));
   if (it.second) {
     it.first->second = nextQueueToken();
+
+    QueueKeySet *queue_keys;
+    auto map_it = vm_queue_keys_.find(vid);
+    if (map_it == vm_queue_keys_.end()) {
+      queue_keys = &vm_queue_keys_[vid];
+    } else {
+      queue_keys = &map_it->second;
+    }
+    queue_keys->insert(key);
   }
 
   uint32_t token = it.first->second;
@@ -98,7 +98,8 @@ uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view que
 
 uint32_t SharedQueue::resolveQueue(std::string_view vm_id, std::string_view queue_name) {
   std::lock_guard<std::mutex> lock(mutex_);
-  auto it = queue_tokens_.find(std::make_pair(std::string(vm_id), std::string(queue_name)));
+  auto key = std::make_pair(std::string(vm_id), std::string(queue_name));
+  auto it = queue_tokens_.find(key);
   if (it != queue_tokens_.end()) {
     return it->second;
   }
