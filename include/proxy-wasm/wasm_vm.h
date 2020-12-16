@@ -112,6 +112,7 @@ class NullPlugin;
 struct WasmVmIntegration {
   virtual ~WasmVmIntegration() {}
   virtual WasmVmIntegration *clone() = 0;
+  virtual proxy_wasm::LogLevel getLogLevel() = 0;
   virtual void error(std::string_view message) = 0;
   virtual void trace(std::string_view message) = 0;
   // Get a NullVm implementation of a function.
@@ -286,6 +287,7 @@ public:
 
   // Integrator operations.
   std::unique_ptr<WasmVmIntegration> &integration() { return integration_; }
+  bool cmpLogLevel(proxy_wasm::LogLevel level) { return integration_->getLogLevel() <= level; }
 
 protected:
   std::unique_ptr<WasmVmIntegration> integration_;

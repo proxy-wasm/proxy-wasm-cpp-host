@@ -45,12 +45,17 @@ struct DummyIntegration : public WasmVmIntegration {
   }
   void trace(std::string_view message) override {
     std::cout << "TRACE from integration: " << message << std::endl;
+    trace_message_ = message;
   }
   bool getNullVmFunction(std::string_view function_name, bool returns_word, int number_of_arguments,
                          NullPlugin *plugin, void *ptr_to_function_return) override {
     return false;
   };
+
+  LogLevel getLogLevel() override { return log_level_; }
   std::string error_message_;
+  std::string trace_message_;
+  LogLevel log_level_ = LogLevel::info;
 };
 
 class TestVM : public testing::TestWithParam<std::string> {
@@ -186,12 +191,39 @@ public:
   int64_t counter = 0;
 };
 
+void nopCallback(void *raw_context) {}
+
 void callback(void *raw_context) {
   TestContext *context = static_cast<TestContext *>(raw_context);
   context->increment();
 }
 
 Word callback2(void *raw_context, Word val) { return val + 100; }
+
+TEST_P(TestVM, StraceLogLevel) {
+  initialize("callback.wasm");
+  ASSERT_TRUE(vm_->load(source_, false));
+  vm_->registerCallback("env", "callback", &nopCallback,
+                        &ConvertFunctionWordToUint32<decltype(nopCallback),
+                                                     nopCallback>::convertFunctionWordToUint32);
+  vm_->registerCallback(
+      "env", "callback2", &callback2,
+      &ConvertFunctionWordToUint32<decltype(callback2), callback2>::convertFunctionWordToUint32);
+  ASSERT_TRUE(vm_->link(""));
+
+  WasmCallVoid<0> run;
+  vm_->getFunction("run", &run);
+
+  TestContext context;
+  current_context_ = &context;
+  run(current_context_);
+  // no trace message found since DummyIntegration's log_level_ defaults to  LogLevel::info
+  EXPECT_EQ(integration_->trace_message_, "");
+
+  integration_->log_level_ = LogLevel::trace;
+  run(current_context_);
+  EXPECT_NE(integration_->trace_message_, "");
+}
 
 TEST_P(TestVM, Callback) {
   initialize("callback.wasm");

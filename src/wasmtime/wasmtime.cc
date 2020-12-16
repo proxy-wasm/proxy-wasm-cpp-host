@@ -577,13 +577,17 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
       store_.get(), type.get(),
       [](void *data, const wasm_val_t params[], wasm_val_t results[]) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<HostFuncData *>(data);
-        func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
-                                             printValues(params, sizeof...(Args)) + ")");
+        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+          func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
+                                               printValues(params, sizeof...(Args)) + ")");
+        }
         auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
         auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
         auto fn = reinterpret_cast<void (*)(void *, Args...)>(func_data->raw_func_);
         std::apply(fn, args);
-        func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ + " return: void");
+        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+          func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ + " return: void");
+        }
         return nullptr;
       },
       data.get(), nullptr);
@@ -606,15 +610,19 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
       store_.get(), type.get(),
       [](void *data, const wasm_val_t params[], wasm_val_t results[]) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<HostFuncData *>(data);
-        func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
-                                             printValues(params, sizeof...(Args)) + ")");
+        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+          func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
+                                               printValues(params, sizeof...(Args)) + ")");
+        }
         auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
         auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
         auto fn = reinterpret_cast<R (*)(void *, Args...)>(func_data->raw_func_);
         R res = std::apply(fn, args);
         assignVal<R>(res, results[0]);
-        func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ +
-                                             " return: " + std::to_string(res));
+        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+          func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ +
+                                               " return: " + std::to_string(res));
+        }
         return nullptr;
       },
       data.get(), nullptr);
@@ -655,8 +663,10 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
     wasm_val_t params[] = {makeVal(args)...};
     SaveRestoreContext saved_context(context);
-    integration()->trace("[host->vm] " + std::string(function_name) + "(" +
-                         printValues(params, sizeof...(Args)) + ")");
+    if (cmpLogLevel(LogLevel::trace)) {
+      integration()->trace("[host->vm] " + std::string(function_name) + "(" +
+                           printValues(params, sizeof...(Args)) + ")");
+    }
     WasmTrapPtr trap{wasm_func_call(func, params, nullptr)};
     if (trap) {
       WasmByteVec error_message;
@@ -665,7 +675,9 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
            "Function: " + std::string(function_name) + " failed:\n" +
                std::string(error_message.get()->data, error_message.get()->size));
     }
-    integration()->trace("[host<-vm] " + std::string(function_name) + " return: void");
+    if (cmpLogLevel(LogLevel::trace)) {
+      integration()->trace("[host<-vm] " + std::string(function_name) + " return: void");
+    }
   };
 };
 
@@ -696,8 +708,10 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     wasm_val_t params[] = {makeVal(args)...};
     wasm_val_t results[1];
     SaveRestoreContext saved_context(context);
-    integration()->trace("[host->vm] " + std::string(function_name) + "(" +
-                         printValues(params, sizeof...(Args)) + ")");
+    if (cmpLogLevel(LogLevel::trace)) {
+      integration()->trace("[host->vm] " + std::string(function_name) + "(" +
+                           printValues(params, sizeof...(Args)) + ")");
+    }
     WasmTrapPtr trap{wasm_func_call(func, params, results)};
     if (trap) {
       WasmByteVec error_message;
@@ -709,8 +723,10 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     }
 
     R ret = convertValueTypeToArg<R>(results[0]);
-    integration()->trace("[host<-vm] " + std::string(function_name) +
-                         " return: " + std::to_string(ret));
+    if (cmpLogLevel(LogLevel::trace)) {
+      integration()->trace("[host<-vm] " + std::string(function_name) +
+                           " return: " + std::to_string(ret));
+    }
     return ret;
   };
 };
