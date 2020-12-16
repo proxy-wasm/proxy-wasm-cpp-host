@@ -112,7 +112,7 @@ public:
   null_plugin::RootContext *getRoot(std::string_view root_id);
   null_plugin::Context *getContext(uint64_t context_id);
 
-  void error(std::string_view message) { wasm_vm_->error(message); }
+  void error(std::string_view message) { wasm_vm_->integration()->error(message); }
 
   null_plugin::Context *ensureContext(uint64_t context_id, uint64_t root_context_id);
   null_plugin::RootContext *ensureRootContext(uint64_t context_id);
