@@ -731,6 +731,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     auto trap = func->call(params, nullptr);
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
+      return;
     }
     if (cmpLogLevel(LogLevel::trace)) {
       integration()->trace("[host<-vm] " + std::string(function_name) + " return: void");
