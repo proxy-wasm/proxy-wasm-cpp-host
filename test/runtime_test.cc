@@ -214,14 +214,12 @@ TEST_P(TestVM, StraceLogLevel) {
   WasmCallVoid<0> run;
   vm_->getFunction("run", &run);
 
-  TestContext context;
-  current_context_ = &context;
-  run(current_context_);
+  run(nullptr);
   // no trace message found since DummyIntegration's log_level_ defaults to  LogLevel::info
   EXPECT_EQ(integration_->trace_message_, "");
 
   integration_->log_level_ = LogLevel::trace;
-  run(current_context_);
+  run(nullptr);
   EXPECT_NE(integration_->trace_message_, "");
 }
 
