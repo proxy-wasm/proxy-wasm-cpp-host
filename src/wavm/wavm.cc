@@ -350,7 +350,7 @@ bool Wavm::link(std::string_view debug_name) {
   WAVM::Runtime::LinkResult link_result = linkModule(ir_module_, rootResolver);
   if (!link_result.missingImports.empty()) {
     for (auto &i : link_result.missingImports) {
-      error("Missing Wasm import " + i.moduleName + " " + i.exportName);
+      integration()->error("Missing Wasm import " + i.moduleName + " " + i.exportName);
     }
     fail(FailState::MissingFunction, "Failed to load Wasm module due to a missing import(s)");
     return false;
