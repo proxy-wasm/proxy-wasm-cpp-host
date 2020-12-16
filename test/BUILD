@@ -1,5 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_test")
-load("//:bazel/variables.bzl", "COPTS", "LINKOPTS")
+load("@proxy_wasm_cpp_host//bazel:variables.bzl", "COPTS", "LINKOPTS")
 
 cc_test(
     name = "null_vm_test",
@@ -54,6 +54,17 @@ cc_test(
 cc_test(
     name = "shared_queue",
     srcs = ["shared_queue_test.cc"],
+    copts = COPTS,
+    deps = [
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "vm_id_handle",
+    srcs = ["vm_id_handle_test.cc"],
     copts = COPTS,
     deps = [
         "//:lib",

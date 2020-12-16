@@ -30,12 +30,14 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
+# Unsupported target "build-script-build" with type "custom-build" omitted
 
 rust_library(
-    name = "smallvec",
+    name = "anyhow",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -47,10 +49,32 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.4.2",
+    version = "1.0.35",
     # buildifier: leave-alone
     deps = [
     ],
 )
 
-# Unsupported target "macro" with type "test" omitted
+# Unsupported target "compiletest" with type "test" omitted
+
+# Unsupported target "test_autotrait" with type "test" omitted
+
+# Unsupported target "test_backtrace" with type "test" omitted
+
+# Unsupported target "test_boxed" with type "test" omitted
+
+# Unsupported target "test_chain" with type "test" omitted
+
+# Unsupported target "test_context" with type "test" omitted
+
+# Unsupported target "test_convert" with type "test" omitted
+
+# Unsupported target "test_downcast" with type "test" omitted
+
+# Unsupported target "test_fmt" with type "test" omitted
+
+# Unsupported target "test_macros" with type "test" omitted
+
+# Unsupported target "test_repr" with type "test" omitted
+
+# Unsupported target "test_source" with type "test" omitted

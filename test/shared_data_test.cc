@@ -18,10 +18,12 @@
 
 #include "gtest/gtest.h"
 
+#include "include/proxy-wasm/vm_id_handle.h"
+
 namespace proxy_wasm {
 
 TEST(SharedData, SingleThread) {
-  SharedData shared_data;
+  SharedData shared_data(false);
   std::pair<std::string, uint32_t> result;
   EXPECT_EQ(WasmResult::NotFound, shared_data.get("non-exist", "non-exists", &result));
 
@@ -61,7 +63,7 @@ void incrementData(SharedData *shared_data, std::string_view vm_id, std::string_
 }
 
 TEST(SharedData, Concurrent) {
-  SharedData shared_data;
+  SharedData shared_data(false);
   std::pair<std::string, uint32_t> result;
 
   std::string_view vm_id = "id";
@@ -75,6 +77,34 @@ TEST(SharedData, Concurrent) {
 
   EXPECT_EQ(WasmResult::Ok, shared_data.get(vm_id, key, &result));
   EXPECT_EQ(result.first, "aaaaaaaaaaaaaaaaaaaa");
+}
+
+TEST(SharedData, DeleteByVmId) {
+  SharedData shared_data(false);
+  std::string_view vm_id = "id";
+  std::string_view key = "key";
+  std::string_view value;
+  EXPECT_EQ(WasmResult::Ok, shared_data.set(vm_id, key, value, 0));
+
+  shared_data.deleteByVmId(vm_id);
+  std::pair<std::string, uint32_t> result;
+  EXPECT_EQ(WasmResult::NotFound, shared_data.get(vm_id, key, &result));
+}
+
+TEST(SharedData, VmIdHandleCleanup) {
+  SharedData shared_data;
+  std::string_view vm_id = "proxy_wasm_shared_data_test";
+  auto handle = getVmIdHandle(vm_id);
+  std::string_view key = "key";
+  std::string_view value = "this is value";
+  EXPECT_EQ(WasmResult::Ok, shared_data.set(vm_id, key, value, 0));
+
+  std::pair<std::string, uint32_t> result;
+  EXPECT_EQ(WasmResult::Ok, shared_data.get(vm_id, key, &result));
+  EXPECT_EQ(value, result.first);
+
+  handle.reset();
+  EXPECT_EQ(WasmResult::NotFound, shared_data.get(vm_id, key, &result));
 }
 
 } // namespace proxy_wasm
