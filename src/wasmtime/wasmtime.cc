@@ -674,6 +674,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
       fail(FailState::RuntimeError,
            "Function: " + std::string(function_name) + " failed:\n" +
                std::string(error_message.get()->data, error_message.get()->size));
+      return;
     }
     if (cmpLogLevel(LogLevel::trace)) {
       integration()->trace("[host<-vm] " + std::string(function_name) + " return: void");
@@ -721,7 +722,6 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
                std::string(error_message.get()->data, error_message.get()->size));
       return R{};
     }
-
     R ret = convertValueTypeToArg<R>(results[0]);
     if (cmpLogLevel(LogLevel::trace)) {
       integration()->trace("[host<-vm] " + std::string(function_name) +

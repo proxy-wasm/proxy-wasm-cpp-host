@@ -645,7 +645,6 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params, sizeof...(Args)) + ")");
         }
-
         auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
         auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
         auto function = reinterpret_cast<void (*)(void *, Args...)>(func_data->raw_func_);
@@ -727,7 +726,6 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
       integration()->trace("[host->vm] " + std::string(function_name) + "(" +
                            printValues(params, sizeof...(Args)) + ")");
     }
-
     auto trap = func->call(params, nullptr);
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
@@ -764,12 +762,10 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     wasm::Val params[] = {makeVal(args)...};
     wasm::Val results[1];
     SaveRestoreContext saved_context(context);
-
     if (cmpLogLevel(LogLevel::trace)) {
       integration()->trace("[host->vm] " + std::string(function_name) + "(" +
                            printValues(params, sizeof...(Args)) + ")");
     }
-
     auto trap = func->call(params, results);
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
