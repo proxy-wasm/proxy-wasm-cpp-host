@@ -18,16 +18,29 @@
 
 #include "gtest/gtest.h"
 
+#include "include/proxy-wasm/vm_id_handle.h"
+
 namespace proxy_wasm {
 
+TEST(SharedQueue, NextQueueToken) {
+  SharedQueue shared_queue(false);
+  for (auto i = 1; i < 5; i++) {
+    EXPECT_EQ(i, shared_queue.nextQueueToken());
+  }
+  EXPECT_EQ(5, shared_queue.registerQueue("a", "b", 1, nullptr, "c"));
+}
+
 TEST(SharedQueue, SingleThread) {
-  SharedQueue shared_queue;
+  SharedQueue shared_queue(false);
   std::string_view vm_id = "id";
   std::string_view vm_key = "vm_key";
   std::string_view queue_name = "name";
   uint32_t context_id = 1;
 
-  EXPECT_EQ(1, shared_queue.registerQueue(vm_id, queue_name, context_id, nullptr, vm_key));
+  for (auto i = 0; i < 3; i++) {
+    // same token
+    EXPECT_EQ(1, shared_queue.registerQueue(vm_id, queue_name, context_id, nullptr, vm_key));
+  }
   EXPECT_EQ(1, shared_queue.resolveQueue(vm_id, queue_name));
   EXPECT_EQ(0, shared_queue.resolveQueue(vm_id, "non-exist"));
   EXPECT_EQ(0, shared_queue.resolveQueue("non-exist", queue_name));
@@ -69,7 +82,7 @@ void dequeueData(SharedQueue *shared_queue, uint32_t token, size_t *dequeued_cou
 }
 
 TEST(SharedQueue, Concurrent) {
-  SharedQueue shared_queue;
+  SharedQueue shared_queue(false);
   std::string_view vm_id = "id";
   std::string_view vm_key = "vm_key";
   std::string_view queue_name = "name";
@@ -98,6 +111,49 @@ TEST(SharedQueue, Concurrent) {
   dequeue_first.join();
   dequeue_second.join();
   EXPECT_EQ(first_cnt + second_cnt, 200);
+}
+
+TEST(SharedQueue, DeleteByVmId) {
+  SharedQueue shared_queue(false);
+  auto vm_id_1 = "id_1";
+  auto vm_id_2 = "id_2";
+  std::string_view vm_key = "vm_key";
+  uint32_t context_id = 1;
+  auto queue_num_per_vm = 3;
+
+  for (auto i = 1; i < queue_num_per_vm; i++) {
+    EXPECT_EQ(i,
+              shared_queue.registerQueue(vm_id_1, std::to_string(i), context_id, nullptr, vm_key));
+    EXPECT_EQ(i, shared_queue.resolveQueue(vm_id_1, std::to_string(i)));
+  }
+
+  for (auto i = queue_num_per_vm; i < 2 * queue_num_per_vm; i++) {
+    EXPECT_EQ(i,
+              shared_queue.registerQueue(vm_id_2, std::to_string(i), context_id, nullptr, vm_key));
+    EXPECT_EQ(i, shared_queue.resolveQueue(vm_id_2, std::to_string(i)));
+  }
+
+  shared_queue.deleteByVmId(vm_id_1);
+  for (auto i = 1; i < queue_num_per_vm; i++) {
+    EXPECT_EQ(0, shared_queue.resolveQueue(vm_id_1, std::to_string(i)));
+  }
+
+  for (auto i = queue_num_per_vm; i < 2 * queue_num_per_vm; i++) {
+    EXPECT_EQ(i, shared_queue.resolveQueue(vm_id_2, std::to_string(i)));
+  }
+}
+
+TEST(SharedQueue, VmIdHandleCleanup) {
+  SharedQueue shared_queue;
+  std::string_view vm_id = "proxy_wasm_shared_queue_test";
+  std::string_view queue_name = "name";
+
+  auto handle = getVmIdHandle(vm_id);
+  EXPECT_EQ(1, shared_queue.registerQueue(vm_id, queue_name, 1, nullptr, "vm_key"));
+  EXPECT_EQ(1, shared_queue.resolveQueue(vm_id, queue_name));
+
+  handle.reset();
+  EXPECT_EQ(0, shared_queue.resolveQueue(vm_id, queue_name));
 }
 
 } // namespace proxy_wasm
