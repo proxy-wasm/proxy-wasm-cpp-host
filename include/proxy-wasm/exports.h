@@ -184,7 +184,7 @@ Word pthread_equal(void *, Word left, Word right);
     static Word stub(void *raw_context, Args...) {                                                 \
       auto context = exports::ContextOrEffectiveContext(                                           \
           static_cast<ContextBase *>((void)raw_context, current_context_));                        \
-      context->wasmVm()->error("Attempted call to restricted capability: " #_fn);                  \
+      context->wasmVm()->integration()->error("Attempted call to restricted capability: " #_fn);   \
       return WasmResult::InternalFailure;                                                          \
     }                                                                                              \
   };                                                                                               \
@@ -192,7 +192,7 @@ Word pthread_equal(void *, Word left, Word right);
     static void stub(void *raw_context, Args...) {                                                 \
       auto context = exports::ContextOrEffectiveContext(                                           \
           static_cast<ContextBase *>((void)raw_context, current_context_));                        \
-      context->wasmVm()->error("Attempted call to restricted capability: " #_fn);                  \
+      context->wasmVm()->integration()->error("Attempted call to restricted capability: " #_fn);   \
     }                                                                                              \
   };
 FOR_ALL_HOST_FUNCTIONS(_CREATE_EXPORT_STUB)
