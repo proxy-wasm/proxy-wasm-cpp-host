@@ -29,8 +29,6 @@
 #include "include/proxy-wasm/wasm_vm.h"
 #include "include/proxy-wasm/vm_id_handle.h"
 
-#include "absl/container/flat_hash_map.h"
-
 namespace proxy_wasm {
 
 #include "proxy_wasm_common.h"
@@ -43,7 +41,7 @@ using WasmForeignFunction =
     std::function<WasmResult(WasmBase &, std::string_view, std::function<void *(size_t size)>)>;
 using WasmVmFactory = std::function<std::unique_ptr<WasmVm>()>;
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
-using AllowedCapabilitiesMap = absl::flat_hash_map<std::string, std::vector<std::string>>;
+using AllowedCapabilitiesMap = std::unordered_map<std::string, std::vector<std::string>>;
 
 // Wasm execution instance. Manages the host side of the Wasm interface.
 class WasmBase : public std::enable_shared_from_this<WasmBase> {

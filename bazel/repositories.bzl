@@ -73,9 +73,3 @@ def proxy_wasm_cpp_host_repositories():
         strip_prefix = "protobuf-655310ca192a6e3a050e0ca0b7084a2968072260",
         url = "https://github.com/protocolbuffers/protobuf/archive/655310ca192a6e3a050e0ca0b7084a2968072260.tar.gz",
     )
-
-    http_archive(
-      name = "rules_cc",
-      urls = ["https://github.com/bazelbuild/rules_cc/archive/262ebec3c2296296526740db4aefce68c80de7fa.zip"],
-      strip_prefix = "rules_cc-262ebec3c2296296526740db4aefce68c80de7fa",
-    )
