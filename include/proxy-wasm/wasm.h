@@ -41,7 +41,13 @@ using WasmForeignFunction =
     std::function<WasmResult(WasmBase &, std::string_view, std::function<void *(size_t size)>)>;
 using WasmVmFactory = std::function<std::unique_ptr<WasmVm>()>;
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
-using AllowedCapabilitiesMap = std::unordered_map<std::string, std::vector<std::string>>;
+
+struct SanitizationConfig {
+  std::vector<std::string> argument_list;
+  enum class ListType : int { Allowlist = 0, Denylist = 1 };
+  ListType list_type;
+};
+using AllowedCapabilitiesMap = std::unordered_map<std::string, SanitizationConfig>;
 
 // Wasm execution instance. Manages the host side of the Wasm interface.
 class WasmBase : public std::enable_shared_from_this<WasmBase> {
