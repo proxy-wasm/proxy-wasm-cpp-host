@@ -20,14 +20,12 @@
 #include <memory>
 #include <optional>
 #include <sstream>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "v8-version.h"
 #include "wasm-api/wasm.hh"
-
-// TODO remove absl dependency
-#include "absl/container/flat_hash_map.h"
 
 namespace proxy_wasm {
 namespace {
@@ -114,10 +112,10 @@ private:
   wasm::own<wasm::Memory> memory_;
   wasm::own<wasm::Table> table_;
 
-  absl::flat_hash_map<std::string, FuncDataPtr> host_functions_;
-  absl::flat_hash_map<std::string, wasm::own<wasm::Func>> module_functions_;
+  std::unordered_map<std::string, FuncDataPtr> host_functions_;
+  std::unordered_map<std::string, wasm::own<wasm::Func>> module_functions_;
 
-  absl::flat_hash_map<uint32_t, std::string> function_names_index_;
+  std::unordered_map<uint32_t, std::string> function_names_index_;
 };
 
 // Helper functions.
@@ -235,17 +233,17 @@ template <> constexpr auto convertArgToValKind<uint64_t>() { return wasm::I64; }
 template <> constexpr auto convertArgToValKind<double>() { return wasm::F64; };
 
 template <typename T, std::size_t... I>
-constexpr auto convertArgsTupleToValTypesImpl(absl::index_sequence<I...>) {
+constexpr auto convertArgsTupleToValTypesImpl(std::index_sequence<I...>) {
   return wasm::ownvec<wasm::ValType>::make(
       wasm::ValType::make(convertArgToValKind<typename std::tuple_element<I, T>::type>())...);
 }
 
 template <typename T> constexpr auto convertArgsTupleToValTypes() {
-  return convertArgsTupleToValTypesImpl<T>(absl::make_index_sequence<std::tuple_size<T>::value>());
+  return convertArgsTupleToValTypesImpl<T>(std::make_index_sequence<std::tuple_size<T>::value>());
 }
 
 template <typename T, typename U, std::size_t... I>
-constexpr T convertValTypesToArgsTupleImpl(const U &arr, absl::index_sequence<I...>) {
+constexpr T convertValTypesToArgsTupleImpl(const U &arr, std::index_sequence<I...>) {
   return std::make_tuple(
       (arr[I]
            .template get<
@@ -254,7 +252,7 @@ constexpr T convertValTypesToArgsTupleImpl(const U &arr, absl::index_sequence<I.
 
 template <typename T, typename U> constexpr T convertValTypesToArgsTuple(const U &arr) {
   return convertValTypesToArgsTupleImpl<T>(arr,
-                                           absl::make_index_sequence<std::tuple_size<T>::value>());
+                                           std::make_index_sequence<std::tuple_size<T>::value>());
 }
 
 // V8 implementation.
@@ -568,7 +566,7 @@ bool V8::link(std::string_view debug_name) {
 
     case wasm::EXTERN_FUNC: {
       assert(export_item->func() != nullptr);
-      module_functions_.insert_or_assign(name, export_item->func()->copy());
+      module_functions_.insert_or_assign(std::string(name), export_item->func()->copy());
     } break;
 
     case wasm::EXTERN_GLOBAL: {
@@ -648,7 +646,7 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
         auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
         auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
         auto function = reinterpret_cast<void (*)(void *, Args...)>(func_data->raw_func_);
-        absl::apply(function, args);
+        std::apply(function, args);
         if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
           func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ + " return: void");
         }
@@ -681,7 +679,7 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
         auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
         auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
         auto function = reinterpret_cast<R (*)(void *, Args...)>(func_data->raw_func_);
-        R rvalue = absl::apply(function, args);
+        R rvalue = std::apply(function, args);
         results[0] = makeVal(rvalue);
         if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
           func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ +
