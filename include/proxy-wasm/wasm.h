@@ -44,8 +44,7 @@ using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
 struct SanitizationConfig {
   std::vector<std::string> argument_list;
-  enum class ListType : int { Allowlist = 0, Denylist = 1 };
-  ListType list_type;
+  bool is_allowlist;
 };
 using AllowedCapabilitiesMap = std::unordered_map<std::string, SanitizationConfig>;
 
