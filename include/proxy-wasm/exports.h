@@ -177,14 +177,15 @@ Word pthread_equal(void *, Word left, Word right);
       _f(environ_sizes_get) _f(args_get) _f(args_sizes_get) _f(clock_time_get) _f(random_get)      \
           _f(proc_exit)
 
-// Helpers to generate a stub to pass to VM, in place of a restricted export.
-#define _CREATE_EXPORT_STUB(_fn)                                                                   \
+// Helpers to generate a stub to pass to VM, in place of a restricted proxy-wasm capability.
+#define _CREATE_PROXY_WASM_STUB(_fn)                                                               \
   template <typename F> struct _fn##Stub;                                                          \
   template <typename... Args> struct _fn##Stub<Word(void *, Args...)> {                            \
     static Word stub(void *raw_context, Args...) {                                                 \
       auto context = exports::ContextOrEffectiveContext(                                           \
           static_cast<ContextBase *>((void)raw_context, current_context_));                        \
-      context->wasmVm()->integration()->error("Attempted call to restricted capability: " #_fn);   \
+      context->wasmVm()->integration()->error(                                                     \
+          "Attempted call to restricted proxy-wasm capability: proxy_" #_fn);                      \
       return WasmResult::InternalFailure;                                                          \
     }                                                                                              \
   };                                                                                               \
@@ -192,13 +193,36 @@ Word pthread_equal(void *, Word left, Word right);
     static void stub(void *raw_context, Args...) {                                                 \
       auto context = exports::ContextOrEffectiveContext(                                           \
           static_cast<ContextBase *>((void)raw_context, current_context_));                        \
-      context->wasmVm()->integration()->error("Attempted call to restricted capability: " #_fn);   \
+      context->wasmVm()->integration()->error(                                                     \
+          "Attempted call to restricted proxy-wasm capability: proxy_" #_fn);                      \
     }                                                                                              \
   };
-FOR_ALL_HOST_FUNCTIONS(_CREATE_EXPORT_STUB)
-FOR_ALL_HOST_FUNCTIONS_ABI_SPECIFIC(_CREATE_EXPORT_STUB)
-FOR_ALL_WASI_FUNCTIONS(_CREATE_EXPORT_STUB)
-#undef _CREATE_EXPORT_STUB
+FOR_ALL_HOST_FUNCTIONS(_CREATE_PROXY_WASM_STUB)
+FOR_ALL_HOST_FUNCTIONS_ABI_SPECIFIC(_CREATE_PROXY_WASM_STUB)
+#undef _CREATE_PROXY_WASM_STUB
+
+// Helpers to generate a stub to pass to VM, in place of a restricted WASI capability.
+#define _CREATE_WASI_STUB(_fn)                                                                     \
+  template <typename F> struct _fn##Stub;                                                          \
+  template <typename... Args> struct _fn##Stub<Word(void *, Args...)> {                            \
+    static Word stub(void *raw_context, Args...) {                                                 \
+      auto context = exports::ContextOrEffectiveContext(                                           \
+          static_cast<ContextBase *>((void)raw_context, current_context_));                        \
+      context->wasmVm()->integration()->error(                                                     \
+          "Attempted call to restricted WASI capability: " #_fn);                                  \
+      return 76; /* __WASI_ENOTCAPABLE */                                                          \
+    }                                                                                              \
+  };                                                                                               \
+  template <typename... Args> struct _fn##Stub<void(void *, Args...)> {                            \
+    static void stub(void *raw_context, Args...) {                                                 \
+      auto context = exports::ContextOrEffectiveContext(                                           \
+          static_cast<ContextBase *>((void)raw_context, current_context_));                        \
+      context->wasmVm()->integration()->error(                                                     \
+          "Attempted call to restricted WASI capability: " #_fn);                                  \
+    }                                                                                              \
+  };
+FOR_ALL_WASI_FUNCTIONS(_CREATE_WASI_STUB)
+#undef _CREATE_WASI_STUB
 
 } // namespace exports
 } // namespace proxy_wasm
