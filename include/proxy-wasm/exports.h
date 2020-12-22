@@ -188,14 +188,6 @@ Word pthread_equal(void *, Word left, Word right);
           "Attempted call to restricted proxy-wasm capability: proxy_" #_fn);                      \
       return WasmResult::InternalFailure;                                                          \
     }                                                                                              \
-  };                                                                                               \
-  template <typename... Args> struct _fn##Stub<void(void *, Args...)> {                            \
-    static void stub(void *raw_context, Args...) {                                                 \
-      auto context = exports::ContextOrEffectiveContext(                                           \
-          static_cast<ContextBase *>((void)raw_context, current_context_));                        \
-      context->wasmVm()->integration()->error(                                                     \
-          "Attempted call to restricted proxy-wasm capability: proxy_" #_fn);                      \
-    }                                                                                              \
   };
 FOR_ALL_HOST_FUNCTIONS(_CREATE_PROXY_WASM_STUB)
 FOR_ALL_HOST_FUNCTIONS_ABI_SPECIFIC(_CREATE_PROXY_WASM_STUB)
