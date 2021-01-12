@@ -50,7 +50,8 @@ struct PluginBase {
              std::string_view runtime, std::string_view plugin_configuration, bool fail_open)
       : name_(std::string(name)), root_id_(std::string(root_id)), vm_id_(std::string(vm_id)),
         runtime_(std::string(runtime)), plugin_configuration_(plugin_configuration),
-        fail_open_(fail_open), key_(root_id_ + "||" + plugin_configuration_) {}
+        fail_open_(fail_open), key_(root_id_ + "||" + plugin_configuration_),
+        log_prefix_(makeLogPrefix()) {}
 
   const std::string name_;
   const std::string root_id_;
