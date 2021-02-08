@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "gtest/gtest.h"
+
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -22,6 +23,8 @@
 
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
+
+#include "test/utility.h"
 
 #if defined(WASM_V8)
 #include "include/proxy-wasm/v8.h"
@@ -35,84 +38,6 @@
 
 namespace proxy_wasm {
 namespace {
-
-struct DummyIntegration : public WasmVmIntegration {
-  ~DummyIntegration() override{};
-  WasmVmIntegration *clone() override { return new DummyIntegration{}; }
-  void error(std::string_view message) override {
-    std::cout << "ERROR from integration: " << message << std::endl;
-    error_message_ = message;
-  }
-  void trace(std::string_view message) override {
-    std::cout << "TRACE from integration: " << message << std::endl;
-    trace_message_ = message;
-  }
-  bool getNullVmFunction(std::string_view function_name, bool returns_word, int number_of_arguments,
-                         NullPlugin *plugin, void *ptr_to_function_return) override {
-    return false;
-  };
-
-  LogLevel getLogLevel() override { return log_level_; }
-  std::string error_message_;
-  std::string trace_message_;
-  LogLevel log_level_ = LogLevel::info;
-};
-
-class TestVM : public testing::TestWithParam<std::string> {
-public:
-  std::unique_ptr<proxy_wasm::WasmVm> vm_;
-
-  TestVM() : integration_(new DummyIntegration{}) {
-    runtime_ = GetParam();
-    if (runtime_ == "") {
-      EXPECT_TRUE(false) << "runtime must not be empty";
-#if defined(WASM_V8)
-    } else if (runtime_ == "v8") {
-      vm_ = proxy_wasm::createV8Vm();
-#endif
-#if defined(WASM_WAVM)
-    } else if (runtime_ == "wavm") {
-      vm_ = proxy_wasm::createWavmVm();
-#endif
-#if defined(WASM_WASMTIME)
-    } else if (runtime_ == "wasmtime") {
-      vm_ = proxy_wasm::createWasmtimeVm();
-#endif
-    }
-    vm_->integration().reset(integration_);
-  }
-
-  DummyIntegration *integration_;
-
-  void initialize(std::string filename) {
-    auto path = "test/test_data/" + filename;
-    std::ifstream file(path, std::ios::binary);
-    EXPECT_FALSE(file.fail()) << "failed to open: " << path;
-    std::stringstream file_string_stream;
-    file_string_stream << file.rdbuf();
-    source_ = file_string_stream.str();
-  }
-
-  std::string source_;
-  std::string runtime_;
-};
-
-static std::vector<std::string> getRuntimes() {
-  std::vector<std::string> runtimes = {
-#if defined(WASM_V8)
-    "v8",
-#endif
-#if defined(WASM_WAVM)
-    "wavm",
-#endif
-#if defined(WASM_WASMTIME)
-    "wasmtime",
-#endif
-    ""
-  };
-  runtimes.pop_back();
-  return runtimes;
-}
 
 auto test_values = testing::ValuesIn(getRuntimes());
 

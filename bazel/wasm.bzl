@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 load("@io_bazel_rules_rust//rust:rust.bzl", "rust_binary")
 
 def _wasm_rust_transition_impl(settings, attr):
@@ -19,8 +18,21 @@ def _wasm_rust_transition_impl(settings, attr):
         "//command_line_option:platforms": "@io_bazel_rules_rust//rust/platform:wasm",
     }
 
+def _wasi_rust_transition_impl(settings, attr):
+    return {
+        "//command_line_option:platforms": "@io_bazel_rules_rust//rust/platform:wasi",
+    }
+
 wasm_rust_transition = transition(
     implementation = _wasm_rust_transition_impl,
+    inputs = [],
+    outputs = [
+        "//command_line_option:platforms",
+    ],
+)
+
+wasi_rust_transition = transition(
+    implementation = _wasi_rust_transition_impl,
     inputs = [],
     outputs = [
         "//command_line_option:platforms",
@@ -49,7 +61,12 @@ wasm_rust_binary_rule = rule(
     attrs = _wasm_attrs(wasm_rust_transition),
 )
 
-def wasm_rust_binary(name, tags = [], **kwargs):
+wasi_rust_binary_rule = rule(
+    implementation = _wasm_binary_impl,
+    attrs = _wasm_attrs(wasi_rust_transition),
+)
+
+def wasm_rust_binary(name, tags = [], wasi = True, **kwargs):
     wasm_name = "_wasm_" + name.replace(".", "_")
     kwargs.setdefault("visibility", ["//visibility:public"])
 
@@ -62,7 +79,11 @@ def wasm_rust_binary(name, tags = [], **kwargs):
         **kwargs
     )
 
-    wasm_rust_binary_rule(
+    bin_rule = wasm_rust_binary_rule
+    if wasi:
+        bin_rule = wasi_rust_binary_rule
+
+    bin_rule(
         name = name,
         binary = ":" + wasm_name,
         tags = tags + ["manual"],

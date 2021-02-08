@@ -46,7 +46,8 @@ using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 class WasmBase : public std::enable_shared_from_this<WasmBase> {
 public:
   WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
-           std::string_view vm_configuration, std::string_view vm_key);
+           std::string_view vm_configuration, std::string_view vm_key,
+           std::map<std::string, std::string> envs);
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
@@ -123,6 +124,8 @@ public:
 
   AbiVersion abiVersion() { return abi_version_; }
 
+  std::map<std::string, std::string> &envs() { return envs_; }
+
   // Called to raise the flag which indicates that the context should stop iteration regardless of
   // returned filter status from Proxy-Wasm extensions. For example, we ignore
   // FilterHeadersStatus::Continue after a local reponse is sent by the host.
@@ -177,6 +180,7 @@ protected:
   std::unordered_map<uint32_t, ContextBase *> contexts_;                 // Contains all contexts.
   std::unordered_map<uint32_t, std::chrono::milliseconds> timer_period_; // per root_id.
   std::unique_ptr<ShutdownHandle> shutdown_handle_;
+  std::map<std::string, std::string> envs_; // environment variables passed through wasi.environ_get
 
   WasmCallVoid<0> _initialize_; /* Emscripten v1.39.17+ */
   WasmCallVoid<0> _start_;      /* Emscripten v1.39.0+ */

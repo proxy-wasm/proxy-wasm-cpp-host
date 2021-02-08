@@ -16,3 +16,9 @@ wasm_rust_binary(
     name = "trap.wasm",
     srcs = ["trap.rs"],
 )
+
+wasm_rust_binary(
+    name = "env.wasm",
+    srcs = ["env.rs"],
+    wasi = True,
+)

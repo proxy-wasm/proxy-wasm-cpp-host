@@ -767,7 +767,26 @@ Word wasi_unstable_fd_fdstat_get(void *raw_context, Word fd, Word statOut) {
 }
 
 // __wasi_errno_t __wasi_environ_get(char **environ, char *environ_buf);
-Word wasi_unstable_environ_get(void *, Word, Word) {
+Word wasi_unstable_environ_get(void *raw_context, Word ptr, Word environ_buf) {
+  auto context = WASM_CONTEXT(raw_context);
+  auto &envs = context->wasm()->envs();
+  for (auto e : envs) {
+    if (!context->wasmVm()->setWord(ptr, environ_buf)) {
+      return 21; // __WASI_EFAULT
+    }
+
+    std::string data;
+    data.reserve(e.first.size() + e.second.size() + 2);
+    data.append(e.first);
+    data.push_back('=');
+    data.append(e.second);
+    data.push_back(0);
+    if (!context->wasmVm()->setMemory(environ_buf, data.size(), data.c_str())) {
+      return 21; // __WASI_EFAULT
+    }
+    environ_buf = environ_buf.u64_ + data.size();
+  }
+
   return 0; // __WASI_ESUCCESS
 }
 
@@ -775,10 +794,17 @@ Word wasi_unstable_environ_get(void *, Word, Word) {
 // *environ_buf_size);
 Word wasi_unstable_environ_sizes_get(void *raw_context, Word count_ptr, Word buf_size_ptr) {
   auto context = WASM_CONTEXT(raw_context);
-  if (!context->wasmVm()->setWord(count_ptr, Word(0))) {
+  auto &envs = context->wasm()->envs();
+  size_t size = 0;
+  for (auto e : envs) {
+    // len(key) + len(value) + 1('=') + 1 (null terminator)
+    size += e.first.size() + e.second.size() + 2;
+  }
+
+  if (!context->wasmVm()->setWord(count_ptr, Word(envs.size()))) {
     return 21; // __WASI_EFAULT
   }
-  if (!context->wasmVm()->setWord(buf_size_ptr, Word(0))) {
+  if (!context->wasmVm()->setWord(buf_size_ptr, Word(size))) {
     return 21; // __WASI_EFAULT
   }
   return 0; // __WASI_ESUCCESS

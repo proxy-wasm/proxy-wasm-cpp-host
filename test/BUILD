@@ -1,4 +1,4 @@
-load("@rules_cc//cc:defs.bzl", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 load("@proxy_wasm_cpp_host//bazel:variables.bzl", "COPTS", "LINKOPTS")
 
 cc_test(
@@ -23,6 +23,23 @@ cc_test(
     ],
     linkopts = LINKOPTS,
     deps = [
+        ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "exports_test",
+    srcs = ["exports_test.cc"],
+    copts = COPTS,
+    data = [
+        "//test/test_data:env.wasm",
+    ],
+    linkopts = LINKOPTS,
+    deps = [
+        ":utility_lib",
         "//:lib",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
@@ -70,5 +87,19 @@ cc_test(
         "//:lib",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_library(
+    name = "utility_lib",
+    srcs = [
+        "utility.cc",
+        "utility.h",
+    ],
+    hdrs = ["utility.h"],
+    copts = COPTS,
+    deps = [
+        "//:lib",
+        "@com_google_googletest//:gtest",
     ],
 )
