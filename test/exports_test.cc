@@ -48,7 +48,7 @@ private:
 };
 
 TEST_P(TestVM, Environment) {
-  std::map<std::string, std::string> envs = {{"KEY1", "VALUE1"}, {"KEY2", "VALUE2"}};
+  std::unordered_map<std::string, std::string> envs = {{"KEY1", "VALUE1"}, {"KEY2", "VALUE2"}};
   initialize("env.wasm");
 
   auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", envs, {});
