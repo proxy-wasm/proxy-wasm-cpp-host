@@ -88,9 +88,7 @@ TEST_P(TestVM, WithoutEnvironment) {
 
   run(current_context_);
 
-  auto msg = context.log_msg();
-  EXPECT_EQ(std::string::npos, msg.find("KEY1: VALUE1")) << msg;
-  EXPECT_EQ(std::string::npos, msg.find("KEY2: VALUE2")) << msg;
+  EXPECT_EQ(context.log_msg(), "");
 }
 
 } // namespace
