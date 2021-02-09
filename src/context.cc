@@ -96,7 +96,7 @@ std::string PluginBase::makeLogPrefix() const {
   if (!root_id_.empty()) {
     prefix = prefix + " " + std::string(root_id_);
   }
-  if (vm_id_.empty()) {
+  if (!vm_id_.empty()) {
     prefix = prefix + " " + std::string(vm_id_);
   }
   return prefix;
@@ -134,7 +134,7 @@ std::string ContextBase::makeRootLogPrefix(std::string_view vm_id) const {
   if (!root_id_.empty()) {
     prefix = prefix + " " + std::string(root_id_);
   }
-  if (vm_id.empty()) {
+  if (!vm_id.empty()) {
     prefix = prefix + " " + std::string(vm_id);
   }
   return prefix;

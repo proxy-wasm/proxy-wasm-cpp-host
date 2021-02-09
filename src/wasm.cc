@@ -100,83 +100,30 @@ void WasmBase::registerCallbacks() {
   _REGISTER(pthread_equal);
 #undef _REGISTER
 
-#define _REGISTER_WASI(_fn)                                                                        \
-  wasm_vm_->registerCallback(                                                                      \
-      "wasi_unstable", #_fn, &exports::wasi_unstable_##_fn,                                        \
-      &ConvertFunctionWordToUint32<decltype(exports::wasi_unstable_##_fn),                         \
-                                   exports::wasi_unstable_##_fn>::convertFunctionWordToUint32);    \
-  wasm_vm_->registerCallback(                                                                      \
-      "wasi_snapshot_preview1", #_fn, &exports::wasi_unstable_##_fn,                               \
-      &ConvertFunctionWordToUint32<decltype(exports::wasi_unstable_##_fn),                         \
-                                   exports::wasi_unstable_##_fn>::convertFunctionWordToUint32)
-  _REGISTER_WASI(fd_write);
-  _REGISTER_WASI(fd_read);
-  _REGISTER_WASI(fd_seek);
-  _REGISTER_WASI(fd_close);
-  _REGISTER_WASI(fd_fdstat_get);
-  _REGISTER_WASI(environ_get);
-  _REGISTER_WASI(environ_sizes_get);
-  _REGISTER_WASI(args_get);
-  _REGISTER_WASI(args_sizes_get);
-  _REGISTER_WASI(clock_time_get);
-  _REGISTER_WASI(random_get);
-  _REGISTER_WASI(proc_exit);
-#undef _REGISTER_WASI
+  // Register the capability with the VM if it has been allowed, otherwise register a stub.
+#define _REGISTER(module_name, name_prefix, export_prefix, _fn)                                    \
+  if (capabilityAllowed(name_prefix #_fn)) {                                                       \
+    wasm_vm_->registerCallback(                                                                    \
+        module_name, name_prefix #_fn, &exports::export_prefix##_fn,                               \
+        &ConvertFunctionWordToUint32<decltype(exports::export_prefix##_fn),                        \
+                                     exports::export_prefix##_fn>::convertFunctionWordToUint32);   \
+  } else {                                                                                         \
+    typedef decltype(exports::export_prefix##_fn) export_type;                                     \
+    constexpr export_type *stub = &exports::_fn##Stub<export_type>::stub;                          \
+    wasm_vm_->registerCallback(                                                                    \
+        module_name, name_prefix #_fn, stub,                                                       \
+        &ConvertFunctionWordToUint32<export_type, stub>::convertFunctionWordToUint32);             \
+  }
 
-  // Calls with the "proxy_" prefix.
-#define _REGISTER_PROXY(_fn)                                                                       \
-  wasm_vm_->registerCallback(                                                                      \
-      "env", "proxy_" #_fn, &exports::_fn,                                                         \
-      &ConvertFunctionWordToUint32<decltype(exports::_fn),                                         \
-                                   exports::_fn>::convertFunctionWordToUint32);
-  _REGISTER_PROXY(log);
+#define _REGISTER_WASI_UNSTABLE(_fn) _REGISTER("wasi_unstable", , wasi_unstable_, _fn)
+#define _REGISTER_WASI_SNAPSHOT(_fn) _REGISTER("wasi_snapshot_preview1", , wasi_unstable_, _fn)
+  FOR_ALL_WASI_FUNCTIONS(_REGISTER_WASI_UNSTABLE);
+  FOR_ALL_WASI_FUNCTIONS(_REGISTER_WASI_SNAPSHOT);
+#undef _REGISTER_WASI_UNSTABLE
+#undef _REGISTER_WASI_SNAPSHOT
 
-  _REGISTER_PROXY(get_status);
-
-  _REGISTER_PROXY(set_property);
-  _REGISTER_PROXY(get_property);
-
-  _REGISTER_PROXY(send_local_response);
-
-  _REGISTER_PROXY(get_shared_data);
-  _REGISTER_PROXY(set_shared_data);
-
-  _REGISTER_PROXY(register_shared_queue);
-  _REGISTER_PROXY(resolve_shared_queue);
-  _REGISTER_PROXY(dequeue_shared_queue);
-  _REGISTER_PROXY(enqueue_shared_queue);
-
-  _REGISTER_PROXY(get_header_map_value);
-  _REGISTER_PROXY(add_header_map_value);
-  _REGISTER_PROXY(replace_header_map_value);
-  _REGISTER_PROXY(remove_header_map_value);
-  _REGISTER_PROXY(get_header_map_pairs);
-  _REGISTER_PROXY(set_header_map_pairs);
-  _REGISTER_PROXY(get_header_map_size);
-
-  _REGISTER_PROXY(get_buffer_status);
-  _REGISTER_PROXY(get_buffer_bytes);
-  _REGISTER_PROXY(set_buffer_bytes);
-
-  _REGISTER_PROXY(http_call);
-
-  _REGISTER_PROXY(grpc_call);
-  _REGISTER_PROXY(grpc_stream);
-  _REGISTER_PROXY(grpc_close);
-  _REGISTER_PROXY(grpc_cancel);
-  _REGISTER_PROXY(grpc_send);
-
-  _REGISTER_PROXY(set_tick_period_milliseconds);
-  _REGISTER_PROXY(get_current_time_nanoseconds);
-
-  _REGISTER_PROXY(define_metric);
-  _REGISTER_PROXY(increment_metric);
-  _REGISTER_PROXY(record_metric);
-  _REGISTER_PROXY(get_metric);
-
-  _REGISTER_PROXY(set_effective_context);
-  _REGISTER_PROXY(done);
-  _REGISTER_PROXY(call_foreign_function);
+#define _REGISTER_PROXY(_fn) _REGISTER("env", "proxy_", , _fn)
+  FOR_ALL_HOST_FUNCTIONS(_REGISTER_PROXY);
 
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
     _REGISTER_PROXY(get_configuration);
@@ -192,6 +139,8 @@ void WasmBase::registerCallbacks() {
     _REGISTER_PROXY(get_log_level);
   }
 #undef _REGISTER_PROXY
+
+#undef _REGISTER
 }
 
 void WasmBase::getFunctions() {
@@ -211,36 +160,21 @@ void WasmBase::getFunctions() {
 #undef _GET_ALIAS
 #undef _GET
 
-#define _GET_PROXY(_fn) wasm_vm_->getFunction("proxy_" #_fn, &_fn##_);
-#define _GET_PROXY_ABI(_fn, _abi) wasm_vm_->getFunction("proxy_" #_fn, &_fn##_abi##_);
-  _GET_PROXY(validate_configuration);
-  _GET_PROXY(on_vm_start);
-  _GET_PROXY(on_configure);
-  _GET_PROXY(on_tick);
+  // Try to point the capability to one of the module exports, if the capability has been allowed.
+#define _GET_PROXY(_fn)                                                                            \
+  if (capabilityAllowed("proxy_" #_fn)) {                                                          \
+    wasm_vm_->getFunction("proxy_" #_fn, &_fn##_);                                                 \
+  } else {                                                                                         \
+    _fn##_ = nullptr;                                                                              \
+  }
+#define _GET_PROXY_ABI(_fn, _abi)                                                                  \
+  if (capabilityAllowed("proxy_" #_fn)) {                                                          \
+    wasm_vm_->getFunction("proxy_" #_fn, &_fn##_abi##_);                                           \
+  } else {                                                                                         \
+    _fn##_abi##_ = nullptr;                                                                        \
+  }
 
-  _GET_PROXY(on_context_create);
-
-  _GET_PROXY(on_new_connection);
-  _GET_PROXY(on_downstream_data);
-  _GET_PROXY(on_upstream_data);
-  _GET_PROXY(on_downstream_connection_close);
-  _GET_PROXY(on_upstream_connection_close);
-
-  _GET_PROXY(on_request_body);
-  _GET_PROXY(on_request_trailers);
-  _GET_PROXY(on_request_metadata);
-  _GET_PROXY(on_response_body);
-  _GET_PROXY(on_response_trailers);
-  _GET_PROXY(on_response_metadata);
-  _GET_PROXY(on_http_call_response);
-  _GET_PROXY(on_grpc_receive);
-  _GET_PROXY(on_grpc_close);
-  _GET_PROXY(on_grpc_receive_initial_metadata);
-  _GET_PROXY(on_grpc_receive_trailing_metadata);
-  _GET_PROXY(on_queue_ready);
-  _GET_PROXY(on_done);
-  _GET_PROXY(on_log);
-  _GET_PROXY(on_delete);
+  FOR_ALL_MODULE_FUNCTIONS(_GET_PROXY);
 
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
     _GET_PROXY_ABI(on_request_headers, _abi_01);
@@ -259,6 +193,7 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
     : std::enable_shared_from_this<WasmBase>(*base_wasm_handle->wasm()),
       vm_id_(base_wasm_handle->wasm()->vm_id_), vm_key_(base_wasm_handle->wasm()->vm_key_),
       started_from_(base_wasm_handle->wasm()->wasm_vm()->cloneable()),
+      allowed_capabilities_(base_wasm_handle->wasm()->allowed_capabilities_),
       base_wasm_handle_(base_wasm_handle) {
   if (started_from_ != Cloneable::NotCloneable) {
     wasm_vm_ = base_wasm_handle->wasm()->wasm_vm()->clone();
@@ -274,10 +209,11 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
 
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
                    std::string_view vm_configuration, std::string_view vm_key,
-                   std::map<std::string, std::string> envs)
+                   std::map<std::string, std::string> envs,
+                   AllowedCapabilitiesMap allowed_capabilities)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
-      envs_(envs), vm_configuration_(std::string(vm_configuration)),
-      vm_id_handle_(getVmIdHandle(vm_id)) {
+      envs_(envs), allowed_capabilities_(std::move(allowed_capabilities)),
+      vm_configuration_(std::string(vm_configuration)), vm_id_handle_(getVmIdHandle(vm_id)) {
   if (!wasm_vm_) {
     failed_ = FailState::UnableToCreateVM;
   } else {
