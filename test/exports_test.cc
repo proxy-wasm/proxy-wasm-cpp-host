@@ -66,9 +66,9 @@ TEST_P(TestVM, Callback) {
 
   run(current_context_);
 
-  auto exp = context.log_msg();
-  EXPECT_NE(std::string::npos, exp.find("KEY1: VALUE1")) << exp;
-  EXPECT_NE(std::string::npos, exp.find("KEY2: VALUE2")) << exp;
+  auto msg = context.log_msg();
+  EXPECT_NE(std::string::npos, msg.find("KEY1: VALUE1")) << msg;
+  EXPECT_NE(std::string::npos, msg.find("KEY2: VALUE2")) << msg;
 }
 
 } // namespace
