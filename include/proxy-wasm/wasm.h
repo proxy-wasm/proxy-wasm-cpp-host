@@ -124,7 +124,7 @@ public:
 
   AbiVersion abiVersion() { return abi_version_; }
 
-  std::map<std::string, std::string> &envs() { return envs_; }
+  const std::map<std::string, std::string> &envs() { return envs_; }
 
   // Called to raise the flag which indicates that the context should stop iteration regardless of
   // returned filter status from Proxy-Wasm extensions. For example, we ignore

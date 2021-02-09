@@ -26,16 +26,6 @@
 
 #include "test/utility.h"
 
-#if defined(WASM_V8)
-#include "include/proxy-wasm/v8.h"
-#endif
-#if defined(WASM_WAVM)
-#include "include/proxy-wasm/wavm.h"
-#endif
-#if defined(WASM_WASMTIME)
-#include "include/proxy-wasm/wasmtime.h"
-#endif
-
 namespace proxy_wasm {
 namespace {
 

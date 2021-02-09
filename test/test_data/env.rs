@@ -13,7 +13,16 @@
 // limitations under the License.
 
 #[no_mangle]
+extern "C" {
+    fn __wasilibc_initialize_environ();
+}
+
+#[no_mangle]
 pub extern "C" fn run() {
-    println!("{:?}", std::env::var("KEY1"));
-    println!("{:?}", std::env::var("KEY2"));
+    unsafe {
+        __wasilibc_initialize_environ();
+    }
+    for (key, value) in std::env::vars() {
+        println!("{}: {}", key, value);
+    }
 }

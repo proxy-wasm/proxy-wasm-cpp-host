@@ -785,6 +785,7 @@ Word wasi_unstable_environ_get(void *raw_context, Word ptr, Word environ_buf) {
       return 21; // __WASI_EFAULT
     }
     environ_buf = environ_buf.u64_ + data.size();
+    ptr = ptr.u64_ + sizeof(uint32_t);
   }
 
   return 0; // __WASI_ESUCCESS
@@ -797,7 +798,7 @@ Word wasi_unstable_environ_sizes_get(void *raw_context, Word count_ptr, Word buf
   auto &envs = context->wasm()->envs();
   size_t size = 0;
   for (auto e : envs) {
-    // len(key) + len(value) + 1('=') + 1 (null terminator)
+    // len(key) + len(value) + 1('=') + 1(null terminator)
     size += e.first.size() + e.second.size() + 2;
   }
 

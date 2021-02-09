@@ -27,16 +27,6 @@
 
 #include "test/utility.h"
 
-#if defined(WASM_V8)
-#include "include/proxy-wasm/v8.h"
-#endif
-#if defined(WASM_WAVM)
-#include "include/proxy-wasm/wavm.h"
-#endif
-#if defined(WASM_WASMTIME)
-#include "include/proxy-wasm/wasmtime.h"
-#endif
-
 namespace proxy_wasm {
 namespace {
 
@@ -47,11 +37,8 @@ INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, test_values);
 class TestContext : public ContextBase {
 public:
   TestContext(WasmBase *base) : ContextBase(base){};
-  void increment() { counter++; }
-  int64_t counter = 0;
-
   WasmResult log(uint32_t, std::string_view msg) override {
-    log_ += msg;
+    log_ += std::string(msg) + "\n";
     return WasmResult::Ok;
   }
   std::string &log_msg() { return log_; }
@@ -78,7 +65,10 @@ TEST_P(TestVM, Callback) {
   wasm_base.wasm_vm()->getFunction("run", &run);
 
   run(current_context_);
-  std::cout << context.log_msg() << "\n";
+
+  auto exp = context.log_msg();
+  EXPECT_NE(std::string::npos, exp.find("KEY1: VALUE1")) << exp;
+  EXPECT_NE(std::string::npos, exp.find("KEY2: VALUE2")) << exp;
 }
 
 } // namespace
