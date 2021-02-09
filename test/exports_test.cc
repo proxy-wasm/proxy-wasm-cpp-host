@@ -51,7 +51,7 @@ TEST_P(TestVM, Callback) {
   std::map<std::string, std::string> envs = {{"KEY1", "VALUE1"}, {"KEY2", "VALUE2"}};
   initialize("env.wasm");
 
-  auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", envs);
+  auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", envs, {});
   ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
 
   TestContext context(&wasm_base);
