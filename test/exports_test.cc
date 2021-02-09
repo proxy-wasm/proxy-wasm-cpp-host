@@ -47,7 +47,7 @@ private:
   std::string log_;
 };
 
-TEST_P(TestVM, Callback) {
+TEST_P(TestVM, Environment) {
   std::map<std::string, std::string> envs = {{"KEY1", "VALUE1"}, {"KEY2", "VALUE2"}};
   initialize("env.wasm");
 
@@ -69,6 +69,28 @@ TEST_P(TestVM, Callback) {
   auto msg = context.log_msg();
   EXPECT_NE(std::string::npos, msg.find("KEY1: VALUE1")) << msg;
   EXPECT_NE(std::string::npos, msg.find("KEY2: VALUE2")) << msg;
+}
+
+TEST_P(TestVM, WithoutEnvironment) {
+  initialize("env.wasm");
+  auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", {}, {});
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
+
+  TestContext context(&wasm_base);
+  current_context_ = &context;
+
+  wasm_base.registerCallbacks();
+
+  ASSERT_TRUE(wasm_base.wasm_vm()->link(""));
+
+  WasmCallVoid<0> run;
+  wasm_base.wasm_vm()->getFunction("run", &run);
+
+  run(current_context_);
+
+  auto msg = context.log_msg();
+  EXPECT_EQ(std::string::npos, msg.find("KEY1: VALUE1")) << msg;
+  EXPECT_EQ(std::string::npos, msg.find("KEY2: VALUE2")) << msg;
 }
 
 } // namespace
