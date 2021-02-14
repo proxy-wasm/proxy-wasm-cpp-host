@@ -501,7 +501,7 @@ std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
                               "Failed to configure thread-local Wasm plugin");
     return nullptr;
   }
-  auto plugin_handle = plugin_factory(wasm_handle, plugin->key());
+  auto plugin_handle = plugin_factory(wasm_handle, plugin);
   local_plugins[key] = plugin_handle;
   return plugin_handle;
 }
