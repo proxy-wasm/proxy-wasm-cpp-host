@@ -16,6 +16,7 @@ wasmtime = {version = "0.21.0", default-features = false}
 wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v0.21.0", path = "crates/c-api/macros"}
 
 [package.metadata.raze]
+rust_rules_workspace_name = "rules_rust"
 gen_workspace_prefix = "proxy_wasm_cpp_host"
 genmode = "Remote"
 package_aliases_dir = "."
