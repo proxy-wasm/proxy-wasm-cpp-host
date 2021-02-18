@@ -28,7 +28,8 @@ licenses([
     "notice",  # MIT from expression "MIT"
 ])
 
-# Generated Targets# buildifier: disable=load-on-top
+# Generated Targets
+# buildifier: disable=load-on-top
 load(
     "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
     "cargo_build_script",
@@ -51,7 +52,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "7.0.3",
+    version = "7.0.4",
     visibility = ["//visibility:private"],
     deps = [
         "@proxy_wasm_cpp_host__cc__1_0_66//:cc",
@@ -59,6 +60,7 @@ cargo_build_script(
     ] + selects.with_or({
         # cfg(unix)
         (
+            "@io_bazel_rules_rust//rust/platform:aarch64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:aarch64-linux-android",
             "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
@@ -90,25 +92,25 @@ rust_binary(
     crate_features = [
     ],
     crate_root = "src/bin/cpuid.rs",
+    data = [],
     edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
-        "--cfg=feature=\"bindgen\"",
     ],
     tags = [
         "cargo-raze",
         "manual",
     ],
-    version = "7.0.3",
+    version = "7.0.4",
     # buildifier: leave-alone
     deps = [
-        # Binaries get an implicit dependency on their crate's lib
         ":raw_cpuid",
         ":raw_cpuid_build_script",
         "@proxy_wasm_cpp_host__bitflags__1_2_1//:bitflags",
     ] + selects.with_or({
         # cfg(unix)
         (
+            "@io_bazel_rules_rust//rust/platform:aarch64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:aarch64-linux-android",
             "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",
@@ -132,8 +134,6 @@ rust_binary(
 
 # Unsupported target "cache" with type "example" omitted
 
-# Unsupported target "cpu" with type "example" omitted
-
 # Unsupported target "topology" with type "example" omitted
 
 # Unsupported target "tsc_frequency" with type "example" omitted
@@ -147,16 +147,16 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
+    data = [],
     edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
-        "--cfg=feature=\"bindgen\"",
     ],
     tags = [
         "cargo-raze",
         "manual",
     ],
-    version = "7.0.3",
+    version = "7.0.4",
     # buildifier: leave-alone
     deps = [
         ":raw_cpuid_build_script",
@@ -164,6 +164,7 @@ rust_library(
     ] + selects.with_or({
         # cfg(unix)
         (
+            "@io_bazel_rules_rust//rust/platform:aarch64-apple-darwin",
             "@io_bazel_rules_rust//rust/platform:aarch64-apple-ios",
             "@io_bazel_rules_rust//rust/platform:aarch64-linux-android",
             "@io_bazel_rules_rust//rust/platform:aarch64-unknown-linux-gnu",

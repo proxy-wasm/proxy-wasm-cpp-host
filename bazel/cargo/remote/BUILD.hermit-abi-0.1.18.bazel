@@ -31,16 +31,15 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "thiserror",
+    name = "hermit_abi",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
+    data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@proxy_wasm_cpp_host__thiserror_impl__1_0_22//:thiserror_impl",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,32 +47,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.22",
+    version = "0.1.18",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__libc__0_2_86//:libc",
     ],
 )
-
-# Unsupported target "compiletest" with type "test" omitted
-
-# Unsupported target "test_backtrace" with type "test" omitted
-
-# Unsupported target "test_deprecated" with type "test" omitted
-
-# Unsupported target "test_display" with type "test" omitted
-
-# Unsupported target "test_error" with type "test" omitted
-
-# Unsupported target "test_expr" with type "test" omitted
-
-# Unsupported target "test_from" with type "test" omitted
-
-# Unsupported target "test_lints" with type "test" omitted
-
-# Unsupported target "test_option" with type "test" omitted
-
-# Unsupported target "test_path" with type "test" omitted
-
-# Unsupported target "test_source" with type "test" omitted
-
-# Unsupported target "test_transparent" with type "test" omitted

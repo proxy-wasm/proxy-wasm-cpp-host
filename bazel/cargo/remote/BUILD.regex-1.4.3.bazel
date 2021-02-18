@@ -58,6 +58,7 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
+    data = [],
     edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
@@ -66,13 +67,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.4.2",
+    version = "1.4.3",
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host__aho_corasick__0_7_15//:aho_corasick",
         "@proxy_wasm_cpp_host__memchr__2_3_4//:memchr",
-        "@proxy_wasm_cpp_host__regex_syntax__0_6_21//:regex_syntax",
-        "@proxy_wasm_cpp_host__thread_local__1_0_1//:thread_local",
+        "@proxy_wasm_cpp_host__regex_syntax__0_6_22//:regex_syntax",
+        "@proxy_wasm_cpp_host__thread_local__1_1_3//:thread_local",
     ],
 )
 
