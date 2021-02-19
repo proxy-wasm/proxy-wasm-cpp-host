@@ -25,20 +25,26 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
+# buildifier: disable=load-on-top
+load(
+    "@io_bazel_rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
 
-# Unsupported target "bench" with type "bench" omitted
-
-rust_library(
-    name = "smallvec",
+cargo_build_script(
+    name = "target_lexicon_build_script",
     srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
     crate_features = [
+        "default",
     ],
-    crate_root = "src/lib.rs",
-    crate_type = "lib",
+    crate_root = "build.rs",
+    data = glob(["**"]),
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
@@ -47,10 +53,36 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.5.1",
-    # buildifier: leave-alone
+    version = "0.11.2",
+    visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
-# Unsupported target "macro" with type "test" omitted
+# Unsupported target "host" with type "example" omitted
+
+# Unsupported target "misc" with type "example" omitted
+
+rust_library(
+    name = "target_lexicon",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.11.2",
+    # buildifier: leave-alone
+    deps = [
+        ":target_lexicon_build_script",
+    ],
+)

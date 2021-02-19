@@ -14,7 +14,7 @@ licenses([
 # Aliased targets
 alias(
     name = "anyhow",
-    actual = "@proxy_wasm_cpp_host__anyhow__1_0_35//:anyhow",
+    actual = "@proxy_wasm_cpp_host__anyhow__1_0_38//:anyhow",
     tags = [
         "cargo-raze",
         "manual",
@@ -23,7 +23,7 @@ alias(
 
 alias(
     name = "env_logger",
-    actual = "@proxy_wasm_cpp_host__env_logger__0_8_2//:env_logger",
+    actual = "@proxy_wasm_cpp_host__env_logger__0_8_3//:env_logger",
     tags = [
         "cargo-raze",
         "manual",
@@ -73,4 +73,12 @@ alias(
         "cargo-raze",
         "manual",
     ],
+)
+
+# Export file for Stardoc support
+exports_files(
+    [
+        "crates.bzl",
+    ],
+    visibility = ["//visibility:public"],
 )
