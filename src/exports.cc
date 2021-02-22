@@ -785,7 +785,7 @@ Word wasi_unstable_environ_get(void *raw_context, Word environ_array_ptr, Word e
       return 21; // __WASI_EFAULT
     }
     environ_buf = environ_buf.u64_ + data.size();
-    environ_array_ptr = environ_array_ptr.u64_ + sizeof(environ_array_ptr.u32());
+    environ_array_ptr = environ_array_ptr.u64_ + sizeof(uint32_t);
   }
 
   return 0; // __WASI_ESUCCESS
