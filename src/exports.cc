@@ -767,11 +767,11 @@ Word wasi_unstable_fd_fdstat_get(void *raw_context, Word fd, Word statOut) {
 }
 
 // __wasi_errno_t __wasi_environ_get(char **environ, char *environ_buf);
-Word wasi_unstable_environ_get(void *raw_context, Word ptr, Word environ_buf) {
+Word wasi_unstable_environ_get(void *raw_context, Word environ_array_ptr, Word environ_buf) {
   auto context = WASM_CONTEXT(raw_context);
   auto &envs = context->wasm()->envs();
   for (auto e : envs) {
-    if (!context->wasmVm()->setWord(ptr, environ_buf)) {
+    if (!context->wasmVm()->setWord(environ_array_ptr, environ_buf)) {
       return 21; // __WASI_EFAULT
     }
 
@@ -785,7 +785,7 @@ Word wasi_unstable_environ_get(void *raw_context, Word ptr, Word environ_buf) {
       return 21; // __WASI_EFAULT
     }
     environ_buf = environ_buf.u64_ + data.size();
-    ptr = ptr.u64_ + sizeof(uint32_t);
+    environ_array_ptr = environ_array_ptr.u64_ + sizeof(environ_array_ptr.u32());
   }
 
   return 0; // __WASI_ESUCCESS
@@ -796,14 +796,14 @@ Word wasi_unstable_environ_get(void *raw_context, Word ptr, Word environ_buf) {
 Word wasi_unstable_environ_sizes_get(void *raw_context, Word count_ptr, Word buf_size_ptr) {
   auto context = WASM_CONTEXT(raw_context);
   auto &envs = context->wasm()->envs();
+  if (!context->wasmVm()->setWord(count_ptr, Word(envs.size()))) {
+    return 21; // __WASI_EFAULT
+  }
+
   size_t size = 0;
   for (auto e : envs) {
     // len(key) + len(value) + 1('=') + 1(null terminator)
     size += e.first.size() + e.second.size() + 2;
-  }
-
-  if (!context->wasmVm()->setWord(count_ptr, Word(envs.size()))) {
-    return 21; // __WASI_EFAULT
   }
   if (!context->wasmVm()->setWord(buf_size_ptr, Word(size))) {
     return 21; // __WASI_EFAULT
