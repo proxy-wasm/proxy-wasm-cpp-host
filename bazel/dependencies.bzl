@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@io_bazel_rules_rust//rust:repositories.bzl", "rust_repositories")
 load("@proxy_wasm_cpp_host//bazel/cargo:crates.bzl", "proxy_wasm_cpp_host_fetch_remote_crates")
+load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 
 def proxy_wasm_cpp_host_dependencies():
     rust_repositories()

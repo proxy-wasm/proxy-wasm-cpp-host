@@ -38,7 +38,6 @@ jobs:
     - name: Format (cargo raze)
       working-directory: bazel/cargo
       run: |
-        cargo install cargo-raze --version 0.7.0
-        cargo generate-lockfile
-        cargo raze
+        cargo install cargo-raze --version 0.9.2
+        cargo raze --generate-lockfile
         git diff --exit-code

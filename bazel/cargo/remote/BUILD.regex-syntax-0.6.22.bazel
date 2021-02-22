@@ -7,7 +7,7 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 
 # buildifier: disable=load
 load(
-    "@io_bazel_rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
@@ -30,23 +30,17 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "build-script-build" with type "custom-build" omitted
+# Unsupported target "bench" with type "bench" omitted
 
 rust_library(
-    name = "serde",
+    name = "regex_syntax",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "derive",
-        "serde_derive",
-        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
+    data = [],
     edition = "2015",
-    proc_macro_deps = [
-        "@proxy_wasm_cpp_host__serde_derive__1_0_118//:serde_derive",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -54,7 +48,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.118",
+    version = "0.6.22",
     # buildifier: leave-alone
     deps = [
     ],

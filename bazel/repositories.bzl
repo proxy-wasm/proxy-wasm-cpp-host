@@ -53,10 +53,10 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     http_archive(
-        name = "io_bazel_rules_rust",
-        sha256 = "442a102e2a6f6c75e10d43f21c0c30218947a3e827d91529ced7380c5fec05f0",
-        strip_prefix = "rules_rust-39523e32ac0bd64f5d60154114a42e61e58ffd17",
-        url = "https://github.com/bazelbuild/rules_rust/archive/39523e32ac0bd64f5d60154114a42e61e58ffd17.tar.gz",
+        name = "rules_rust",
+        sha256 = "0f55b4b69fd9bc1dbcc038e75ec54bd97fa00ddc6cfbc6278fc288dafc98b7f8",
+        strip_prefix = "rules_rust-fee3b3c658c3d2f49c20c1b12e55063bf7a7f693",
+        url = "https://github.com/bazelbuild/rules_rust/archive/fee3b3c658c3d2f49c20c1b12e55063bf7a7f693.tar.gz",
     )
 
     http_archive(
