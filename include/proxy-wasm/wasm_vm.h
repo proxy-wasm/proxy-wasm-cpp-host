@@ -258,6 +258,11 @@ public:
   virtual std::string_view getPrecompiledSectionName() = 0;
 
   /**
+   * @return the word size of this VM.
+   */
+  virtual size_t getWordSize() = 0;
+
+  /**
    * Get typed function exported by the WASM module.
    */
 #define _GET_FUNCTION(_T) virtual void getFunction(std::string_view function_name, _T *f) = 0;

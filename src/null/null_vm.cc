@@ -15,6 +15,7 @@
 
 #include "include/proxy-wasm/null_vm.h"
 
+#include <bits/stdint-uintn.h>
 #include <string.h>
 
 #include <memory>
@@ -110,6 +111,10 @@ std::string_view NullVm::getCustomSection(std::string_view /* name */) {
 std::string_view NullVm::getPrecompiledSectionName() {
   // Return nothing: there is no WASM file.
   return {};
+}
+
+size_t NullVm::getWordSize() {
+  return sizeof(size_t);
 }
 
 } // namespace proxy_wasm

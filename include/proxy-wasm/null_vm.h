@@ -43,6 +43,7 @@ struct NullVm : public WasmVm {
   bool setMemory(uint64_t pointer, uint64_t size, const void *data) override;
   bool setWord(uint64_t pointer, Word data) override;
   bool getWord(uint64_t pointer, Word *data) override;
+  size_t getWordSize() override;
   std::string_view getCustomSection(std::string_view name) override;
   std::string_view getPrecompiledSectionName() override;
 
