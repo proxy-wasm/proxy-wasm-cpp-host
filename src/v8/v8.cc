@@ -15,8 +15,7 @@
 
 #include "include/proxy-wasm/v8.h"
 
-#include <stdint.h>
-#include <cassert
+#include <cassert>
 #include <iomanip>
 #include <memory>
 #include <optional>

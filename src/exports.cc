@@ -769,7 +769,7 @@ Word wasi_unstable_fd_fdstat_get(void *raw_context, Word fd, Word statOut) {
 // __wasi_errno_t __wasi_environ_get(char **environ, char *environ_buf);
 Word wasi_unstable_environ_get(void *raw_context, Word environ_array_ptr, Word environ_buf) {
   auto context = WASM_CONTEXT(raw_context);
-  size_t word_size = context->wasmVm()->getWordSize();
+  auto word_size = context->wasmVm()->getWordSize();
   auto &envs = context->wasm()->envs();
   for (auto e : envs) {
     if (!context->wasmVm()->setWord(environ_array_ptr, environ_buf)) {

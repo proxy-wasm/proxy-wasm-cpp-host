@@ -258,7 +258,7 @@ public:
   virtual std::string_view getPrecompiledSectionName() = 0;
 
   /**
-   * @return the word size of this VM.
+   * @return the Word size in this VM.
    */
   virtual size_t getWordSize() = 0;
 
