@@ -15,7 +15,6 @@
 
 #include "include/proxy-wasm/null_vm.h"
 
-#include <stdint.h>
 #include <string.h>
 
 #include <memory>
