@@ -779,9 +779,9 @@ Word wasi_unstable_environ_get(void *raw_context, Word environ_array_ptr, Word e
     std::string data;
     data.reserve(e.first.size() + e.second.size() + 2);
     data.append(e.first);
-    data.push_back('=');
+    data.append("=");
     data.append(e.second);
-    data.push_back(0);
+    data.append("\x0");
     if (!context->wasmVm()->setMemory(environ_buf, data.size(), data.c_str())) {
       return 21; // __WASI_EFAULT
     }
