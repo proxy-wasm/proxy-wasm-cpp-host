@@ -67,6 +67,7 @@ public:
   bool setMemory(uint64_t pointer, uint64_t size, const void *data) override;
   bool getWord(uint64_t pointer, Word *word) override;
   bool setWord(uint64_t pointer, Word word) override;
+  size_t getWordSize() override { return sizeof(uint32_t); };
 
 #define _REGISTER_HOST_FUNCTION(T)                                                                 \
   void registerCallback(std::string_view module_name, std::string_view function_name, T,           \

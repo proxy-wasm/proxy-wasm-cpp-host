@@ -193,6 +193,7 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
     : std::enable_shared_from_this<WasmBase>(*base_wasm_handle->wasm()),
       vm_id_(base_wasm_handle->wasm()->vm_id_), vm_key_(base_wasm_handle->wasm()->vm_key_),
       started_from_(base_wasm_handle->wasm()->wasm_vm()->cloneable()),
+      envs_(base_wasm_handle->wasm()->envs()),
       allowed_capabilities_(base_wasm_handle->wasm()->allowed_capabilities_),
       base_wasm_handle_(base_wasm_handle) {
   if (started_from_ != Cloneable::NotCloneable) {
@@ -209,9 +210,10 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
 
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
                    std::string_view vm_configuration, std::string_view vm_key,
+                   std::unordered_map<std::string, std::string> envs,
                    AllowedCapabilitiesMap allowed_capabilities)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
-      allowed_capabilities_(std::move(allowed_capabilities)),
+      envs_(envs), allowed_capabilities_(std::move(allowed_capabilities)),
       vm_configuration_(std::string(vm_configuration)), vm_id_handle_(getVmIdHandle(vm_id)) {
   if (!wasm_vm_) {
     failed_ = FailState::UnableToCreateVM;
