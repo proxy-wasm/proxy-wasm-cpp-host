@@ -15,7 +15,7 @@
 
 #include "include/proxy-wasm/null_vm.h"
 
-#include <bits/stdint-uintn.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <memory>
@@ -113,8 +113,6 @@ std::string_view NullVm::getPrecompiledSectionName() {
   return {};
 }
 
-size_t NullVm::getWordSize() {
-  return sizeof(size_t);
-}
+size_t NullVm::getWordSize() { return sizeof(uint64_t); }
 
 } // namespace proxy_wasm
