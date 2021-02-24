@@ -244,6 +244,11 @@ public:
   virtual bool setWord(uint64_t pointer, Word data) = 0;
 
   /**
+   * @return the Word size in this VM.
+   */
+  virtual size_t getWordSize() = 0;
+
+  /**
    * Get the contents of the custom section with the given name or "" if it does not exist.
    * @param name the name of the custom section to get.
    * @return the contents of the custom section (if any). The result will be empty if there
@@ -256,11 +261,6 @@ public:
    * @return the name of the custom section that contains precompiled module.
    */
   virtual std::string_view getPrecompiledSectionName() = 0;
-
-  /**
-   * @return the Word size in this VM.
-   */
-  virtual size_t getWordSize() = 0;
 
   /**
    * Get typed function exported by the WASM module.
