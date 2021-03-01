@@ -422,7 +422,7 @@ struct GrpcCallInterface {
   /**
    * Make a gRPC call.
    * @param grpc_service is proxy-specific metadata describing the service (e.g. security certs). On
-   * ABI 0.2.2, it can accept target cluster name.
+   * ABI v0.2.2 and later, it can accept target cluster name.
    * @param service_name the name of the gRPC service.
    * @param method_name the gRPC method name.
    * @param request the serialized request.
@@ -459,7 +459,7 @@ struct GrpcStreamInterface {
   /**
    * Open a gRPC stream.
    * @param grpc_service is proxy-specific metadata describing the service (e.g. security certs). On
-   * ABI 0.2.2, it can accept target cluster name.
+   * ABI v0.2.2 and later, it can accept target cluster name.
    * @param service_name the name of the gRPC service.
    * @param method_name the gRPC method name.
    * @param token_ptr contains a pointer to a location to store the token which will be used with
