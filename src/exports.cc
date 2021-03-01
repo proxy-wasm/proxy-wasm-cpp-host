@@ -601,7 +601,6 @@ Word grpc_call(void *raw_context, Word service_ptr, Word service_size, Word serv
   }
   uint32_t token = 0;
   auto initial_metadata = toPairs(initial_metadata_pairs.value());
-
   auto result = context->grpcCall(service.value(), service_name.value(), method_name.value(),
                                   initial_metadata, request.value(),
                                   std::chrono::milliseconds(timeout_milliseconds), &token);
