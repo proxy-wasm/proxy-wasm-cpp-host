@@ -421,7 +421,8 @@ struct GrpcCallInterface {
   virtual ~GrpcCallInterface() = default;
   /**
    * Make a gRPC call.
-   * @param grpc_service is proxy-specific metadata describing the service (e.g. security certs).
+   * @param grpc_service is proxy-specific metadata describing the service (e.g. security certs). On
+   * ABI 0.2.2, it can accept target cluster name.
    * @param service_name the name of the gRPC service.
    * @param method_name the gRPC method name.
    * @param request the serialized request.
@@ -436,22 +437,6 @@ struct GrpcCallInterface {
                               const Pairs & /* initial_metadata */, std::string_view /* request */,
                               std::chrono::milliseconds /* timeout */,
                               GrpcToken * /* token_ptr */) = 0;
-  /**
-   * Make a gRPC call. ABI 0.2.2 later specific version.
-   * @param cluster_name is target cluster name.
-   * @param service_name the name of the gRPC service.
-   * @param method_name the gRPC method name.
-   * @param request the serialized request.
-   * @param initial_metadata the initial metadata.
-   * @param timeout a timeout in milliseconds.
-   * @param token_ptr contains a pointer to a location to store the token which will be used with
-   * the corresponding onGrpc and grpc calls.
-   */
-  virtual WasmResult
-  clusterGrpcCall(std::string_view /* cluster name */, std::string_view /* service_name */,
-                  std::string_view /* method_name */, const Pairs & /* initial_metadata */,
-                  std::string_view /* request */, std::chrono::milliseconds /* timeout */,
-                  GrpcToken * /* token_ptr */) = 0;
 
   /**
    * Close a gRPC stream.  In flight data may still result in calls into the VM.
@@ -473,7 +458,8 @@ struct GrpcStreamInterface {
   virtual ~GrpcStreamInterface() = default;
   /**
    * Open a gRPC stream.
-   * @param grpc_service is proxy-specific metadata describing the service (e.g. security certs).
+   * @param grpc_service is proxy-specific metadata describing the service (e.g. security certs). On
+   * ABI 0.2.2, it can accept target cluster name.
    * @param service_name the name of the gRPC service.
    * @param method_name the gRPC method name.
    * @param token_ptr contains a pointer to a location to store the token which will be used with
@@ -482,18 +468,6 @@ struct GrpcStreamInterface {
   virtual WasmResult grpcStream(std::string_view grpc_service, std::string_view service_name,
                                 std::string_view method_name, const Pairs & /* initial_metadata */,
                                 GrpcToken *token_ptr) = 0;
-  /**
-   * Open a gRPC stream. ABI 0.2.2 later specific version.
-   * @param cluster_name is target cluster name.
-   * @param service_name the name of the gRPC service.
-   * @param method_name the gRPC method name.
-   * @param token_ptr contains a pointer to a location to store the token which will be used with
-   * the corresponding onGrpc and grpc calls.
-   */
-  virtual WasmResult clusterGrpcStream(std::string_view cluster_name, std::string_view service_name,
-                                       std::string_view method_name,
-                                       const Pairs & /* initial_metadata */,
-                                       GrpcToken *token_ptr) = 0;
 
   /**
    * Close a gRPC stream.  In flight data may still result in calls into the VM.
