@@ -133,7 +133,8 @@ void WasmBase::registerCallbacks() {
   } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0) {
     _REGISTER_PROXY(continue_stream);
     _REGISTER_PROXY(close_stream);
-  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_1) {
+  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_1 ||
+             abiVersion() == AbiVersion::ProxyWasm_0_2_2) {
     _REGISTER_PROXY(continue_stream);
     _REGISTER_PROXY(close_stream);
     _REGISTER_PROXY(get_log_level);
@@ -180,7 +181,8 @@ void WasmBase::getFunctions() {
     _GET_PROXY_ABI(on_request_headers, _abi_01);
     _GET_PROXY_ABI(on_response_headers, _abi_01);
   } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0 ||
-             abiVersion() == AbiVersion::ProxyWasm_0_2_1) {
+             abiVersion() == AbiVersion::ProxyWasm_0_2_1 ||
+             abiVersion() == AbiVersion::ProxyWasm_0_2_2) {
     _GET_PROXY_ABI(on_request_headers, _abi_02);
     _GET_PROXY_ABI(on_response_headers, _abi_02);
     _GET_PROXY(on_foreign_function);

@@ -281,9 +281,24 @@ public:
                       GrpcToken * /* token_ptr */) override {
     return unimplemented();
   }
+  WasmResult clusterGrpcCall(std::string_view /* cluster name */,
+                             std::string_view /* service_name */,
+                             std::string_view /* method_name */,
+                             const Pairs & /* initial_metadata */, std::string_view /* request */,
+                             std::chrono::milliseconds /* timeout */,
+                             GrpcToken * /* token_ptr */) override {
+    return unimplemented();
+  }
   WasmResult grpcStream(std::string_view /* grpc_service */, std::string_view /* service_name */,
                         std::string_view /* method_name */, const Pairs & /* initial_metadata */,
                         GrpcToken * /* token_ptr */) override {
+    return unimplemented();
+  }
+  WasmResult clusterGrpcStream(std::string_view /* cluster_name */,
+                               std::string_view /* service_name */,
+                               std::string_view /* method_name */,
+                               const Pairs & /* initial_metadata */,
+                               GrpcToken * /* token_ptr */) override {
     return unimplemented();
   }
   WasmResult grpcClose(uint32_t /* token */) override { // cancel on call, close on stream.

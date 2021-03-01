@@ -601,9 +601,18 @@ Word grpc_call(void *raw_context, Word service_ptr, Word service_size, Word serv
   }
   uint32_t token = 0;
   auto initial_metadata = toPairs(initial_metadata_pairs.value());
-  auto result = context->grpcCall(service.value(), service_name.value(), method_name.value(),
-                                  initial_metadata, request.value(),
-                                  std::chrono::milliseconds(timeout_milliseconds), &token);
+
+  WasmResult result;
+  if (context->wasmVm()->getAbiVersion() == AbiVersion::ProxyWasm_0_2_2) {
+    auto cluster_name = service.value();
+    result = context->clusterGrpcCall(cluster_name, service_name.value(), method_name.value(),
+                                      initial_metadata, request.value(),
+                                      std::chrono::milliseconds(timeout_milliseconds), &token);
+  } else {
+    result = context->grpcCall(service.value(), service_name.value(), method_name.value(),
+                               initial_metadata, request.value(),
+                               std::chrono::milliseconds(timeout_milliseconds), &token);
+  }
   if (result != WasmResult::Ok) {
     return result;
   }
@@ -627,8 +636,15 @@ Word grpc_stream(void *raw_context, Word service_ptr, Word service_size, Word se
   }
   uint32_t token = 0;
   auto initial_metadata = toPairs(initial_metadata_pairs.value());
-  auto result = context->grpcStream(service.value(), service_name.value(), method_name.value(),
-                                    initial_metadata, &token);
+  WasmResult result;
+  if (context->wasmVm()->getAbiVersion() == AbiVersion::ProxyWasm_0_2_2) {
+    auto cluster_name = service.value();
+    result = context->grpcStream(cluster_name, service_name.value(), method_name.value(),
+                                 initial_metadata, &token);
+  } else {
+    result = context->clusterGrpcStream(service.value(), service_name.value(), method_name.value(),
+                                        initial_metadata, &token);
+  }
   if (result != WasmResult::Ok) {
     return result;
   }

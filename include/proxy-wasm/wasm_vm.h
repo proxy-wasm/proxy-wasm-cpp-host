@@ -104,7 +104,13 @@ enum class Cloneable {
   InstantiatedModule // VMs can be cloned from an instantiated module.
 };
 
-enum class AbiVersion { ProxyWasm_0_1_0, ProxyWasm_0_2_0, ProxyWasm_0_2_1, Unknown };
+enum class AbiVersion {
+  ProxyWasm_0_1_0,
+  ProxyWasm_0_2_0,
+  ProxyWasm_0_2_1,
+  ProxyWasm_0_2_2,
+  Unknown
+};
 
 class NullPlugin;
 
