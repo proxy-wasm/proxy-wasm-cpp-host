@@ -196,10 +196,10 @@ protected:
   std::unordered_map<std::string, std::string>
       envs_; // environment variables passed through wasi.environ_get
 
-  WasmCallVoid<0> _initialize_; /* Emscripten v1.39.17+ */
-  WasmCallVoid<0> _start_;      /* Emscripten v1.39.0+ */
-  WasmCallVoid<0> __wasm_call_ctors_;
+  WasmCallVoid<0> _initialize_; /* WASI reactor (Emscripten v1.39.17+, Rust nightly) */
+  WasmCallVoid<0> _start_;      /* WASI command (Emscripten v1.39.0+, TinyGo) */
 
+  WasmCallWord<2> main_;
   WasmCallWord<1> malloc_;
 
   // Calls into the VM.

@@ -148,8 +148,11 @@ void WasmBase::getFunctions() {
 #define _GET(_fn) wasm_vm_->getFunction(#_fn, &_fn##_);
 #define _GET_ALIAS(_fn, _alias) wasm_vm_->getFunction(#_alias, &_fn##_);
   _GET(_initialize);
-  _GET(_start);
-  _GET(__wasm_call_ctors);
+  if (_initialize_) {
+    _GET(main);
+  } else {
+    _GET(_start);
+  }
 
   _GET(malloc);
   if (!malloc_) {
@@ -286,11 +289,19 @@ ContextBase *WasmBase::getRootContext(const std::shared_ptr<PluginBase> &plugin,
 
 void WasmBase::startVm(ContextBase *root_context) {
   if (_initialize_) {
+    // WASI reactor.
     _initialize_(root_context);
+    if (main_) {
+      // Call main() if it exists in WASI reactor, to allow module to
+      // do early initialization (e.g. configure SDK).
+      //
+      // Re-using main() keeps this consistent when switching between
+      // WASI command (that calls main()) and reactor (that doesn't).
+      main_(root_context, Word(0), Word(0));
+    }
   } else if (_start_) {
+    // WASI command.
     _start_(root_context);
-  } else if (__wasm_call_ctors_) {
-    __wasm_call_ctors_(root_context);
   }
 }
 
