@@ -781,7 +781,7 @@ Word wasi_unstable_environ_get(void *raw_context, Word environ_array_ptr, Word e
     data.append(e.first);
     data.append("=");
     data.append(e.second);
-    data.append("\x0");
+    data.append({0x0});
     if (!context->wasmVm()->setMemory(environ_buf, data.size(), data.c_str())) {
       return 21; // __WASI_EFAULT
     }

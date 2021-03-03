@@ -23,6 +23,6 @@ pub extern "C" fn run() {
         __wasilibc_initialize_environ();
     }
     for (key, value) in std::env::vars() {
-        println!("{}: {}", key, value);
+        println!("{}: {}\n", key, value);
     }
 }

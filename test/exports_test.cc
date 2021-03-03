@@ -67,8 +67,8 @@ TEST_P(TestVM, Environment) {
   run(current_context_);
 
   auto msg = context.log_msg();
-  EXPECT_NE(std::string::npos, msg.find("KEY1: VALUE1")) << msg;
-  EXPECT_NE(std::string::npos, msg.find("KEY2: VALUE2")) << msg;
+  EXPECT_NE(std::string::npos, msg.find("KEY1: VALUE1\n")) << msg;
+  EXPECT_NE(std::string::npos, msg.find("KEY2: VALUE2\n")) << msg;
 }
 
 TEST_P(TestVM, WithoutEnvironment) {
