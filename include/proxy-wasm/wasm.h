@@ -42,11 +42,19 @@ using WasmForeignFunction =
 using WasmVmFactory = std::function<std::unique_ptr<WasmVm>()>;
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
+struct SanitizationConfig {
+  std::vector<std::string> argument_list;
+  bool is_allowlist;
+};
+using AllowedCapabilitiesMap = std::unordered_map<std::string, SanitizationConfig>;
+
 // Wasm execution instance. Manages the host side of the Wasm interface.
 class WasmBase : public std::enable_shared_from_this<WasmBase> {
 public:
   WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
-           std::string_view vm_configuration, std::string_view vm_key);
+           std::string_view vm_configuration, std::string_view vm_key,
+           std::unordered_map<std::string, std::string> envs,
+           AllowedCapabilitiesMap allowed_capabilities);
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
@@ -92,6 +100,12 @@ public:
     return nullptr;
   }
 
+  // Capability restriction (restricting/exposing the ABI).
+  bool capabilityAllowed(std::string capability_name) {
+    return allowed_capabilities_.empty() ||
+           allowed_capabilities_.find(capability_name) != allowed_capabilities_.end();
+  }
+
   virtual ContextBase *createVmContext() { return new ContextBase(this); }
   virtual ContextBase *createRootContext(const std::shared_ptr<PluginBase> &plugin) {
     return new ContextBase(this, plugin);
@@ -122,6 +136,8 @@ public:
   virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
 
   AbiVersion abiVersion() { return abi_version_; }
+
+  const std::unordered_map<std::string, std::string> &envs() { return envs_; }
 
   // Called to raise the flag which indicates that the context should stop iteration regardless of
   // returned filter status from Proxy-Wasm extensions. For example, we ignore
@@ -177,11 +193,13 @@ protected:
   std::unordered_map<uint32_t, ContextBase *> contexts_;                 // Contains all contexts.
   std::unordered_map<uint32_t, std::chrono::milliseconds> timer_period_; // per root_id.
   std::unique_ptr<ShutdownHandle> shutdown_handle_;
+  std::unordered_map<std::string, std::string>
+      envs_; // environment variables passed through wasi.environ_get
 
-  WasmCallVoid<0> _initialize_; /* Emscripten v1.39.17+ */
-  WasmCallVoid<0> _start_;      /* Emscripten v1.39.0+ */
-  WasmCallVoid<0> __wasm_call_ctors_;
+  WasmCallVoid<0> _initialize_; /* WASI reactor (Emscripten v1.39.17+, Rust nightly) */
+  WasmCallVoid<0> _start_;      /* WASI command (Emscripten v1.39.0+, TinyGo) */
 
+  WasmCallWord<2> main_;
   WasmCallWord<1> malloc_;
 
   // Calls into the VM.
@@ -224,6 +242,20 @@ protected:
   WasmCallWord<1> on_done_;
   WasmCallVoid<1> on_log_;
   WasmCallVoid<1> on_delete_;
+
+#define FOR_ALL_MODULE_FUNCTIONS(_f)                                                               \
+  _f(validate_configuration) _f(on_vm_start) _f(on_configure) _f(on_tick) _f(on_context_create)    \
+      _f(on_new_connection) _f(on_downstream_data) _f(on_upstream_data)                            \
+          _f(on_downstream_connection_close) _f(on_upstream_connection_close) _f(on_request_body)  \
+              _f(on_request_trailers) _f(on_request_metadata) _f(on_response_body)                 \
+                  _f(on_response_trailers) _f(on_response_metadata) _f(on_http_call_response)      \
+                      _f(on_grpc_receive) _f(on_grpc_close) _f(on_grpc_receive_initial_metadata)   \
+                          _f(on_grpc_receive_trailing_metadata) _f(on_queue_ready) _f(on_done)     \
+                              _f(on_log) _f(on_delete)
+
+  // Capabilities which are allowed to be linked to the module. If this is empty, restriction
+  // is not enforced.
+  AllowedCapabilitiesMap allowed_capabilities_;
 
   std::shared_ptr<WasmHandleBase> base_wasm_handle_;
 
@@ -283,8 +315,8 @@ std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_id);
 class PluginHandleBase : public std::enable_shared_from_this<PluginHandleBase> {
 public:
   explicit PluginHandleBase(std::shared_ptr<WasmHandleBase> wasm_handle,
-                            std::string_view plugin_key)
-      : wasm_handle_(wasm_handle), plugin_key_(plugin_key) {}
+                            std::shared_ptr<PluginBase> plugin)
+      : wasm_handle_(wasm_handle), plugin_key_(plugin->key()) {}
   ~PluginHandleBase() { wasm_handle_->wasm()->startShutdown(plugin_key_); }
 
   std::shared_ptr<WasmBase> &wasm() { return wasm_handle_->wasm(); }
@@ -295,7 +327,7 @@ protected:
 };
 
 using PluginHandleFactory = std::function<std::shared_ptr<PluginHandleBase>(
-    std::shared_ptr<WasmHandleBase> base_wasm, std::string_view plugin_key)>;
+    std::shared_ptr<WasmHandleBase> base_wasm, std::shared_ptr<PluginBase> plugin)>;
 
 // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
 // using it it as a template.

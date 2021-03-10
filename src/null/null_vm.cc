@@ -102,6 +102,8 @@ bool NullVm::getWord(uint64_t pointer, Word *data) {
   return true;
 }
 
+size_t NullVm::getWordSize() { return sizeof(uint64_t); }
+
 std::string_view NullVm::getCustomSection(std::string_view /* name */) {
   // Return nothing: there is no WASM file.
   return {};

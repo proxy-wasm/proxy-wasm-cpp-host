@@ -37,8 +37,6 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<0> *f)
     *f = nullptr;
   } else if (function_name == "_start") {
     *f = nullptr;
-  } else if (function_name == "__wasm_call_ctors") {
-    *f = nullptr;
   } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, false, 0, this, f)) {
     error("Missing getFunction for: " + std::string(function_name));
     *f = nullptr;
@@ -167,7 +165,9 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<1> *f)
 
 void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<2> *f) {
   auto plugin = this;
-  if (function_name == "proxy_on_vm_start") {
+  if (function_name == "main") {
+    *f = nullptr;
+  } else if (function_name == "proxy_on_vm_start") {
     *f = [plugin](ContextBase *context, Word context_id, Word configuration_size) {
       SaveRestoreContext saved_context(context);
       return Word(plugin->onStart(context_id, configuration_size));

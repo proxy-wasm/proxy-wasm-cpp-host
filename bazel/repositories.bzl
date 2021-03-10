@@ -53,18 +53,10 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     http_archive(
-        name = "com_google_absl",
-        sha256 = "19391fb4882601a65cb648d638c11aa301ce5f525ef02da1a9eafd22f72d7c59",
-        strip_prefix = "abseil-cpp-37dd2562ec830d547a1524bb306be313ac3f2556",
-        # 2020-01-29
-        urls = ["https://github.com/abseil/abseil-cpp/archive/37dd2562ec830d547a1524bb306be313ac3f2556.tar.gz"],
-    )
-
-    http_archive(
-        name = "io_bazel_rules_rust",
-        sha256 = "442a102e2a6f6c75e10d43f21c0c30218947a3e827d91529ced7380c5fec05f0",
-        strip_prefix = "rules_rust-39523e32ac0bd64f5d60154114a42e61e58ffd17",
-        url = "https://github.com/bazelbuild/rules_rust/archive/39523e32ac0bd64f5d60154114a42e61e58ffd17.tar.gz",
+        name = "rules_rust",
+        sha256 = "0f55b4b69fd9bc1dbcc038e75ec54bd97fa00ddc6cfbc6278fc288dafc98b7f8",
+        strip_prefix = "rules_rust-fee3b3c658c3d2f49c20c1b12e55063bf7a7f693",
+        url = "https://github.com/bazelbuild/rules_rust/archive/fee3b3c658c3d2f49c20c1b12e55063bf7a7f693.tar.gz",
     )
 
     http_archive(

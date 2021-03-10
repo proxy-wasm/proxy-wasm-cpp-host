@@ -7,7 +7,7 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 
 # buildifier: disable=load
 load(
-    "@io_bazel_rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
@@ -30,17 +30,17 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "bench" with type "bench" omitted
+
 rust_library(
-    name = "thiserror",
+    name = "smallvec",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
+    data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@proxy_wasm_cpp_host__thiserror_impl__1_0_22//:thiserror_impl",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,32 +48,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.22",
+    version = "1.6.1",
     # buildifier: leave-alone
     deps = [
     ],
 )
 
-# Unsupported target "compiletest" with type "test" omitted
-
-# Unsupported target "test_backtrace" with type "test" omitted
-
-# Unsupported target "test_deprecated" with type "test" omitted
-
-# Unsupported target "test_display" with type "test" omitted
-
-# Unsupported target "test_error" with type "test" omitted
-
-# Unsupported target "test_expr" with type "test" omitted
-
-# Unsupported target "test_from" with type "test" omitted
-
-# Unsupported target "test_lints" with type "test" omitted
-
-# Unsupported target "test_option" with type "test" omitted
-
-# Unsupported target "test_path" with type "test" omitted
-
-# Unsupported target "test_source" with type "test" omitted
-
-# Unsupported target "test_transparent" with type "test" omitted
+# Unsupported target "macro" with type "test" omitted

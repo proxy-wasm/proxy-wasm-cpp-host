@@ -7,7 +7,7 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 
 # buildifier: disable=load
 load(
-    "@io_bazel_rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
@@ -37,6 +37,7 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
+    data = [],
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
@@ -48,12 +49,12 @@ rust_library(
     version = "0.21.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__anyhow__1_0_35//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_38//:anyhow",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
-        "@proxy_wasm_cpp_host__libc__0_2_81//:libc",
-        "@proxy_wasm_cpp_host__serde__1_0_118//:serde",
-        "@proxy_wasm_cpp_host__target_lexicon__0_11_1//:target_lexicon",
+        "@proxy_wasm_cpp_host__libc__0_2_86//:libc",
+        "@proxy_wasm_cpp_host__serde__1_0_123//:serde",
+        "@proxy_wasm_cpp_host__target_lexicon__0_11_2//:target_lexicon",
         "@proxy_wasm_cpp_host__wasmtime_environ__0_21_0//:wasmtime_environ",
         "@proxy_wasm_cpp_host__wasmtime_runtime__0_21_0//:wasmtime_runtime",
     ],
