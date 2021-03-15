@@ -290,7 +290,11 @@ public:
     }
   }
 
-  void kill() { wasm_base_ = nullptr; }
+  void kill() {
+    wasm_base_->startShutdown();
+    wasm_base_->finishShutdown();
+    wasm_base_ = nullptr;
+  }
 
   std::shared_ptr<WasmBase> &wasm() { return wasm_base_; }
 
