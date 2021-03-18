@@ -36,13 +36,6 @@ RegisterNullVmPluginFactory::RegisterNullVmPluginFactory(std::string_view name,
   (*null_vm_plugin_factories_)[std::string(name)] = factory;
 }
 
-Cloneable NullVm::cloneable() {
-  if (!plugin_) {
-    return Cloneable::NotCloneable;
-  }
-  return plugin_->cloneable();
-}
-
 std::unique_ptr<WasmVm> NullVm::clone() {
   auto cloned_null_vm = std::make_unique<NullVm>(*this);
   if (integration())

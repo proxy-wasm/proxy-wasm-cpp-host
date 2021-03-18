@@ -32,7 +32,6 @@ public:
   FOR_ALL_WASM_VM_EXPORTS(_DEFINE_GET_FUNCTION)
 #undef _DEFIN_GET_FUNCTIONE
 
-  virtual Cloneable cloneable() { return Cloneable::InstantiatedModule; }
   WasmVm *wasm_vm_ = nullptr;
 };
 
