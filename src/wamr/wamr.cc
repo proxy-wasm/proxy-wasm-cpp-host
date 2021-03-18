@@ -58,9 +58,7 @@ public:
   std::string_view runtime() override { return "wamr"; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 
-  Cloneable cloneable() override {
-    return Cloneable::CompiledBytecode;
-  }
+  Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::unique_ptr<WasmVm> clone() override;
 
   AbiVersion getAbiVersion() override;
@@ -165,8 +163,9 @@ std::unique_ptr<WasmVm> Wamr::clone() {
   clone->store_ = wasm_store_new(engine());
 
   WasmByteVec stripped;
-  clone->module_ =
-      wasm_module_new(clone->store_.get(), getStrippedSource(&stripped) ? stripped.get() : source_.get());
+  clone->module_ = wasm_module_new(clone->store_.get(),
+                                   getStrippedSource(&stripped) ? stripped.get() : source_.get());
+
   return clone;
 }
 
@@ -302,6 +301,7 @@ bool Wamr::link(std::string_view debug_name) {
   assert(module_ != nullptr);
 
   WasmImporttypeVec import_types;
+This conversation was marked as resolved by leyao-daily
   wasm_module_imports(module_.get(), import_types.get());
 
   std::vector<const wasm_extern_t *> imports;
