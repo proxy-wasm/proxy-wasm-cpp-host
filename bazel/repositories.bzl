@@ -45,6 +45,14 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     http_archive(
+        name = "wamr",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
+        sha256 = "fb2ca3b0322becb8c62de626181ef66a7be15e36000913f0ad4bf51d4619891b",
+        strip_prefix = "wamr_pre_release",
+        url = "https://github.com/lum1n0us/wasm-micro-runtime/releases/download/WAMR-01-29-2021/wamr_pre_release.zip",
+    )
+
+    http_archive(
         name = "wasm_c_api",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasm-c-api.BUILD",
         sha256 = "c774044f51431429e878bd1b9e2a4e38932f861f9211df72f75e9427eb6b8d32",

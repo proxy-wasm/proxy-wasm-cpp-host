@@ -32,6 +32,9 @@
 #if defined(WASM_WASMTIME)
 #include "include/proxy-wasm/wasmtime.h"
 #endif
+#if defined(WASM_WASMTIME)
+#include "include/proxy-wasm/wamr.h"
+#endif
 
 namespace proxy_wasm {
 
