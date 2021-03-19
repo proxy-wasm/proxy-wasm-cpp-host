@@ -56,11 +56,11 @@ class Wamr : public WasmVm {
 public:
   Wamr() {}
 
-  std::string_view runtime() override { return "wamr"; }
+  std::string_view runtime() override { return "envoy.wasm.runtime.wamr"; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 
   Cloneable cloneable() override { return Cloneable::NotCloneable; }
-  std::unique_ptr<WasmVm> clone() override { return nullptr; };
+  std::unique_ptr<WasmVm> clone() override { return nullptr; }
 
   AbiVersion getAbiVersion() override;
 
@@ -433,9 +433,6 @@ void convertArgsTupleToValTypesImpl(wasm_valtype_vec_t *types, std::index_sequen
   auto ps = std::array<wasm_valtype_t *, std::tuple_size<T>::value>{
       convertArgToValTypePtr<typename std::tuple_element<I, T>::type>()...};
   wasm_valtype_vec_new(types, size, ps.data());
-  for (auto i = ps.begin(); i < ps.end(); i++) { // TODO(mathetake): better way to handle?
-    wasm_valtype_delete(*i);
-  }
 }
 
 template <typename T, typename Is = std::make_index_sequence<std::tuple_size<T>::value>>
@@ -444,17 +441,17 @@ void convertArgsTupleToValTypes(wasm_valtype_vec_t *types) {
 }
 
 template <typename R, typename T> WasmFunctypePtr newWasmNewFuncType() {
-  WasmValtypeVec params, results;
-  convertArgsTupleToValTypes<T>(params.get());
-  convertArgsTupleToValTypes<std::tuple<R>>(results.get());
-  return wasm_functype_new(params.get(), results.get());
+  wasm_valtype_vec_t params, results;
+  convertArgsTupleToValTypes<T>(&params);
+  convertArgsTupleToValTypes<std::tuple<R>>(&results);
+  return wasm_functype_new(&params, &results);
 }
 
 template <typename T> WasmFunctypePtr newWasmNewFuncType() {
-  WasmValtypeVec params, results;
-  convertArgsTupleToValTypes<T>(params.get());
-  convertArgsTupleToValTypes<std::tuple<>>(results.get());
-  return wasm_functype_new(params.get(), results.get());
+  wasm_valtype_vec_t params, results;
+  convertArgsTupleToValTypes<T>(&params);
+  convertArgsTupleToValTypes<std::tuple<>>(&results);
+  return wasm_functype_new(&params, &results);
 }
 
 template <typename... Args>
