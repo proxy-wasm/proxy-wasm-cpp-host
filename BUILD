@@ -34,7 +34,7 @@ cc_library(
         "@boringssl//:crypto",
         "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
-        "@wasm_c_api//:wasmtime_lib",
         "@wamr//:wamr_lib",
+        "@wasm_c_api//:wasmtime_lib",
     ],
 )

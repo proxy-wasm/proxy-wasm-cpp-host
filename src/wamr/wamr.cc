@@ -53,7 +53,7 @@ wasm_engine_t *engine() {
 
 class Wamr : public WasmVm {
 public:
-  Wamr () {}
+  Wamr() {}
 
   std::string_view runtime() override { return "webassembly micro runtime"; }
   std::string_view getPrecompiledSectionName() override { return ""; }
@@ -557,9 +557,8 @@ template <typename T> WasmFunctypePtr newWasmNewFuncType() {
 }
 
 template <typename... Args>
-void Wamr::registerHostFunctionImpl(std::string_view module_name,
-                                        std::string_view function_name,
-                                        void (*function)(void *, Args...)) {
+void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
+                                    void (*function)(void *, Args...)) {
   auto data =
       std::make_unique<HostFuncData>(std::string(module_name) + "." + std::string(function_name));
 
@@ -591,9 +590,8 @@ void Wamr::registerHostFunctionImpl(std::string_view module_name,
 };
 
 template <typename R, typename... Args>
-void Wamr::registerHostFunctionImpl(std::string_view module_name,
-                                        std::string_view function_name,
-                                        R (*function)(void *, Args...)) {
+void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
+                                    R (*function)(void *, Args...)) {
   auto data =
       std::make_unique<HostFuncData>(std::string(module_name) + "." + std::string(function_name));
   WasmFunctypePtr type = newWasmNewFuncType<R, std::tuple<Args...>>();
@@ -627,7 +625,7 @@ void Wamr::registerHostFunctionImpl(std::string_view module_name,
 
 template <typename... Args>
 void Wamr::getModuleFunctionImpl(std::string_view function_name,
-                                     std::function<void(ContextBase *, Args...)> *function) {
+                                 std::function<void(ContextBase *, Args...)> *function) {
 
   auto it = module_functions_.find(std::string(function_name));
   if (it == module_functions_.end()) {
@@ -675,7 +673,7 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
 
 template <typename R, typename... Args>
 void Wamr::getModuleFunctionImpl(std::string_view function_name,
-                                     std::function<R(ContextBase *, Args...)> *function) {
+                                 std::function<R(ContextBase *, Args...)> *function) {
   auto it = module_functions_.find(std::string(function_name));
   if (it == module_functions_.end()) {
     *function = nullptr;

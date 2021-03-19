@@ -40,6 +40,6 @@ using WasmExternVec =
 using WasmValtypeVec =
     common::CSmartType<wasm_valtype_vec_t, wasm_valtype_vec_new_empty, wasm_valtype_vec_delete>;
 
-} // namespace WAMR (webassembly micro runtime)
+} // namespace wamr
 
 } // namespace proxy_wasm
