@@ -21,6 +21,6 @@
 
 namespace proxy_wasm {
 
-std::unique_ptr<WasmVm> createWAMRVm();
+std::unique_ptr<WasmVm> createWamrVm();
 
 } // namespace proxy_wasm

@@ -55,11 +55,14 @@ class Wamr : public WasmVm {
 public:
   Wamr() {}
 
-  std::string_view runtime() override { return "webassembly micro runtime"; }
+  std::string_view runtime() override { return "wamr"; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 
-  Cloneable cloneable() override { return Cloneable::NotCloneable; }
-  std::unique_ptr<WasmVm> clone() override { return nullptr; };
+  Cloneable cloneable() override {
+    return Cloneable::CompiledBytecode;
+    ;
+  }
+  std::unique_ptr<WasmVm> clone() override;
 
   AbiVersion getAbiVersion() override;
   std::string_view getCustomSection(std::string_view name) override;
@@ -151,6 +154,21 @@ bool Wamr::load(const std::string &code, bool allow_precompiled) {
       wasm_module_new(store_.get(), getStrippedSource(&stripped) ? stripped.get() : source_.get());
 
   return module_ != nullptr;
+}
+
+std::unique_ptr<WasmVm> Wamr::clone() {
+  assert(module_ != nullptr);
+
+  auto clone = std::make_unique<Wamr>();
+
+  clone->integration().reset(integration()->clone());
+
+  clone->store_ = wasm_store_new(engine());
+
+  WasmByteVec stripped;
+  clone->module_ =
+      wasm_module_new(store_.get(), getStrippedSource(&stripped) ? stripped.get() : source_.get());
+  return clone;
 }
 
 // TODO(mathetake): move to proxy_wasm::common::*
