@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "src/wamr/types.h"
-#include "wamr/include/wasm_c_api.h"
+#include "wasm_c_api.h"
 
 namespace proxy_wasm {
 namespace wamr {
@@ -60,7 +60,6 @@ public:
 
   Cloneable cloneable() override {
     return Cloneable::CompiledBytecode;
-    ;
   }
   std::unique_ptr<WasmVm> clone() override;
 
@@ -167,7 +166,7 @@ std::unique_ptr<WasmVm> Wamr::clone() {
 
   WasmByteVec stripped;
   clone->module_ =
-      wasm_module_new(store_.get(), getStrippedSource(&stripped) ? stripped.get() : source_.get());
+      wasm_module_new(clone->store_.get(), getStrippedSource(&stripped) ? stripped.get() : source_.get());
   return clone;
 }
 
