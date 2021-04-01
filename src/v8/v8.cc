@@ -18,6 +18,7 @@
 #include <cassert>
 #include <iomanip>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <sstream>
 #include <unordered_map>
