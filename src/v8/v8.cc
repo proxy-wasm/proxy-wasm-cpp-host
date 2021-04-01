@@ -24,6 +24,7 @@
 #include <utility>
 #include <vector>
 
+#include "v8.h"
 #include "v8-version.h"
 #include "wasm-api/wasm.hh"
 
@@ -31,7 +32,11 @@ namespace proxy_wasm {
 namespace {
 
 wasm::Engine *engine() {
-  static const auto engine = wasm::Engine::make();
+  static wasm::own<wasm::Engine> engine;
+  if (engine.get() == nullptr) {
+    v8::V8::EnableWebAssemblyTrapHandler(true);
+    engine = wasm::Engine::make();
+  }
   return engine.get();
 }
 
