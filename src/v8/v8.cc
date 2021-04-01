@@ -32,11 +32,14 @@ namespace proxy_wasm {
 namespace {
 
 wasm::Engine *engine() {
+  static std::once_flag init;
   static wasm::own<wasm::Engine> engine;
-  if (engine.get() == nullptr) {
+
+  std::call_once(init, []() {
     v8::V8::EnableWebAssemblyTrapHandler(true);
     engine = wasm::Engine::make();
-  }
+  });
+
   return engine.get();
 }
 
