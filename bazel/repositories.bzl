@@ -39,17 +39,17 @@ def proxy_wasm_cpp_host_repositories():
     http_archive(
         name = "wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "7874feb1026bbef06796bd5ab80e73f15b8e83752bde8dc93994f5bc039a4952",
-        strip_prefix = "wasmtime-0.21.0",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.21.0.tar.gz",
+        sha256 = "219b79db4084a0f9d720d430d625a676d68dd0228b11cab46fd6c2a649f77034",
+        strip_prefix = "wasmtime-0.25.0",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.25.0.tar.gz",
     )
 
     http_archive(
         name = "wasm_c_api",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasm-c-api.BUILD",
-        sha256 = "aea8cd095e9937f1e14f2c93e026317b197eb2345e7a817fe3932062eb7b792c",
-        strip_prefix = "wasm-c-api-d9a80099d496b5cdba6f3fe8fc77586e0e505ddc",
-        url = "https://github.com/WebAssembly/wasm-c-api/archive/d9a80099d496b5cdba6f3fe8fc77586e0e505ddc.tar.gz",
+        sha256 = "c774044f51431429e878bd1b9e2a4e38932f861f9211df72f75e9427eb6b8d32",
+        strip_prefix = "wasm-c-api-c9d31284651b975f05ac27cee0bab1377560b87e",
+        url = "https://github.com/WebAssembly/wasm-c-api/archive/c9d31284651b975f05ac27cee0bab1377560b87e.tar.gz",
     )
 
     http_archive(
