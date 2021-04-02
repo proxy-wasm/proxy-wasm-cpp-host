@@ -575,7 +575,8 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
       store_.get(), type.get(),
       [](void *data, const wasm_val_vec_t *params, wasm_val_vec_t *results) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<HostFuncData *>(data);
-        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+        const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
+        if (log) {
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params) + ")");
         }
@@ -584,7 +585,7 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
         auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
         auto fn = reinterpret_cast<void (*)(void *, Args...)>(func_data->raw_func_);
         std::apply(fn, args);
-        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+        if (log) {
           func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ + " return: void");
         }
         return nullptr;
@@ -609,7 +610,8 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
       store_.get(), type.get(),
       [](void *data, const wasm_val_vec_t *params, wasm_val_vec_t *results) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<HostFuncData *>(data);
-        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+        const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
+        if (log) {
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params) + ")");
         }
@@ -619,7 +621,7 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
         auto fn = reinterpret_cast<R (*)(void *, Args...)>(func_data->raw_func_);
         R res = std::apply(fn, args);
         assignVal<R>(res, results->data[0]);
-        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+        if (log) {
           func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ +
                                                " return: " + std::to_string(res));
         }
@@ -664,11 +666,12 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     wasm_val_t params_arr[] = {makeVal(args)...};
     const wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
     wasm_val_vec_t results = WASM_EMPTY_VEC;
-    SaveRestoreContext saved_context(context);
-    if (cmpLogLevel(LogLevel::trace)) {
+    const bool log = cmpLogLevel(LogLevel::trace);
+    if (log) {
       integration()->trace("[host->vm] " + std::string(function_name) + "(" + printValues(&params) +
                            ")");
     }
+    SaveRestoreContext saved_context(context);
     WasmTrapPtr trap{wasm_func_call(func, &params, &results)};
     if (trap) {
       WasmByteVec error_message;
@@ -678,7 +681,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
                std::string(error_message.get()->data, error_message.get()->size));
       return;
     }
-    if (cmpLogLevel(LogLevel::trace)) {
+    if (log) {
       integration()->trace("[host<-vm] " + std::string(function_name) + " return: void");
     }
   };
@@ -712,11 +715,12 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     const wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
     wasm_val_t results_arr[1];
     wasm_val_vec_t results = WASM_ARRAY_VEC(results_arr);
-    SaveRestoreContext saved_context(context);
-    if (cmpLogLevel(LogLevel::trace)) {
+    const bool log = cmpLogLevel(LogLevel::trace);
+    if (log) {
       integration()->trace("[host->vm] " + std::string(function_name) + "(" + printValues(&params) +
                            ")");
     }
+    SaveRestoreContext saved_context(context);
     WasmTrapPtr trap{wasm_func_call(func, &params, &results)};
     if (trap) {
       WasmByteVec error_message;
@@ -727,7 +731,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
       return R{};
     }
     R ret = convertValueTypeToArg<R>(results.data[0]);
-    if (cmpLogLevel(LogLevel::trace)) {
+    if (log) {
       integration()->trace("[host<-vm] " + std::string(function_name) +
                            " return: " + std::to_string(ret));
     }
