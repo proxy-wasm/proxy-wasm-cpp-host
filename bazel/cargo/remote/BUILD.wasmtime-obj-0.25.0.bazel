@@ -31,12 +31,9 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "regalloc",
+    name = "wasmtime_obj",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "enable-serde",
-        "serde",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -49,12 +46,14 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.0.31",
+    version = "0.25.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__log__0_4_14//:log",
-        "@proxy_wasm_cpp_host__rustc_hash__1_1_0//:rustc_hash",
-        "@proxy_wasm_cpp_host__serde__1_0_125//:serde",
-        "@proxy_wasm_cpp_host__smallvec__1_6_1//:smallvec",
+        "@proxy_wasm_cpp_host__anyhow__1_0_40//:anyhow",
+        "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",
+        "@proxy_wasm_cpp_host__object__0_23_0//:object",
+        "@proxy_wasm_cpp_host__target_lexicon__0_11_2//:target_lexicon",
+        "@proxy_wasm_cpp_host__wasmtime_debug__0_25_0//:wasmtime_debug",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_25_0//:wasmtime_environ",
     ],
 )

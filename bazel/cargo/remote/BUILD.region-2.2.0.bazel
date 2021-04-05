@@ -52,7 +52,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host__bitflags__1_2_1//:bitflags",
-        "@proxy_wasm_cpp_host__libc__0_2_86//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_92//:libc",
     ] + selects.with_or({
         # cfg(any(target_os = "macos", target_os = "ios"))
         (

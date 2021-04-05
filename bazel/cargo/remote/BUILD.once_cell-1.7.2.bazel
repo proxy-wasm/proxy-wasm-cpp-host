@@ -25,18 +25,33 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
+# Unsupported target "bench" with type "example" omitted
+
+# Unsupported target "bench_acquire" with type "example" omitted
+
+# Unsupported target "bench_vs_lazy_static" with type "example" omitted
+
+# Unsupported target "lazy_static" with type "example" omitted
+
+# Unsupported target "reentrant_init_deadlocks" with type "example" omitted
+
+# Unsupported target "regex" with type "example" omitted
+
+# Unsupported target "test_synchronization" with type "example" omitted
+
 rust_library(
-    name = "regalloc",
+    name = "once_cell",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "alloc",
         "default",
-        "enable-serde",
-        "serde",
+        "race",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -49,12 +64,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.0.31",
+    version = "1.7.2",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__log__0_4_14//:log",
-        "@proxy_wasm_cpp_host__rustc_hash__1_1_0//:rustc_hash",
-        "@proxy_wasm_cpp_host__serde__1_0_125//:serde",
-        "@proxy_wasm_cpp_host__smallvec__1_6_1//:smallvec",
     ],
 )
+
+# Unsupported target "it" with type "test" omitted
