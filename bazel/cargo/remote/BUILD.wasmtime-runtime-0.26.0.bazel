@@ -53,7 +53,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.25.0",
+    version = "0.26.0",
     visibility = ["//visibility:private"],
     deps = [
         "@proxy_wasm_cpp_host__cc__1_0_67//:cc",
@@ -66,6 +66,15 @@ cargo_build_script(
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+        ): [
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(target_os = "macos")
+        (
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
+            "@rules_rust//rust/platform:i686-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
         ): [
         ],
         "//conditions:default": [],
@@ -99,7 +108,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.25.0",
+    version = "0.26.0",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
@@ -108,15 +117,14 @@ rust_library(
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__indexmap__1_6_2//:indexmap",
         "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
-        "@proxy_wasm_cpp_host__libc__0_2_92//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_93//:libc",
         "@proxy_wasm_cpp_host__log__0_4_14//:log",
         "@proxy_wasm_cpp_host__memoffset__0_6_3//:memoffset",
         "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",
-        "@proxy_wasm_cpp_host__psm__0_1_12//:psm",
-        "@proxy_wasm_cpp_host__rand__0_7_3//:rand",
+        "@proxy_wasm_cpp_host__rand__0_8_3//:rand",
         "@proxy_wasm_cpp_host__region__2_2_0//:region",
         "@proxy_wasm_cpp_host__thiserror__1_0_24//:thiserror",
-        "@proxy_wasm_cpp_host__wasmtime_environ__0_25_0//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_26_0//:wasmtime_environ",
     ] + selects.with_or({
         # cfg(target_os = "linux")
         (
@@ -127,6 +135,16 @@ rust_library(
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(target_os = "macos")
+        (
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
+            "@rules_rust//rust/platform:i686-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+        ): [
+            "@proxy_wasm_cpp_host__mach__0_3_2//:mach",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

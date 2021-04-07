@@ -25,13 +25,13 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR (Apache-2.0 OR MIT)"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "wasi",
+    name = "cranelift_native",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
@@ -48,8 +48,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.9.0+wasi-snapshot-preview1",
+    version = "0.73.0",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_73_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__target_lexicon__0_12_0//:target_lexicon",
     ],
 )

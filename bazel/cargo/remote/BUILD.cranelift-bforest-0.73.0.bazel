@@ -30,12 +30,8 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "benchmark" with type "bench" omitted
-
-# Unsupported target "simple" with type "example" omitted
-
 rust_library(
-    name = "wasmparser",
+    name = "cranelift_bforest",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -50,8 +46,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.76.0",
+    version = "0.73.0",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__cranelift_entity__0_73_0//:cranelift_entity",
     ],
 )
