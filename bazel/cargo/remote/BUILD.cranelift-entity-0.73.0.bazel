@@ -25,16 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "rand_chacha",
+    name = "cranelift_entity",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "std",
+        "enable-serde",
+        "serde",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -47,10 +48,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.2.2",
+    version = "0.73.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__ppv_lite86__0_2_10//:ppv_lite86",
-        "@proxy_wasm_cpp_host__rand_core__0_5_1//:rand_core",
+        "@proxy_wasm_cpp_host__serde__1_0_125//:serde",
     ],
 )

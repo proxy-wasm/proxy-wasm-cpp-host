@@ -53,10 +53,17 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.16",
+    version = "0.2.2",
     visibility = ["//visibility:private"],
     deps = [
     ] + selects.with_or({
+        # cfg(all(target_arch = "wasm32", target_os = "unknown"))
+        (
+            "@rules_rust//rust/platform:wasm32-unknown-unknown",
+        ): [
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
         # cfg(target_os = "wasi")
         (
             "@rules_rust//rust/platform:wasm32-wasi",
@@ -82,13 +89,6 @@ cargo_build_script(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-        ): [
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # wasm32-unknown-unknown
-        (
-            "@rules_rust//rust/platform:wasm32-unknown-unknown",
         ): [
         ],
         "//conditions:default": [],
@@ -116,17 +116,24 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.16",
+    version = "0.2.2",
     # buildifier: leave-alone
     deps = [
         ":getrandom_build_script",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
     ] + selects.with_or({
+        # cfg(all(target_arch = "wasm32", target_os = "unknown"))
+        (
+            "@rules_rust//rust/platform:wasm32-unknown-unknown",
+        ): [
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
         # cfg(target_os = "wasi")
         (
             "@rules_rust//rust/platform:wasm32-wasi",
         ): [
-            "@proxy_wasm_cpp_host__wasi__0_9_0_wasi_snapshot_preview1//:wasi",
+            "@proxy_wasm_cpp_host__wasi__0_10_2_wasi_snapshot_preview1//:wasi",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -149,17 +156,14 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@proxy_wasm_cpp_host__libc__0_2_92//:libc",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # wasm32-unknown-unknown
-        (
-            "@rules_rust//rust/platform:wasm32-unknown-unknown",
-        ): [
+            "@proxy_wasm_cpp_host__libc__0_2_93//:libc",
         ],
         "//conditions:default": [],
     }),
 )
 
-# Unsupported target "common" with type "test" omitted
+# Unsupported target "custom" with type "test" omitted
+
+# Unsupported target "normal" with type "test" omitted
+
+# Unsupported target "rdrand" with type "test" omitted

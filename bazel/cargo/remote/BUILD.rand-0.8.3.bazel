@@ -30,31 +30,20 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "generators" with type "bench" omitted
-
-# Unsupported target "misc" with type "bench" omitted
-
-# Unsupported target "seq" with type "bench" omitted
-
-# Unsupported target "weighted" with type "bench" omitted
-
-# Unsupported target "monte-carlo" with type "example" omitted
-
-# Unsupported target "monty-hall" with type "example" omitted
-
 rust_library(
     name = "rand",
     srcs = glob(["**/*.rs"]),
     aliases = {
-        "@proxy_wasm_cpp_host__getrandom__0_1_16//:getrandom": "getrandom_package",
     },
     crate_features = [
         "alloc",
         "default",
         "getrandom",
-        "getrandom_package",
         "libc",
+        "rand_chacha",
+        "rand_hc",
         "std",
+        "std_rng",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -67,12 +56,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.7.3",
+    version = "0.8.3",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__getrandom__0_1_16//:getrandom",
-        "@proxy_wasm_cpp_host__rand_chacha__0_2_2//:rand_chacha",
-        "@proxy_wasm_cpp_host__rand_core__0_5_1//:rand_core",
+        "@proxy_wasm_cpp_host__rand_chacha__0_3_0//:rand_chacha",
+        "@proxy_wasm_cpp_host__rand_core__0_6_2//:rand_core",
     ] + selects.with_or({
         # cfg(unix)
         (
@@ -93,7 +81,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@proxy_wasm_cpp_host__libc__0_2_92//:libc",
+            "@proxy_wasm_cpp_host__libc__0_2_93//:libc",
         ],
         "//conditions:default": [],
     }),

@@ -25,18 +25,15 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "rand_core",
+    name = "wasmtime_cranelift",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "alloc",
-        "getrandom",
-        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -49,9 +46,14 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.5.1",
+    version = "0.26.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__getrandom__0_1_16//:getrandom",
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_73_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__cranelift_entity__0_73_0//:cranelift_entity",
+        "@proxy_wasm_cpp_host__cranelift_frontend__0_73_0//:cranelift_frontend",
+        "@proxy_wasm_cpp_host__cranelift_wasm__0_73_0//:cranelift_wasm",
+        "@proxy_wasm_cpp_host__wasmparser__0_77_0//:wasmparser",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_26_0//:wasmtime_environ",
     ],
 )
