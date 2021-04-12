@@ -254,7 +254,8 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
   store_ = wasm::Store::make(engine());
 
   // Wasm file header is 8 bytes (magic number + version).
-  if (!common::WasmUtil::checkWasmHeader(code)) {
+  if (!common::BytecodeUtil::checkWasmHeader(code)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   }
 
@@ -262,7 +263,7 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     const auto section_name = getPrecompiledSectionName();
     if (!section_name.empty()) {
       std::string_view precompiled = {};
-      if (!common::WasmUtil::getCustomSection(code, section_name, precompiled)) {
+      if (!common::BytecodeUtil::getCustomSection(code, section_name, precompiled)) {
         fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
         return false;
       }
@@ -282,7 +283,7 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
 
   if (!module_) {
     std::string stripped;
-    if (!common::WasmUtil::getStrippedSource(code, stripped)) {
+    if (!common::BytecodeUtil::getStrippedSource(code, stripped)) {
       fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
       return false;
     };
@@ -302,9 +303,11 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     assert((shared_module_ != nullptr));
   }
 
-  if (!common::WasmUtil::getFunctionNameIndex(code, function_names_index_)) {
+  if (!common::BytecodeUtil::getFunctionNameIndex(code, function_names_index_)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
   };
+
   return module_ != nullptr;
 }
 

@@ -37,28 +37,28 @@ TEST(TestWasmCommonUtil, getCustomSection) {
   std::string_view section = {};
 
   // OK.
-  EXPECT_TRUE(WasmUtil::getCustomSection(custom_section, "hey!", section));
+  EXPECT_TRUE(BytecodeUtil::getCustomSection(custom_section, "hey!", section));
   EXPECT_EQ(std::string(section), "hello");
   section = {};
 
   // Non exist.
-  EXPECT_TRUE(WasmUtil::getCustomSection(custom_section, "non-exist", section));
+  EXPECT_TRUE(BytecodeUtil::getCustomSection(custom_section, "non-exist", section));
   EXPECT_EQ(section, "");
 
   // Fail due to the corrupted bytecode.
   // TODO(@mathetake): here we haven't covered all the parsing failure branches. Add more cases.
   std::string corrupted = {custom_section.data(),
                            custom_section.data() + custom_section.size() - 3};
-  EXPECT_FALSE(WasmUtil::getCustomSection(corrupted, "hey", section));
+  EXPECT_FALSE(BytecodeUtil::getCustomSection(corrupted, "hey", section));
   corrupted = {custom_section.data() + 1, custom_section.data() + custom_section.size()};
-  EXPECT_FALSE(WasmUtil::getCustomSection(corrupted, "hey", section));
+  EXPECT_FALSE(BytecodeUtil::getCustomSection(corrupted, "hey", section));
 }
 
 TEST(TestWasmCommonUtil, getFunctionNameIndex) {
   const auto source = readTestWasmFile("abi_export.wasm");
   std::unordered_map<uint32_t, std::string> actual;
   // OK.
-  EXPECT_TRUE(WasmUtil::getFunctionNameIndex(source, actual));
+  EXPECT_TRUE(BytecodeUtil::getFunctionNameIndex(source, actual));
   EXPECT_FALSE(actual.empty());
   EXPECT_EQ(actual.find(0)->second, "proxy_abi_version_0_2_0");
 
@@ -66,10 +66,10 @@ TEST(TestWasmCommonUtil, getFunctionNameIndex) {
   // TODO(@mathetake): here we haven't covered all the parsing failure branches. Add more cases.
   actual = {};
   std::string_view name_section = {};
-  EXPECT_TRUE(WasmUtil::getCustomSection(source, "name", name_section));
+  EXPECT_TRUE(BytecodeUtil::getCustomSection(source, "name", name_section));
   // Passing module with malformed custom section.
   std::string corrupted = {source.data(), name_section.data() + 1};
-  EXPECT_FALSE(WasmUtil::getFunctionNameIndex(corrupted, actual));
+  EXPECT_FALSE(BytecodeUtil::getFunctionNameIndex(corrupted, actual));
   EXPECT_TRUE(actual.empty());
 }
 
@@ -77,7 +77,7 @@ TEST(TestWasmCommonUtil, getStrippedSource) {
   // Unmodified case.
   auto source = readTestWasmFile("abi_export.wasm");
   std::string actual;
-  EXPECT_TRUE(WasmUtil::getStrippedSource(source, actual));
+  EXPECT_TRUE(BytecodeUtil::getStrippedSource(source, actual));
   // No `precompiled_` is found in the custom sections.
   EXPECT_TRUE(actual.empty());
 
@@ -96,12 +96,12 @@ TEST(TestWasmCommonUtil, getStrippedSource) {
 
   source.append(custom_section.data(), custom_section.size());
   std::string_view section = {};
-  EXPECT_TRUE(WasmUtil::getCustomSection(source, "precompiled_test", section));
+  EXPECT_TRUE(BytecodeUtil::getCustomSection(source, "precompiled_test", section));
   EXPECT_FALSE(section.empty());
 
   // Chcek if the custom section is stripped.
   actual = {};
-  EXPECT_TRUE(WasmUtil::getStrippedSource(source, actual));
+  EXPECT_TRUE(BytecodeUtil::getStrippedSource(source, actual));
   // No `precompiled_` is found in the custom sections.
   EXPECT_FALSE(actual.empty());
   EXPECT_EQ(actual.size(), source.size() - custom_section.size());

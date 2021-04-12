@@ -21,7 +21,7 @@ namespace proxy_wasm {
 namespace common {
 
 // Utilitiy functions which directly operate on Wasm bytecodes.
-class WasmUtil {
+class BytecodeUtil {
 public:
   /**
    * checkWasmHeader validates Wasm header.

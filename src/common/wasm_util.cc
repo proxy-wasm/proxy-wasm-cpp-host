@@ -18,13 +18,13 @@
 namespace proxy_wasm {
 namespace common {
 
-bool WasmUtil::checkWasmHeader(std::string_view bytecode) {
+bool BytecodeUtil::checkWasmHeader(std::string_view bytecode) {
   static const uint8_t wasm_magic_number[4] = {0x00, 0x61, 0x73, 0x6d};
   return bytecode.size() < 8 || !::memcmp(bytecode.data(), wasm_magic_number, 4);
 }
 
-bool WasmUtil::getCustomSection(std::string_view bytecode, std::string_view name,
-                                std::string_view &ret) {
+bool BytecodeUtil::getCustomSection(std::string_view bytecode, std::string_view name,
+                                    std::string_view &ret) {
   // Skip the Wasm header.
   const char *pos = bytecode.data() + 8;
   const char *end = bytecode.data() + bytecode.size();
@@ -41,7 +41,7 @@ bool WasmUtil::getCustomSection(std::string_view bytecode, std::string_view name
       // Custom section.
       const auto section_data_start = pos;
       uint32_t section_name_len = 0;
-      if (!WasmUtil::parseVarint(pos, end, section_name_len) || pos + section_name_len > end) {
+      if (!BytecodeUtil::parseVarint(pos, end, section_name_len) || pos + section_name_len > end) {
         return false;
       }
       if (section_name_len == name.size() && ::memcmp(pos, name.data(), section_name_len) == 0) {
@@ -58,10 +58,10 @@ bool WasmUtil::getCustomSection(std::string_view bytecode, std::string_view name
   return true;
 };
 
-bool WasmUtil::getFunctionNameIndex(std::string_view bytecode,
-                                    std::unordered_map<uint32_t, std::string> &ret) {
+bool BytecodeUtil::getFunctionNameIndex(std::string_view bytecode,
+                                        std::unordered_map<uint32_t, std::string> &ret) {
   std::string_view name_section = {};
-  if (!WasmUtil::getCustomSection(bytecode, "name", name_section)) {
+  if (!BytecodeUtil::getCustomSection(bytecode, "name", name_section)) {
     return false;
   };
   if (!name_section.empty()) {
@@ -106,7 +106,7 @@ bool WasmUtil::getFunctionNameIndex(std::string_view bytecode,
   return true;
 }
 
-bool WasmUtil::getStrippedSource(std::string_view bytecode, std::string &ret) {
+bool BytecodeUtil::getStrippedSource(std::string_view bytecode, std::string &ret) {
   // Skip the Wasm header.
   const char *pos = bytecode.data() + 8;
   const char *end = bytecode.data() + bytecode.size();
@@ -147,7 +147,7 @@ bool WasmUtil::getStrippedSource(std::string_view bytecode, std::string &ret) {
   return true;
 }
 
-bool WasmUtil::parseVarint(const char *&pos, const char *end, uint32_t &ret) {
+bool BytecodeUtil::parseVarint(const char *&pos, const char *end, uint32_t &ret) {
   uint32_t shift = 0;
   char b;
   do {

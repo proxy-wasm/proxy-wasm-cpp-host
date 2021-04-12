@@ -114,12 +114,12 @@ private:
 bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
   store_ = wasm_store_new(engine());
 
-  if (!common::WasmUtil::checkWasmHeader(code)) {
+  if (!common::BytecodeUtil::checkWasmHeader(code)) {
     return false;
   }
 
   std::string stripped_vec;
-  if (!common::WasmUtil::getStrippedSource(code, stripped_vec)) {
+  if (!common::BytecodeUtil::getStrippedSource(code, stripped_vec)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   };
