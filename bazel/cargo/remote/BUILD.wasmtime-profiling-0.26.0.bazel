@@ -25,16 +25,15 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "hermit_abi",
+    name = "wasmtime_profiling",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -47,9 +46,16 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.18",
+    version = "0.26.0",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__anyhow__1_0_40//:anyhow",
+        "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
+        "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
         "@proxy_wasm_cpp_host__libc__0_2_93//:libc",
+        "@proxy_wasm_cpp_host__serde__1_0_125//:serde",
+        "@proxy_wasm_cpp_host__target_lexicon__0_12_0//:target_lexicon",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_26_0//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__wasmtime_runtime__0_26_0//:wasmtime_runtime",
     ],
 )

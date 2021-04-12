@@ -31,15 +31,14 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "hermit_abi",
+    name = "glob",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -47,9 +46,10 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.18",
+    version = "0.3.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__libc__0_2_93//:libc",
     ],
 )
+
+# Unsupported target "glob-std" with type "test" omitted

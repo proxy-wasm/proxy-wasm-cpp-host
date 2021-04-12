@@ -18,12 +18,14 @@
 #include <cassert>
 #include <iomanip>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <sstream>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
+#include "v8.h"
 #include "v8-version.h"
 #include "wasm-api/wasm.hh"
 
@@ -31,7 +33,14 @@ namespace proxy_wasm {
 namespace {
 
 wasm::Engine *engine() {
-  static const auto engine = wasm::Engine::make();
+  static std::once_flag init;
+  static wasm::own<wasm::Engine> engine;
+
+  std::call_once(init, []() {
+    v8::V8::EnableWebAssemblyTrapHandler(true);
+    engine = wasm::Engine::make();
+  });
+
   return engine.get();
 }
 

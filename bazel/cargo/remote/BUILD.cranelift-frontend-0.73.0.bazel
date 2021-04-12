@@ -25,16 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "hermit_abi",
+    name = "cranelift_frontend",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -47,9 +48,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.18",
+    version = "0.73.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__libc__0_2_93//:libc",
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_73_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__log__0_4_14//:log",
+        "@proxy_wasm_cpp_host__smallvec__1_6_1//:smallvec",
+        "@proxy_wasm_cpp_host__target_lexicon__0_12_0//:target_lexicon",
     ],
 )
