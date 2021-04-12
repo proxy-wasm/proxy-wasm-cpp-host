@@ -173,5 +173,26 @@ TEST_P(TestVM, Trap) {
   ASSERT_TRUE(integration_->error_message_.find(exp_message) != std::string::npos);
 }
 
+TEST_P(TestVM, WithPrecompiledSection) {
+  // Verify that stripping precompile_* custom section works.
+  initialize("abi_export.wasm");
+  // Append precompiled_test section
+  std::vector<char> custom_section = {// custom section id
+                                      0x00,
+                                      // section length
+                                      0x13,
+                                      // name length
+                                      0x10,
+                                      // name = precompiled_test
+                                      0x70, 0x72, 0x65, 0x63, 0x6f, 0x6d, 0x70, 0x69, 0x6c, 0x65,
+                                      0x64, 0x5f, 0x74, 0x65, 0x73, 0x74,
+                                      // content
+                                      0x01, 0x01};
+
+  source_.append(custom_section.data(), custom_section.size());
+  ASSERT_TRUE(vm_->load(source_, false));
+  ASSERT_EQ(vm_->getAbiVersion(), AbiVersion::ProxyWasm_0_2_0);
+}
+
 } // namespace
 } // namespace proxy_wasm
