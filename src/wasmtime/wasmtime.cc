@@ -115,6 +115,7 @@ bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
   store_ = wasm_store_new(engine());
 
   if (!common::BytecodeUtil::checkWasmHeader(code)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   }
 
@@ -124,17 +125,15 @@ bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
     return false;
   };
 
+  WasmByteVec source_vec;
   if (stripped_vec.empty()) {
     // Use the original bytecode.
-    WasmByteVec source_vec;
     wasm_byte_vec_new(source_vec.get(), code.size(), code.data());
-    module_ = wasm_module_new(store_.get(), source_vec.get());
   } else {
     // Othewise pass the stripped source code.
-    WasmByteVec stripped;
-    wasm_byte_vec_new(stripped.get(), code.size(), code.data());
-    module_ = wasm_module_new(store_.get(), stripped.get());
+    wasm_byte_vec_new(source_vec.get(), stripped_vec.size(), stripped_vec.data());
   }
+  module_ = wasm_module_new(store_.get(), source_vec.get());
 
   if (module_) {
     shared_module_ = wasm_module_share(module_.get());
