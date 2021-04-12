@@ -44,21 +44,6 @@ TEST_P(TestVM, ABIVersion) {
   ASSERT_EQ(vm_->getAbiVersion(), AbiVersion::ProxyWasm_0_2_0);
 }
 
-TEST_P(TestVM, CustomSection) {
-  initialize("abi_export.wasm");
-  char custom_section[12] = {
-      0x00,                         // custom section id
-      0x0a,                         // section length
-      0x04, 0x68, 0x65, 0x79, 0x21, // section name: "hey!"
-      0x68, 0x65, 0x6c, 0x6c, 0x6f, // content: "hello"
-  };
-
-  source_ = source_.append(&custom_section[0], 12);
-  ASSERT_TRUE(vm_->load(source_, false));
-  auto name_section = vm_->getCustomSection("hey!");
-  ASSERT_EQ(name_section, "hello");
-}
-
 TEST_P(TestVM, Memory) {
   initialize("abi_export.wasm");
   ASSERT_TRUE(vm_->load(source_, false));

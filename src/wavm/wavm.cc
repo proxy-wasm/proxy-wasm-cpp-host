@@ -230,7 +230,6 @@ struct Wavm : public WasmVm {
   bool getWord(uint64_t pointer, Word *data) override;
   bool setWord(uint64_t pointer, Word data) override;
   size_t getWordSize() override { return sizeof(uint32_t); };
-  std::string_view getCustomSection(std::string_view name) override;
   std::string_view getPrecompiledSectionName() override;
   AbiVersion getAbiVersion() override;
 
@@ -398,15 +397,6 @@ bool Wavm::getWord(uint64_t pointer, Word *data) {
 bool Wavm::setWord(uint64_t pointer, Word data) {
   uint32_t data32 = data.u32();
   return setMemory(pointer, sizeof(uint32_t), &data32);
-}
-
-std::string_view Wavm::getCustomSection(std::string_view name) {
-  for (auto &section : ir_module_.customSections) {
-    if (section.name == name) {
-      return {reinterpret_cast<char *>(section.data.data()), section.data.size()};
-    }
-  }
-  return {};
 }
 
 std::string_view Wavm::getPrecompiledSectionName() { return "wavm.precompiled_object"; }

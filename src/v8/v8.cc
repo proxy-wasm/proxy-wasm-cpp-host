@@ -25,6 +25,8 @@
 #include <utility>
 #include <vector>
 
+#include "src/common/wasm_util.h"
+
 #include "v8.h"
 #include "v8-version.h"
 #include "wasm-api/wasm.hh"
@@ -64,7 +66,6 @@ public:
 
   bool load(const std::string &code, bool allow_precompiled) override;
   AbiVersion getAbiVersion() override;
-  std::string_view getCustomSection(std::string_view name) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
 
@@ -94,8 +95,6 @@ public:
 #undef _GET_MODULE_FUNCTION
 
 private:
-  void buildFunctionNameIndex();
-  wasm::vec<byte_t> getStrippedSource();
   std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);
 
   template <typename... Args>
@@ -208,21 +207,6 @@ static bool equalValTypes(const wasm::ownvec<wasm::ValType> &left,
   return true;
 }
 
-static uint32_t parseVarint(const byte_t *&pos, const byte_t *end) {
-  uint32_t n = 0;
-  uint32_t shift = 0;
-  byte_t b;
-  do {
-    if (pos + 1 > end) {
-      abort();
-    }
-    b = *pos++;
-    n += (b & 0x7f) << shift;
-    shift += 7;
-  } while ((b & 0x80) != 0);
-  return n;
-}
-
 // Template magic.
 
 template <typename T> struct ConvertWordType {
@@ -279,10 +263,17 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
   source_ = wasm::vec<byte_t>::make_uninitialized(code.size());
   ::memcpy(source_.get(), code.data(), code.size());
 
+  const char *source_begin = source_.get();
+  const char *source_end = source_begin + source_.size();
   if (allow_precompiled) {
     const auto section_name = getPrecompiledSectionName();
     if (!section_name.empty()) {
-      const auto precompiled = getCustomSection(section_name);
+      string_view precompiled = {};
+      if (!common::WasmUtil::getCustomSection(source_begin, source_end, section_name,
+                                              precompiled)) {
+        fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+        return false;
+      }
       if (!precompiled.empty()) {
         auto vec = wasm::vec<byte_t>::make_uninitialized(precompiled.size());
         ::memcpy(vec.get(), precompiled.data(), precompiled.size());
@@ -298,8 +289,11 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
   }
 
   if (!module_) {
-    const auto stripped_source = getStrippedSource();
-    module_ = wasm::Module::make(store_.get(), stripped_source ? stripped_source : source_);
+    const std::vector<char> stripped =
+        common::WasmUtil::getStrippedSource(source_begin, source_end);
+    module_ = wasm::Module::make(
+        store_.get(),
+        stripped.empty() ? source_ : wasm::vec<byte_t>::make(stripped.size(), stripped.data()));
   }
 
   if (module_) {
@@ -307,56 +301,10 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     assert((shared_module_ != nullptr));
   }
 
-  buildFunctionNameIndex();
-
+  if (!common::WasmUtil::getFunctionNameIndex(source_begin, source_end, function_names_index_)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+  };
   return module_ != nullptr;
-}
-
-void V8::buildFunctionNameIndex() {
-  // build function index -> function name map for backtrace
-  // https://webassembly.github.io/spec/core/appendix/custom.html#binary-namesubsection
-  auto name_section = getCustomSection("name");
-  if (name_section.size()) {
-    const byte_t *pos = name_section.data();
-    const byte_t *end = name_section.data() + name_section.size();
-    while (pos < end) {
-      if (*pos++ != 1) {
-        pos += parseVarint(pos, end);
-      } else {
-        const auto size = parseVarint(pos, end);
-        if (size == static_cast<uint32_t>(-1) || pos + size > end) {
-          function_names_index_ = {};
-          return;
-        }
-        const auto start = pos;
-        const auto namemap_vector_size = parseVarint(pos, end);
-        if (namemap_vector_size == static_cast<uint32_t>(-1) || pos + namemap_vector_size > end) {
-          function_names_index_ = {};
-          return;
-        }
-        for (auto i = 0; i < namemap_vector_size; i++) {
-          const auto func_index = parseVarint(pos, end);
-          if (func_index == static_cast<uint32_t>(-1)) {
-            function_names_index_ = {};
-            return;
-          }
-
-          const auto func_name_size = parseVarint(pos, end);
-          if (func_name_size == static_cast<uint32_t>(-1) || pos + func_name_size > end) {
-            function_names_index_ = {};
-            return;
-          }
-          function_names_index_.insert({func_index, std::string(pos, func_name_size)});
-          pos += func_name_size;
-        }
-
-        if (start + size != pos) {
-          function_names_index_ = {};
-          return;
-        }
-      }
-    }
-  }
 }
 
 std::unique_ptr<WasmVm> V8::clone() {
@@ -370,93 +318,6 @@ std::unique_ptr<WasmVm> V8::clone() {
   clone->function_names_index_ = function_names_index_;
 
   return clone;
-}
-
-// Get Wasm module without Custom Sections to save some memory in workers.
-wasm::vec<byte_t> V8::getStrippedSource() {
-  assert(source_.get() != nullptr);
-
-  std::vector<byte_t> stripped;
-
-  const byte_t *pos = source_.get() + 8 /* Wasm header */;
-  const byte_t *end = source_.get() + source_.size();
-  while (pos < end) {
-    const auto section_start = pos;
-    if (pos + 1 > end) {
-      return wasm::vec<byte_t>::invalid();
-    }
-    const auto section_type = *pos++;
-    const auto section_len = parseVarint(pos, end);
-    if (section_len == static_cast<uint32_t>(-1) || pos + section_len > end) {
-      return wasm::vec<byte_t>::invalid();
-    }
-    if (section_type == 0 /* custom section */) {
-      const auto section_data_start = pos;
-      const auto section_name_len = parseVarint(pos, end);
-      if (section_name_len == static_cast<uint32_t>(-1) || pos + section_name_len > end) {
-        return wasm::vec<byte_t>::invalid();
-      }
-      auto section_name = std::string_view(pos, section_name_len);
-      if (section_name.find("precompiled_") != std::string::npos) {
-        // If this is the first "precompiled_" section, then save everything
-        // before it, otherwise skip it.
-        if (stripped.empty()) {
-          const byte_t *start = source_.get();
-          stripped.insert(stripped.end(), start, section_start);
-        }
-      }
-      pos = section_data_start + section_len;
-    } else {
-      pos += section_len;
-      // Save this section if we already saw a custom "precompiled_" section.
-      if (!stripped.empty()) {
-        stripped.insert(stripped.end(), section_start, pos /* section end */);
-      }
-    }
-  }
-
-  // No custom sections found, use the original source.
-  if (stripped.empty()) {
-    return wasm::vec<byte_t>::invalid();
-  }
-
-  // Return stripped source, without custom sections.
-  return wasm::vec<byte_t>::make(stripped.size(), stripped.data());
-}
-
-std::string_view V8::getCustomSection(std::string_view name) {
-  assert(source_.get() != nullptr);
-
-  const byte_t *pos = source_.get() + 8 /* Wasm header */;
-  const byte_t *end = source_.get() + source_.size();
-  while (pos < end) {
-    if (pos + 1 > end) {
-      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-      return "";
-    }
-    const auto section_type = *pos++;
-    const auto section_len = parseVarint(pos, end);
-    if (section_len == static_cast<uint32_t>(-1) || pos + section_len > end) {
-      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-      return "";
-    }
-    if (section_type == 0 /* custom section */) {
-      const auto section_data_start = pos;
-      const auto section_name_len = parseVarint(pos, end);
-      if (section_name_len == static_cast<uint32_t>(-1) || pos + section_name_len > end) {
-        fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-        return "";
-      }
-      if (section_name_len == name.size() && ::memcmp(pos, name.data(), section_name_len) == 0) {
-        pos += section_name_len;
-        return {pos, static_cast<size_t>(section_data_start + section_len - pos)};
-      }
-      pos = section_data_start + section_len;
-    } else {
-      pos += section_len;
-    }
-  }
-  return "";
 }
 
 #if defined(__linux__) && defined(__x86_64__)

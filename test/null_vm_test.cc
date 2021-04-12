@@ -68,7 +68,6 @@ TEST_F(BaseVmTest, NullVmStartup) {
   EXPECT_TRUE(wasm_vm->cloneable() == Cloneable::InstantiatedModule);
   auto wasm_vm_clone = wasm_vm->clone();
   EXPECT_TRUE(wasm_vm_clone != nullptr);
-  EXPECT_TRUE(wasm_vm->getCustomSection("user").empty());
   EXPECT_TRUE(wasm_vm->load("test_null_vm_plugin", true));
   EXPECT_NE(test_null_vm_plugin, nullptr);
 }
