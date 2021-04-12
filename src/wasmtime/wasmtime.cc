@@ -118,7 +118,7 @@ bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
     return false;
   }
 
-  std::vector<uint8_t> stripped_vec;
+  std::string stripped_vec;
   if (!common::WasmUtil::getStrippedSource(code, stripped_vec)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;

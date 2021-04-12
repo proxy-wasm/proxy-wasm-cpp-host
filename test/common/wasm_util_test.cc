@@ -76,7 +76,7 @@ TEST(TestWasmCommonUtil, getFunctionNameIndex) {
 TEST(TestWasmCommonUtil, getStrippedSource) {
   // Unmodified case.
   auto source = readTestWasmFile("abi_export.wasm");
-  std::vector<uint8_t> actual;
+  std::string actual;
   EXPECT_TRUE(WasmUtil::getStrippedSource(source, actual));
   // No `precompiled_` is found in the custom sections.
   EXPECT_TRUE(actual.empty());
