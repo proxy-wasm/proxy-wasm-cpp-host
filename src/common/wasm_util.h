@@ -23,11 +23,16 @@ namespace common {
 // Utilitiy functions which directly operate on Wasm bytecodes.
 class WasmUtil {
 public:
+  /**
+   * checkWasmHeader validates Wasm header.
+   * @param bytecode is the target bytecode.
+   * @return indicates whether the bytecode has valid Wasm header.
+   */
   static bool checkWasmHeader(std::string_view bytecode);
+
   /**
    * getCustomSection extract the view of the custom section for a given name.
-   * @param begin is the beggining of bytecode.
-   * @param end is the end of bytecode.
+   * @param bytecode is the target bytecode.
    * @param name is the name of the custom section.
    * @param ret is the reference to store the resulting view to the custom section.
    * @return indicates whether parsing succeeded or not.
@@ -39,8 +44,7 @@ public:
    * getFunctionNameIndex constructs the map from function indexes to function names stored in
    * the function name subsection in "name" custom section.
    * See https://webassembly.github.io/spec/core/appendix/custom.html#binary-funcnamesec for detail.
-   * @param begin is the beggining of bytecode.
-   * @param end is the end of bytecode.
+   * @param bytecode is the target bytecode.
    * @param ret the reference to store map from function indexes to function names.
    * @return indicates whether parsing succeeded or not.
    */
@@ -49,8 +53,7 @@ public:
 
   /**
    * getStrippedSource gets Wasm module without Custom Sections to save some memory in workers.
-   * @param begin is the beggining of original bytecode.
-   * @param end is the end of original bytecode.
+   * @param bytecode is the original bytecode.
    * @param ret the reference to the stripped bytecode.
    * @return indicates whether parsing succeeded or not.
    */
