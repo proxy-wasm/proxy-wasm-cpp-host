@@ -25,6 +25,11 @@ bool BytecodeUtil::checkWasmHeader(std::string_view bytecode) {
 
 bool BytecodeUtil::getCustomSection(std::string_view bytecode, std::string_view name,
                                     std::string_view &ret) {
+  // Check Wasm header.
+  if (!checkWasmHeader(bytecode)) {
+    return false;
+  }
+
   // Skip the Wasm header.
   const char *pos = bytecode.data() + 8;
   const char *end = bytecode.data() + bytecode.size();
@@ -107,6 +112,11 @@ bool BytecodeUtil::getFunctionNameIndex(std::string_view bytecode,
 }
 
 bool BytecodeUtil::getStrippedSource(std::string_view bytecode, std::string &ret) {
+  // Check Wasm header.
+  if (!checkWasmHeader(bytecode)) {
+    return false;
+  }
+
   // Skip the Wasm header.
   const char *pos = bytecode.data() + 8;
   const char *end = bytecode.data() + bytecode.size();
