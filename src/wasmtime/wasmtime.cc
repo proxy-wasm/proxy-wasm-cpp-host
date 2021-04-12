@@ -99,7 +99,6 @@ private:
   void getModuleFunctionImpl(std::string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
 
-  WasmByteVec source_;
   WasmStorePtr store_;
   WasmModulePtr module_;
   WasmSharedModulePtr shared_module_;
@@ -115,29 +114,25 @@ private:
 bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
   store_ = wasm_store_new(engine());
 
-  // Wasm file header is 8 bytes (magic number + version).
-  static const uint8_t magic_number[4] = {0x00, 0x61, 0x73, 0x6d};
-  if (code.size() < 8 || ::memcmp(code.data(), magic_number, 4) != 0) {
+  if (!common::WasmUtil::checkWasmHeader(code)) {
     return false;
   }
 
-  wasm_byte_vec_new_uninitialized(source_.get(), code.size());
-  ::memcpy(source_.get()->data, code.data(), code.size());
-
-  std::vector<char> stripped_vec;
-  if (!common::WasmUtil::getStrippedSource(
-          source_.get()->data, source_.get()->data + source_.get()->size, stripped_vec)) {
+  std::vector<uint8_t> stripped_vec;
+  if (!common::WasmUtil::getStrippedSource(code, stripped_vec)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
   };
 
   if (stripped_vec.empty()) {
-    // Use the original source.
-    module_ = wasm_module_new(store_.get(), source_.get());
+    // Use the original bytecode.
+    WasmByteVec source_vec;
+    wasm_byte_vec_new(source_vec.get(), code.size(), code.data());
+    module_ = wasm_module_new(store_.get(), source_vec.get());
   } else {
     // Othewise pass the stripped source code.
     WasmByteVec stripped;
-    wasm_byte_vec_new_uninitialized(stripped.get(), stripped_vec.size());
-    ::memcpy(stripped.get()->data, stripped_vec.data(), stripped_vec.size());
+    wasm_byte_vec_new(stripped.get(), code.size(), code.data());
     module_ = wasm_module_new(store_.get(), stripped.get());
   }
 

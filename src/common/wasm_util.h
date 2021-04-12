@@ -23,6 +23,7 @@ namespace common {
 // Utilitiy functions which directly operate on Wasm bytecodes.
 class WasmUtil {
 public:
+  static bool checkWasmHeader(std::string_view bytecode);
   /**
    * getCustomSection extract the view of the custom section for a given name.
    * @param begin is the beggining of bytecode.
@@ -31,7 +32,7 @@ public:
    * @param ret is the reference to store the resulting view to the custom section.
    * @return indicates whether parsing succeeded or not.
    */
-  static bool getCustomSection(const char *begin, const char *end, std::string_view name,
+  static bool getCustomSection(std::string_view bytecode, std::string_view name,
                                std::string_view &ret);
 
   /**
@@ -43,7 +44,7 @@ public:
    * @param ret the reference to store map from function indexes to function names.
    * @return indicates whether parsing succeeded or not.
    */
-  static bool getFunctionNameIndex(const char *begin, const char *end,
+  static bool getFunctionNameIndex(std::string_view bytecode,
                                    std::unordered_map<uint32_t, std::string> &ret);
 
   /**
@@ -53,15 +54,9 @@ public:
    * @param ret the reference to the stripped bytecode.
    * @return indicates whether parsing succeeded or not.
    */
-  static bool getStrippedSource(const char *begin, const char *end, std::vector<char> &ret);
+  static bool getStrippedSource(std::string_view bytecode, std::string &ret);
 
-  /**
-   * parseVarint parses the bytecode following LEB128.
-   * @param begin is the postion where parsing starts.
-   * @param end is the end of bytecode.
-   * @param ret is the reference to store the resulting value.
-   * @return indicates whether parsing succeeded or not.
-   */
+private:
   static bool parseVarint(const char *&begin, const char *end, uint32_t &ret);
 };
 

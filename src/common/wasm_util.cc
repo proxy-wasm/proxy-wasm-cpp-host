@@ -13,16 +13,21 @@
 // limitations under the License.
 
 #include "src/common/wasm_util.h"
-#include <cstdio>
-#include <string.h>
+#include <cstring>
 
 namespace proxy_wasm {
 namespace common {
 
-bool WasmUtil::getCustomSection(const char *begin, const char *end, std::string_view name,
+bool WasmUtil::checkWasmHeader(std::string_view bytecode) {
+  static const uint8_t wasm_magic_number[4] = {0x00, 0x61, 0x73, 0x6d};
+  return bytecode.size() < 8 || !::memcmp(bytecode.data(), wasm_magic_number, 4);
+}
+
+bool WasmUtil::getCustomSection(std::string_view bytecode, std::string_view name,
                                 std::string_view &ret) {
   // Skip the Wasm header.
-  const char *pos = begin + 8;
+  const char *pos = bytecode.data() + 8;
+  const char *end = bytecode.data() + bytecode.size();
   while (pos < end) {
     if (pos + 1 > end) {
       return false;
@@ -53,10 +58,10 @@ bool WasmUtil::getCustomSection(const char *begin, const char *end, std::string_
   return true;
 };
 
-bool WasmUtil::getFunctionNameIndex(const char *begin, const char *end,
+bool WasmUtil::getFunctionNameIndex(std::string_view bytecode,
                                     std::unordered_map<uint32_t, std::string> &ret) {
   std::string_view name_section = {};
-  if (!WasmUtil::getCustomSection(begin, end, "name", name_section)) {
+  if (!WasmUtil::getCustomSection(bytecode, "name", name_section)) {
     return false;
   };
   if (!name_section.empty()) {
@@ -101,9 +106,10 @@ bool WasmUtil::getFunctionNameIndex(const char *begin, const char *end,
   return true;
 }
 
-bool WasmUtil::getStrippedSource(const char *begin, const char *end, std::vector<char> &ret) {
+bool WasmUtil::getStrippedSource(std::string_view bytecode, std::string &ret) {
   // Skip the Wasm header.
-  const char *pos = begin + 8;
+  const char *pos = bytecode.data() + 8;
+  const char *end = bytecode.data() + bytecode.size();
   while (pos < end) {
     const auto section_start = pos;
     if (pos + 1 > end) {
@@ -125,7 +131,7 @@ bool WasmUtil::getStrippedSource(const char *begin, const char *end, std::vector
         // If this is the first "precompiled_" section, then save everything
         // before it, otherwise skip it.
         if (ret.empty()) {
-          const char *start = begin;
+          const char *start = bytecode.data();
           ret.insert(ret.end(), start, section_start);
         }
       }

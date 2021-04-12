@@ -113,7 +113,6 @@ private:
   void getModuleFunctionImpl(std::string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
 
-  wasm::vec<byte_t> source_ = wasm::vec<byte_t>::invalid();
   wasm::own<wasm::Store> store_;
   wasm::own<wasm::Module> module_;
   wasm::own<wasm::Shared<wasm::Module>> shared_module_;
@@ -255,22 +254,15 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
   store_ = wasm::Store::make(engine());
 
   // Wasm file header is 8 bytes (magic number + version).
-  static const uint8_t magic_number[4] = {0x00, 0x61, 0x73, 0x6d};
-  if (code.size() < 8 || ::memcmp(code.data(), magic_number, 4) != 0) {
+  if (!common::WasmUtil::checkWasmHeader(code)) {
     return false;
   }
 
-  source_ = wasm::vec<byte_t>::make_uninitialized(code.size());
-  ::memcpy(source_.get(), code.data(), code.size());
-
-  const char *source_begin = source_.get();
-  const char *source_end = source_begin + source_.size();
   if (allow_precompiled) {
     const auto section_name = getPrecompiledSectionName();
     if (!section_name.empty()) {
-      string_view precompiled = {};
-      if (!common::WasmUtil::getCustomSection(source_begin, source_end, section_name,
-                                              precompiled)) {
+      std::string_view precompiled = {};
+      if (!common::WasmUtil::getCustomSection(code, section_name, precompiled)) {
         fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
         return false;
       }
@@ -289,11 +281,20 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
   }
 
   if (!module_) {
-    const std::vector<char> stripped =
-        common::WasmUtil::getStrippedSource(source_begin, source_end);
-    module_ = wasm::Module::make(
-        store_.get(),
-        stripped.empty() ? source_ : wasm::vec<byte_t>::make(stripped.size(), stripped.data()));
+    std::string stripped;
+    if (!common::WasmUtil::getStrippedSource(code, stripped)) {
+      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+      return false;
+    };
+    wasm::vec<byte_t> code_vec = wasm::vec<byte_t>::invalid();
+    if (stripped.empty()) {
+      // Use the original bytecode.
+      code_vec = wasm::vec<byte_t>::make(code.size(), (char *)(code.data()));
+    } else {
+      // Othewise use the stripped bytecode.
+      code_vec = wasm::vec<byte_t>::make(stripped.size(), stripped.data());
+    }
+    module_ = wasm::Module::make(store_.get(), code_vec);
   }
 
   if (module_) {
@@ -301,7 +302,7 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     assert((shared_module_ != nullptr));
   }
 
-  if (!common::WasmUtil::getFunctionNameIndex(source_begin, source_end, function_names_index_)) {
+  if (!common::WasmUtil::getFunctionNameIndex(code, function_names_index_)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
   };
   return module_ != nullptr;
