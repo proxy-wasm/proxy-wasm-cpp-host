@@ -27,6 +27,8 @@
 #include <utility>
 #include <vector>
 
+#include "src/common/bytecode_util.h"
+
 #include "WAVM/IR/Module.h"
 #include "WAVM/IR/Operators.h"
 #include "WAVM/IR/Types.h"
@@ -230,7 +232,6 @@ struct Wavm : public WasmVm {
   bool getWord(uint64_t pointer, Word *data) override;
   bool setWord(uint64_t pointer, Word data) override;
   size_t getWordSize() override { return sizeof(uint32_t); };
-  std::string_view getCustomSection(std::string_view name) override;
   std::string_view getPrecompiledSectionName() override;
   AbiVersion getAbiVersion() override;
 
@@ -278,6 +279,7 @@ Wavm::~Wavm() {
 std::unique_ptr<WasmVm> Wavm::clone() {
   auto wavm = std::make_unique<Wavm>();
   wavm->integration().reset(integration()->clone());
+  wavm->abi_version_ = abi_version_;
 
   wavm->compartment_ = WAVM::Runtime::cloneCompartment(compartment_);
   wavm->memory_ = WAVM::Runtime::remapToClonedCompartment(memory_, wavm->compartment_);
@@ -301,44 +303,30 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
   if (!loadModule(code, ir_module_)) {
     return false;
   }
-  getAbiVersion(); // Cache ABI version.
-  const CustomSection *precompiled_object_section = nullptr;
+
+  // Get ABI version from bytecode.
+  if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
+  }
+
+  std::string_view precompiled = {};
   if (allow_precompiled) {
-    for (const CustomSection &customSection : ir_module_.customSections) {
-      if (customSection.name == getPrecompiledSectionName()) {
-        precompiled_object_section = &customSection;
-        break;
-      }
+    if (!common::BytecodeUtil::getCustomSection(code, getPrecompiledSectionName(), precompiled)) {
+      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+      return false;
     }
   }
-  if (!precompiled_object_section) {
+  if (precompiled.empty()) {
     module_ = WAVM::Runtime::compileModule(ir_module_);
   } else {
-    module_ = WAVM::Runtime::loadPrecompiledModule(ir_module_, precompiled_object_section->data);
+    module_ = WAVM::Runtime::loadPrecompiledModule(
+        ir_module_, {precompiled.data(), precompiled.data() + precompiled.size()});
   }
   return true;
 }
 
-AbiVersion Wavm::getAbiVersion() {
-  if (abi_version_ != AbiVersion::Unknown) {
-    return abi_version_;
-  }
-  for (auto &e : ir_module_.exports) {
-    if (e.name == "proxy_abi_version_0_1_0") {
-      abi_version_ = AbiVersion::ProxyWasm_0_1_0;
-      return abi_version_;
-    }
-    if (e.name == "proxy_abi_version_0_2_0") {
-      abi_version_ = AbiVersion::ProxyWasm_0_2_0;
-      return abi_version_;
-    }
-    if (e.name == "proxy_abi_version_0_2_1") {
-      abi_version_ = AbiVersion::ProxyWasm_0_2_1;
-      return abi_version_;
-    }
-  }
-  return AbiVersion::Unknown;
-}
+AbiVersion Wavm::getAbiVersion() { return abi_version_; }
 
 bool Wavm::link(std::string_view debug_name) {
   RootResolver rootResolver(compartment_, this);
@@ -398,15 +386,6 @@ bool Wavm::getWord(uint64_t pointer, Word *data) {
 bool Wavm::setWord(uint64_t pointer, Word data) {
   uint32_t data32 = data.u32();
   return setMemory(pointer, sizeof(uint32_t), &data32);
-}
-
-std::string_view Wavm::getCustomSection(std::string_view name) {
-  for (auto &section : ir_module_.customSections) {
-    if (section.name == name) {
-      return {reinterpret_cast<char *>(section.data.data()), section.data.size()};
-    }
-  }
-  return {};
 }
 
 std::string_view Wavm::getPrecompiledSectionName() { return "wavm.precompiled_object"; }

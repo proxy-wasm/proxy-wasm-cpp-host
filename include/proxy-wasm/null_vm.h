@@ -44,7 +44,6 @@ struct NullVm : public WasmVm {
   bool setWord(uint64_t pointer, Word data) override;
   bool getWord(uint64_t pointer, Word *data) override;
   size_t getWordSize() override;
-  std::string_view getCustomSection(std::string_view name) override;
   std::string_view getPrecompiledSectionName() override;
 
 #define _FORWARD_GET_FUNCTION(_T)                                                                  \

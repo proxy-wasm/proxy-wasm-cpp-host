@@ -25,7 +25,9 @@
 #include <vector>
 
 #include "include/proxy-wasm/wasm_vm.h"
+#include "src/common/bytecode_util.h"
 #include "src/wasmtime/types.h"
+
 #include "wasmtime/include/wasm.h"
 
 namespace proxy_wasm {
@@ -57,7 +59,6 @@ public:
 
   bool load(const std::string &code, bool allow_precompiled = false) override;
   AbiVersion getAbiVersion() override;
-  std::string_view getCustomSection(std::string_view name) override;
   bool link(std::string_view debug_name) override;
   std::unique_ptr<WasmVm> clone() override;
   uint64_t getMemorySize() override;
@@ -82,8 +83,6 @@ public:
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
 #undef _GET_MODULE_FUNCTION
 private:
-  bool getStrippedSource(WasmByteVec *out);
-
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
                                 void (*function)(void *, Args...));
@@ -100,50 +99,37 @@ private:
   void getModuleFunctionImpl(std::string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
 
-  WasmByteVec source_;
   WasmStorePtr store_;
   WasmModulePtr module_;
   WasmSharedModulePtr shared_module_;
   WasmInstancePtr instance_;
-
   WasmMemoryPtr memory_;
   WasmTablePtr table_;
 
   std::unordered_map<std::string, HostFuncDataPtr> host_functions_;
   std::unordered_map<std::string, WasmFuncPtr> module_functions_;
-};
 
-// TODO(mathetake): move to proxy_wasm::common::*
-static uint32_t parseVarint(const byte_t *&pos, const byte_t *end) {
-  uint32_t n = 0;
-  uint32_t shift = 0;
-  byte_t b;
-  do {
-    if (pos + 1 > end) {
-      abort();
-    }
-    b = *pos++;
-    n += (b & 0x7f) << shift;
-    shift += 7;
-  } while ((b & 0x80) != 0);
-  return n;
-}
+  AbiVersion abi_version_;
+};
 
 bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
   store_ = wasm_store_new(engine());
 
-  // Wasm file header is 8 bytes (magic number + version).
-  static const uint8_t magic_number[4] = {0x00, 0x61, 0x73, 0x6d};
-  if (code.size() < 8 || ::memcmp(code.data(), magic_number, 4) != 0) {
+  // Get ABI version from bytecode.
+  if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   }
 
-  wasm_byte_vec_new_uninitialized(source_.get(), code.size());
-  ::memcpy(source_.get()->data, code.data(), code.size());
+  std::string stripped;
+  if (!common::BytecodeUtil::getStrippedSource(code, stripped)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
+  };
 
-  WasmByteVec stripped;
-  module_ =
-      wasm_module_new(store_.get(), getStrippedSource(&stripped) ? stripped.get() : source_.get());
+  WasmByteVec stripped_vec;
+  wasm_byte_vec_new(stripped_vec.get(), stripped.size(), stripped.data());
+  module_ = wasm_module_new(store_.get(), stripped_vec.get());
 
   if (module_) {
     shared_module_ = wasm_module_share(module_.get());
@@ -160,56 +146,9 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
   clone->integration().reset(integration()->clone());
   clone->store_ = wasm_store_new(engine());
   clone->module_ = wasm_module_obtain(clone->store_.get(), shared_module_.get());
+  clone->abi_version_ = abi_version_;
+
   return clone;
-}
-
-// TODO(mathetake): move to proxy_wasm::common::*
-bool Wasmtime::getStrippedSource(WasmByteVec *out) {
-  std::vector<byte_t> stripped;
-
-  const byte_t *pos = source_.get()->data + 8 /* Wasm header */;
-  const byte_t *end = source_.get()->data + source_.get()->size;
-  while (pos < end) {
-    const auto section_start = pos;
-    if (pos + 1 > end) {
-      return false;
-    }
-    const auto section_type = *pos++;
-    const auto section_len = parseVarint(pos, end);
-    if (section_len == static_cast<uint32_t>(-1) || pos + section_len > end) {
-      return false;
-    }
-    if (section_type == 0 /* custom section */) {
-      const auto section_data_start = pos;
-      const auto section_name_len = parseVarint(pos, end);
-      if (section_name_len == static_cast<uint32_t>(-1) || pos + section_name_len > end) {
-        return false;
-      }
-      auto section_name = std::string_view(pos, section_name_len);
-      if (section_name.find("precompiled_") != std::string::npos) {
-        // If this is the first "precompiled_" section, then save everything
-        // before it, otherwise skip it.
-        if (stripped.empty()) {
-          const byte_t *start = source_.get()->data;
-          stripped.insert(stripped.end(), start, section_start);
-        }
-      }
-      pos = section_data_start + section_len;
-    } else {
-      pos += section_len;
-      // Save this section if we already saw a custom "precompiled_" section.
-      if (!stripped.empty()) {
-        stripped.insert(stripped.end(), section_start, pos /* section end */);
-      }
-    }
-  }
-
-  if (!stripped.empty()) {
-    wasm_byte_vec_new_uninitialized(out->get(), stripped.size());
-    ::memcpy(out->get()->data, stripped.data(), stripped.size());
-    return true;
-  }
-  return false;
 }
 
 static bool equalValTypes(const wasm_valtype_vec_t *left, const wasm_valtype_vec_t *right) {
@@ -398,41 +337,6 @@ bool Wasmtime::link(std::string_view debug_name) {
     }
   }
   return true;
-}
-
-std::string_view Wasmtime::getCustomSection(std::string_view name) {
-  const byte_t *pos = source_.get()->data + 8 /* Wasm header */;
-  const byte_t *end = source_.get()->data + source_.get()->size;
-  while (pos < end) {
-    if (pos + 1 > end) {
-      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-      return "";
-    }
-    const auto section_type = *pos++;
-    const auto section_len = parseVarint(pos, end);
-    if (section_len == static_cast<uint32_t>(-1) || pos + section_len > end) {
-      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-      return "";
-    }
-
-    if (section_type == 0 /* custom section */) {
-      const auto section_data_start = pos;
-      const auto section_name_len = parseVarint(pos, end);
-      if (section_name_len == static_cast<uint32_t>(-1) || pos + section_name_len > end) {
-        fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-        return "";
-      }
-      if (section_name_len == name.size() && ::memcmp(pos, name.data(), section_name_len) == 0) {
-        pos += section_name_len;
-        return {pos, static_cast<size_t>(section_data_start + section_len - pos)};
-      }
-      pos = section_data_start + section_len;
-    } else {
-      pos += section_len;
-    }
-  }
-
-  return "";
 }
 
 uint64_t Wasmtime::getMemorySize() { return wasm_memory_data_size(memory_.get()); }
@@ -739,27 +643,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   };
 };
 
-AbiVersion Wasmtime::getAbiVersion() {
-  assert(module_ != nullptr);
-  WasmExportTypeVec export_types;
-  wasm_module_exports(module_.get(), export_types.get());
-
-  for (size_t i = 0; i < export_types.get()->size; i++) {
-    const wasm_externtype_t *exp_extern_type = wasm_exporttype_type(export_types.get()->data[i]);
-    if (wasm_externtype_kind(exp_extern_type) == WASM_EXTERN_FUNC) {
-      const wasm_name_t *name_ptr = wasm_exporttype_name(export_types.get()->data[i]);
-      std::string_view name(name_ptr->data, name_ptr->size);
-      if (name == "proxy_abi_version_0_1_0") {
-        return AbiVersion::ProxyWasm_0_1_0;
-      } else if (name == "proxy_abi_version_0_2_0") {
-        return AbiVersion::ProxyWasm_0_2_0;
-      } else if (name == "proxy_abi_version_0_2_1") {
-        return AbiVersion::ProxyWasm_0_2_1;
-      }
-    }
-  }
-  return AbiVersion::Unknown;
-}
+AbiVersion Wasmtime::getAbiVersion() { return abi_version_; }
 
 } // namespace wasmtime
 

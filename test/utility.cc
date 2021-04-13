@@ -32,4 +32,13 @@ std::vector<std::string> getRuntimes() {
   runtimes.pop_back();
   return runtimes;
 }
+
+std::string readTestWasmFile(std::string filename) {
+  auto path = "test/test_data/" + filename;
+  std::ifstream file(path, std::ios::binary);
+  EXPECT_FALSE(file.fail()) << "failed to open: " << path;
+  std::stringstream file_string_stream;
+  file_string_stream << file.rdbuf();
+  return file_string_stream.str();
+}
 } // namespace proxy_wasm

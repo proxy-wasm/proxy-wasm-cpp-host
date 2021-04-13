@@ -35,6 +35,9 @@
 
 namespace proxy_wasm {
 
+std::vector<std::string> getRuntimes();
+std::string readTestWasmFile(std::string filename);
+
 struct DummyIntegration : public WasmVmIntegration {
   ~DummyIntegration() override{};
   WasmVmIntegration *clone() override { return new DummyIntegration{}; }
@@ -81,21 +84,10 @@ public:
     vm_->integration().reset(integration_);
   }
 
+  void initialize(std::string filename) { source_ = readTestWasmFile(filename); }
+
   DummyIntegration *integration_;
-
-  void initialize(std::string filename) {
-    auto path = "test/test_data/" + filename;
-    std::ifstream file(path, std::ios::binary);
-    EXPECT_FALSE(file.fail()) << "failed to open: " << path;
-    std::stringstream file_string_stream;
-    file_string_stream << file.rdbuf();
-    source_ = file_string_stream.str();
-  }
-
   std::string source_;
   std::string runtime_;
 };
-
-std::vector<std::string> getRuntimes();
-
 } // namespace proxy_wasm
