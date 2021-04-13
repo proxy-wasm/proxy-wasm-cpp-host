@@ -78,8 +78,11 @@ TEST(TestWasmCommonUtil, getStrippedSource) {
   auto source = readTestWasmFile("abi_export.wasm");
   std::string actual;
   EXPECT_TRUE(BytecodeUtil::getStrippedSource(source, actual));
-  // No `precompiled_` is found in the custom sections.
-  EXPECT_TRUE(actual.empty());
+  // If no `precompiled_` is found in the custom sections,
+  // then the copy of the original should be returned.
+  EXPECT_FALSE(actual.empty());
+  EXPECT_TRUE(actual.data() != source.data());
+  EXPECT_EQ(actual, source);
 
   // Append "precompiled_test" custom section
   std::vector<char> custom_section = {// custom section id

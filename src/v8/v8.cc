@@ -288,14 +288,7 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
       fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
       return false;
     };
-    wasm::vec<byte_t> code_vec = wasm::vec<byte_t>::invalid();
-    if (stripped.empty()) {
-      // Use the original bytecode.
-      code_vec = wasm::vec<byte_t>::make(code.size(), (char *)(code.data()));
-    } else {
-      // Othewise use the stripped bytecode.
-      code_vec = wasm::vec<byte_t>::make(stripped.size(), stripped.data());
-    }
+    wasm::vec<byte_t> code_vec = wasm::vec<byte_t>::make(stripped.size(), stripped.data());
     module_ = wasm::Module::make(store_.get(), code_vec);
   }
 

@@ -219,6 +219,10 @@ bool BytecodeUtil::getStrippedSource(std::string_view bytecode, std::string &ret
       }
     }
   }
+  if (ret.empty()) {
+    // Copy the original source code if it is empty.
+    ret = std::string(bytecode);
+  }
   return true;
 }
 

@@ -64,7 +64,7 @@ public:
   /**
    * getStrippedSource gets Wasm module without Custom Sections to save some memory in workers.
    * @param bytecode is the original bytecode.
-   * @param ret is the reference to the stripped bytecode.
+   * @param ret is the reference to the stripped bytecode or a copy of the original bytecode.
    * @return indicates whether parsing succeeded or not.
    */
   static bool getStrippedSource(std::string_view bytecode, std::string &ret);

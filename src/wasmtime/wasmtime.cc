@@ -128,13 +128,7 @@ bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
   };
 
   WasmByteVec source_vec;
-  if (stripped_vec.empty()) {
-    // Use the original bytecode.
-    wasm_byte_vec_new(source_vec.get(), code.size(), code.data());
-  } else {
-    // Othewise pass the stripped source code.
-    wasm_byte_vec_new(source_vec.get(), stripped_vec.size(), stripped_vec.data());
-  }
+  wasm_byte_vec_new(source_vec.get(), stripped_vec.size(), stripped_vec.data());
   module_ = wasm_module_new(store_.get(), source_vec.get());
 
   if (module_) {
