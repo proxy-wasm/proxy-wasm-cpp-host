@@ -142,7 +142,7 @@ bool BytecodeUtil::getStrippedSource(std::string_view bytecode, std::string &ret
         // before it, otherwise skip it.
         if (ret.empty()) {
           const char *start = bytecode.data();
-          ret.insert(ret.end(), start, section_start);
+          ret.append(start, section_start);
         }
       }
       pos = section_data_start + section_len;
@@ -150,7 +150,7 @@ bool BytecodeUtil::getStrippedSource(std::string_view bytecode, std::string &ret
       pos += section_len;
       // Save this section if we already saw a custom "precompiled_" section.
       if (!ret.empty()) {
-        ret.insert(ret.end(), section_start, pos /* section end */);
+        ret.append(section_start, pos);
       }
     }
   }
