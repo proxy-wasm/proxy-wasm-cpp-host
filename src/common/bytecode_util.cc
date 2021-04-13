@@ -53,13 +53,14 @@ bool BytecodeUtil::getAbiVersion(std::string_view bytecode, proxy_wasm::AbiVersi
         if (!parseVarint(pos, end, export_name_size) || pos + export_name_size > end) {
           return false;
         }
-        const std::string export_name = {pos, export_name_size};
+        const auto name_begin = pos;
         pos += export_name_size;
         if (pos + 1 > end) {
           return false;
         }
         // Check if it is a function type export
         if (*pos++ == 0x00) {
+          const std::string export_name = {name_begin, export_name_size};
           // Check the name of the function.
           if (export_name == "proxy_abi_version_0_1_0") {
             ret = AbiVersion::ProxyWasm_0_1_0;
