@@ -27,6 +27,8 @@
 #include <utility>
 #include <vector>
 
+#include "src/common/wasm_util.h"
+
 #include "WAVM/IR/Module.h"
 #include "WAVM/IR/Operators.h"
 #include "WAVM/IR/Types.h"
@@ -301,19 +303,18 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
     return false;
   }
   getAbiVersion(); // Cache ABI version.
-  const CustomSection *precompiled_object_section = nullptr;
+  std::string_view precompiled = {};
   if (allow_precompiled) {
-    for (const CustomSection &customSection : ir_module_.customSections) {
-      if (customSection.name == getPrecompiledSectionName()) {
-        precompiled_object_section = &customSection;
-        break;
-      }
+    if (!common::BytecodeUtil::getCustomSection(code, getPrecompiledSectionName(), precompiled)) {
+      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+      return false;
     }
   }
-  if (!precompiled_object_section) {
+  if (precompiled.empty()) {
     module_ = WAVM::Runtime::compileModule(ir_module_);
   } else {
-    module_ = WAVM::Runtime::loadPrecompiledModule(ir_module_, precompiled_object_section->data);
+    module_ = WAVM::Runtime::loadPrecompiledModule(
+        ir_module_, {precompiled.data(), precompiled.data() + precompiled.size()});
   }
   return true;
 }
