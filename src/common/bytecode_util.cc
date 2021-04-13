@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "src/common/wasm_util.h"
+#include "src/common/bytecode_util.h"
 #include <cstring>
 
 namespace proxy_wasm {

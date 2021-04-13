@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-#include "src/common/wasm_util.h"
+#include "src/common/bytecode_util.h"
 
 #include "WAVM/IR/Module.h"
 #include "WAVM/IR/Operators.h"

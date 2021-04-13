@@ -25,7 +25,7 @@
 #include <vector>
 
 #include "include/proxy-wasm/wasm_vm.h"
-#include "src/common/wasm_util.h"
+#include "src/common/bytecode_util.h"
 #include "src/wasmtime/types.h"
 
 #include "wasmtime/include/wasm.h"

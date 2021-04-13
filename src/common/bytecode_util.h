@@ -45,7 +45,7 @@ public:
    * the function name subsection in "name" custom section.
    * See https://webassembly.github.io/spec/core/appendix/custom.html#binary-funcnamesec for detail.
    * @param bytecode is the target bytecode.
-   * @param ret the reference to store map from function indexes to function names.
+   * @param ret is the reference to store map from function indexes to function names.
    * @return indicates whether parsing succeeded or not.
    */
   static bool getFunctionNameIndex(std::string_view bytecode,
@@ -54,7 +54,7 @@ public:
   /**
    * getStrippedSource gets Wasm module without Custom Sections to save some memory in workers.
    * @param bytecode is the original bytecode.
-   * @param ret the reference to the stripped bytecode.
+   * @param ret is the reference to the stripped bytecode.
    * @return indicates whether parsing succeeded or not.
    */
   static bool getStrippedSource(std::string_view bytecode, std::string &ret);

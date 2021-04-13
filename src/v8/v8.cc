@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-#include "src/common/wasm_util.h"
+#include "src/common/bytecode_util.h"
 
 #include "v8.h"
 #include "v8-version.h"
@@ -290,7 +290,7 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     wasm::vec<byte_t> code_vec = wasm::vec<byte_t>::invalid();
     if (stripped.empty()) {
       // Use the original bytecode.
-      code_vec = wasm::vec<byte_t>::make(code.size(), (char *)(code.data()));
+      code_vec = wasm::vec<byte_t>::make(code.size(), code.data());
     } else {
       // Othewise use the stripped bytecode.
       code_vec = wasm::vec<byte_t>::make(stripped.size(), stripped.data());
