@@ -115,11 +115,6 @@ private:
 bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
   store_ = wasm_store_new(engine());
 
-  if (!common::BytecodeUtil::checkWasmHeader(code)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-    return false;
-  }
-
   // Get ABI version from bytecode.
   if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");

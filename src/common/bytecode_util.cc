@@ -19,6 +19,7 @@ namespace proxy_wasm {
 namespace common {
 
 bool BytecodeUtil::checkWasmHeader(std::string_view bytecode) {
+  // Wasm file header is 8 bytes (magic number + version).
   static const uint8_t wasm_magic_number[4] = {0x00, 0x61, 0x73, 0x6d};
   return bytecode.size() < 8 || !::memcmp(bytecode.data(), wasm_magic_number, 4);
 }
@@ -29,6 +30,7 @@ bool BytecodeUtil::getAbiVersion(std::string_view bytecode, proxy_wasm::AbiVersi
   if (!checkWasmHeader(bytecode)) {
     return false;
   }
+
   // Skip the Wasm header.
   const char *pos = bytecode.data() + 8;
   const char *end = bytecode.data() + bytecode.size();

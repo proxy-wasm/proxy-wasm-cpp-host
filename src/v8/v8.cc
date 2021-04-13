@@ -254,12 +254,6 @@ template <typename T, typename U> constexpr T convertValTypesToArgsTuple(const U
 bool V8::load(const std::string &code, bool allow_precompiled) {
   store_ = wasm::Store::make(engine());
 
-  // Wasm file header is 8 bytes (magic number + version).
-  if (!common::BytecodeUtil::checkWasmHeader(code)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-    return false;
-  }
-
   // Get ABI version from bytecode.
   if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");

@@ -33,9 +33,9 @@ public:
   static bool checkWasmHeader(std::string_view bytecode);
 
   /**
-   * checkWasmHeader extracts ABI version from the bytecode.
+   * getAbiVersion extracts ABI version from the bytecode.
    * @param bytecode is the target bytecode.
-   * @param ret is the reference to store the extracted ABI version or UnKnonw if it doesn't exist.
+   * @param ret is the reference to store the extracted ABI version or UnKnown if it doesn't exist.
    * @return indicates whether parsing succeeded or not.
    */
   static bool getAbiVersion(std::string_view bytecode, proxy_wasm::AbiVersion &ret);
