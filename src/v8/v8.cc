@@ -123,6 +123,7 @@ private:
   std::unordered_map<std::string, FuncDataPtr> host_functions_;
   std::unordered_map<std::string, wasm::own<wasm::Func>> module_functions_;
 
+  AbiVersion abi_version_;
   std::unordered_map<uint32_t, std::string> function_names_index_;
 };
 
@@ -259,6 +260,12 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     return false;
   }
 
+  // Get ABI version from bytecode.
+  if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
+  }
+
   if (allow_precompiled) {
     const auto section_name = getPrecompiledSectionName();
     if (!section_name.empty()) {
@@ -290,7 +297,7 @@ bool V8::load(const std::string &code, bool allow_precompiled) {
     wasm::vec<byte_t> code_vec = wasm::vec<byte_t>::invalid();
     if (stripped.empty()) {
       // Use the original bytecode.
-      code_vec = wasm::vec<byte_t>::make(code.size(), code.data());
+      code_vec = wasm::vec<byte_t>::make(code.size(), (char *)(code.data()));
     } else {
       // Othewise use the stripped bytecode.
       code_vec = wasm::vec<byte_t>::make(stripped.size(), stripped.data());
@@ -320,6 +327,7 @@ std::unique_ptr<WasmVm> V8::clone() {
 
   clone->module_ = wasm::Module::obtain(clone->store_.get(), shared_module_.get());
   clone->function_names_index_ = function_names_index_;
+  clone->abi_version_ = abi_version_;
 
   return clone;
 }
@@ -340,25 +348,7 @@ std::string_view V8::getPrecompiledSectionName() {
   return name;
 }
 
-AbiVersion V8::getAbiVersion() {
-  assert(module_ != nullptr);
-
-  const auto export_types = module_.get()->exports();
-  for (size_t i = 0; i < export_types.size(); i++) {
-    if (export_types[i]->type()->kind() == wasm::EXTERN_FUNC) {
-      std::string_view name(export_types[i]->name().get(), export_types[i]->name().size());
-      if (name == "proxy_abi_version_0_1_0") {
-        return AbiVersion::ProxyWasm_0_1_0;
-      } else if (name == "proxy_abi_version_0_2_0") {
-        return AbiVersion::ProxyWasm_0_2_0;
-      } else if (name == "proxy_abi_version_0_2_1") {
-        return AbiVersion::ProxyWasm_0_2_1;
-      }
-    }
-  }
-
-  return AbiVersion::Unknown;
-}
+AbiVersion V8::getAbiVersion() { return abi_version_; }
 
 bool V8::link(std::string_view debug_name) {
   assert(module_ != nullptr);

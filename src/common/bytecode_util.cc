@@ -77,7 +77,7 @@ bool BytecodeUtil::getAbiVersion(std::string_view bytecode, proxy_wasm::AbiVersi
           return false;
         }
       }
-      return false;
+      return true;
     } else {
       pos += section_len;
     }

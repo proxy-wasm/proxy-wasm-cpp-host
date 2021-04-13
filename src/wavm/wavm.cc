@@ -279,6 +279,7 @@ Wavm::~Wavm() {
 std::unique_ptr<WasmVm> Wavm::clone() {
   auto wavm = std::make_unique<Wavm>();
   wavm->integration().reset(integration()->clone());
+  wavm->abi_version_ = abi_version_;
 
   wavm->compartment_ = WAVM::Runtime::cloneCompartment(compartment_);
   wavm->memory_ = WAVM::Runtime::remapToClonedCompartment(memory_, wavm->compartment_);
@@ -302,7 +303,13 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
   if (!loadModule(code, ir_module_)) {
     return false;
   }
-  getAbiVersion(); // Cache ABI version.
+
+  // Get ABI version from bytecode.
+  if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
+  }
+
   std::string_view precompiled = {};
   if (allow_precompiled) {
     if (!common::BytecodeUtil::getCustomSection(code, getPrecompiledSectionName(), precompiled)) {
@@ -319,26 +326,7 @@ bool Wavm::load(const std::string &code, bool allow_precompiled) {
   return true;
 }
 
-AbiVersion Wavm::getAbiVersion() {
-  if (abi_version_ != AbiVersion::Unknown) {
-    return abi_version_;
-  }
-  for (auto &e : ir_module_.exports) {
-    if (e.name == "proxy_abi_version_0_1_0") {
-      abi_version_ = AbiVersion::ProxyWasm_0_1_0;
-      return abi_version_;
-    }
-    if (e.name == "proxy_abi_version_0_2_0") {
-      abi_version_ = AbiVersion::ProxyWasm_0_2_0;
-      return abi_version_;
-    }
-    if (e.name == "proxy_abi_version_0_2_1") {
-      abi_version_ = AbiVersion::ProxyWasm_0_2_1;
-      return abi_version_;
-    }
-  }
-  return AbiVersion::Unknown;
-}
+AbiVersion Wavm::getAbiVersion() { return abi_version_; }
 
 bool Wavm::link(std::string_view debug_name) {
   RootResolver rootResolver(compartment_, this);

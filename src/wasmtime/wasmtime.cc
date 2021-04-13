@@ -103,18 +103,25 @@ private:
   WasmModulePtr module_;
   WasmSharedModulePtr shared_module_;
   WasmInstancePtr instance_;
-
   WasmMemoryPtr memory_;
   WasmTablePtr table_;
 
   std::unordered_map<std::string, HostFuncDataPtr> host_functions_;
   std::unordered_map<std::string, WasmFuncPtr> module_functions_;
+
+  AbiVersion abi_version_;
 };
 
 bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
   store_ = wasm_store_new(engine());
 
   if (!common::BytecodeUtil::checkWasmHeader(code)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
+  }
+
+  // Get ABI version from bytecode.
+  if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   }
@@ -150,6 +157,8 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
   clone->integration().reset(integration()->clone());
   clone->store_ = wasm_store_new(engine());
   clone->module_ = wasm_module_obtain(clone->store_.get(), shared_module_.get());
+  clone->abi_version_ = abi_version_;
+
   return clone;
 }
 
@@ -645,27 +654,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   };
 };
 
-AbiVersion Wasmtime::getAbiVersion() {
-  assert(module_ != nullptr);
-  WasmExportTypeVec export_types;
-  wasm_module_exports(module_.get(), export_types.get());
-
-  for (size_t i = 0; i < export_types.get()->size; i++) {
-    const wasm_externtype_t *exp_extern_type = wasm_exporttype_type(export_types.get()->data[i]);
-    if (wasm_externtype_kind(exp_extern_type) == WASM_EXTERN_FUNC) {
-      const wasm_name_t *name_ptr = wasm_exporttype_name(export_types.get()->data[i]);
-      std::string_view name(name_ptr->data, name_ptr->size);
-      if (name == "proxy_abi_version_0_1_0") {
-        return AbiVersion::ProxyWasm_0_1_0;
-      } else if (name == "proxy_abi_version_0_2_0") {
-        return AbiVersion::ProxyWasm_0_2_0;
-      } else if (name == "proxy_abi_version_0_2_1") {
-        return AbiVersion::ProxyWasm_0_2_1;
-      }
-    }
-  }
-  return AbiVersion::Unknown;
-}
+AbiVersion Wasmtime::getAbiVersion() { return abi_version_; }
 
 } // namespace wasmtime
 
