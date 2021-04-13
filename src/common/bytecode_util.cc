@@ -23,6 +23,68 @@ bool BytecodeUtil::checkWasmHeader(std::string_view bytecode) {
   return bytecode.size() < 8 || !::memcmp(bytecode.data(), wasm_magic_number, 4);
 }
 
+bool BytecodeUtil::getAbiVersion(std::string_view bytecode, proxy_wasm::AbiVersion &ret) {
+  ret = proxy_wasm::AbiVersion::Unknown;
+  // Check Wasm header.
+  if (!checkWasmHeader(bytecode)) {
+    return false;
+  }
+  // Skip the Wasm header.
+  const char *pos = bytecode.data() + 8;
+  const char *end = bytecode.data() + bytecode.size();
+  while (pos < end) {
+    if (pos + 1 > end) {
+      return false;
+    }
+    const auto section_type = *pos++;
+    uint32_t section_len = 0;
+    if (!parseVarint(pos, end, section_len) || pos + section_len > end) {
+      return false;
+    }
+    if (section_type == 7 /* export section */) {
+      uint32_t export_vector_size = 0;
+      if (!parseVarint(pos, end, export_vector_size) || pos + export_vector_size > end) {
+        return false;
+      }
+      // Search thourgh exports.
+      for (uint32_t i = 0; i < export_vector_size; i++) {
+        // Parse name of the export.
+        uint32_t export_name_size = 0;
+        if (!parseVarint(pos, end, export_name_size) || pos + export_name_size > end) {
+          return false;
+        }
+        const std::string export_name = {pos, export_name_size};
+        pos += export_name_size;
+        if (pos + 1 > end) {
+          return false;
+        }
+        // Check if it is a function type export
+        if (*pos++ == 0x00) {
+          // Check the name of the function.
+          if (export_name == "proxy_abi_version_0_1_0") {
+            ret = AbiVersion::ProxyWasm_0_1_0;
+            return true;
+          } else if (export_name == "proxy_abi_version_0_2_0") {
+            ret = AbiVersion::ProxyWasm_0_2_0;
+            return true;
+          } else if (export_name == "proxy_abi_version_0_2_1") {
+            ret = AbiVersion::ProxyWasm_0_2_1;
+            return true;
+          }
+        }
+        // Skip export's index.
+        if (!parseVarint(pos, end, export_name_size)) {
+          return false;
+        }
+      }
+      return false;
+    } else {
+      pos += section_len;
+    }
+  }
+  return true;
+}
+
 bool BytecodeUtil::getCustomSection(std::string_view bytecode, std::string_view name,
                                     std::string_view &ret) {
   // Check Wasm header.

@@ -107,5 +107,12 @@ TEST(TestWasmCommonUtil, getStrippedSource) {
   EXPECT_EQ(actual.size(), source.size() - custom_section.size());
 }
 
+TEST(TestWasmCommonUtil, getAbiVersion) {
+  const auto source = readTestWasmFile("abi_export.wasm");
+  proxy_wasm::AbiVersion actual;
+  EXPECT_TRUE(BytecodeUtil::getAbiVersion(source, actual));
+  EXPECT_EQ(actual, proxy_wasm::AbiVersion::ProxyWasm_0_2_0);
+}
+
 } // namespace common
 } // namespace proxy_wasm

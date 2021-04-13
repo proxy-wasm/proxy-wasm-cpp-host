@@ -17,6 +17,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "include/proxy-wasm/wasm_vm.h"
+
 namespace proxy_wasm {
 namespace common {
 
@@ -29,6 +31,14 @@ public:
    * @return indicates whether the bytecode has valid Wasm header.
    */
   static bool checkWasmHeader(std::string_view bytecode);
+
+  /**
+   * checkWasmHeader extracts ABI version from the bytecode.
+   * @param bytecode is the target bytecode.
+   * @param ret is the reference to store the extracted ABI version or UnKnonw if it doesn't exist.
+   * @return indicates whether parsing succeeded or not.
+   */
+  static bool getAbiVersion(std::string_view bytecode, proxy_wasm::AbiVersion &ret);
 
   /**
    * getCustomSection extract the view of the custom section for a given name.
