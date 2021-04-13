@@ -249,14 +249,6 @@ public:
   virtual size_t getWordSize() = 0;
 
   /**
-   * Get the contents of the custom section with the given name or "" if it does not exist.
-   * @param name the name of the custom section to get.
-   * @return the contents of the custom section (if any). The result will be empty if there
-   * is no such section.
-   */
-  virtual std::string_view getCustomSection(std::string_view name) = 0;
-
-  /**
    * Get the name of the custom section that contains precompiled module.
    * @return the name of the custom section that contains precompiled module.
    */
