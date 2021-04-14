@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "src/wamr/types.h"
-#include "wamr/include/wasm_c_api.h"
+#include "wasm_c_api.h"
 
 namespace proxy_wasm {
 namespace wamr {
