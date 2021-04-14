@@ -59,8 +59,8 @@ public:
   std::string_view runtime() override { return "wamr"; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 
-  Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
-  std::unique_ptr<WasmVm> clone() override;
+  Cloneable cloneable() override { return Cloneable::NotCloneable; }
+  std::unique_ptr<WasmVm> clone() override { return nullptr; };
 
   AbiVersion getAbiVersion() override;
 
@@ -136,30 +136,6 @@ bool Wamr::load(const std::string &code, bool allow_precompiled) {
   module_ = wasm_module_new(store_.get(), stripped_vec.get());
 
   return module_ != nullptr;
-}
-
-std::unique_ptr<WasmVm> Wamr::clone() {
-  assert(module_ != nullptr);
-
-  auto clone = std::make_unique<Wamr>();
-
-  clone->integration().reset(integration()->clone());
-
-  clone->store_ = wasm_store_new(engine());
-
-  std::string stripped;
-  if (!common::BytecodeUtil::getStrippedSource("", stripped)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-    return nullptr;
-  };
-
-  WasmByteVec stripped_vec;
-  wasm_byte_vec_new(stripped_vec.get(), stripped.size(), stripped.data());
-  clone->module_ = wasm_module_new(store_.get(), stripped_vec.get());
-
-  clone->abi_version_ = abi_version_;
-
-  return clone;
 }
 
 static bool equalValTypes(const wasm_valtype_vec_t *left, const wasm_valtype_vec_t *right) {
