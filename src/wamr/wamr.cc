@@ -468,7 +468,8 @@ void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_vi
       store_.get(), type.get(),
       [](void *data, const wasm_val_t params[], wasm_val_t results[]) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<HostFuncData *>(data);
-        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+        const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
+        if (log) {
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params, sizeof...(Args)) + ")");
         }
@@ -476,7 +477,7 @@ void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_vi
         auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
         auto fn = reinterpret_cast<void (*)(void *, Args...)>(func_data->raw_func_);
         std::apply(fn, args);
-        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+        if (log) {
           func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ + " return: void");
         }
         return nullptr;
@@ -500,7 +501,8 @@ void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_vi
       store_.get(), type.get(),
       [](void *data, const wasm_val_t params[], wasm_val_t results[]) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<HostFuncData *>(data);
-        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+        const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
+        if (log) {
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params, sizeof...(Args)) + ")");
         }
@@ -509,7 +511,7 @@ void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_vi
         auto fn = reinterpret_cast<R (*)(void *, Args...)>(func_data->raw_func_);
         R res = std::apply(fn, args);
         assignVal<R>(res, results[0]);
-        if (func_data->vm_->cmpLogLevel(LogLevel::trace)) {
+        if (log) {
           func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ +
                                                " return: " + std::to_string(res));
         }
@@ -552,11 +554,12 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
 
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
     wasm_val_t params[] = {makeVal(args)...};
-    SaveRestoreContext saved_context(context);
-    if (cmpLogLevel(LogLevel::trace)) {
+    const bool log = cmpLogLevel(LogLevel::trace);
+    if (log) {
       integration()->trace("[host->vm] " + std::string(function_name) + "(" +
                            printValues(params, sizeof...(Args)) + ")");
     }
+    SaveRestoreContext saved_context(context);
     WasmTrapPtr trap{wasm_func_call(func, params, nullptr)};
     if (trap) {
       WasmByteVec error_message;
@@ -566,7 +569,7 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
                std::string(error_message.get()->data, error_message.get()->size));
       return;
     }
-    if (cmpLogLevel(LogLevel::trace)) {
+    if (log) {
       integration()->trace("[host<-vm] " + std::string(function_name) + " return: void");
     }
   };
@@ -598,11 +601,12 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
   *function = [func, function_name, this](ContextBase *context, Args... args) -> R {
     wasm_val_t params[] = {makeVal(args)...};
     wasm_val_t results[1];
-    SaveRestoreContext saved_context(context);
-    if (cmpLogLevel(LogLevel::trace)) {
+    const bool log = cmpLogLevel(LogLevel::trace);
+    if (log) {
       integration()->trace("[host->vm] " + std::string(function_name) + "(" +
                            printValues(params, sizeof...(Args)) + ")");
     }
+    SaveRestoreContext saved_context(context);
     WasmTrapPtr trap{wasm_func_call(func, params, results)};
     if (trap) {
       WasmByteVec error_message;
@@ -613,7 +617,7 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
       return R{};
     }
     R ret = convertValueTypeToArg<R>(results[0]);
-    if (cmpLogLevel(LogLevel::trace)) {
+    if (log) {
       integration()->trace("[host<-vm] " + std::string(function_name) +
                            " return: " + std::to_string(ret));
     }
