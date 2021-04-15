@@ -572,14 +572,22 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
-    wasm::Val params[] = {makeVal(args)...};
     const bool log = cmpLogLevel(LogLevel::trace);
-    if (log) {
-      integration()->trace("[host->vm] " + std::string(function_name) + "(" +
-                           printValues(params, sizeof...(Args)) + ")");
-    }
     SaveRestoreContext saved_context(context);
-    auto trap = func->call(params, nullptr);
+    wasm::own<wasm::Trap> trap = nullptr;
+    if constexpr (sizeof...(args) > 0) {
+      wasm::Val params[] = {makeVal(args)...};
+      if (log) {
+        integration()->trace("[host->vm] " + std::string(function_name) + "(" +
+                             printValues(params, sizeof...(Args)) + ")");
+      }
+      trap = func->call(params, nullptr);
+    } else {
+      if (log) {
+        integration()->trace("[host->vm] " + std::string(function_name) + "()");
+      }
+      trap = func->call(nullptr, nullptr);
+    }
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return;
@@ -612,15 +620,23 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
   *function = [func, function_name, this](ContextBase *context, Args... args) -> R {
-    wasm::Val params[] = {makeVal(args)...};
-    wasm::Val results[1];
     const bool log = cmpLogLevel(LogLevel::trace);
-    if (log) {
-      integration()->trace("[host->vm] " + std::string(function_name) + "(" +
-                           printValues(params, sizeof...(Args)) + ")");
-    }
     SaveRestoreContext saved_context(context);
-    auto trap = func->call(params, results);
+    wasm::Val results[1];
+    wasm::own<wasm::Trap> trap = nullptr;
+    if constexpr (sizeof...(args) > 0) {
+      wasm::Val params[] = {makeVal(args)...};
+      if (log) {
+        integration()->trace("[host->vm] " + std::string(function_name) + "(" +
+                             printValues(params, sizeof...(Args)) + ")");
+      }
+      trap = func->call(params, results);
+    } else {
+      if (log) {
+        integration()->trace("[host->vm] " + std::string(function_name) + "()");
+      }
+      trap = func->call(nullptr, results);
+    }
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return R{};
