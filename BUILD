@@ -24,7 +24,7 @@ cc_library(
         ],
         exclude = [
             "src/**/v8*",
-            "src/**/wasmtime*",
+            "src/**/wamr*",
             "src/**/wavm*",
         ],
     ),
@@ -35,6 +35,6 @@ cc_library(
         "@boringssl//:crypto",
         "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
-        "@wamr//:libiwasm",
+        "@wasm_c_api//:wasmtime_lib",
     ],
 )

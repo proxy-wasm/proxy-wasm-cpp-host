@@ -37,25 +37,19 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     http_archive(
-        name = "wasmtime",
-        build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "e95d274822ac72bf06355bdfbeddcacae60d7e98fec8ee4b2e21740636fb5c2c",
-        strip_prefix = "wasmtime-0.26.0",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.26.0.tar.gz",
-    )
-
-    http_archive(
         name = "wamr",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
         sha256 = "f819b9ec866a12086233e578044dd8297e6be86f0f17807b16124f78a3652d4f",
         url = "https://github.com/lum1n0us/wasm-micro-runtime/releases/download/WAMR-01-29-2021/source.zip",
     )
 
-    # native.new_local_repository(
-    #     name = "wamr",
-    #     build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
-    #     path = "/source/wamr",
-    # )
+    http_archive(
+        name = "wasmtime",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
+        sha256 = "e95d274822ac72bf06355bdfbeddcacae60d7e98fec8ee4b2e21740636fb5c2c",
+        strip_prefix = "wasmtime-0.26.0",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.26.0.tar.gz",
+    )
 
     http_archive(
         name = "wasm_c_api",
