@@ -278,22 +278,26 @@ FilterStatus ContextBase::onDownstreamData(uint32_t data_length, bool end_of_str
   PRECHECK_FAIL(on_downstream_data_, WasmStreamType::Downstream, FilterStatus::Continue,
                 FilterStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  auto call_result = wasm_->on_downstream_data_(this, id_, static_cast<uint32_t>(data_length),
-                                                static_cast<uint32_t>(end_of_stream));
+  auto call_result = wasm_
+                         ->on_downstream_data_(this, id_, static_cast<uint32_t>(data_length),
+                                               static_cast<uint32_t>(end_of_stream))
+                         .u64_;
   // TODO(PiotrSikora): pull Proxy-WASM's FilterStatus values.
   POSTCHECK_FAIL(WasmStreamType::Downstream, FilterStatus::Continue, FilterStatus::StopIteration);
-  return call_result.u64_ == 0 ? FilterStatus::Continue : FilterStatus::StopIteration;
+  return call_result == 0 ? FilterStatus::Continue : FilterStatus::StopIteration;
 }
 
 FilterStatus ContextBase::onUpstreamData(uint32_t data_length, bool end_of_stream) {
   PRECHECK_FAIL(on_upstream_data_, WasmStreamType::Upstream, FilterStatus::Continue,
                 FilterStatus::StopIteration);
   DeferAfterCallActions actions(this);
-  auto result = wasm_->on_upstream_data_(this, id_, static_cast<uint32_t>(data_length),
-                                         static_cast<uint32_t>(end_of_stream));
+  auto call_result = wasm_
+                         ->on_upstream_data_(this, id_, static_cast<uint32_t>(data_length),
+                                             static_cast<uint32_t>(end_of_stream))
+                         .u64_;
   // TODO(PiotrSikora): pull Proxy-WASM's FilterStatus values.
   POSTCHECK_FAIL(WasmStreamType::Upstream, FilterStatus::Continue, FilterStatus::StopIteration);
-  return result.u64_ == 0 ? FilterStatus::Continue : FilterStatus::StopIteration;
+  return call_result == 0 ? FilterStatus::Continue : FilterStatus::StopIteration;
 }
 
 void ContextBase::onDownstreamConnectionClose(CloseType close_type) {
@@ -387,20 +391,20 @@ FilterTrailersStatus ContextBase::onResponseTrailers(uint32_t trailers) {
   PRECHECK_FAIL(on_response_trailers_, WasmStreamType::Response, FilterTrailersStatus::Continue,
                 FilterTrailersStatus::StopIteration);
   DeferAfterCallActions actions(this);
+  const auto call_result = wasm_->on_response_trailers_(this, id_, trailers).u64_;
   POSTCHECK_FAIL(WasmStreamType::Response, FilterTrailersStatus::Continue,
                  FilterTrailersStatus::StopIteration);
-  return convertVmCallResultToFilterTrailersStatus(
-      wasm_->on_response_trailers_(this, id_, trailers).u64_);
+  return convertVmCallResultToFilterTrailersStatus(call_result);
 }
 
 FilterMetadataStatus ContextBase::onResponseMetadata(uint32_t elements) {
   PRECHECK_FAIL(on_response_metadata_, WasmStreamType::Response, FilterMetadataStatus::Continue,
                 FilterMetadataStatus::Continue);
   DeferAfterCallActions actions(this);
+  const auto call_result = wasm_->on_response_metadata_(this, id_, elements).u64_;
   POSTCHECK_FAIL(WasmStreamType::Response, FilterMetadataStatus::Continue,
                  FilterMetadataStatus::Continue);
-  return convertVmCallResultToFilterMetadataStatus(
-      wasm_->on_response_metadata_(this, id_, elements).u64_);
+  return convertVmCallResultToFilterMetadataStatus(call_result);
 }
 
 void ContextBase::onHttpCallResponse(uint32_t token, uint32_t headers, uint32_t body_size,
