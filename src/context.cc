@@ -308,7 +308,7 @@ template <typename P> static uint32_t headerSize(const P &p) { return p ? p->siz
 
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_stream) {
   CHECK_HTTP2(on_request_headers_abi_01_, on_request_headers_abi_02_, FilterHeadersStatus::Continue,
-              FilterHeadersStatus::StopIteration);
+              FilterHeadersStatus::StopAllIterationAndWatermark);
   DeferAfterCallActions actions(this);
   return convertVmCallResultToFilterHeadersStatus(
       wasm_->on_request_headers_abi_01_
@@ -343,7 +343,7 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
 
 FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of_stream) {
   CHECK_HTTP2(on_response_headers_abi_01_, on_response_headers_abi_02_,
-              FilterHeadersStatus::Continue, FilterHeadersStatus::StopIteration);
+              FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
   DeferAfterCallActions actions(this);
   return convertVmCallResultToFilterHeadersStatus(
       wasm_->on_response_headers_abi_01_
