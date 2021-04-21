@@ -35,6 +35,17 @@
     }                                                                                              \
   }
 
+#define CHECK_FAIL2(_stream_type, _stream_type2, _return_open, _return_closed)                     \
+  if (isFailed()) {                                                                                \
+    if (plugin_->fail_open_) {                                                                     \
+      return _return_open;                                                                         \
+    } else {                                                                                       \
+      failStream(_stream_type);                                                                    \
+      failStream(_stream_type2);                                                                   \
+      return _return_closed;                                                                       \
+    }                                                                                              \
+  }
+
 namespace proxy_wasm {
 
 DeferAfterCallActions::~DeferAfterCallActions() {
@@ -238,13 +249,15 @@ void ContextBase::onForeignFunction(uint32_t foreign_function_id, uint32_t data_
 }
 
 FilterStatus ContextBase::onNetworkNewConnection() {
-  CHECK_FAIL(WasmStreamType::Downstream, FilterStatus::Continue, FilterStatus::StopIteration);
+  CHECK_FAIL2(WasmStreamType::Downstream, WasmStreamType::Upstream, FilterStatus::Continue,
+              FilterStatus::StopIteration);
   if (!wasm_->on_new_connection_) {
     return FilterStatus::Continue;
   }
   DeferAfterCallActions actions(this);
   const auto call_result = wasm_->on_new_connection_(this, id_).u64_;
-  CHECK_FAIL(WasmStreamType::Downstream, FilterStatus::Continue, FilterStatus::StopIteration);
+  CHECK_FAIL2(WasmStreamType::Downstream, WasmStreamType::Upstream, FilterStatus::Continue,
+              FilterStatus::StopIteration);
   return call_result == 0 ? FilterStatus::Continue : FilterStatus::StopIteration;
 }
 
