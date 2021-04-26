@@ -48,47 +48,60 @@ private:
 };
 
 TEST_P(TestVM, Environment) {
+  // Initialize VM.
   std::unordered_map<std::string, std::string> envs = {{"KEY1", "VALUE1"}, {"KEY2", "VALUE2"}};
-  initialize("env.wasm");
+  initialize(readTestWasmFile("env.wasm"), "vm_id", "", "", envs);
 
-  auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", envs, {});
-  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
-
-  TestContext context(&wasm_base);
+  // Initialize the context.
+  TestContext context(wasmBase());
   current_context_ = &context;
 
-  wasm_base.registerCallbacks();
-
-  ASSERT_TRUE(wasm_base.wasm_vm()->link(""));
-
+  // Call the exported function.
   WasmCallVoid<0> run;
-  wasm_base.wasm_vm()->getFunction("run", &run);
-
+  wasmBase()->wasm_vm()->getFunction("run", &run);
   run(current_context_);
 
+  // Check logs.
   auto msg = context.log_msg();
   EXPECT_NE(std::string::npos, msg.find("KEY1: VALUE1\n")) << msg;
   EXPECT_NE(std::string::npos, msg.find("KEY2: VALUE2\n")) << msg;
 }
 
 TEST_P(TestVM, WithoutEnvironment) {
-  initialize("env.wasm");
-  auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", {}, {});
-  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
+  // Initialize VM.
+  initialize(readTestWasmFile("env.wasm"));
 
-  TestContext context(&wasm_base);
+  // Initialize the context.
+  TestContext context(wasmBase());
   current_context_ = &context;
 
-  wasm_base.registerCallbacks();
-
-  ASSERT_TRUE(wasm_base.wasm_vm()->link(""));
-
+  // Call the exported function.
   WasmCallVoid<0> run;
-  wasm_base.wasm_vm()->getFunction("run", &run);
-
+  wasmBase()->wasm_vm()->getFunction("run", &run);
   run(current_context_);
 
+  // Check logs.
   EXPECT_EQ(context.log_msg(), "");
+}
+
+TEST_P(TestVM, Clock) {
+  // Initialize VM.
+  initialize(readTestWasmFile("clock.wasm"));
+
+  // Initialize the context.
+  TestContext context(wasmBase());
+  current_context_ = &context;
+
+  // Call the exported function.
+  WasmCallVoid<0> run;
+  wasmBase()->wasm_vm()->getFunction("run", &run);
+  ASSERT_TRUE(run);
+  run(current_context_);
+
+  // Check logs.
+  auto msg = context.log_msg();
+  EXPECT_NE(std::string::npos, msg.find("monotonic: ")) << msg;
+  EXPECT_NE(std::string::npos, msg.find("realtime: ")) << msg;
 }
 
 } // namespace
