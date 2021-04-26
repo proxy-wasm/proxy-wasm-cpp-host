@@ -247,6 +247,19 @@ public:
     return 0;
 #endif
   }
+  uint64_t getMonotonicTimeNanoseconds() override {
+#if !defined(_MSC_VER)
+    struct timespec tpe;
+    clock_gettime(CLOCK_MONOTONIC, &tpe);
+    uint64_t t = tpe.tv_sec;
+    t *= 1000000000;
+    t += tpe.tv_nsec;
+    return t;
+#else
+    unimplemented();
+    return 0;
+#endif
+  }
   std::string_view getConfiguration() override {
     unimplemented();
     return "";
