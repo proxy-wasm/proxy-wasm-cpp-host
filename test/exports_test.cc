@@ -48,53 +48,63 @@ private:
 };
 
 TEST_P(TestVM, Environment) {
-  // Initialize VM.
   std::unordered_map<std::string, std::string> envs = {{"KEY1", "VALUE1"}, {"KEY2", "VALUE2"}};
-  initialize(readTestWasmFile("env.wasm"), "vm_id", "", "", envs);
+  initialize("env.wasm");
 
-  // Initialize the context.
-  TestContext context(wasmBase());
+  auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", envs, {});
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
+
+  TestContext context(&wasm_base);
   current_context_ = &context;
 
-  // Call the exported function.
+  wasm_base.registerCallbacks();
+
+  ASSERT_TRUE(wasm_base.wasm_vm()->link(""));
+
   WasmCallVoid<0> run;
-  wasmBase()->wasm_vm()->getFunction("run", &run);
+  wasm_base.wasm_vm()->getFunction("run", &run);
+
   run(current_context_);
 
-  // Check logs.
   auto msg = context.log_msg();
   EXPECT_NE(std::string::npos, msg.find("KEY1: VALUE1\n")) << msg;
   EXPECT_NE(std::string::npos, msg.find("KEY2: VALUE2\n")) << msg;
 }
 
 TEST_P(TestVM, WithoutEnvironment) {
-  // Initialize VM.
-  initialize(readTestWasmFile("env.wasm"));
+  initialize("env.wasm");
+  auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", {}, {});
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
 
-  // Initialize the context.
-  TestContext context(wasmBase());
+  TestContext context(&wasm_base);
   current_context_ = &context;
 
-  // Call the exported function.
+  wasm_base.registerCallbacks();
+
+  ASSERT_TRUE(wasm_base.wasm_vm()->link(""));
+
   WasmCallVoid<0> run;
-  wasmBase()->wasm_vm()->getFunction("run", &run);
+  wasm_base.wasm_vm()->getFunction("run", &run);
+
   run(current_context_);
 
-  // Check logs.
   EXPECT_EQ(context.log_msg(), "");
 }
 
 TEST_P(TestVM, Clock) {
-  // Initialize VM.
-  initialize(readTestWasmFile("clock.wasm"));
+  initialize("clock.wasm");
+  auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", {}, {});
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
 
-  // Initialize the context.
-  TestContext context(wasmBase());
+  TestContext context(&wasm_base);
   current_context_ = &context;
 
-  // Call the exported function.
+  wasm_base.registerCallbacks();
+
+  ASSERT_TRUE(wasm_base.wasm_vm()->link(""));
+
   WasmCallVoid<0> run;
-  wasmBase()->wasm_vm()->getFunction("run", &run);
+  wasm_base.wasm_vm()->getFunction("run", &run);
   ASSERT_TRUE(run);
   run(current_context_);
 

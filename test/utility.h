@@ -62,44 +62,32 @@ struct DummyIntegration : public WasmVmIntegration {
 
 class TestVM : public testing::TestWithParam<std::string> {
 public:
-  TestVM() : integration_(new DummyIntegration{}), runtime_(GetParam()) {
+  std::unique_ptr<proxy_wasm::WasmVm> vm_;
+
+  TestVM() : integration_(new DummyIntegration{}) {
+    runtime_ = GetParam();
     if (runtime_ == "") {
       EXPECT_TRUE(false) << "runtime must not be empty";
 #if defined(WASM_V8)
     } else if (runtime_ == "v8") {
-      wasm_vm_ = proxy_wasm::createV8Vm();
+      vm_ = proxy_wasm::createV8Vm();
 #endif
 #if defined(WASM_WAVM)
     } else if (runtime_ == "wavm") {
-      wasm_vm_ = proxy_wasm::createWavmVm();
+      vm_ = proxy_wasm::createWavmVm();
 #endif
 #if defined(WASM_WASMTIME)
     } else if (runtime_ == "wasmtime") {
-      wasm_vm_ = proxy_wasm::createWasmtimeVm();
+      vm_ = proxy_wasm::createWasmtimeVm();
 #endif
     }
-    wasm_vm_->integration().reset(integration_);
+    vm_->integration().reset(integration_);
   }
 
-  void initialize(const std::string source, std::string_view vm_id = "",
-                  std::string_view vm_configuration = "", std::string_view vm_key = "",
-                  std::unordered_map<std::string, std::string> envs = {},
-                  AllowedCapabilitiesMap allowed_capabilities = {}) {
-    wasm_base_ = std::make_unique<WasmBase>(std::move(wasm_vm_), vm_id, vm_key, vm_configuration,
-                                            envs, allowed_capabilities);
-    ASSERT_TRUE(wasm_base_->wasm_vm()->load(source, false));
-    wasm_base_->registerCallbacks();
-    ASSERT_TRUE(wasm_base_->wasm_vm()->link(""));
-  }
-  std::string runtime() { return runtime_; }
-  proxy_wasm::WasmBase *wasmBase() { return wasm_base_.get(); }
-  proxy_wasm::WasmVm *wasmVm() { return wasm_vm_ ? wasm_vm_.get() : wasm_base_->wasm_vm(); }
-  DummyIntegration *integration() { return integration_; }
+  void initialize(std::string filename) { source_ = readTestWasmFile(filename); }
 
-private:
   DummyIntegration *integration_;
+  std::string source_;
   std::string runtime_;
-  std::unique_ptr<WasmBase> wasm_base_;
-  std::unique_ptr<proxy_wasm::WasmVm> wasm_vm_;
 };
 } // namespace proxy_wasm
