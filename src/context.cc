@@ -29,11 +29,12 @@
   if (isFailed()) {                                                                                \
     if (plugin_->fail_open_) {                                                                     \
       return _return_open;                                                                         \
-    } else {                                                                                       \
+    } else if (!stream_failed_) {                                                                  \
       failStream(_stream_type);                                                                    \
       failStream(_stream_type2);                                                                   \
-      return _return_closed;                                                                       \
+      stream_failed_ = true;                                                                       \
     }                                                                                              \
+    return _return_closed;                                                                         \
   }
 
 #define CHECK_FAIL_HTTP(_return_open, _return_closed)                                              \
