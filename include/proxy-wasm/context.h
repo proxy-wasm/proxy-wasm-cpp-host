@@ -402,6 +402,7 @@ protected:
   std::shared_ptr<PluginBase> temp_plugin_; // Remove once ABI v0.1.0 is gone.
   bool in_vm_context_created_ = false;
   bool destroyed_ = false;
+  bool stream_failed_ = false; // Set true after failStream is called in case of VM failure.
 
 private:
   // helper functions
