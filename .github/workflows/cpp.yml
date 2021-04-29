@@ -71,5 +71,5 @@ jobs:
 
     - name: Test
       run: |
-        bazel test -define wasm_runtime=${{ matrix.wasm_runtime }} //...
+        bazel test --define wasm_runtime=${{ matrix.wasm_runtime }} //...
 
