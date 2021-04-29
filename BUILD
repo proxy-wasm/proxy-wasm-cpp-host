@@ -1,5 +1,4 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("@proxy_wasm_cpp_host//bazel:variables.bzl", "COPTS")
 
 licenses(["notice"])  # Apache 2
 
@@ -28,7 +27,6 @@ cc_library(
         ],
     ),
     hdrs = glob(["src/**/*.h"]),
-    copts = COPTS,
     deps = [
         ":include",
         "@boringssl//:crypto",
