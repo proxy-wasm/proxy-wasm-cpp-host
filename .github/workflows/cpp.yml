@@ -56,7 +56,10 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    
+    strategy:
+      matrix:
+        # TODO(mathetake): Add other runtimes.
+        wasm_runtime: [ "wasmtime" ]
     steps:
     - uses: actions/checkout@v2
 
@@ -64,9 +67,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel
+        key: bazel-${{ matrix.wasm_runtime }}
 
     - name: Test
       run: |
-        bazel test //...
+        bazel test -define wasm_runtime=${{ matrix.wasm_runtime }} //...
 
