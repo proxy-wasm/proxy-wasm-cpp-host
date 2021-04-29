@@ -38,6 +38,19 @@ cc_library(
 )
 
 cc_library(
+    name = "v8_lib",
+    srcs = glob([
+        # TODO(@mathetake): Add V8 lib.
+        # "src/v8/*.h",
+        # "src/v8/*.cc",
+    ]),
+    deps = [
+        ":common_lib",
+        # TODO(@mathetake): Add V8 lib.
+    ],
+)
+
+cc_library(
     name = "wasmtime_lib",
     srcs = glob([
         "src/wasmtime/*.h",
@@ -50,22 +63,11 @@ cc_library(
 )
 
 cc_library(
-    name = "v8_lib",
-    srcs = glob([
-        "src/v8/*.h",
-        "src/v8/*.cc",
-    ]),
-    deps = [
-        ":common_lib",
-        # TODO(@mathetake): Add V8 lib.
-    ],
-)
-
-cc_library(
     name = "wavm_lib",
     srcs = glob([
-        "src/wavm/*.h",
-        "src/wavm/*.cc",
+        # TODO(@mathetake): Add WAVM lib.
+        # "src/wavm/*.h",
+        # "src/wavm/*.cc",
     ]),
     deps = [
         ":common_lib",
@@ -79,9 +81,9 @@ cc_library(
         ":common_lib",
     ] + proxy_wasm_select_wasm_runtime_wasmtime(
         ["wasmtime_lib"],
-    ) + proxy_wasm_select_wasm_runtime_v8([
+    ) + proxy_wasm_select_wasm_runtime_v8(
         ["v8_lib"],
-    ]) + proxy_wasm_select_wasm_runtime_wavm([
+    ) + proxy_wasm_select_wasm_runtime_wavm(
         ["wavm_lib"],
-    ]),
+    ),
 )
