@@ -22,3 +22,9 @@ wasm_rust_binary(
     srcs = ["env.rs"],
     wasi = True,
 )
+
+wasm_rust_binary(
+    name = "clock.wasm",
+    srcs = ["clock.rs"],
+    wasi = True,
+)

@@ -833,12 +833,19 @@ Word wasi_unstable_args_sizes_get(void *raw_context, Word argc_ptr, Word argv_bu
 Word wasi_unstable_clock_time_get(void *raw_context, Word clock_id, uint64_t precision,
                                   Word result_time_uint64_ptr) {
 
-  if (clock_id != 0 /* realtime */) {
+  uint64_t result = 0;
+  auto context = WASM_CONTEXT(raw_context);
+  switch (clock_id) {
+  case 0 /* realtime */:
+    result = context->getCurrentTimeNanoseconds();
+    break;
+  case 1 /* monotonic */:
+    result = context->getMonotonicTimeNanoseconds();
+    break;
+  default:
+    // process_cputime_id and thread_cputime_id are not supported yet.
     return 58; // __WASI_ENOTSUP
   }
-
-  auto context = WASM_CONTEXT(raw_context);
-  uint64_t result = context->getCurrentTimeNanoseconds();
   if (!context->wasm()->setDatatype(result_time_uint64_ptr, result)) {
     return 21; // __WASI_EFAULT
   }

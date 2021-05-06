@@ -91,5 +91,28 @@ TEST_P(TestVM, WithoutEnvironment) {
   EXPECT_EQ(context.log_msg(), "");
 }
 
+TEST_P(TestVM, Clock) {
+  initialize("clock.wasm");
+  auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", {}, {});
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
+
+  TestContext context(&wasm_base);
+  current_context_ = &context;
+
+  wasm_base.registerCallbacks();
+
+  ASSERT_TRUE(wasm_base.wasm_vm()->link(""));
+
+  WasmCallVoid<0> run;
+  wasm_base.wasm_vm()->getFunction("run", &run);
+  ASSERT_TRUE(run);
+  run(current_context_);
+
+  // Check logs.
+  auto msg = context.log_msg();
+  EXPECT_NE(std::string::npos, msg.find("monotonic: ")) << msg;
+  EXPECT_NE(std::string::npos, msg.find("realtime: ")) << msg;
+}
+
 } // namespace
 } // namespace proxy_wasm
