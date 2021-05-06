@@ -13,6 +13,8 @@ filegroup(
 cmake(
     name = "libiwasm",
     cache_entries = {
+        "WAMR_BUILD_INTERP": "1",
+        "WAMR_BUILD_JIT": "0",
         "WAMR_BUILD_AOT": "0",
         "WAMR_BUILD_SIMD": "0",
         "WAMR_BUILD_MULTI_MODULE": "1",

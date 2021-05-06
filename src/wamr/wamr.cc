@@ -56,7 +56,7 @@ class Wamr : public WasmVm {
 public:
   Wamr() {}
 
-  std::string_view runtime() override { return "envoy.wasm.runtime.wamr"; }
+  std::string_view runtime() override { return "wamr"; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 
   Cloneable cloneable() override { return Cloneable::NotCloneable; }
