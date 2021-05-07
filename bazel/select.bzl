@@ -12,20 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-def proxy_wasm_select_wasm_runtime_v8(xs):
+def proxy_wasm_select_runtime_v8(xs):
     return select({
-        "@proxy_wasm_cpp_host//bazel:wasm_runtime_v8": xs,
+        "@proxy_wasm_cpp_host//bazel:runtime_v8": xs,
         "//conditions:default": [],
     })
 
-def proxy_wasm_select_wasm_runtime_wavm(xs):
+def proxy_wasm_select_runtime_wamr(xs):
     return select({
-        "@proxy_wasm_cpp_host//bazel:wasm_runtime_wavm": xs,
+        "@proxy_wasm_cpp_host//bazel:runtime_wamr": xs,
         "//conditions:default": [],
     })
 
-def proxy_wasm_select_wasm_runtime_wasmtime(xs):
+def proxy_wasm_select_runtime_wasmtime(xs):
     return select({
-        "@proxy_wasm_cpp_host//bazel:wasm_runtime_wasmtime": xs,
+        "@proxy_wasm_cpp_host//bazel:runtime_wasmtime": xs,
+        "//conditions:default": [],
+    })
+
+def proxy_wasm_select_runtime_wavm(xs):
+    return select({
+        "@proxy_wasm_cpp_host//bazel:runtime_wavm": xs,
         "//conditions:default": [],
     })

@@ -1,9 +1,10 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load(
     "@proxy_wasm_cpp_host//bazel:select.bzl",
-    "proxy_wasm_select_wasm_runtime_v8",
-    "proxy_wasm_select_wasm_runtime_wasmtime",
-    "proxy_wasm_select_wasm_runtime_wavm",
+    "proxy_wasm_select_runtime_v8",
+    "proxy_wasm_select_runtime_wamr",
+    "proxy_wasm_select_runtime_wasmtime",
+    "proxy_wasm_select_runtime_wavm",
 )
 
 licenses(["notice"])  # Apache 2
@@ -51,6 +52,19 @@ cc_library(
 )
 
 cc_library(
+    name = "wamr_lib",
+    srcs = glob([
+        # TODO(@mathetake): Add WAMR lib.
+        # "src/wamr/*.h",
+        # "src/wamr/*.cc",
+    ]),
+    deps = [
+        ":common_lib",
+        # TODO(@mathetake): Add WAMR lib.
+    ],
+)
+
+cc_library(
     name = "wasmtime_lib",
     srcs = glob([
         "src/wasmtime/*.h",
@@ -79,11 +93,13 @@ cc_library(
     name = "lib",
     deps = [
         ":common_lib",
-    ] + proxy_wasm_select_wasm_runtime_wasmtime(
-        ["wasmtime_lib"],
-    ) + proxy_wasm_select_wasm_runtime_v8(
-        ["v8_lib"],
-    ) + proxy_wasm_select_wasm_runtime_wavm(
-        ["wavm_lib"],
+    ] + proxy_wasm_select_runtime_v8(
+        [":v8_lib"],
+    ) + proxy_wasm_select_runtime_wamr(
+        [":wamr_lib"],
+    ) + proxy_wasm_select_runtime_wasmtime(
+        [":wasmtime_lib"],
+    ) + proxy_wasm_select_runtime_wavm(
+        [":wavm_lib"],
     ),
 )
