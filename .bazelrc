@@ -1,15 +1,12 @@
 build --enable_platform_specific_config
 
-# linux
 build:linux --cxxopt=-std=c++17
 # See https://bytecodealliance.github.io/wasmtime/c-api/
-build:linux --action_env=BAZEL_LINKOPTS=-lm:-lpthread:-ldl
+build:linux --linkopt="-lm -lpthread -ldl"
 
-# macos
 build:macos --cxxopt=-std=c++17
 
-# windows
 # TODO(mathetake): Windows build is not verified yet.
 # build:windows --cxxopt="/std:c++17"
 # See https://bytecodealliance.github.io/wasmtime/c-api/
-# build:windows --action_env=BAZEL_LINKOPTS=ws2_32.lib:advapi32.lib:userenv.lib:ntdll.lib:shell32.lib:ole32.lib
+# build:windows --linkopt="ws2_32.lib advapi32.lib userenv.lib ntdll.lib shell32.lib ole32.lib"
