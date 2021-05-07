@@ -2,7 +2,9 @@ build --enable_platform_specific_config
 
 build:linux --cxxopt=-std=c++17
 # See https://bytecodealliance.github.io/wasmtime/c-api/
-build:linux --linkopt="-lm -lpthread -ldl"
+build:linux --linkopt=-lm
+build:linux --linkopt=-lpthread
+build:linux --linkopt=-ldl
 
 build:macos --cxxopt=-std=c++17
 
