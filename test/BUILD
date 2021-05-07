@@ -37,6 +37,7 @@ cc_test(
     srcs = ["exports_test.cc"],
     copts = COPTS,
     data = [
+        "//test/test_data:clock.wasm",
         "//test/test_data:env.wasm",
     ],
     linkopts = LINKOPTS,
