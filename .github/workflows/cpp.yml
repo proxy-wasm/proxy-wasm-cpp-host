@@ -69,9 +69,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-${{ matrix.wasm_runtime }}
+        key: bazel-${{ matrix.runtime }}
 
     - name: Test
       run: |
-        bazel test --define runtime=${{ matrix.wasm_runtime }} //...
+        bazel test --define runtime=${{ matrix.runtime }} //...
 
