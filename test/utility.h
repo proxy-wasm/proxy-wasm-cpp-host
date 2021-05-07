@@ -32,6 +32,9 @@
 #if defined(WASM_WASMTIME)
 #include "include/proxy-wasm/wasmtime.h"
 #endif
+#if defined(WASM_WAMR)
+#include "include/proxy-wasm/wamr.h"
+#endif
 
 namespace proxy_wasm {
 
@@ -79,6 +82,10 @@ public:
 #if defined(WASM_WASMTIME)
     } else if (runtime_ == "wasmtime") {
       vm_ = proxy_wasm::createWasmtimeVm();
+#endif
+#if defined(WASM_WAMR)
+    } else if (runtime_ == "wamr") {
+      vm_ = proxy_wasm::createWamrVm();
 #endif
     }
     vm_->integration().reset(integration_);

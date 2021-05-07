@@ -27,6 +27,9 @@ std::vector<std::string> getRuntimes() {
 #if defined(WASM_WASMTIME)
     "wasmtime",
 #endif
+#if defined(WASM_WAMR)
+    "wamr",
+#endif
     ""
   };
   runtimes.pop_back();

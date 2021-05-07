@@ -23,8 +23,9 @@ cc_library(
             "src/**/*.h",
         ],
         exclude = [
-            "src/**/wavm*",
             "src/**/v8*",
+            "src/**/wamr*",
+            "src/**/wavm*",
         ],
     ),
     hdrs = glob(["src/**/*.h"]),

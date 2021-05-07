@@ -37,6 +37,14 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     http_archive(
+        name = "wamr",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
+        sha256 = "1d870f396bb6bdcb5c816326655b19a2877bbdf879255c335b8e84ce4ee37780",
+        strip_prefix = "wasm-micro-runtime-9710d9325f426121cc1f2c62386a71d0c022d613",
+        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/9710d9325f426121cc1f2c62386a71d0c022d613.tar.gz",
+    )
+
+    http_archive(
         name = "wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
         sha256 = "e95d274822ac72bf06355bdfbeddcacae60d7e98fec8ee4b2e21740636fb5c2c",
@@ -64,4 +72,11 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "59621f4011a95df270748dcc0ec1cc51946473f0e140d4848a2f20c8719e43aa",
         strip_prefix = "protobuf-655310ca192a6e3a050e0ca0b7084a2968072260",
         url = "https://github.com/protocolbuffers/protobuf/archive/655310ca192a6e3a050e0ca0b7084a2968072260.tar.gz",
+    )
+
+    http_archive(
+        name = "rules_foreign_cc",
+        sha256 = "d54742ffbdc6924f222d2179f0e10e911c5c659c4ae74158e9fe827aad862ac6",
+        strip_prefix = "rules_foreign_cc-0.2.0",
+        url = "https://github.com/bazelbuild/rules_foreign_cc/archive/0.2.0.tar.gz",
     )
