@@ -557,6 +557,9 @@ struct GeneralInterface {
   // Provides the current time in nanoseconds since the Unix epoch.
   virtual uint64_t getCurrentTimeNanoseconds() = 0;
 
+  // Provides the monotonic time in nanoseconds.
+  virtual uint64_t getMonotonicTimeNanoseconds() = 0;
+
   // Returns plugin configuration.
   virtual std::string_view getConfiguration() = 0;
 

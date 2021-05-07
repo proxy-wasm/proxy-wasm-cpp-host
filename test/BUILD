@@ -32,6 +32,7 @@ cc_test(
     name = "exports_test",
     srcs = ["exports_test.cc"],
     data = [
+        "//test/test_data:clock.wasm",
         "//test/test_data:env.wasm",
     ],
     deps = [
