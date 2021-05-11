@@ -40,12 +40,13 @@ std::unique_ptr<WasmVm> NullVm::clone() {
   auto cloned_null_vm = std::make_unique<NullVm>(*this);
   if (integration())
     cloned_null_vm->integration().reset(integration()->clone());
-  cloned_null_vm->load(plugin_name_, false /* unused */, {} /* unused */);
+  cloned_null_vm->load(plugin_name_, {} /* unused */, {} /* unused */);
   return cloned_null_vm;
 }
 
 // "Load" the plugin by obtaining a pointer to it from the factory.
-bool NullVm::load(std::string_view name, bool, std::unordered_map<uint32_t, std::string>) {
+bool NullVm::load(std::string_view name, std::string_view,
+                  std::unordered_map<uint32_t, std::string>) {
   if (!null_vm_plugin_factories_)
     return false;
   auto factory = (*null_vm_plugin_factories_)[std::string(name)];

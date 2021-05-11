@@ -241,7 +241,7 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
   }
 
   if (wasm_vm_->runtime() == "null") {
-    auto ok = wasm_vm_->load(code, false, {});
+    auto ok = wasm_vm_->load(code, {}, {});
     if (!ok) {
       fail(FailState::UnableToInitializeCode, "Failed to load NullVM plugin");
       return false;
@@ -266,29 +266,16 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     return false;
   }
 
+  std::string_view precompiled = {};
+
   if (allow_precompiled) {
     // Check if precompiled module exists.
-    std::string_view precompiled = {};
     const auto section_name = wasm_vm_->getPrecompiledSectionName();
     if (!section_name.empty()) {
       if (!utils::BytecodeUtil::getCustomSection(code, section_name, precompiled)) {
         fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
         return false;
       }
-    }
-    if (!precompiled.empty()) {
-      // Use precompiled module.
-      auto ok = wasm_vm_->load(precompiled, true, function_names_);
-      if (!ok) {
-        fail(FailState::UnableToInitializeCode, "Failed to load precompiled Wasm module");
-        return false;
-      }
-      // Store for future use in non-cloneable runtimes.
-      if (wasm_vm_->cloneable() == Cloneable::NotCloneable) {
-        module_ = precompiled;
-        module_is_precompiled_ = true;
-      }
-      return true;
     }
   }
 
@@ -298,15 +285,15 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   }
-  auto ok = wasm_vm_->load(stripped, false, function_names_);
+  auto ok = wasm_vm_->load(stripped, precompiled, function_names_);
   if (!ok) {
     fail(FailState::UnableToInitializeCode, "Failed to load Wasm bytecode");
     return false;
   }
   // Store for future use in non-cloneable runtimes.
   if (wasm_vm_->cloneable() == Cloneable::NotCloneable) {
-    module_ = stripped;
-    module_is_precompiled_ = false;
+    module_bytecode_ = stripped;
+    module_precompiled_ = precompiled;
   }
   return true;
 }
@@ -317,8 +304,8 @@ bool WasmBase::initialize() {
   }
 
   if (started_from_ == Cloneable::NotCloneable) {
-    auto ok = wasm_vm_->load(base_wasm_handle_->wasm()->module(),
-                             base_wasm_handle_->wasm()->moduleIsPrecompiled(),
+    auto ok = wasm_vm_->load(base_wasm_handle_->wasm()->moduleBytecode(),
+                             base_wasm_handle_->wasm()->modulePrecompiled(),
                              base_wasm_handle_->wasm()->functionNames());
     if (!ok) {
       fail(FailState::UnableToInitializeCode, "Failed to load Wasm module from base Wasm");

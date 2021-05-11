@@ -206,7 +206,7 @@ struct Wavm : public WasmVm {
   std::string_view runtime() override { return "wavm"; }
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
   std::unique_ptr<WasmVm> clone() override;
-  bool load(std::string_view code, bool is_precompiled,
+  bool load(std::string_view bytecode, std::string_view precompiled,
             std::unordered_map<uint32_t, std::string> function_names) override;
   bool link(std::string_view debug_name) override;
   uint64_t getMemorySize() override;
@@ -232,7 +232,6 @@ struct Wavm : public WasmVm {
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
-  bool has_instantiated_module_ = false;
   IR::Module ir_module_;
   WAVM::Runtime::ModuleRef module_ = nullptr;
   WAVM::Runtime::GCPointer<WAVM::Runtime::Instance> module_instance_;
@@ -275,21 +274,19 @@ std::unique_ptr<WasmVm> Wavm::clone() {
   return wavm;
 }
 
-bool Wavm::load(std::string_view code, bool is_precompiled,
+bool Wavm::load(std::string_view bytecode, std::string_view precompiled,
                 std::unordered_map<uint32_t, std::string>) {
-  ASSERT(!has_instantiated_module_);
-  has_instantiated_module_ = true;
   compartment_ = WAVM::Runtime::createCompartment();
   context_ = WAVM::Runtime::createContext(compartment_);
+  if (!WASM::loadBinaryModule(reinterpret_cast<const unsigned char *>(bytecode.data()),
+                              bytecode.size(), ir_module_)) {
+    return false;
+  }
 
-  if (is_precompiled) {
-    module_ =
-        WAVM::Runtime::loadPrecompiledModule(ir_module_, {code.data(), code.data() + code.size()});
+  if (!precompiled.empty()) {
+    module_ = WAVM::Runtime::loadPrecompiledModule(
+        ir_module_, {precompiled.data(), precompiled.data() + precompiled.size()});
   } else {
-    if (!WASM::loadBinaryModule(reinterpret_cast<const unsigned char *>(code.data()), code.size(),
-                                ir_module_)) {
-      return false;
-    }
     module_ = WAVM::Runtime::compileModule(ir_module_);
   }
 

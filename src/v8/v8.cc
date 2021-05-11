@@ -62,7 +62,7 @@ public:
   // WasmVm
   std::string_view runtime() override { return "v8"; }
 
-  bool load(std::string_view code, bool is_precompiled,
+  bool load(std::string_view bytecode, std::string_view precompiled,
             std::unordered_map<uint32_t, std::string> function_names) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
@@ -247,16 +247,18 @@ template <typename T, typename U> constexpr T convertValTypesToArgsTuple(const U
 
 // V8 implementation.
 
-bool V8::load(std::string_view code, bool is_precompiled,
+bool V8::load(std::string_view bytecode, std::string_view precompiled,
               std::unordered_map<uint32_t, std::string> function_names) {
   store_ = wasm::Store::make(engine());
 
-  auto vec = wasm::vec<byte_t>::make_uninitialized(code.size());
-  ::memcpy(vec.get(), code.data(), code.size());
-
-  if (is_precompiled) {
+  if (!precompiled.empty()) {
+    auto vec = wasm::vec<byte_t>::make_uninitialized(precompiled.size());
+    ::memcpy(vec.get(), precompiled.data(), precompiled.size());
     module_ = wasm::Module::deserialize(store_.get(), vec);
+
   } else {
+    auto vec = wasm::vec<byte_t>::make_uninitialized(bytecode.size());
+    ::memcpy(vec.get(), bytecode.data(), bytecode.size());
     module_ = wasm::Module::make(store_.get(), vec);
   }
 

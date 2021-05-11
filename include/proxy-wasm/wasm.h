@@ -82,8 +82,8 @@ public:
 
   const std::string &vm_configuration() const;
 
-  const std::string &module() const { return module_; }
-  bool moduleIsPrecompiled() const { return module_is_precompiled_; }
+  const std::string &moduleBytecode() const { return module_bytecode_; }
+  const std::string &modulePrecompiled() const { return module_precompiled_; }
   std::unordered_map<uint32_t, std::string> functionNames() const { return function_names_; }
 
   void timerReady(uint32_t root_context_id);
@@ -263,8 +263,8 @@ protected:
   std::shared_ptr<WasmHandleBase> base_wasm_handle_;
 
   // Used by the base_wasm to enable non-clonable thread local Wasm(s) to be constructed.
-  std::string module_;
-  bool module_is_precompiled_ = false;
+  std::string module_bytecode_;
+  std::string module_precompiled_;
   std::unordered_map<uint32_t, std::string> function_names_;
 
   // ABI version.

@@ -175,12 +175,12 @@ public:
    * Load the WASM code from a file. Return true on success. Once the module is loaded it can be
    * queried, e.g. to see which version of emscripten support is required. After loading, the
    * appropriate ABI callbacks can be registered and then the module can be link()ed (see below).
-   * @param module the WASM binary code (bytecode or precompiled) or registered NullVm plugin name.
-   * @param is_precompiled if true, the module is precompiled.
+   * @param bytecode the Wasm bytecode or registered NullVm plugin name.
+   * @param precompiled the precompiled Wasm module.
    * @param function_names an index-to-name mapping for the exported functions.
    * @return whether or not the load was successful.
    */
-  virtual bool load(std::string_view module, bool is_precompiled,
+  virtual bool load(std::string_view bytecode, std::string_view precompiled,
                     std::unordered_map<uint32_t, std::string> function_names) = 0;
 
   /**

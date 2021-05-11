@@ -56,7 +56,7 @@ public:
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 
-  bool load(std::string_view code, bool is_precompiled,
+  bool load(std::string_view bytecode, std::string_view precompiled,
             std::unordered_map<uint32_t, std::string> function_names) override;
   bool link(std::string_view debug_name) override;
   std::unique_ptr<WasmVm> clone() override;
@@ -109,12 +109,12 @@ private:
   std::unordered_map<std::string, WasmFuncPtr> module_functions_;
 };
 
-bool Wasmtime::load(std::string_view code, bool is_precompiled,
+bool Wasmtime::load(std::string_view bytecode, std::string_view,
                     std::unordered_map<uint32_t, std::string>) {
   store_ = wasm_store_new(engine());
 
   WasmByteVec vec;
-  wasm_byte_vec_new(vec.get(), code.size(), code.data());
+  wasm_byte_vec_new(vec.get(), bytecode.size(), bytecode.data());
 
   module_ = wasm_module_new(store_.get(), vec.get());
   if (!module_) {
