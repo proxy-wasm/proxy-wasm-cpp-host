@@ -40,7 +40,7 @@ TEST_P(TestVM, Basic) {
 
 TEST_P(TestVM, Memory) {
   initialize("abi_export.wasm");
-  ASSERT_TRUE(vm_->load(source_, false, {}));
+  ASSERT_TRUE(vm_->load(source_, {}, {}));
   ASSERT_TRUE(vm_->link(""));
 
   Word word;
@@ -58,7 +58,7 @@ TEST_P(TestVM, Memory) {
 
 TEST_P(TestVM, Clone) {
   initialize("abi_export.wasm");
-  ASSERT_TRUE(vm_->load(source_, false, {}));
+  ASSERT_TRUE(vm_->load(source_, {}, {}));
   ASSERT_TRUE(vm_->link(""));
   const auto address = 0x2000;
   Word word;
@@ -96,7 +96,7 @@ Word callback2(void *raw_context, Word val) { return val + 100; }
 
 TEST_P(TestVM, StraceLogLevel) {
   initialize("callback.wasm");
-  ASSERT_TRUE(vm_->load(source_, false, {}));
+  ASSERT_TRUE(vm_->load(source_, {}, {}));
   vm_->registerCallback("env", "callback", &nopCallback,
                         &ConvertFunctionWordToUint32<decltype(nopCallback),
                                                      nopCallback>::convertFunctionWordToUint32);
@@ -119,7 +119,7 @@ TEST_P(TestVM, StraceLogLevel) {
 
 TEST_P(TestVM, Callback) {
   initialize("callback.wasm");
-  ASSERT_TRUE(vm_->load(source_, false, {}));
+  ASSERT_TRUE(vm_->load(source_, {}, {}));
 
   TestContext context;
   current_context_ = &context;
@@ -150,7 +150,7 @@ TEST_P(TestVM, Callback) {
 
 TEST_P(TestVM, Trap) {
   initialize("trap.wasm");
-  ASSERT_TRUE(vm_->load(source_, false, {}));
+  ASSERT_TRUE(vm_->load(source_, {}, {}));
   ASSERT_TRUE(vm_->link(""));
   WasmCallVoid<0> trigger;
   vm_->getFunction("trigger", &trigger);
