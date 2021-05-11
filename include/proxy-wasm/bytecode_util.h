@@ -20,7 +20,7 @@
 #include "include/proxy-wasm/wasm_vm.h"
 
 namespace proxy_wasm {
-namespace common {
+namespace utils {
 
 // Utilitiy functions which directly operate on Wasm bytecodes.
 class BytecodeUtil {
@@ -73,5 +73,5 @@ private:
   static bool parseVarint(const char *&begin, const char *end, uint32_t &ret);
 };
 
-} // namespace common
+} // namespace utils
 } // namespace proxy_wasm

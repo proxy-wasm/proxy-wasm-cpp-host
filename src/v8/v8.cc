@@ -25,8 +25,6 @@
 #include <utility>
 #include <vector>
 
-#include "src/common/bytecode_util.h"
-
 #include "v8.h"
 #include "v8-version.h"
 #include "wasm-api/wasm.hh"
@@ -64,8 +62,8 @@ public:
   // WasmVm
   std::string_view runtime() override { return "v8"; }
 
-  bool load(const std::string &code, bool allow_precompiled) override;
-  AbiVersion getAbiVersion() override;
+  bool load(std::string_view code, bool is_precompiled,
+            std::unordered_map<uint32_t, std::string> function_names) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
 
@@ -122,8 +120,6 @@ private:
 
   std::unordered_map<std::string, FuncDataPtr> host_functions_;
   std::unordered_map<std::string, wasm::own<wasm::Func>> module_functions_;
-
-  AbiVersion abi_version_;
   std::unordered_map<uint32_t, std::string> function_names_index_;
 };
 
@@ -251,58 +247,29 @@ template <typename T, typename U> constexpr T convertValTypesToArgsTuple(const U
 
 // V8 implementation.
 
-bool V8::load(const std::string &code, bool allow_precompiled) {
+bool V8::load(std::string_view code, bool is_precompiled,
+              std::unordered_map<uint32_t, std::string> function_names) {
   store_ = wasm::Store::make(engine());
 
-  // Get ABI version from bytecode.
-  if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-    return false;
-  }
+  auto vec = wasm::vec<byte_t>::make_uninitialized(code.size());
+  ::memcpy(vec.get(), code.data(), code.size());
 
-  if (allow_precompiled) {
-    const auto section_name = getPrecompiledSectionName();
-    if (!section_name.empty()) {
-      std::string_view precompiled = {};
-      if (!common::BytecodeUtil::getCustomSection(code, section_name, precompiled)) {
-        fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-        return false;
-      }
-      if (!precompiled.empty()) {
-        auto vec = wasm::vec<byte_t>::make_uninitialized(precompiled.size());
-        ::memcpy(vec.get(), precompiled.data(), precompiled.size());
-
-        module_ = wasm::Module::deserialize(store_.get(), vec);
-        if (!module_) {
-          // Precompiled module that cannot be loaded is considered a hard error,
-          // so don't fallback to compiling the bytecode.
-          return false;
-        }
-      }
-    }
+  if (is_precompiled) {
+    module_ = wasm::Module::deserialize(store_.get(), vec);
+  } else {
+    module_ = wasm::Module::make(store_.get(), vec);
   }
 
   if (!module_) {
-    std::string stripped;
-    if (!common::BytecodeUtil::getStrippedSource(code, stripped)) {
-      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-      return false;
-    };
-    wasm::vec<byte_t> stripped_vec = wasm::vec<byte_t>::make(stripped.size(), stripped.data());
-    module_ = wasm::Module::make(store_.get(), stripped_vec);
-  }
-
-  if (module_) {
-    shared_module_ = module_->share();
-    assert((shared_module_ != nullptr));
-  }
-
-  if (!common::BytecodeUtil::getFunctionNameIndex(code, function_names_index_)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
-  };
+  }
 
-  return module_ != nullptr;
+  shared_module_ = module_->share();
+  assert(shared_module_ != nullptr);
+
+  function_names_index_ = function_names;
+
+  return true;
 }
 
 std::unique_ptr<WasmVm> V8::clone() {
@@ -314,7 +281,6 @@ std::unique_ptr<WasmVm> V8::clone() {
 
   clone->module_ = wasm::Module::obtain(clone->store_.get(), shared_module_.get());
   clone->function_names_index_ = function_names_index_;
-  clone->abi_version_ = abi_version_;
 
   return clone;
 }
@@ -334,8 +300,6 @@ std::string_view V8::getPrecompiledSectionName() {
           : "";
   return name;
 }
-
-AbiVersion V8::getAbiVersion() { return abi_version_; }
 
 bool V8::link(std::string_view debug_name) {
   assert(module_ != nullptr);

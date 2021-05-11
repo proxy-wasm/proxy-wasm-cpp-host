@@ -58,7 +58,8 @@ public:
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
-  bool initialize(const std::string &code, bool allow_precompiled = false);
+  bool load(const std::string &code, bool allow_precompiled = false);
+  bool initialize();
   void startVm(ContextBase *root_context);
   bool configure(ContextBase *root_context, std::shared_ptr<PluginBase> plugin);
   // Returns the root ContextBase or nullptr if onStart returns false.
@@ -79,9 +80,11 @@ public:
   bool isFailed() { return failed_ != FailState::Ok; }
   FailState fail_state() { return failed_; }
 
-  const std::string &code() const { return code_; }
   const std::string &vm_configuration() const;
-  bool allow_precompiled() const { return allow_precompiled_; }
+
+  const std::string &module() const { return module_; }
+  bool moduleIsPrecompiled() const { return module_is_precompiled_; }
+  std::unordered_map<uint32_t, std::string> functionNames() const { return function_names_; }
 
   void timerReady(uint32_t root_context_id);
   void queueReady(uint32_t root_context_id, uint32_t token);
@@ -135,7 +138,7 @@ public:
   virtual void error(std::string_view message) { std::cerr << message << "\n"; }
   virtual void unimplemented() { error("unimplemented proxy-wasm API"); }
 
-  AbiVersion abiVersion() { return abi_version_; }
+  AbiVersion abiVersion() const { return abi_version_; }
 
   const std::unordered_map<std::string, std::string> &envs() { return envs_; }
 
@@ -182,7 +185,7 @@ protected:
   std::string vm_id_;  // User-provided vm_id.
   std::string vm_key_; // vm_id + hash of code.
   std::unique_ptr<WasmVm> wasm_vm_;
-  Cloneable started_from_{Cloneable::NotCloneable};
+  std::optional<Cloneable> started_from_;
 
   uint32_t next_context_id_ = 1;            // 0 is reserved for the VM context.
   std::shared_ptr<ContextBase> vm_context_; // Context unrelated to any specific root or stream
@@ -260,14 +263,16 @@ protected:
   std::shared_ptr<WasmHandleBase> base_wasm_handle_;
 
   // Used by the base_wasm to enable non-clonable thread local Wasm(s) to be constructed.
-  std::string code_;
-  std::string vm_configuration_;
-  bool allow_precompiled_ = false;
-  bool stop_iteration_ = false;
-  FailState failed_ = FailState::Ok; // Wasm VM fatal error.
+  std::string module_;
+  bool module_is_precompiled_ = false;
+  std::unordered_map<uint32_t, std::string> function_names_;
 
   // ABI version.
   AbiVersion abi_version_ = AbiVersion::Unknown;
+
+  std::string vm_configuration_;
+  bool stop_iteration_ = false;
+  FailState failed_ = FailState::Ok; // Wasm VM fatal error.
 
   // Plugin Stats/Metrics
   uint32_t next_counter_metric_id_ = static_cast<uint32_t>(MetricType::Counter);

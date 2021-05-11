@@ -25,7 +25,6 @@
 #include <vector>
 
 #include "include/proxy-wasm/wasm_vm.h"
-#include "src/common/bytecode_util.h"
 #include "src/wasmtime/types.h"
 
 #include "wasmtime/include/wasm.h"
@@ -57,8 +56,8 @@ public:
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 
-  bool load(const std::string &code, bool allow_precompiled = false) override;
-  AbiVersion getAbiVersion() override;
+  bool load(std::string_view code, bool is_precompiled,
+            std::unordered_map<uint32_t, std::string> function_names) override;
   bool link(std::string_view debug_name) override;
   std::unique_ptr<WasmVm> clone() override;
   uint64_t getMemorySize() override;
@@ -108,35 +107,24 @@ private:
 
   std::unordered_map<std::string, HostFuncDataPtr> host_functions_;
   std::unordered_map<std::string, WasmFuncPtr> module_functions_;
-
-  AbiVersion abi_version_;
 };
 
-bool Wasmtime::load(const std::string &code, bool allow_precompiled) {
+bool Wasmtime::load(std::string_view code, bool is_precompiled,
+                    std::unordered_map<uint32_t, std::string>) {
   store_ = wasm_store_new(engine());
 
-  // Get ABI version from bytecode.
-  if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+  WasmByteVec vec;
+  wasm_byte_vec_new(vec.get(), code.size(), code.data());
+
+  module_ = wasm_module_new(store_.get(), vec.get());
+  if (!module_) {
     return false;
   }
 
-  std::string stripped;
-  if (!common::BytecodeUtil::getStrippedSource(code, stripped)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-    return false;
-  };
+  shared_module_ = wasm_module_share(module_.get());
+  assert(shared_module_ != nullptr);
 
-  WasmByteVec stripped_vec;
-  wasm_byte_vec_new(stripped_vec.get(), stripped.size(), stripped.data());
-  module_ = wasm_module_new(store_.get(), stripped_vec.get());
-
-  if (module_) {
-    shared_module_ = wasm_module_share(module_.get());
-    assert(shared_module_ != nullptr);
-  }
-
-  return module_ != nullptr;
+  return true;
 }
 
 std::unique_ptr<WasmVm> Wasmtime::clone() {
@@ -146,7 +134,6 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
   clone->integration().reset(integration()->clone());
   clone->store_ = wasm_store_new(engine());
   clone->module_ = wasm_module_obtain(clone->store_.get(), shared_module_.get());
-  clone->abi_version_ = abi_version_;
 
   return clone;
 }
@@ -642,8 +629,6 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     return ret;
   };
 };
-
-AbiVersion Wasmtime::getAbiVersion() { return abi_version_; }
 
 } // namespace wasmtime
 

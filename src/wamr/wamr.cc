@@ -29,9 +29,10 @@
 #include <utility>
 #include <vector>
 
+#include "include/proxy-wasm/bytecode_util.h"
+
 #include "src/wamr/types.h"
 #include "wasm_c_api.h"
-#include "src/common/bytecode_util.h"
 
 namespace proxy_wasm {
 namespace wamr {
@@ -62,9 +63,8 @@ public:
   Cloneable cloneable() override { return Cloneable::NotCloneable; }
   std::unique_ptr<WasmVm> clone() override { return nullptr; }
 
-  AbiVersion getAbiVersion() override;
-
-  bool load(const std::string &code, bool allow_precompiled = false) override;
+  bool load(std::string_view code, bool is_precompiled,
+            std::unordered_map<uint32_t, std::string> function_names) override;
   bool link(std::string_view debug_name) override;
   uint64_t getMemorySize() override;
   std::optional<std::string_view> getMemory(uint64_t pointer, uint64_t size) override;
@@ -113,27 +113,15 @@ private:
 
   std::unordered_map<std::string, HostFuncDataPtr> host_functions_;
   std::unordered_map<std::string, WasmFuncPtr> module_functions_;
-  AbiVersion abi_version_;
 };
 
-bool Wamr::load(const std::string &code, bool allow_precompiled) {
+bool Wamr::load(std::string_view code, bool is_precompiled,
+                std::unordered_map<uint32_t, std::string> function_names) {
   store_ = wasm_store_new(engine());
 
-  // Get ABI version from bytecode.
-  if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-    return false;
-  }
-
-  std::string stripped;
-  if (!common::BytecodeUtil::getStrippedSource(code, stripped)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-    return false;
-  };
-
-  WasmByteVec stripped_vec;
-  wasm_byte_vec_new(stripped_vec.get(), stripped.size(), stripped.data());
-  module_ = wasm_module_new(store_.get(), stripped_vec.get());
+  WasmByteVec vec;
+  wasm_byte_vec_new(vec.get(), code.size(), code.data());
+  module_ = wasm_module_new(store_.get(), vec.get());
 
   return module_ != nullptr;
 }
@@ -621,8 +609,6 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
     return ret;
   };
 };
-
-AbiVersion Wamr::getAbiVersion() { return abi_version_; }
 
 } // namespace wamr
 

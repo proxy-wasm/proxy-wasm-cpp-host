@@ -27,8 +27,6 @@
 #include <utility>
 #include <vector>
 
-#include "src/common/bytecode_util.h"
-
 #include "WAVM/IR/Module.h"
 #include "WAVM/IR/Operators.h"
 #include "WAVM/IR/Types.h"
@@ -186,22 +184,6 @@ private:
 
 const uint64_t WasmPageSize = 1 << 16;
 
-bool loadModule(const std::string &code, IR::Module &out_module) {
-  // If the code starts with the WASM binary magic number, load it as a binary IR::Module.
-  static const uint8_t WasmMagicNumber[4] = {0x00, 0x61, 0x73, 0x6d};
-  if (code.size() >= 4 && !memcmp(code.data(), WasmMagicNumber, 4)) {
-    return WASM::loadBinaryModule(reinterpret_cast<const unsigned char *>(code.data()), code.size(),
-                                  out_module);
-  } else {
-    // Load it as a text IR::Module.
-    std::vector<WAST::Error> parseErrors;
-    if (!WAST::parseModule(code.c_str(), code.size() + 1, out_module, parseErrors)) {
-      return false;
-    }
-    return true;
-  }
-}
-
 } // namespace
 
 template <typename T> struct NativeWord { using type = T; };
@@ -224,7 +206,8 @@ struct Wavm : public WasmVm {
   std::string_view runtime() override { return "wavm"; }
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
   std::unique_ptr<WasmVm> clone() override;
-  bool load(const std::string &code, bool allow_precompiled) override;
+  bool load(std::string_view code, bool is_precompiled,
+            std::unordered_map<uint32_t, std::string> function_names) override;
   bool link(std::string_view debug_name) override;
   uint64_t getMemorySize() override;
   std::optional<std::string_view> getMemory(uint64_t pointer, uint64_t size) override;
@@ -233,7 +216,6 @@ struct Wavm : public WasmVm {
   bool setWord(uint64_t pointer, Word data) override;
   size_t getWordSize() override { return sizeof(uint32_t); };
   std::string_view getPrecompiledSectionName() override;
-  AbiVersion getAbiVersion() override;
 
 #define _GET_FUNCTION(_T)                                                                          \
   void getFunction(std::string_view function_name, _T *f) override {                               \
@@ -262,7 +244,6 @@ struct Wavm : public WasmVm {
       intrinsic_module_instances_;
   std::vector<std::unique_ptr<Intrinsics::Function>> host_functions_;
   uint8_t *memory_base_ = nullptr;
-  AbiVersion abi_version_ = AbiVersion::Unknown;
 };
 
 Wavm::~Wavm() {
@@ -279,13 +260,12 @@ Wavm::~Wavm() {
 std::unique_ptr<WasmVm> Wavm::clone() {
   auto wavm = std::make_unique<Wavm>();
   wavm->integration().reset(integration()->clone());
-  wavm->abi_version_ = abi_version_;
 
   wavm->compartment_ = WAVM::Runtime::cloneCompartment(compartment_);
   wavm->memory_ = WAVM::Runtime::remapToClonedCompartment(memory_, wavm->compartment_);
   wavm->memory_base_ = WAVM::Runtime::getMemoryBaseAddress(wavm->memory_);
   wavm->context_ = WAVM::Runtime::createContext(wavm->compartment_);
-  wavm->abi_version_ = abi_version_;
+
   for (auto &p : intrinsic_module_instances_) {
     wavm->intrinsic_module_instances_.emplace(
         p.first, WAVM::Runtime::remapToClonedCompartment(p.second, wavm->compartment_));
@@ -295,38 +275,26 @@ std::unique_ptr<WasmVm> Wavm::clone() {
   return wavm;
 }
 
-bool Wavm::load(const std::string &code, bool allow_precompiled) {
+bool Wavm::load(std::string_view code, bool is_precompiled,
+                std::unordered_map<uint32_t, std::string>) {
   ASSERT(!has_instantiated_module_);
   has_instantiated_module_ = true;
   compartment_ = WAVM::Runtime::createCompartment();
   context_ = WAVM::Runtime::createContext(compartment_);
-  if (!loadModule(code, ir_module_)) {
-    return false;
-  }
 
-  // Get ABI version from bytecode.
-  if (!common::BytecodeUtil::getAbiVersion(code, abi_version_)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
-    return false;
-  }
-
-  std::string_view precompiled = {};
-  if (allow_precompiled) {
-    if (!common::BytecodeUtil::getCustomSection(code, getPrecompiledSectionName(), precompiled)) {
-      fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+  if (is_precompiled) {
+    module_ =
+        WAVM::Runtime::loadPrecompiledModule(ir_module_, {code.data(), code.data() + code.size()});
+  } else {
+    if (!WASM::loadBinaryModule(reinterpret_cast<const unsigned char *>(code.data()), code.size(),
+                                ir_module_)) {
       return false;
     }
-  }
-  if (precompiled.empty()) {
     module_ = WAVM::Runtime::compileModule(ir_module_);
-  } else {
-    module_ = WAVM::Runtime::loadPrecompiledModule(
-        ir_module_, {precompiled.data(), precompiled.data() + precompiled.size()});
   }
-  return true;
-}
 
-AbiVersion Wavm::getAbiVersion() { return abi_version_; }
+  return module_ != nullptr;
+}
 
 bool Wavm::link(std::string_view debug_name) {
   RootResolver rootResolver(compartment_, this);
