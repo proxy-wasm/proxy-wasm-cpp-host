@@ -84,7 +84,7 @@ public:
 
   const std::string &moduleBytecode() const { return module_bytecode_; }
   const std::string &modulePrecompiled() const { return module_precompiled_; }
-  std::unordered_map<uint32_t, std::string> functionNames() const { return function_names_; }
+  const std::unordered_map<uint32_t, std::string> functionNames() const { return function_names_; }
 
   void timerReady(uint32_t root_context_id);
   void queueReady(uint32_t root_context_id, uint32_t token);

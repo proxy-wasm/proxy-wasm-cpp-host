@@ -63,7 +63,7 @@ public:
   std::string_view runtime() override { return "v8"; }
 
   bool load(std::string_view bytecode, std::string_view precompiled,
-            std::unordered_map<uint32_t, std::string> function_names) override;
+            const std::unordered_map<uint32_t, std::string> function_names) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
 
@@ -248,7 +248,7 @@ template <typename T, typename U> constexpr T convertValTypesToArgsTuple(const U
 // V8 implementation.
 
 bool V8::load(std::string_view bytecode, std::string_view precompiled,
-              std::unordered_map<uint32_t, std::string> function_names) {
+              const std::unordered_map<uint32_t, std::string> function_names) {
   store_ = wasm::Store::make(engine());
 
   if (!precompiled.empty()) {

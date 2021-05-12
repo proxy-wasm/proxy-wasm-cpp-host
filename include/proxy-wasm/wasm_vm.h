@@ -176,12 +176,12 @@ public:
    * queried, e.g. to see which version of emscripten support is required. After loading, the
    * appropriate ABI callbacks can be registered and then the module can be link()ed (see below).
    * @param bytecode the Wasm bytecode or registered NullVm plugin name.
-   * @param precompiled the precompiled Wasm module.
-   * @param function_names an index-to-name mapping for the exported functions.
+   * @param precompiled (optional) the precompiled Wasm module.
+   * @param function_names (optional) an index-to-name mapping for the exported functions.
    * @return whether or not the load was successful.
    */
   virtual bool load(std::string_view bytecode, std::string_view precompiled,
-                    std::unordered_map<uint32_t, std::string> function_names) = 0;
+                    const std::unordered_map<uint32_t, std::string> function_names) = 0;
 
   /**
    * Link the WASM code to the host-provided functions, e.g. the ABI. Prior to linking, the module

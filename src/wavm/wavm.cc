@@ -207,7 +207,7 @@ struct Wavm : public WasmVm {
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
   std::unique_ptr<WasmVm> clone() override;
   bool load(std::string_view bytecode, std::string_view precompiled,
-            std::unordered_map<uint32_t, std::string> function_names) override;
+            const std::unordered_map<uint32_t, std::string> function_names) override;
   bool link(std::string_view debug_name) override;
   uint64_t getMemorySize() override;
   std::optional<std::string_view> getMemory(uint64_t pointer, uint64_t size) override;
@@ -275,7 +275,7 @@ std::unique_ptr<WasmVm> Wavm::clone() {
 }
 
 bool Wavm::load(std::string_view bytecode, std::string_view precompiled,
-                std::unordered_map<uint32_t, std::string>) {
+                const std::unordered_map<uint32_t, std::string>) {
   compartment_ = WAVM::Runtime::createCompartment();
   context_ = WAVM::Runtime::createContext(compartment_);
   if (!WASM::loadBinaryModule(reinterpret_cast<const unsigned char *>(bytecode.data()),
