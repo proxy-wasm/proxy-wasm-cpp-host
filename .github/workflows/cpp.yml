@@ -55,21 +55,38 @@ jobs:
         addlicense -check .
 
   build:
+    name: build (${{ matrix.runtime }})
+
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        # TODO(mathetake): Add V8.
-        runtime: [ "wamr", "wasmtime", "wavm" ]
+        # runtime: Wasm runtime.
+        # cache_key_regex: used for calculating Bazel cache key.
+        include:
+          # TODO(mathetake): Add V8.
+          - runtime: wamr
+            cache_key_regex: bytecodealliance/wasm-micro-runtime|llvm-project
+          - runtime: wasmtime
+            cache_key_regex: bytecodealliance/wasmtime
+          - runtime: wasmtime
+            cache_key_regex: WAVM/WAVM|llvm-project
 
     steps:
     - uses: actions/checkout@v2
+
+    # Calculate the cache key by greping target repositories in repositories.bzl with "matrix.cache_key_regex".
+    # TODO(mathetake): Use native Bazel solution if possible.
+    - name: Setup Bazel cache key
+      run: | 
+        GHA_BAZEL_CACHE_KEY=$(cat bazel/repositories.bzl | grep -E "${{ matrix.cache_key_regex }}" | sha1sum)
+        echo "GHA_BAZEL_CACHE_KEY=${GHA_BAZEL_CACHE_KEY}" >> $GITHUB_ENV
 
     - name: Mount bazel cache
       uses: actions/cache@v1
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-${{ matrix.runtime }}-clang
+        key: ${{ env.GHA_BAZEL_CACHE_KEY }}
 
     - name: Test
       run: |
