@@ -279,22 +279,25 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     }
   }
 
-  // Use original bytecode (possibly stripped).
+  // Get original bytecode (possibly stripped).
   std::string stripped;
   if (!utils::BytecodeUtil::getStrippedSource(code, stripped)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   }
+
   auto ok = wasm_vm_->load(stripped, precompiled, function_names_);
   if (!ok) {
     fail(FailState::UnableToInitializeCode, "Failed to load Wasm bytecode");
     return false;
   }
+
   // Store for future use in non-cloneable runtimes.
   if (wasm_vm_->cloneable() == Cloneable::NotCloneable) {
     module_bytecode_ = stripped;
     module_precompiled_ = precompiled;
   }
+
   return true;
 }
 
