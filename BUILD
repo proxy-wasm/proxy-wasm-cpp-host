@@ -54,13 +54,12 @@ cc_library(
 cc_library(
     name = "wamr_lib",
     srcs = glob([
-        # TODO(@mathetake): Add WAMR lib.
-        # "src/wamr/*.h",
-        # "src/wamr/*.cc",
+        "src/wamr/*.h",
+        "src/wamr/*.cc",
     ]),
     deps = [
         ":common_lib",
-        # TODO(@mathetake): Add WAMR lib.
+        "@wamr//:wamr_lib",
     ],
 )
 

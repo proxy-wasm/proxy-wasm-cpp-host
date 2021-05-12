@@ -60,7 +60,7 @@ jobs:
     strategy:
       matrix:
         # TODO(mathetake): Add other runtimes.
-        runtime: [ "wasmtime" ]
+        runtime: [ "wamr", "wasmtime" ]
 
     steps:
     - uses: actions/checkout@v2
