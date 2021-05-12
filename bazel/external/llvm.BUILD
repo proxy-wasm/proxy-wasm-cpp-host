@@ -7,7 +7,6 @@ package(default_visibility = ["//visibility:public"])
 filegroup(
     name = "srcs",
     srcs = glob(["**"]),
-    visibility = ["//visibility:public"],
 )
 
 cmake(
@@ -46,7 +45,6 @@ cmake(
     },
     lib_source = ":srcs",
     out_static_libs = [
-        # Order from llvm-config --libnames.
         "libLLVMInterpreter.a",
         "libLLVMWindowsManifest.a",
         "libLLVMLibDriver.a",

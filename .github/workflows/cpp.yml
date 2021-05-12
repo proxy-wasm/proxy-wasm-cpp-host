@@ -59,8 +59,8 @@ jobs:
 
     strategy:
       matrix:
-        # TODO(mathetake): Add other runtimes.
-        runtime: [ "wamr", "wasmtime" ]
+        # TODO(mathetake): Add V8.
+        runtime: [ "wamr", "wasmtime", "wavm" ]
 
     steps:
     - uses: actions/checkout@v2
@@ -69,7 +69,7 @@ jobs:
       uses: actions/cache@v1
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-${{ matrix.runtime }}
+        key: bazel-${{ matrix.runtime }}-
 
     - name: Test
       run: |

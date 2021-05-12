@@ -78,13 +78,12 @@ cc_library(
 cc_library(
     name = "wavm_lib",
     srcs = glob([
-        # TODO(@mathetake): Add WAVM lib.
-        # "src/wavm/*.h",
-        # "src/wavm/*.cc",
+        "src/wavm/*.h",
+        "src/wavm/*.cc",
     ]),
     deps = [
         ":common_lib",
-        # TODO(@mathetake): Add WAVM lib.
+        "@wavm//:wavm_lib",
     ],
 )
 

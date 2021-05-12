@@ -90,3 +90,11 @@ def proxy_wasm_cpp_host_repositories():
         patch_args = ["-p1"],
         patches = ["@proxy_wasm_cpp_host//bazel/external:llvm.patch"],
     )
+
+    http_archive(
+        name = "wavm",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:wavm.BUILD",
+        sha256 = "ce899269516313b400005a8cc9bc3bcd8329663f43f7b4baae211ea0cd456a39",
+        strip_prefix = "WAVM-79c3aa29366615d9b1593cd527e5b4b94cc6072a",
+        url = "https://github.com/WAVM/WAVM/archive/79c3aa29366615d9b1593cd527e5b4b94cc6072a.tar.gz",
+    )
