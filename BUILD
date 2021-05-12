@@ -81,6 +81,11 @@ cc_library(
         "src/wavm/*.h",
         "src/wavm/*.cc",
     ]),
+    copts = [
+        '-DWAVM_API=""',
+        "-Wno-non-virtual-dtor",
+        "-Wno-old-style-cast",
+    ],
     deps = [
         ":common_lib",
         "@wavm//:wavm_lib",
