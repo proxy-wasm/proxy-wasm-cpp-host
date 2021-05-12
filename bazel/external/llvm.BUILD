@@ -36,6 +36,7 @@ cmake(
         # using -l:libstdc++.a.
         "CMAKE_CXX_FLAGS": "-lstdc++",
     },
+    cmake_options = ["-GNinja"],
     env_vars = {
         # Workaround for the -DDEBUG flag added in fastbuild on macOS,
         # which conflicts with DEBUG macro used in LLVM.
@@ -44,6 +45,10 @@ cmake(
         "ASMFLAGS": "-UDEBUG",
     },
     lib_source = ":srcs",
+    make_commands = [
+        "ninja -v",
+        "ninja -v install",
+    ],
     out_static_libs = [
         "libLLVMInterpreter.a",
         "libLLVMWindowsManifest.a",

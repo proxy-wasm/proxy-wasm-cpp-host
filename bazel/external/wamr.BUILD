@@ -21,8 +21,13 @@ cmake(
         "WAMR_BUILD_LIBC_WASI": "0",
         "WAMR_BUILD_TAIL_CALL": "1",
     },
+    cmake_options = ["-GNinja"],
     defines = ["WASM_WAMR"],
     lib_source = ":srcs",
+    make_commands = [
+        "ninja -v",
+        "ninja -v install",
+    ],
     out_static_libs = ["libvmlib.a"],
     deps = [
         "@llvm//:llvm_lib",
