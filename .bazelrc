@@ -1,4 +1,6 @@
 build --enable_platform_specific_config
+build --action_env=CC=clang
+build --action_env=CXX=clnag++
 
 build:linux --cxxopt=-std=c++17
 # See https://bytecodealliance.github.io/wasmtime/c-api/
