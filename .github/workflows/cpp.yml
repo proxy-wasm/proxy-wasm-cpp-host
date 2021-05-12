@@ -73,5 +73,5 @@ jobs:
 
     - name: Test
       run: |
-        bazel test --define runtime=${{ matrix.runtime }} //...
+        bazel test --define runtime=${{ matrix.runtime }} //test/...
 
