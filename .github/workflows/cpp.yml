@@ -69,7 +69,7 @@ jobs:
             cache_key_regex: bytecodealliance/wasm-micro-runtime|llvm-project
           - runtime: wasmtime
             cache_key_regex: bytecodealliance/wasmtime
-          - runtime: wasmtime
+          - runtime: wavm
             cache_key_regex: WAVM/WAVM|llvm-project
 
     steps:
@@ -86,7 +86,7 @@ jobs:
       uses: actions/cache@v1
       with:
         path: "/home/runner/.cache/bazel"
-        key: ${{ env.GHA_BAZEL_CACHE_KEY }}
+        key: bazel-${{ env.GHA_BAZEL_CACHE_KEY }}
 
     - name: Test
       run: |
