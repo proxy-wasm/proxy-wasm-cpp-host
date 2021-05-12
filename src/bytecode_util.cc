@@ -17,7 +17,6 @@
 #include <cstring>
 
 namespace proxy_wasm {
-namespace utils {
 
 bool BytecodeUtil::checkWasmHeader(std::string_view bytecode) {
   // Wasm file header is 8 bytes (magic number + version).
@@ -241,5 +240,4 @@ bool BytecodeUtil::parseVarint(const char *&pos, const char *end, uint32_t &ret)
   return ret != static_cast<uint32_t>(-1);
 }
 
-} // namespace utils
 } // namespace proxy_wasm

@@ -23,7 +23,6 @@
 #include "gtest/gtest.h"
 
 namespace proxy_wasm {
-namespace utils {
 
 TEST(TestBytecodeUtil, getCustomSection) {
   std::string custom_section = {
@@ -117,5 +116,4 @@ TEST(TestBytecodeUtil, getAbiVersion) {
   EXPECT_EQ(actual, proxy_wasm::AbiVersion::ProxyWasm_0_2_0);
 }
 
-} // namespace utils
 } // namespace proxy_wasm

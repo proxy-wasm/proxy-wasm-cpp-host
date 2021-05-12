@@ -251,7 +251,7 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
   }
 
   // Get ABI version from the module.
-  if (!utils::BytecodeUtil::getAbiVersion(code, abi_version_)) {
+  if (!BytecodeUtil::getAbiVersion(code, abi_version_)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   }
@@ -261,7 +261,7 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
   }
 
   // Get function names from the module.
-  if (!utils::BytecodeUtil::getFunctionNameIndex(code, function_names_)) {
+  if (!BytecodeUtil::getFunctionNameIndex(code, function_names_)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   }
@@ -272,7 +272,7 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     // Check if precompiled module exists.
     const auto section_name = wasm_vm_->getPrecompiledSectionName();
     if (!section_name.empty()) {
-      if (!utils::BytecodeUtil::getCustomSection(code, section_name, precompiled)) {
+      if (!BytecodeUtil::getCustomSection(code, section_name, precompiled)) {
         fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
         return false;
       }
@@ -281,7 +281,7 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
 
   // Get original bytecode (possibly stripped).
   std::string stripped;
-  if (!utils::BytecodeUtil::getStrippedSource(code, stripped)) {
+  if (!BytecodeUtil::getStrippedSource(code, stripped)) {
     fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
     return false;
   }
