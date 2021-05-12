@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "src/common/bytecode_util.h"
+#include "include/proxy-wasm/bytecode_util.h"
+
 #include <cstring>
 
 namespace proxy_wasm {
-namespace common {
 
 bool BytecodeUtil::checkWasmHeader(std::string_view bytecode) {
   // Wasm file header is 8 bytes (magic number + version).
@@ -240,5 +240,4 @@ bool BytecodeUtil::parseVarint(const char *&pos, const char *end, uint32_t &ret)
   return ret != static_cast<uint32_t>(-1);
 }
 
-} // namespace common
 } // namespace proxy_wasm

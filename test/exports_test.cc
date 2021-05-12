@@ -52,7 +52,7 @@ TEST_P(TestVM, Environment) {
   initialize("env.wasm");
 
   auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", envs, {});
-  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, {}, {}));
 
   TestContext context(&wasm_base);
   current_context_ = &context;
@@ -74,7 +74,7 @@ TEST_P(TestVM, Environment) {
 TEST_P(TestVM, WithoutEnvironment) {
   initialize("env.wasm");
   auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", {}, {});
-  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, {}, {}));
 
   TestContext context(&wasm_base);
   current_context_ = &context;
@@ -94,7 +94,7 @@ TEST_P(TestVM, WithoutEnvironment) {
 TEST_P(TestVM, Clock) {
   initialize("clock.wasm");
   auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", {}, {});
-  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, false));
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, {}, {}));
 
   TestContext context(&wasm_base);
   current_context_ = &context;

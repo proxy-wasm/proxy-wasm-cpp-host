@@ -35,8 +35,8 @@ struct NullVm : public WasmVm {
   std::string_view runtime() override { return "null"; }
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
   std::unique_ptr<WasmVm> clone() override;
-  bool load(const std::string &code, bool allow_precompiled) override;
-  AbiVersion getAbiVersion() override;
+  bool load(std::string_view bytecode, std::string_view precompiled,
+            std::unordered_map<uint32_t, std::string> function_names) override;
   bool link(std::string_view debug_name) override;
   uint64_t getMemorySize() override;
   std::optional<std::string_view> getMemory(uint64_t pointer, uint64_t size) override;
