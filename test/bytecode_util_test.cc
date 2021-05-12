@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "src/common/bytecode_util.h"
+#include "include/proxy-wasm/bytecode_util.h"
 
 #include <fstream>
 #include <iostream>
@@ -23,9 +23,8 @@
 #include "gtest/gtest.h"
 
 namespace proxy_wasm {
-namespace common {
 
-TEST(TestWasmCommonUtil, getCustomSection) {
+TEST(TestBytecodeUtil, getCustomSection) {
   std::string custom_section = {
       0x00, 0x61, 0x73, 0x6d,       // Wasm magic
       0x01, 0x00, 0x00, 0x00,       // Wasm version
@@ -54,7 +53,7 @@ TEST(TestWasmCommonUtil, getCustomSection) {
   EXPECT_FALSE(BytecodeUtil::getCustomSection(corrupted, "hey", section));
 }
 
-TEST(TestWasmCommonUtil, getFunctionNameIndex) {
+TEST(TestBytecodeUtil, getFunctionNameIndex) {
   const auto source = readTestWasmFile("abi_export.wasm");
   std::unordered_map<uint32_t, std::string> actual;
   // OK.
@@ -73,7 +72,7 @@ TEST(TestWasmCommonUtil, getFunctionNameIndex) {
   EXPECT_TRUE(actual.empty());
 }
 
-TEST(TestWasmCommonUtil, getStrippedSource) {
+TEST(TestBytecodeUtil, getStrippedSource) {
   // Unmodified case.
   auto source = readTestWasmFile("abi_export.wasm");
   std::string actual;
@@ -110,12 +109,11 @@ TEST(TestWasmCommonUtil, getStrippedSource) {
   EXPECT_EQ(actual.size(), source.size() - custom_section.size());
 }
 
-TEST(TestWasmCommonUtil, getAbiVersion) {
+TEST(TestBytecodeUtil, getAbiVersion) {
   const auto source = readTestWasmFile("abi_export.wasm");
   proxy_wasm::AbiVersion actual;
   EXPECT_TRUE(BytecodeUtil::getAbiVersion(source, actual));
   EXPECT_EQ(actual, proxy_wasm::AbiVersion::ProxyWasm_0_2_0);
 }
 
-} // namespace common
 } // namespace proxy_wasm

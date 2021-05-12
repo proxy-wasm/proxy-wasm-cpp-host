@@ -40,24 +40,23 @@ std::unique_ptr<WasmVm> NullVm::clone() {
   auto cloned_null_vm = std::make_unique<NullVm>(*this);
   if (integration())
     cloned_null_vm->integration().reset(integration()->clone());
-  cloned_null_vm->load(plugin_name_, false /* unused */);
+  cloned_null_vm->load(plugin_name_, {} /* unused */, {} /* unused */);
   return cloned_null_vm;
 }
 
 // "Load" the plugin by obtaining a pointer to it from the factory.
-bool NullVm::load(const std::string &name, bool /* allow_precompiled */) {
+bool NullVm::load(std::string_view name, std::string_view,
+                  const std::unordered_map<uint32_t, std::string>) {
   if (!null_vm_plugin_factories_)
     return false;
-  auto factory = (*null_vm_plugin_factories_)[name];
+  auto factory = (*null_vm_plugin_factories_)[std::string(name)];
   if (!factory)
     return false;
   plugin_name_ = name;
   plugin_ = factory();
   plugin_->wasm_vm_ = this;
   return true;
-}
-
-AbiVersion NullVm::getAbiVersion() { return AbiVersion::ProxyWasm_0_2_1; }
+} // namespace proxy_wasm
 
 bool NullVm::link(std::string_view /* name */) { return true; }
 

@@ -19,6 +19,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
 
 #include "include/proxy-wasm/word.h"
 
@@ -174,14 +175,13 @@ public:
    * Load the WASM code from a file. Return true on success. Once the module is loaded it can be
    * queried, e.g. to see which version of emscripten support is required. After loading, the
    * appropriate ABI callbacks can be registered and then the module can be link()ed (see below).
-   * @param code the WASM binary code (or registered NullVm plugin name).
-   * @param allow_precompiled if true, allows supporting VMs (e.g. WAVM) to load the binary
-   * machine code from a user-defined section of the WASM file. Because that code is not verified by
-   * the proxy process it is up to the user to ensure that the code is both safe and is built for
-   * the linked in version of WAVM.
+   * @param bytecode the Wasm bytecode or registered NullVm plugin name.
+   * @param precompiled (optional) the precompiled Wasm module.
+   * @param function_names (optional) an index-to-name mapping for the functions.
    * @return whether or not the load was successful.
    */
-  virtual bool load(const std::string &code, bool allow_precompiled) = 0;
+  virtual bool load(std::string_view bytecode, std::string_view precompiled,
+                    const std::unordered_map<uint32_t, std::string> function_names) = 0;
 
   /**
    * Link the WASM code to the host-provided functions, e.g. the ABI. Prior to linking, the module
@@ -191,12 +191,6 @@ public:
    * @return whether or not the link was successful.
    */
   virtual bool link(std::string_view debug_name) = 0;
-
-  /**
-   * Get ABI version of the module.
-   * @return the ABI version.
-   */
-  virtual AbiVersion getAbiVersion() = 0;
 
   /**
    * Get size of the currently allocated memory in the VM.

@@ -26,9 +26,11 @@
 #include <string>
 #include <unordered_map>
 
+#include "include/proxy-wasm/bytecode_util.h"
+#include "include/proxy-wasm/vm_id_handle.h"
+
 #include "src/third_party/base64.h"
 #include "src/third_party/picosha2.h"
-#include "include/proxy-wasm/vm_id_handle.h"
 
 namespace proxy_wasm {
 
@@ -231,25 +233,91 @@ WasmBase::~WasmBase() {
   pending_delete_.clear();
 }
 
-bool WasmBase::initialize(const std::string &code, bool allow_precompiled) {
+bool WasmBase::load(const std::string &code, bool allow_precompiled) {
+  assert(!started_from_.has_value());
+
+  if (!wasm_vm_) {
+    return false;
+  }
+
+  if (wasm_vm_->runtime() == "null") {
+    auto ok = wasm_vm_->load(code, {}, {});
+    if (!ok) {
+      fail(FailState::UnableToInitializeCode, "Failed to load NullVM plugin");
+      return false;
+    }
+    abi_version_ = AbiVersion::ProxyWasm_0_2_1;
+    return true;
+  }
+
+  // Get ABI version from the module.
+  if (!BytecodeUtil::getAbiVersion(code, abi_version_)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
+  }
+  if (abi_version_ == AbiVersion::Unknown) {
+    fail(FailState::UnableToInitializeCode, "Missing or unknown Proxy-Wasm ABI version");
+    return false;
+  }
+
+  // Get function names from the module.
+  if (!BytecodeUtil::getFunctionNameIndex(code, function_names_)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
+  }
+
+  std::string_view precompiled = {};
+
+  if (allow_precompiled) {
+    // Check if precompiled module exists.
+    const auto section_name = wasm_vm_->getPrecompiledSectionName();
+    if (!section_name.empty()) {
+      if (!BytecodeUtil::getCustomSection(code, section_name, precompiled)) {
+        fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+        return false;
+      }
+    }
+  }
+
+  // Get original bytecode (possibly stripped).
+  std::string stripped;
+  if (!BytecodeUtil::getStrippedSource(code, stripped)) {
+    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    return false;
+  }
+
+  auto ok = wasm_vm_->load(stripped, precompiled, function_names_);
+  if (!ok) {
+    fail(FailState::UnableToInitializeCode, "Failed to load Wasm bytecode");
+    return false;
+  }
+
+  // Store for future use in non-cloneable runtimes.
+  if (wasm_vm_->cloneable() == Cloneable::NotCloneable) {
+    module_bytecode_ = stripped;
+    module_precompiled_ = precompiled;
+  }
+
+  return true;
+}
+
+bool WasmBase::initialize() {
   if (!wasm_vm_) {
     return false;
   }
 
   if (started_from_ == Cloneable::NotCloneable) {
-    auto ok = wasm_vm_->load(code, allow_precompiled);
+    auto ok = wasm_vm_->load(base_wasm_handle_->wasm()->moduleBytecode(),
+                             base_wasm_handle_->wasm()->modulePrecompiled(),
+                             base_wasm_handle_->wasm()->functionNames());
     if (!ok) {
-      fail(FailState::UnableToInitializeCode, "Failed to load Wasm code");
+      fail(FailState::UnableToInitializeCode, "Failed to load Wasm module from base Wasm");
       return false;
     }
-    code_ = code;
-    allow_precompiled_ = allow_precompiled;
   }
 
-  abi_version_ = wasm_vm_->getAbiVersion();
-  if (abi_version_ == AbiVersion::Unknown) {
-    fail(FailState::UnableToInitializeCode, "Missing or unknown Proxy-Wasm ABI version");
-    return false;
+  if (started_from_.has_value()) {
+    abi_version_ = base_wasm_handle_->wasm()->abiVersion();
   }
 
   if (started_from_ != Cloneable::InstantiatedModule) {
@@ -414,7 +482,11 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
     (*base_wasms)[vm_key] = wasm_handle;
   }
 
-  if (!wasm_handle->wasm()->initialize(code, allow_precompiled)) {
+  if (!wasm_handle->wasm()->load(code, allow_precompiled)) {
+    wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to load Wasm code");
+    return nullptr;
+  }
+  if (!wasm_handle->wasm()->initialize()) {
     wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
     return nullptr;
   }
@@ -423,7 +495,7 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
     wasm_handle->wasm()->fail(FailState::UnableToCloneVM, "Failed to clone Base Wasm");
     return nullptr;
   }
-  if (!configuration_canary_handle->wasm()->initialize(code, allow_precompiled)) {
+  if (!configuration_canary_handle->wasm()->initialize()) {
     wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
     return nullptr;
   }
@@ -473,8 +545,8 @@ getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_handle,
     base_handle->wasm()->fail(FailState::UnableToCloneVM, "Failed to clone Base Wasm");
     return nullptr;
   }
-  if (!wasm_handle->wasm()->initialize(base_handle->wasm()->code(),
-                                       base_handle->wasm()->allow_precompiled())) {
+
+  if (!wasm_handle->wasm()->initialize()) {
     base_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
     return nullptr;
   }
