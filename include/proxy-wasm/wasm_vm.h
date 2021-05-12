@@ -177,7 +177,7 @@ public:
    * appropriate ABI callbacks can be registered and then the module can be link()ed (see below).
    * @param bytecode the Wasm bytecode or registered NullVm plugin name.
    * @param precompiled (optional) the precompiled Wasm module.
-   * @param function_names (optional) an index-to-name mapping for the exported functions.
+   * @param function_names (optional) an index-to-name mapping for the functions.
    * @return whether or not the load was successful.
    */
   virtual bool load(std::string_view bytecode, std::string_view precompiled,
