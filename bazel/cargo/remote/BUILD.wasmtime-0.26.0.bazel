@@ -6,15 +6,15 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 """
 
 # buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
 load(
     "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
 )
-
-# buildifier: disable=load
-load("@bazel_skylib//lib:selects.bzl", "selects")
 
 package(default_visibility = [
     # Public for visibility by "@raze__crate__version//" targets.
@@ -55,18 +55,18 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host__anyhow__1_0_40//:anyhow",
-        "@proxy_wasm_cpp_host__backtrace__0_3_56//:backtrace",
-        "@proxy_wasm_cpp_host__bincode__1_3_2//:bincode",
+        "@proxy_wasm_cpp_host__backtrace__0_3_59//:backtrace",
+        "@proxy_wasm_cpp_host__bincode__1_3_3//:bincode",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__cpp_demangle__0_3_2//:cpp_demangle",
         "@proxy_wasm_cpp_host__indexmap__1_6_2//:indexmap",
         "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
-        "@proxy_wasm_cpp_host__libc__0_2_93//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_94//:libc",
         "@proxy_wasm_cpp_host__log__0_4_14//:log",
         "@proxy_wasm_cpp_host__psm__0_1_12//:psm",
         "@proxy_wasm_cpp_host__region__2_2_0//:region",
-        "@proxy_wasm_cpp_host__rustc_demangle__0_1_18//:rustc_demangle",
-        "@proxy_wasm_cpp_host__serde__1_0_125//:serde",
+        "@proxy_wasm_cpp_host__rustc_demangle__0_1_19//:rustc_demangle",
+        "@proxy_wasm_cpp_host__serde__1_0_126//:serde",
         "@proxy_wasm_cpp_host__smallvec__1_6_1//:smallvec",
         "@proxy_wasm_cpp_host__target_lexicon__0_12_0//:target_lexicon",
         "@proxy_wasm_cpp_host__wasmparser__0_77_0//:wasmparser",

@@ -6,15 +6,15 @@ DO NOT EDIT! Replaced on runs of cargo-raze
 """
 
 # buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
 load(
     "@rules_rust//rust:rust.bzl",
     "rust_binary",
     "rust_library",
     "rust_test",
 )
-
-# buildifier: disable=load
-load("@bazel_skylib//lib:selects.bzl", "selects")
 
 package(default_visibility = [
     # Public for visibility by "@raze__crate__version//" targets.
@@ -59,7 +59,7 @@ rust_library(
         "@proxy_wasm_cpp_host__log__0_4_14//:log",
         "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",
         "@proxy_wasm_cpp_host__region__2_2_0//:region",
-        "@proxy_wasm_cpp_host__serde__1_0_125//:serde",
+        "@proxy_wasm_cpp_host__serde__1_0_126//:serde",
         "@proxy_wasm_cpp_host__thiserror__1_0_24//:thiserror",
         "@proxy_wasm_cpp_host__wasmparser__0_77_0//:wasmparser",
     ],
