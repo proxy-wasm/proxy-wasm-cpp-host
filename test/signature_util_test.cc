@@ -26,7 +26,7 @@ namespace proxy_wasm {
 
 TEST(TestSignatureUtil, GoodSignature) {
 #ifndef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
-  ASSERT_STREQ("Built without a key for Wasm Signature validation.", "");
+  ASSERT_STREQ("Built without a key for verifying signed Wasm modules.", "");
 #endif
 
   const auto bytecode = readTestWasmFile("abi_export.signed.with.key1.wasm");
@@ -37,7 +37,7 @@ TEST(TestSignatureUtil, GoodSignature) {
 
 TEST(TestSignatureUtil, BadSignature) {
 #ifndef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
-  ASSERT_STREQ("Built without a key for Wasm Signature validation.", "");
+  ASSERT_STREQ("Built without a key for verifying signed Wasm modules.", "");
 #endif
 
   const auto bytecode = readTestWasmFile("abi_export.signed.with.key2.wasm");
@@ -48,7 +48,7 @@ TEST(TestSignatureUtil, BadSignature) {
 
 TEST(TestSignatureUtil, NoSignature) {
 #ifndef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
-  ASSERT_STREQ("Built without a key for Wasm Signature validation.", "");
+  ASSERT_STREQ("Built without a key for verifying signed Wasm modules.", "");
 #endif
 
   const auto bytecode = readTestWasmFile("abi_export.wasm");
