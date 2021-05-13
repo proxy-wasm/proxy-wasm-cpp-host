@@ -15,7 +15,7 @@
 #include "include/proxy-wasm/signature_util.h"
 
 #include <array>
-#include <string>
+#include <cstring>
 
 #include <openssl/curve25519.h>
 #include <openssl/sha.h>

@@ -75,3 +75,8 @@ jobs:
       run: |
         bazel test --define runtime=${{ matrix.runtime }} //...
 
+    - name: Test (signed Wasm module)
+      # Hex-encoded public key (signature_key1.pub):
+      # xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-
+      run: |
+        bazel test --define runtime=${{ matrix.runtime }} --cxxopt=-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"33fbfb5d412d33b165ab252ccd8ed5cd01c7d41faaf7e38e1e7d267380fbc72c\" //test:signature_util_test
