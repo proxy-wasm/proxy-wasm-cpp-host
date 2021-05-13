@@ -11,6 +11,7 @@ filegroup(
 
 cmake(
     name = "llvm_lib",
+    build_args = ["-v"],
     cache_entries = {
         # Disable both: BUILD and INCLUDE, since some of the INCLUDE
         # targets build code instead of only generating build files.
@@ -36,7 +37,6 @@ cmake(
         # using -l:libstdc++.a.
         "CMAKE_CXX_FLAGS": "-lstdc++",
     },
-    cmake_options = ["-GNinja"],
     env_vars = {
         # Workaround for the -DDEBUG flag added in fastbuild on macOS,
         # which conflicts with DEBUG macro used in LLVM.
@@ -44,11 +44,8 @@ cmake(
         "CXXFLAGS": "-UDEBUG",
         "ASMFLAGS": "-UDEBUG",
     },
+    generate_args = ["-GNinja"],
     lib_source = ":srcs",
-    make_commands = [
-        "ninja -v",
-        "ninja -v install",
-    ],
     out_static_libs = [
         "libLLVMInterpreter.a",
         "libLLVMWindowsManifest.a",

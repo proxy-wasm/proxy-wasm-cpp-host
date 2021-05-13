@@ -87,8 +87,6 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "df83a44b3a9a71029049ec101fb0077ecbbdf5fe41e395215025779099a98fdf",
         strip_prefix = "llvm-10.0.0.src",
         url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.0/llvm-10.0.0.src.tar.xz",
-        patch_args = ["-p1"],
-        patches = ["@proxy_wasm_cpp_host//bazel/external:llvm.patch"],
     )
 
     http_archive(

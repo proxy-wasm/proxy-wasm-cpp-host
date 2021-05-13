@@ -11,6 +11,7 @@ filegroup(
 
 cmake(
     name = "wavm_lib",
+    build_args = ["-v"],
     cache_entries = {
         "LLVM_DIR": "$EXT_BUILD_DEPS/copy_llvm/llvm/lib/cmake/llvm",
         "WAVM_ENABLE_STATIC_LINKING": "on",
@@ -20,7 +21,6 @@ cmake(
         # using -l:libstdc++.a.
         "CMAKE_CXX_FLAGS": "-lstdc++ -Wno-unused-command-line-argument",
     },
-    cmake_options = ["-GNinja"],
     defines = ["WASM_WAVM"],
     env_vars = {
         # Workaround for the -DDEBUG flag added in fastbuild on macOS,
@@ -29,11 +29,8 @@ cmake(
         "CXXFLAGS": "-UDEBUG",
         "ASMFLAGS": "-UDEBUG",
     },
+    generate_args = ["-GNinja"],
     lib_source = ":srcs",
-    make_commands = [
-        "ninja -v",
-        "ninja -v install",
-    ],
     out_static_libs = [
         "libWAVM.a",
         "libWAVMUnwind.a",
