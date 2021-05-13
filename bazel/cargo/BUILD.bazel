@@ -40,6 +40,15 @@ alias(
 )
 
 alias(
+    name = "wasmsign",
+    actual = "@proxy_wasm_cpp_host__wasmsign__0_1_2//:wasmsign",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "wasmtime",
     actual = "@proxy_wasm_cpp_host__wasmtime__0_26_0//:wasmtime",
     tags = [

@@ -25,18 +25,18 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # ISC from expression "ISC"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
 rust_library(
-    name = "byteorder",
+    name = "ed25519_compact",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
+        "getrandom",
+        "random",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -50,8 +50,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.4.3",
+    version = "0.1.9",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__getrandom__0_2_2//:getrandom",
     ],
 )
