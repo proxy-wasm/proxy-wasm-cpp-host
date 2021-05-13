@@ -79,11 +79,11 @@ jobs:
     # TODO(mathetake): Use native Bazel solution if possible.
     - name: Setup Bazel cache key
       run: | 
-        GHA_BAZEL_CACHE_KEY=$(cat bazel/repositories.bzl | grep -E "${{ matrix.cache_key_regex }}" | sha1sum)
+        GHA_BAZEL_CACHE_KEY=$(grep -E "${{ matrix.cache_key_regex }}" bazel/repositories.bzl | sha1sum | head -c 40)
         echo "GHA_BAZEL_CACHE_KEY=${GHA_BAZEL_CACHE_KEY}" >> $GITHUB_ENV
 
     - name: Mount bazel cache
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: "/home/runner/.cache/bazel"
         key: bazel-${{ env.GHA_BAZEL_CACHE_KEY }}
