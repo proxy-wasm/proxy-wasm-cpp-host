@@ -39,9 +39,9 @@ def proxy_wasm_cpp_host_repositories():
     http_archive(
         name = "wamr",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
-        sha256 = "1d870f396bb6bdcb5c816326655b19a2877bbdf879255c335b8e84ce4ee37780",
-        strip_prefix = "wasm-micro-runtime-9710d9325f426121cc1f2c62386a71d0c022d613",
-        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/9710d9325f426121cc1f2c62386a71d0c022d613.tar.gz",
+        sha256 = "46ad365a1c0668797e69cb868574fd526cd8e26a503213caf782c39061e6d2e1",
+        strip_prefix = "wasm-micro-runtime-17a216748574499bd3a5130e7e6a20b84fe76798",
+        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/17a216748574499bd3a5130e7e6a20b84fe76798.tar.gz",
     )
 
     http_archive(

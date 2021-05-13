@@ -11,6 +11,7 @@ filegroup(
 
 cmake(
     name = "wamr_lib",
+    build_args = ["-v"],
     cache_entries = {
         "LLVM_DIR": "$EXT_BUILD_DEPS/copy_llvm/llvm/lib/cmake/llvm",
         "WAMR_BUILD_INTERP": "1",
@@ -22,6 +23,7 @@ cmake(
         "WAMR_BUILD_TAIL_CALL": "1",
     },
     defines = ["WASM_WAMR"],
+    generate_args = ["-GNinja"],
     lib_source = ":srcs",
     out_static_libs = ["libvmlib.a"],
     deps = [
