@@ -61,16 +61,7 @@ jobs:
 
     strategy:
       matrix:
-        # runtime: Wasm runtime.
-        # cache_key_regex: used for calculating Bazel cache key.
-        include:
-          # TODO(mathetake): Add V8.
-          - runtime: wamr
-            cache_key_regex: bytecodealliance/wasm-micro-runtime|llvm-project
-          - runtime: wasmtime
-            cache_key_regex: bytecodealliance/wasmtime
-          - runtime: wavm
-            cache_key_regex: WAVM/WAVM|llvm-project
+        runtime: ["wamr", "wasmtime", "wavm"]
 
     steps:
     - uses: actions/checkout@v2
@@ -78,18 +69,11 @@ jobs:
     - name: Install dependency
       run: sudo apt-get install ninja-build
 
-    # Calculate the cache key by greping target repositories in repositories.bzl with "matrix.cache_key_regex".
-    # TODO(mathetake): Use native Bazel solution if possible.
-    - name: Setup Bazel cache key
-      run: | 
-        GHA_BAZEL_CACHE_KEY=$(grep -E "${{ matrix.cache_key_regex }}" bazel/repositories.bzl | sha1sum | head -c 40)
-        echo "GHA_BAZEL_CACHE_KEY=${GHA_BAZEL_CACHE_KEY}" >> $GITHUB_ENV
-
     - name: Mount bazel cache
       uses: actions/cache@v2
       with:
         path: "/home/runner/.cache/bazel"
-        key: bazel-${{ env.GHA_BAZEL_CACHE_KEY }}
+        key: bazel-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}-${{ matrix.runtime }}
 
     - name: Test
       run: |
