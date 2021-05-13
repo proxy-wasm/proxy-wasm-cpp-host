@@ -34,7 +34,13 @@ auto test_values = testing::ValuesIn(getRuntimes());
 INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, test_values);
 
 TEST_P(TestVM, Basic) {
-  EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
+  if (runtime_ == "wavm") {
+    EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::InstantiatedModule);
+  } else if (runtime_ == "wamr") {
+    EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::NotCloneable);
+  } else {
+    EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
+  }
   EXPECT_EQ(vm_->runtime(), runtime_);
 }
 
@@ -57,6 +63,9 @@ TEST_P(TestVM, Memory) {
 }
 
 TEST_P(TestVM, Clone) {
+  if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
+    return;
+  }
   initialize("abi_export.wasm");
   ASSERT_TRUE(vm_->load(source_, {}, {}));
   ASSERT_TRUE(vm_->link(""));
@@ -66,7 +75,9 @@ TEST_P(TestVM, Clone) {
     auto clone = vm_->clone();
     ASSERT_TRUE(clone != nullptr);
     ASSERT_NE(vm_, clone);
-    ASSERT_TRUE(clone->link(""));
+    if (vm_->cloneable() != proxy_wasm::Cloneable::InstantiatedModule) {
+      ASSERT_TRUE(clone->link(""));
+    }
 
     ASSERT_TRUE(clone->setWord(address, Word(100)));
     ASSERT_TRUE(clone->getWord(address, &word));
@@ -87,14 +98,19 @@ public:
 
 void nopCallback(void *raw_context) {}
 
-void callback(void *raw_context) {
-  TestContext *context = static_cast<TestContext *>(raw_context);
+void callback(void *) {
+  TestContext *context = static_cast<TestContext *>(current_context_);
   context->increment();
 }
 
-Word callback2(void *raw_context, Word val) { return val + 100; }
+Word callback2(void *, Word val) { return val + 100; }
 
 TEST_P(TestVM, StraceLogLevel) {
+  if (runtime_ == "wavm") {
+    // TODO(mathetake): strace is yet to be implemented for WAVM.
+    // See https://github.com/proxy-wasm/proxy-wasm-cpp-host/issues/120.
+    return;
+  }
   initialize("callback.wasm");
   ASSERT_TRUE(vm_->load(source_, {}, {}));
   vm_->registerCallback("env", "callback", &nopCallback,

@@ -101,7 +101,7 @@ namespace {
   } while (0)
 
 std::string getFailMessage(std::string_view function_name, WAVM::Runtime::Exception *exception) {
-  std::string message = "Function " + std::string(function_name) +
+  std::string message = "Function: " + std::string(function_name) +
                         " failed: " + WAVM::Runtime::describeExceptionType(exception->type) +
                         "\nProxy-Wasm plugin in-VM backtrace:\n";
   std::vector<std::string> callstack_descriptions =

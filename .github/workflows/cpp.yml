@@ -75,6 +75,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install dependency
+      run: sudo apt-get install ninja-build
+
     # Calculate the cache key by greping target repositories in repositories.bzl with "matrix.cache_key_regex".
     # TODO(mathetake): Use native Bazel solution if possible.
     - name: Setup Bazel cache key
@@ -91,4 +94,3 @@ jobs:
     - name: Test
       run: |
         bazel test --define runtime=${{ matrix.runtime }} //test/...
-
