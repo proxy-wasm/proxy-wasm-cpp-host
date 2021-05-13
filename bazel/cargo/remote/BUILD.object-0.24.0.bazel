@@ -25,17 +25,34 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
+# Unsupported target "ar" with type "example" omitted
+
+# Unsupported target "nm" with type "example" omitted
+
+# Unsupported target "objcopy" with type "example" omitted
+
+# Unsupported target "objdump" with type "example" omitted
+
+# Unsupported target "objectmap" with type "example" omitted
+
+# Unsupported target "readobj" with type "example" omitted
+
 rust_library(
-    name = "cranelift_entity",
+    name = "object",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "enable-serde",
-        "serde",
+        "archive",
+        "coff",
+        "elf",
+        "macho",
+        "pe",
+        "read_core",
+        "unaligned",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -48,9 +65,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.73.0",
+    version = "0.24.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__serde__1_0_126//:serde",
     ],
 )
+
+# Unsupported target "integration" with type "test" omitted
+
+# Unsupported target "parse_self" with type "test" omitted
