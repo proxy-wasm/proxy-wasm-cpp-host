@@ -38,8 +38,10 @@ TEST_P(TestVM, Basic) {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::InstantiatedModule);
   } else if (runtime_ == "wamr") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::NotCloneable);
-  } else {
+  } else if (runtime_ == "v8" || runtime_ == "wasmtime") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
+  } else {
+    FAIL();
   }
   EXPECT_EQ(vm_->runtime(), runtime_);
 }
@@ -75,7 +77,7 @@ TEST_P(TestVM, Clone) {
     auto clone = vm_->clone();
     ASSERT_TRUE(clone != nullptr);
     ASSERT_NE(vm_, clone);
-    if (vm_->cloneable() != proxy_wasm::Cloneable::InstantiatedModule) {
+    if (clone->cloneable() != proxy_wasm::Cloneable::InstantiatedModule) {
       ASSERT_TRUE(clone->link(""));
     }
 
@@ -168,11 +170,33 @@ TEST_P(TestVM, Trap) {
   initialize("trap.wasm");
   ASSERT_TRUE(vm_->load(source_, {}, {}));
   ASSERT_TRUE(vm_->link(""));
+  TestContext context;
+  current_context_ = &context;
   WasmCallVoid<0> trigger;
   vm_->getFunction("trigger", &trigger);
   EXPECT_TRUE(trigger != nullptr);
   trigger(current_context_);
   std::string exp_message = "Function: trigger failed";
+  ASSERT_TRUE(integration_->error_message_.find(exp_message) != std::string::npos);
+}
+
+TEST_P(TestVM, Trap2) {
+  if (runtime_ == "wavm") {
+    // TODO(mathetake): Somehow WAVM exits with 'munmap_chunk(): invalid pointer' on unidentified
+    // build condition in 'libstdc++ abi::__cxa_demangle' originally from
+    // WAVM::Runtime::describeCallStack. Needs further investigation.
+    return;
+  }
+  initialize("trap.wasm");
+  ASSERT_TRUE(vm_->load(source_, {}, {}));
+  TestContext context;
+  current_context_ = &context;
+  ASSERT_TRUE(vm_->link(""));
+  WasmCallWord<1> trigger2;
+  vm_->getFunction("trigger2", &trigger2);
+  EXPECT_TRUE(trigger2 != nullptr);
+  trigger2(current_context_, 0);
+  std::string exp_message = "Function: trigger2 failed";
   ASSERT_TRUE(integration_->error_message_.find(exp_message) != std::string::npos);
 }
 

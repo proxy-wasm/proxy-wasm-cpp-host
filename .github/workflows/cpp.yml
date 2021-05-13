@@ -60,6 +60,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         runtime: ["wamr", "wasmtime", "wavm"]
 
