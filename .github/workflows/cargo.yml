@@ -38,6 +38,6 @@ jobs:
     - name: Format (cargo raze)
       working-directory: bazel/cargo
       run: |
-        cargo install cargo-raze --version 0.9.2
+        cargo install cargo-raze --version 0.12.0
         cargo raze
         git diff --exit-code
