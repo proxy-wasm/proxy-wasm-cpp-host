@@ -11,7 +11,6 @@ filegroup(
 
 cmake(
     name = "llvm_lib",
-    build_args = ["-v"],
     cache_entries = {
         # Disable both: BUILD and INCLUDE, since some of the INCLUDE
         # targets build code instead of only generating build files.

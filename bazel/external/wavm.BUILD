@@ -11,7 +11,6 @@ filegroup(
 
 cmake(
     name = "wavm_lib",
-    build_args = ["-v"],
     cache_entries = {
         "LLVM_DIR": "$EXT_BUILD_DEPS/copy_llvm/llvm/lib/cmake/llvm",
         "WAVM_ENABLE_STATIC_LINKING": "on",
