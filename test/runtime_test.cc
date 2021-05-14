@@ -34,12 +34,12 @@ auto test_values = testing::ValuesIn(getRuntimes());
 INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, test_values);
 
 TEST_P(TestVM, Basic) {
-  if (runtime_ == "wavm") {
-    EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::InstantiatedModule);
-  } else if (runtime_ == "wamr") {
+  if (runtime_ == "wamr") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::NotCloneable);
-  } else if (runtime_ == "v8" || runtime_ == "wasmtime") {
+  } else if (runtime_ == "wasmtime" || runtime_ == "v8") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
+  } else if (runtime_ == "wavm") {
+    EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::InstantiatedModule);
   } else {
     FAIL();
   }
@@ -189,9 +189,9 @@ TEST_P(TestVM, Trap2) {
   }
   initialize("trap.wasm");
   ASSERT_TRUE(vm_->load(source_, {}, {}));
+  ASSERT_TRUE(vm_->link(""));
   TestContext context;
   current_context_ = &context;
-  ASSERT_TRUE(vm_->link(""));
   WasmCallWord<1> trigger2;
   vm_->getFunction("trigger2", &trigger2);
   EXPECT_TRUE(trigger2 != nullptr);

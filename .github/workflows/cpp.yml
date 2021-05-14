@@ -70,10 +70,12 @@ jobs:
     - name: Install dependency
       run: sudo apt-get install ninja-build
 
-    - name: Mount bazel cache
+    - name: Mount Bazel cache
       uses: actions/cache@v2
       with:
-        path: "/home/runner/.cache/bazel"
+        path: |
+          ~/.cache/bazel
+          ~/.cache/bazelisk
         key: bazel-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}-${{ matrix.runtime }}
 
     - name: Test
