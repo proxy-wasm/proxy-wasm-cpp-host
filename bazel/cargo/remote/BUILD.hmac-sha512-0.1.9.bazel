@@ -25,19 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # ISC from expression "ISC"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
 rust_library(
-    name = "byteorder",
+    name = "hmac_sha512",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
-        "std",
+        "sha384",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -50,7 +48,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.4.3",
+    version = "0.1.9",
     # buildifier: leave-alone
     deps = [
     ],

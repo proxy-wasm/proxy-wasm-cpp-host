@@ -27,6 +27,24 @@ cc_test(
 )
 
 cc_test(
+    name = "signature_util_test",
+    srcs = ["signature_util_test.cc"],
+    data = [
+        "//test/test_data:abi_export.signed.with.key1.wasm",
+        "//test/test_data:abi_export.signed.with.key2.wasm",
+        "//test/test_data:abi_export.wasm",
+    ],
+    # Test only when compiled to verify plugins.
+    tags = ["manual"],
+    deps = [
+        ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "runtime_test",
     srcs = ["runtime_test.cc"],
     data = [
