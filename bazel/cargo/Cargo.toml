@@ -20,3 +20,6 @@ gen_workspace_prefix = "proxy_wasm_cpp_host"
 genmode = "Remote"
 package_aliases_dir = "."
 workspace_path = "//bazel/cargo"
+
+[package.metadata.raze.crates.wasmsign.'0.1.2']
+extra_aliased_targets = ["cargo_bin_wasmsign"]

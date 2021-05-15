@@ -49,6 +49,17 @@ alias(
 )
 
 alias(
+    # Extra aliased target, from raze configuration
+    # N.B.: The exact form of this is subject to change.
+    name = "cargo_bin_wasmsign",
+    actual = "@proxy_wasm_cpp_host__wasmsign__0_1_2//:cargo_bin_wasmsign",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "wasmtime",
     actual = "@proxy_wasm_cpp_host__wasmtime__0_26_0//:wasmtime",
     tags = [
