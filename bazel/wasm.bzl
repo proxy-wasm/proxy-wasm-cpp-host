@@ -42,18 +42,28 @@ wasi_rust_transition = transition(
 
 def _wasm_binary_impl(ctx):
     out = ctx.actions.declare_file(ctx.label.name)
-    ctx.actions.run(
-        executable = "cp",
-        arguments = [ctx.files.binary[0].path, out.path],
-        outputs = [out],
-        inputs = ctx.files.binary,
-    )
+    if ctx.attr.signing_key:
+        ctx.actions.run(
+            executable = ctx.executable._wasmsign_tool,
+            arguments = ["--sign", "--use-custom-section", "--sk-path", ctx.files.signing_key[0].path, "--pk-path", ctx.files.signing_key[1].path, "--input", ctx.files.binary[0].path, "--output", out.path],
+            outputs = [out],
+            inputs = ctx.files.binary + ctx.files.signing_key,
+        )
+    else:
+        ctx.actions.run(
+            executable = "cp",
+            arguments = [ctx.files.binary[0].path, out.path],
+            outputs = [out],
+            inputs = ctx.files.binary,
+        )
 
     return [DefaultInfo(files = depset([out]), runfiles = ctx.runfiles([out]))]
 
 def _wasm_attrs(transition):
     return {
         "binary": attr.label(mandatory = True, cfg = transition),
+        "signing_key": attr.label_list(allow_files = True),
+        "_wasmsign_tool": attr.label(default = "//bazel/cargo:cargo_bin_wasmsign", executable = True, cfg = "exec"),
         "_whitelist_function_transition": attr.label(default = "@bazel_tools//tools/whitelists/function_transition_whitelist"),
     }
 
@@ -67,7 +77,7 @@ wasi_rust_binary_rule = rule(
     attrs = _wasm_attrs(wasi_rust_transition),
 )
 
-def wasm_rust_binary(name, tags = [], wasi = False, **kwargs):
+def wasm_rust_binary(name, tags = [], wasi = False, signing_key = [], **kwargs):
     wasm_name = "_wasm_" + name.replace(".", "_")
     kwargs.setdefault("visibility", ["//visibility:public"])
 
@@ -87,5 +97,6 @@ def wasm_rust_binary(name, tags = [], wasi = False, **kwargs):
     bin_rule(
         name = name,
         binary = ":" + wasm_name,
+        signing_key = signing_key,
         tags = tags + ["manual"],
     )

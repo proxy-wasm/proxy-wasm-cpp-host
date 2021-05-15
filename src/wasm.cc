@@ -27,6 +27,7 @@
 #include <unordered_map>
 
 #include "include/proxy-wasm/bytecode_util.h"
+#include "include/proxy-wasm/signature_util.h"
 #include "include/proxy-wasm/vm_id_handle.h"
 
 #include "src/third_party/base64.h"
@@ -248,6 +249,15 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     }
     abi_version_ = AbiVersion::ProxyWasm_0_2_1;
     return true;
+  }
+
+  // Verify signature.
+  std::string message;
+  if (!SignatureUtil::verifySignature(code, message)) {
+    fail(FailState::UnableToInitializeCode, message);
+    return false;
+  } else {
+    wasm_vm_->integration()->trace(message);
   }
 
   // Get ABI version from the module.

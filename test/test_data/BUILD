@@ -8,6 +8,24 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
+    name = "abi_export.signed.with.key1.wasm",
+    srcs = ["abi_export.rs"],
+    signing_key = [
+        "signature_key1.key",
+        "signature_key1.pub",
+    ],
+)
+
+wasm_rust_binary(
+    name = "abi_export.signed.with.key2.wasm",
+    srcs = ["abi_export.rs"],
+    signing_key = [
+        "signature_key2.key",
+        "signature_key2.pub",
+    ],
+)
+
+wasm_rust_binary(
     name = "callback.wasm",
     srcs = ["callback.rs"],
 )
