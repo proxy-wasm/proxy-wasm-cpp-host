@@ -21,5 +21,5 @@ genmode = "Remote"
 package_aliases_dir = "."
 workspace_path = "//bazel/cargo"
 
-[package.metadata.raze.crates.wasmsign.'0.1.2']
+[package.metadata.raze.crates.wasmsign.'*']
 extra_aliased_targets = ["cargo_bin_wasmsign"]
