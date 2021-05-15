@@ -76,7 +76,7 @@ jobs:
         path: |
           ~/.cache/bazel
           ~/.cache/bazelisk
-        key: bazel-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}-${{ matrix.runtime }}
+        key: bazel-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Test
       run: |
