@@ -53,13 +53,12 @@ cc_library(
 cc_library(
     name = "wamr_lib",
     srcs = glob([
-        # TODO(@mathetake): Add WAMR lib.
-        # "src/wamr/*.h",
-        # "src/wamr/*.cc",
+        "src/wamr/*.h",
+        "src/wamr/*.cc",
     ]),
     deps = [
         ":common_lib",
-        # TODO(@mathetake): Add WAMR lib.
+        "@wamr//:wamr_lib",
     ],
 )
 
@@ -78,13 +77,17 @@ cc_library(
 cc_library(
     name = "wavm_lib",
     srcs = glob([
-        # TODO(@mathetake): Add WAVM lib.
-        # "src/wavm/*.h",
-        # "src/wavm/*.cc",
+        "src/wavm/*.h",
+        "src/wavm/*.cc",
     ]),
+    copts = [
+        '-DWAVM_API=""',
+        "-Wno-non-virtual-dtor",
+        "-Wno-old-style-cast",
+    ],
     deps = [
         ":common_lib",
-        # TODO(@mathetake): Add WAVM lib.
+        "@wavm//:wavm_lib",
     ],
 )
 

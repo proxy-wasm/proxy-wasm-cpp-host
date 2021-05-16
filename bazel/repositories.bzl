@@ -39,9 +39,9 @@ def proxy_wasm_cpp_host_repositories():
     http_archive(
         name = "wamr",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
-        sha256 = "1d870f396bb6bdcb5c816326655b19a2877bbdf879255c335b8e84ce4ee37780",
-        strip_prefix = "wasm-micro-runtime-9710d9325f426121cc1f2c62386a71d0c022d613",
-        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/9710d9325f426121cc1f2c62386a71d0c022d613.tar.gz",
+        sha256 = "46ad365a1c0668797e69cb868574fd526cd8e26a503213caf782c39061e6d2e1",
+        strip_prefix = "wasm-micro-runtime-17a216748574499bd3a5130e7e6a20b84fe76798",
+        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/17a216748574499bd3a5130e7e6a20b84fe76798.tar.gz",
     )
 
     http_archive(
@@ -79,4 +79,20 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "d54742ffbdc6924f222d2179f0e10e911c5c659c4ae74158e9fe827aad862ac6",
         strip_prefix = "rules_foreign_cc-0.2.0",
         url = "https://github.com/bazelbuild/rules_foreign_cc/archive/0.2.0.tar.gz",
+    )
+
+    http_archive(
+        name = "llvm",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:llvm.BUILD",
+        sha256 = "df83a44b3a9a71029049ec101fb0077ecbbdf5fe41e395215025779099a98fdf",
+        strip_prefix = "llvm-10.0.0.src",
+        url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.0/llvm-10.0.0.src.tar.xz",
+    )
+
+    http_archive(
+        name = "wavm",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:wavm.BUILD",
+        sha256 = "ce899269516313b400005a8cc9bc3bcd8329663f43f7b4baae211ea0cd456a39",
+        strip_prefix = "WAVM-79c3aa29366615d9b1593cd527e5b4b94cc6072a",
+        url = "https://github.com/WAVM/WAVM/archive/79c3aa29366615d9b1593cd527e5b4b94cc6072a.tar.gz",
     )
