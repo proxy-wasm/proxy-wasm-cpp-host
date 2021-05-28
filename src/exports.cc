@@ -130,7 +130,7 @@ Word get_configuration(void *raw_context, Word value_ptr_ptr, Word value_size_pt
 }
 
 Word get_status(void *raw_context, Word code_ptr, Word value_ptr_ptr, Word value_size_ptr) {
-  auto context = WASM_CONTEXT(raw_context);
+  auto context = WASM_CONTEXT(raw_context)->root_context();
   auto status = context->getStatus();
   if (!context->wasm()->setDatatype(code_ptr, status.first)) {
     return WasmResult::InvalidMemoryAccess;
