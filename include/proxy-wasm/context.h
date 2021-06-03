@@ -32,6 +32,7 @@ namespace proxy_wasm {
 #include "proxy_wasm_common.h"
 #include "proxy_wasm_enums.h"
 
+class PluginHandleBase;
 class WasmBase;
 class WasmVm;
 
@@ -142,8 +143,8 @@ public:
   ContextBase();                                                   // Testing.
   ContextBase(WasmBase *wasm);                                     // Vm Context.
   ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin); // Root Context.
-  ContextBase(WasmBase *wasm, uint32_t parent_context_id,
-              std::shared_ptr<PluginBase> plugin); // Stream context.
+  ContextBase(WasmBase *wasm, uint32_t parent_context_id, std::shared_ptr<PluginBase> plugin,
+              std::shared_ptr<PluginHandleBase> plugin_handle); // Stream context.
   virtual ~ContextBase();
 
   WasmBase *wasm() const { return wasm_; }
@@ -394,12 +395,13 @@ protected:
 
   WasmBase *wasm_{nullptr};
   uint32_t id_{0};
-  uint32_t parent_context_id_{0};           // 0 for roots and the general context.
-  ContextBase *parent_context_{nullptr};    // set in all contexts.
-  std::string root_id_;                     // set only in root context.
-  std::string root_log_prefix_;             // set only in root context.
-  std::shared_ptr<PluginBase> plugin_;      // set in root and stream contexts.
-  std::shared_ptr<PluginBase> temp_plugin_; // Remove once ABI v0.1.0 is gone.
+  uint32_t parent_context_id_{0};                   // 0 for roots and the general context.
+  ContextBase *parent_context_{nullptr};            // set in all contexts.
+  std::string root_id_;                             // set only in root context.
+  std::string root_log_prefix_;                     // set only in root context.
+  std::shared_ptr<PluginBase> plugin_;              // set in root and stream contexts.
+  std::shared_ptr<PluginHandleBase> plugin_handle_; // set only in stream context.
+  std::shared_ptr<PluginBase> temp_plugin_;         // Remove once ABI v0.1.0 is gone.
   bool in_vm_context_created_ = false;
   bool destroyed_ = false;
   bool stream_failed_ = false; // Set true after failStream is called in case of VM failure.
