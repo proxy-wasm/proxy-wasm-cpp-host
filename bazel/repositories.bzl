@@ -68,13 +68,6 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     http_archive(
-        name = "com_google_protobuf",
-        sha256 = "59621f4011a95df270748dcc0ec1cc51946473f0e140d4848a2f20c8719e43aa",
-        strip_prefix = "protobuf-655310ca192a6e3a050e0ca0b7084a2968072260",
-        url = "https://github.com/protocolbuffers/protobuf/archive/655310ca192a6e3a050e0ca0b7084a2968072260.tar.gz",
-    )
-
-    http_archive(
         name = "rules_foreign_cc",
         sha256 = "d54742ffbdc6924f222d2179f0e10e911c5c659c4ae74158e9fe827aad862ac6",
         strip_prefix = "rules_foreign_cc-0.2.0",
