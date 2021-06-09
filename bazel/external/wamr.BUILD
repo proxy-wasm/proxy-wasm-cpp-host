@@ -21,7 +21,6 @@ cmake(
         "WAMR_BUILD_LIBC_WASI": "0",
         "WAMR_BUILD_TAIL_CALL": "1",
     },
-    defines = ["WASM_WAMR"],
     generate_args = ["-GNinja"],
     lib_source = ":srcs",
     out_static_libs = ["libvmlib.a"],

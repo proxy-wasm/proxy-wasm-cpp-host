@@ -23,16 +23,16 @@
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
 
-#if defined(WASM_V8)
+#if defined(PROXY_WASM_HAS_RUNTIME_V8)
 #include "include/proxy-wasm/v8.h"
 #endif
-#if defined(WASM_WAVM)
+#if defined(PROXY_WASM_HAS_RUNTIME_WAVM)
 #include "include/proxy-wasm/wavm.h"
 #endif
-#if defined(WASM_WASMTIME)
+#if defined(PROXY_WASM_HAS_RUNTIME_WASMTIME)
 #include "include/proxy-wasm/wasmtime.h"
 #endif
-#if defined(WASM_WAMR)
+#if defined(PROXY_WASM_HAS_RUNTIME_WAMR)
 #include "include/proxy-wasm/wamr.h"
 #endif
 
@@ -71,22 +71,25 @@ public:
     runtime_ = GetParam();
     if (runtime_ == "") {
       EXPECT_TRUE(false) << "runtime must not be empty";
-#if defined(WASM_V8)
+#if defined(PROXY_WASM_HAS_RUNTIME_V8)
     } else if (runtime_ == "v8") {
       vm_ = proxy_wasm::createV8Vm();
 #endif
-#if defined(WASM_WAVM)
+#if defined(PROXY_WASM_HAS_RUNTIME_WAVM)
     } else if (runtime_ == "wavm") {
       vm_ = proxy_wasm::createWavmVm();
 #endif
-#if defined(WASM_WASMTIME)
+#if defined(PROXY_WASM_HAS_RUNTIME_WASMTIME)
     } else if (runtime_ == "wasmtime") {
       vm_ = proxy_wasm::createWasmtimeVm();
 #endif
-#if defined(WASM_WAMR)
+#if defined(PROXY_WASM_HAS_RUNTIME_WAMR)
     } else if (runtime_ == "wamr") {
       vm_ = proxy_wasm::createWamrVm();
 #endif
+    } else {
+      EXPECT_TRUE(false) << "compiled without support for the requested \"" << runtime_
+                         << "\" runtime";
     }
     vm_->integration().reset(integration_);
   }

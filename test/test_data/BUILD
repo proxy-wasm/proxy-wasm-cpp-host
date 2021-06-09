@@ -1,5 +1,7 @@
 load("@proxy_wasm_cpp_host//bazel:wasm.bzl", "wasm_rust_binary")
 
+licenses(["notice"])  # Apache 2
+
 package(default_visibility = ["//visibility:public"])
 
 wasm_rust_binary(
