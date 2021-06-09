@@ -18,16 +18,16 @@ namespace proxy_wasm {
 
 std::vector<std::string> getRuntimes() {
   std::vector<std::string> runtimes = {
-#if defined(WASM_V8)
+#if defined(PROXY_WASM_HAS_RUNTIME_V8)
     "v8",
 #endif
-#if defined(WASM_WAVM)
+#if defined(PROXY_WASM_HAS_RUNTIME_WAVM)
     "wavm",
 #endif
-#if defined(WASM_WASMTIME)
+#if defined(PROXY_WASM_HAS_RUNTIME_WASMTIME)
     "wasmtime",
 #endif
-#if defined(WASM_WAMR)
+#if defined(PROXY_WASM_HAS_RUNTIME_WAMR)
     "wamr",
 #endif
     ""

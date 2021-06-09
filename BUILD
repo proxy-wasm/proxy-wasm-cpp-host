@@ -74,6 +74,7 @@ cc_library(
         "include/proxy-wasm/null_vm_plugin.h",
         "include/proxy-wasm/wasm_api_impl.h",
     ],
+    defines = ["PROXY_WASM_HAS_RUNTIME_NULL"],
     deps = [
         ":headers",
         "@proxy_wasm_cpp_sdk//:api_lib",
@@ -86,6 +87,7 @@ cc_library(
         "src/v8/v8.cc",
     ],
     hdrs = ["include/proxy-wasm/v8.h"],
+    defines = ["PROXY_WASM_HAS_RUNTIME_V8"],
     deps = [
         ":wasm_vm_headers",
         "//external:wee8",
@@ -100,6 +102,7 @@ cc_library(
         "src/wamr/wamr.cc",
     ],
     hdrs = ["include/proxy-wasm/wamr.h"],
+    defines = ["PROXY_WASM_HAS_RUNTIME_WAMR"],
     deps = [
         ":wasm_vm_headers",
         "//external:wamr",
@@ -114,6 +117,7 @@ cc_library(
         "src/wasmtime/wasmtime.cc",
     ],
     hdrs = ["include/proxy-wasm/wasmtime.h"],
+    defines = ["PROXY_WASM_HAS_RUNTIME_WASMTIME"],
     deps = [
         ":wasm_vm_headers",
         "//external:wasmtime",
@@ -131,6 +135,7 @@ cc_library(
         "-Wno-non-virtual-dtor",
         "-Wno-old-style-cast",
     ],
+    defines = ["PROXY_WASM_HAS_RUNTIME_WAVM"],
     deps = [
         ":wasm_vm_headers",
         "//external:wavm",
