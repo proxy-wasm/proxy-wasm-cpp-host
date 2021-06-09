@@ -11,6 +11,8 @@ licenses(["notice"])  # Apache 2
 
 package(default_visibility = ["//visibility:public"])
 
+exports_files(["LICENSE"])
+
 cc_library(
     name = "wasm_vm_headers",
     hdrs = [
