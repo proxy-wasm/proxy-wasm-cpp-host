@@ -47,9 +47,6 @@ cc_library(
         "src/shared_queue.cc",
         "src/shared_queue.h",
         "src/signature_util.cc",
-        "src/third_party/base64.cc",
-        "src/third_party/base64.h",
-        "src/third_party/picosha2.h",
         "src/vm_id_handle.cc",
         "src/wasm.cc",
     ],
@@ -79,7 +76,6 @@ cc_library(
     ],
     deps = [
         ":headers",
-        "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
     ],
 )
