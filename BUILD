@@ -26,8 +26,6 @@ cc_library(
         "src/*.cc",
         "src/common/*.h",
         "src/null/*.cc",
-        "src/third_party/*.h",
-        "src/third_party/*.cc",
     ]),
     deps = [
         ":include",

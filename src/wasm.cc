@@ -26,12 +26,11 @@
 #include <string>
 #include <unordered_map>
 
+#include <openssl/sha.h>
+
 #include "include/proxy-wasm/bytecode_util.h"
 #include "include/proxy-wasm/signature_util.h"
 #include "include/proxy-wasm/vm_id_handle.h"
-
-#include "src/third_party/base64.h"
-#include "src/third_party/picosha2.h"
 
 namespace proxy_wasm {
 
@@ -50,18 +49,24 @@ std::unordered_map<std::string, WasmForeignFunction> *foreign_functions = nullpt
 
 const std::string INLINE_STRING = "<inline>";
 
-std::string Sha256(std::string_view data) {
-  std::vector<unsigned char> hash(picosha2::k_digest_size);
-  picosha2::hash256(data.begin(), data.end(), hash.begin(), hash.end());
-  return std::string(reinterpret_cast<const char *>(&hash[0]), hash.size());
+std::vector<uint8_t> Sha256(const std::vector<std::string_view> parts) {
+  uint8_t sha256[SHA256_DIGEST_LENGTH];
+  SHA256_CTX sha_ctx;
+  SHA256_Init(&sha_ctx);
+  for (auto part : parts) {
+    SHA256_Update(&sha_ctx, part.data(), part.size());
+  }
+  SHA256_Final(sha256, &sha_ctx);
+  return std::vector<uint8_t>(std::begin(sha256), std::end(sha256));
 }
 
-std::string Xor(std::string_view a, std::string_view b) {
-  assert(a.size() == b.size());
+std::string BytesToHex(std::vector<uint8_t> bytes) {
+  static const char *const hex = "0123456789ABCDEF";
   std::string result;
-  result.reserve(a.size());
-  for (size_t i = 0; i < a.size(); i++) {
-    result.push_back(a[i] ^ b[i]);
+  result.reserve(bytes.size() * 2);
+  for (auto byte : bytes) {
+    result.push_back(hex[byte >> 4]);
+    result.push_back(hex[byte & 0xf]);
   }
   return result;
 }
@@ -70,12 +75,7 @@ std::string Xor(std::string_view a, std::string_view b) {
 
 std::string makeVmKey(std::string_view vm_id, std::string_view vm_configuration,
                       std::string_view code) {
-  std::string vm_key = Sha256(vm_id);
-  vm_key = Xor(vm_key, Sha256(vm_configuration));
-  vm_key = Xor(vm_key, Sha256(code));
-  auto start = reinterpret_cast<uint8_t *>(&*vm_key.begin());
-  auto end = start + vm_key.size();
-  return base64Encode(start, end);
+  return BytesToHex(Sha256({vm_id, vm_configuration, code}));
 }
 
 class WasmBase::ShutdownHandle {
