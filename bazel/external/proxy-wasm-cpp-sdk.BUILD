@@ -6,7 +6,13 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "api_lib",
-    hdrs = ["proxy_wasm_api.h"],
+    hdrs = [
+        "proxy_wasm_api.h",
+        "proxy_wasm_externs.h",
+    ],
+    deps = [
+        ":common_lib",
+    ],
 )
 
 cc_library(

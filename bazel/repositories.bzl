@@ -17,9 +17,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 def proxy_wasm_cpp_host_repositories():
     http_archive(
         name = "proxy_wasm_cpp_sdk",
-        sha256 = "b97e3e716b1f38dc601487aa0bde72490bbc82b8f3ad73f1f3e69733984955df",
-        strip_prefix = "proxy-wasm-cpp-sdk-956f0d500c380cc1656a2d861b7ee12c2515a664",
-        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/956f0d500c380cc1656a2d861b7ee12c2515a664.tar.gz"],
+        sha256 = "73460c9c7243ea27babe9db5e8fc646a1ccaae1faeb6e17a4b21fc46d5867a95",
+        strip_prefix = "proxy-wasm-cpp-sdk-b8321ec4c758e23ed831361daa55c5b88ee7e4cd",
+        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/b8321ec4c758e23ed831361daa55c5b88ee7e4cd.tar.gz"],
     )
 
     http_archive(

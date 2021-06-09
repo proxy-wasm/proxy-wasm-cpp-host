@@ -17,8 +17,9 @@
 
 #include <memory>
 
-#include "include/proxy-wasm/word.h"
+#include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm_vm.h"
+#include "include/proxy-wasm/word.h"
 
 namespace proxy_wasm {
 
