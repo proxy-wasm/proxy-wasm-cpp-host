@@ -21,7 +21,4 @@ cc_library(
         "proxy_wasm_common.h",
         "proxy_wasm_enums.h",
     ],
-    deps = [
-        "@com_google_protobuf//:protobuf_lite",
-    ],
 )

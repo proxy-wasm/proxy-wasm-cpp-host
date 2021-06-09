@@ -15,6 +15,17 @@
 
 #pragma once
 
+// Required by "proxy_wasm_api.h" included within null_plugin namespace.
+
+#include <cstring>
+#include <functional>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 #include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/word.h"
 
