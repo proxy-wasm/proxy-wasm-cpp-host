@@ -37,15 +37,20 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     http_archive(
-        name = "wamr",
+        name = "com_github_bytecodealliance_wasm_micro_runtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
         sha256 = "46ad365a1c0668797e69cb868574fd526cd8e26a503213caf782c39061e6d2e1",
         strip_prefix = "wasm-micro-runtime-17a216748574499bd3a5130e7e6a20b84fe76798",
         url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/17a216748574499bd3a5130e7e6a20b84fe76798.tar.gz",
     )
 
+    native.bind(
+        name = "wamr",
+        actual = "@com_github_bytecodealliance_wasm_micro_runtime//:wamr_lib",
+    )
+
     http_archive(
-        name = "wasmtime",
+        name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
         sha256 = "e95d274822ac72bf06355bdfbeddcacae60d7e98fec8ee4b2e21740636fb5c2c",
         strip_prefix = "wasmtime-0.26.0",
@@ -53,11 +58,16 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     http_archive(
-        name = "wasm_c_api",
+        name = "com_github_webassembly_wasm_c_api",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasm-c-api.BUILD",
         sha256 = "c774044f51431429e878bd1b9e2a4e38932f861f9211df72f75e9427eb6b8d32",
         strip_prefix = "wasm-c-api-c9d31284651b975f05ac27cee0bab1377560b87e",
         url = "https://github.com/WebAssembly/wasm-c-api/archive/c9d31284651b975f05ac27cee0bab1377560b87e.tar.gz",
+    )
+
+    native.bind(
+        name = "wasmtime",
+        actual = "@com_github_webassembly_wasm_c_api//:wasmtime_lib",
     )
 
     http_archive(
@@ -83,9 +93,14 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     http_archive(
-        name = "wavm",
+        name = "com_github_wavm_wavm",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wavm.BUILD",
         sha256 = "fa9a8dece0f1a51f8789c07f7f0c1f817ceee54c57d85f22ab958e43cde648d3",
         strip_prefix = "WAVM-93c3ad73e2938f19c8bb26d4f456b39d6bc4ca01",
         url = "https://github.com/WAVM/WAVM/archive/93c3ad73e2938f19c8bb26d4f456b39d6bc4ca01.tar.gz",
+    )
+
+    native.bind(
+        name = "wavm",
+        actual = "@com_github_wavm_wavm//:wavm_lib",
     )

@@ -29,8 +29,6 @@
 #include <utility>
 #include <vector>
 
-#include "include/proxy-wasm/bytecode_util.h"
-
 #include "src/wamr/types.h"
 #include "wasm_c_api.h"
 
