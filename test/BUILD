@@ -119,6 +119,7 @@ cc_test(
 
 cc_library(
     name = "utility_lib",
+    testonly = True,
     srcs = [
         "utility.cc",
         "utility.h",
