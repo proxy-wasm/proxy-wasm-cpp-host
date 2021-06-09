@@ -32,6 +32,7 @@
 namespace proxy_wasm {
 namespace null_plugin {
 
+#include "proxy_wasm_enums.h"
 #include "proxy_wasm_common.h"
 
 #define WS(_x) Word(static_cast<uint64_t>(_x))
