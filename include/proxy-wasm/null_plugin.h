@@ -17,17 +17,9 @@
 
 #include <memory>
 
-#include "google/protobuf/message.h"
+#include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/null_vm_plugin.h"
 #include "include/proxy-wasm/wasm.h"
-#include "include/proxy-wasm/exports.h"
-
-namespace proxy_wasm {
-namespace null_plugin {
-#include "proxy_wasm_enums.h"
-} // namespace null_plugin
-} // namespace proxy_wasm
-
 #include "include/proxy-wasm/wasm_api_impl.h"
 
 namespace proxy_wasm {

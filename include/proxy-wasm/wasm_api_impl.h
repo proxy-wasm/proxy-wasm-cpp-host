@@ -15,8 +15,25 @@
 
 #pragma once
 
+// Required by "proxy_wasm_api.h" included within null_plugin namespace.
+
+#include <cstring>
+#include <functional>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "include/proxy-wasm/exports.h"
+#include "include/proxy-wasm/word.h"
+
 namespace proxy_wasm {
 namespace null_plugin {
+
+#include "proxy_wasm_enums.h"
+#include "proxy_wasm_common.h"
 
 #define WS(_x) Word(static_cast<uint64_t>(_x))
 #define WR(_x) Word(reinterpret_cast<uint64_t>(_x))

@@ -20,7 +20,6 @@ cmake(
         # using -l:libstdc++.a.
         "CMAKE_CXX_FLAGS": "-lstdc++ -Wno-unused-command-line-argument",
     },
-    defines = ["WASM_WAVM"],
     env_vars = {
         # Workaround for the -DDEBUG flag added in fastbuild on macOS,
         # which conflicts with DEBUG macro used in LLVM.

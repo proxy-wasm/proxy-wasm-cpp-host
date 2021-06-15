@@ -1,5 +1,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
+licenses(["notice"])  # Apache 2
+
 package(default_visibility = ["//visibility:public"])
 
 cc_test(
@@ -117,6 +119,7 @@ cc_test(
 
 cc_library(
     name = "utility_lib",
+    testonly = True,
     srcs = [
         "utility.cc",
         "utility.h",
