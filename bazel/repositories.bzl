@@ -17,9 +17,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 def proxy_wasm_cpp_host_repositories():
     http_archive(
         name = "proxy_wasm_cpp_sdk",
-        sha256 = "489768fb95ede507543ee5982610b541a2c5b57216695a9e5c2eb8c83c9d20a3",
-        strip_prefix = "proxy-wasm-cpp-sdk-9af5ac0145a8790f62ca501c43f6fa1ea24d2d93",
-        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/9af5ac0145a8790f62ca501c43f6fa1ea24d2d93.tar.gz"],
+        sha256 = "c57de2425b5c61d7f630c5061e319b4557ae1f1c7526e5a51c33dc1299471b08",
+        strip_prefix = "proxy-wasm-cpp-sdk-fd0be8405db25de0264bdb78fae3a82668c03782",
+        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/fd0be8405db25de0264bdb78fae3a82668c03782.tar.gz"],
     )
 
     http_archive(
@@ -34,6 +34,13 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
         strip_prefix = "googletest-release-1.10.0",
         urls = ["https://github.com/google/googletest/archive/release-1.10.0.tar.gz"],
+    )
+
+    http_archive(
+        name = "com_google_protobuf",
+        sha256 = "77ad26d3f65222fd96ccc18b055632b0bfedf295cb748b712a98ba1ac0b704b2",
+        strip_prefix = "protobuf-3.17.3",
+        url = "https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protobuf-all-3.17.3.tar.gz",
     )
 
     http_archive(
