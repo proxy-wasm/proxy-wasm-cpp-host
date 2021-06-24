@@ -98,9 +98,9 @@ ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin)
 
 // NB: wasm can be nullptr if it failed to be created successfully.
 ContextBase::ContextBase(WasmBase *wasm, uint32_t parent_context_id,
-                         std::shared_ptr<PluginBase> plugin)
+                         std::shared_ptr<PluginHandleBase> plugin_handle)
     : wasm_(wasm), id_(wasm ? wasm->allocContextId() : 0), parent_context_id_(parent_context_id),
-      plugin_(plugin) {
+      plugin_(plugin_handle->plugin()), plugin_handle_(plugin_handle) {
   if (wasm_) {
     wasm_->contexts_[id_] = this;
     parent_context_ = wasm_->contexts_[parent_context_id_];

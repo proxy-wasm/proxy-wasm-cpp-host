@@ -321,14 +321,19 @@ class PluginHandleBase : public std::enable_shared_from_this<PluginHandleBase> {
 public:
   explicit PluginHandleBase(std::shared_ptr<WasmHandleBase> wasm_handle,
                             std::shared_ptr<PluginBase> plugin)
-      : wasm_handle_(wasm_handle), plugin_key_(plugin->key()) {}
-  ~PluginHandleBase() { wasm_handle_->wasm()->startShutdown(plugin_key_); }
+      : plugin_(plugin), wasm_handle_(wasm_handle) {}
+  ~PluginHandleBase() {
+    if (wasm_handle_) {
+      wasm_handle_->wasm()->startShutdown(plugin_->key());
+    }
+  }
 
+  std::shared_ptr<PluginBase> &plugin() { return plugin_; }
   std::shared_ptr<WasmBase> &wasm() { return wasm_handle_->wasm(); }
 
 protected:
+  std::shared_ptr<PluginBase> plugin_;
   std::shared_ptr<WasmHandleBase> wasm_handle_;
-  std::string plugin_key_;
 };
 
 using PluginHandleFactory = std::function<std::shared_ptr<PluginHandleBase>(
