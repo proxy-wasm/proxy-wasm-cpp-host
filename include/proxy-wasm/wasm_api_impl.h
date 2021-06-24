@@ -17,6 +17,10 @@
 
 // Required by "proxy_wasm_api.h" included within null_plugin namespace.
 
+#ifdef PROXY_WASM_PROTOBUF
+#include "google/protobuf/message_lite.h"
+#endif
+
 #include <cstring>
 #include <functional>
 #include <memory>

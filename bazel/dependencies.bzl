@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@proxy_wasm_cpp_host//bazel/cargo:crates.bzl", "proxy_wasm_cpp_host_fetch_remote_crates")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories")
 
 def proxy_wasm_cpp_host_dependencies():
+    protobuf_deps()
     rust_repositories()
     proxy_wasm_cpp_host_fetch_remote_crates()
