@@ -234,7 +234,7 @@ WasmBase::~WasmBase() {
   pending_delete_.clear();
 }
 
-bool WasmBase::load(const std::string &code, bool allow_precompiled) {
+bool WasmBase::load(const std::string &code, bool allow_precompiled, const std::string pubkey) {
   assert(!started_from_.has_value());
 
   if (!wasm_vm_) {
@@ -251,13 +251,15 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     return true;
   }
 
-  // Verify signature.
-  std::string message;
-  if (!SignatureUtil::verifySignature(code, message)) {
-    fail(FailState::UnableToInitializeCode, message);
-    return false;
-  } else {
-    wasm_vm_->integration()->trace(message);
+  // Verify signature if a pubkey is present.
+  if (!pubkey.empty()) {
+    std::string message;
+    if (!SignatureUtil::verifySignature(code, pubkey, message)) {
+      fail(FailState::UnableToInitializeCode, message);
+      return false;
+    } else {
+      wasm_vm_->integration()->trace(message);
+    }
   }
 
   // Get ABI version from the module.
@@ -465,6 +467,7 @@ WasmForeignFunction WasmBase::getForeignFunction(std::string_view function_name)
 }
 
 std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
+                                           std::string pubkey,
                                            std::shared_ptr<PluginBase> plugin,
                                            WasmHandleFactory factory,
                                            WasmHandleCloneFactory clone_factory,
@@ -492,7 +495,7 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
     (*base_wasms)[vm_key] = wasm_handle;
   }
 
-  if (!wasm_handle->wasm()->load(code, allow_precompiled)) {
+  if (!wasm_handle->wasm()->load(code, allow_precompiled, pubkey)) {
     wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to load Wasm code");
     return nullptr;
   }

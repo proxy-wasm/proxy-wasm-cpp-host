@@ -35,6 +35,7 @@ cc_test(
         "//test/test_data:abi_export.signed.with.key1.wasm",
         "//test/test_data:abi_export.signed.with.key2.wasm",
         "//test/test_data:abi_export.wasm",
+        "//test/test_data:signature_key1.pub",
     ],
     # Test only when compiled to verify plugins.
     tags = ["manual"],

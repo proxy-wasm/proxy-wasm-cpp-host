@@ -24,7 +24,6 @@
 
 namespace {
 
-#ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
 
 static uint8_t hex2dec(const unsigned char c) {
   if (c >= '0' && c <= '9') {
@@ -46,15 +45,13 @@ template <size_t N> constexpr std::array<uint8_t, N> hex2pubkey(const char (&hex
   return pubkey;
 }
 
-#endif
 
 } // namespace
 
 namespace proxy_wasm {
 
-bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &message) {
-
-#ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
+bool SignatureUtil::verifySignature(std::string_view bytecode, std::string pubkey, std::string &message) {
+  if (!pubkey.empty()) {
 
   /*
    * Ed25519 signature generated using https://github.com/jedisct1/wasmsign
@@ -101,7 +98,9 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
   uint8_t hash[SHA512_DIGEST_LENGTH];
   SHA512_Final(hash, &ctx);
 
-  static const auto ed25519_pubkey = hex2pubkey<32>(PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY);
+  char pubkey_char[65];
+  strcpy(pubkey_char, pubkey.c_str());
+  static const auto ed25519_pubkey = hex2pubkey<32>(pubkey_char);
 
   if (!ED25519_verify(hash, sizeof(hash), signature, ed25519_pubkey.data())) {
     message = "Signature mismatch";
@@ -110,9 +109,7 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
 
   message = "Wasm signature OK (Ed25519)";
   return true;
-
-#endif
-
+  }
   return true;
 }
 
