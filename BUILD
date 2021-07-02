@@ -79,6 +79,7 @@ cc_library(
     defines = ["PROXY_WASM_HAS_RUNTIME_NULL"],
     deps = [
         ":headers",
+        "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
     ],
 )
