@@ -133,8 +133,8 @@ struct WasmVmIntegration {
 
 enum class FailState : int {
   Ok = 0,
-  UnableToCreateVM = 1,
-  UnableToCloneVM = 2,
+  UnableToCreateVm = 1,
+  UnableToCloneVm = 2,
   MissingFunction = 3,
   UnableToInitializeCode = 4,
   StartFailed = 5,
