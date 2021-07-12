@@ -81,7 +81,3 @@ jobs:
     - name: Test
       run: |
         bazel test --define runtime=${{ matrix.runtime }} //test/...
-
-    - name: Test (signed Wasm module)
-      run: |
-        bazel test --define runtime=${{ matrix.runtime }} --per_file_copt=//...@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test

@@ -27,7 +27,7 @@ public:
    * @param message is the reference to store the message (success or error).
    * @return indicates whether the bytecode has a valid Wasm signature.
    */
-  static bool verifySignature(std::string_view bytecode, std::string &message);
+  static bool verifySignature(std::string_view bytecode, const std::string pubkey, std::string &message);
 };
 
 } // namespace proxy_wasm
