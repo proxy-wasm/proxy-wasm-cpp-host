@@ -208,7 +208,7 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
     wasm_vm_ = factory();
   }
   if (!wasm_vm_) {
-    failed_ = FailState::UnableToCreateVM;
+    failed_ = FailState::UnableToCreateVm;
   } else {
     wasm_vm_->setFailCallback([this](FailState fail_state) { failed_ = fail_state; });
   }
@@ -222,7 +222,7 @@ WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
       envs_(envs), allowed_capabilities_(std::move(allowed_capabilities)),
       vm_configuration_(std::string(vm_configuration)), vm_id_handle_(getVmIdHandle(vm_id)) {
   if (!wasm_vm_) {
-    failed_ = FailState::UnableToCreateVM;
+    failed_ = FailState::UnableToCreateVm;
   } else {
     wasm_vm_->setFailCallback([this](FailState fail_state) { failed_ = fail_state; });
   }
@@ -502,7 +502,7 @@ std::shared_ptr<WasmHandleBase> createWasm(std::string vm_key, std::string code,
   }
   auto configuration_canary_handle = clone_factory(wasm_handle);
   if (!configuration_canary_handle) {
-    wasm_handle->wasm()->fail(FailState::UnableToCloneVM, "Failed to clone Base Wasm");
+    wasm_handle->wasm()->fail(FailState::UnableToCloneVm, "Failed to clone Base Wasm");
     return nullptr;
   }
   if (!configuration_canary_handle->wasm()->initialize()) {
@@ -552,7 +552,7 @@ getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_handle,
   // Create and initialize new thread-local WasmVM.
   auto wasm_handle = clone_factory(base_handle);
   if (!wasm_handle) {
-    base_handle->wasm()->fail(FailState::UnableToCloneVM, "Failed to clone Base Wasm");
+    base_handle->wasm()->fail(FailState::UnableToCloneVm, "Failed to clone Base Wasm");
     return nullptr;
   }
 
