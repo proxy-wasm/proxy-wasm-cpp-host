@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[no_mangle]
 extern "C" {
     fn __wasilibc_initialize_environ();
 }
