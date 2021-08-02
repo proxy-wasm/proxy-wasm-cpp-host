@@ -25,6 +25,9 @@ namespace proxy_wasm {
 
 class ContextBase;
 
+// Any currently executing Wasm call context.
+::proxy_wasm::ContextBase *contextOrEffectiveContext();
+
 extern thread_local ContextBase *current_context_;
 
 namespace exports {
@@ -61,99 +64,86 @@ template <typename Pairs> void marshalPairs(const Pairs &result, char *buffer) {
 
 // ABI functions exported from host to wasm.
 
-Word get_configuration(void *raw_context, Word address, Word size);
-Word get_status(void *raw_context, Word status_code, Word address, Word size);
-Word log(void *raw_context, Word level, Word address, Word size);
-Word get_log_level(void *raw_context, Word result_level_uint32_ptr);
-Word get_property(void *raw_context, Word path_ptr, Word path_size, Word value_ptr_ptr,
-                  Word value_size_ptr);
-Word set_property(void *raw_context, Word key_ptr, Word key_size, Word value_ptr, Word value_size);
-Word continue_request(void *raw_context);
-Word continue_response(void *raw_context);
-Word continue_stream(void *raw_context, Word stream_type);
-Word close_stream(void *raw_context, Word stream_type);
-Word send_local_response(void *raw_context, Word response_code, Word response_code_details_ptr,
+Word get_configuration(Word address, Word size);
+Word get_status(Word status_code, Word address, Word size);
+Word log(Word level, Word address, Word size);
+Word get_log_level(Word result_level_uint32_ptr);
+Word get_property(Word path_ptr, Word path_size, Word value_ptr_ptr, Word value_size_ptr);
+Word set_property(Word key_ptr, Word key_size, Word value_ptr, Word value_size);
+Word continue_request();
+Word continue_response();
+Word continue_stream(Word stream_type);
+Word close_stream(Word stream_type);
+Word send_local_response(Word response_code, Word response_code_details_ptr,
                          Word response_code_details_size, Word body_ptr, Word body_size,
                          Word additional_response_header_pairs_ptr,
                          Word additional_response_header_pairs_size, Word grpc_status);
-Word clear_route_cache(void *raw_context);
-Word get_shared_data(void *raw_context, Word key_ptr, Word key_size, Word value_ptr_ptr,
-                     Word value_size_ptr, Word cas_ptr);
-Word set_shared_data(void *raw_context, Word key_ptr, Word key_size, Word value_ptr,
-                     Word value_size, Word cas);
-Word register_shared_queue(void *raw_context, Word queue_name_ptr, Word queue_name_size,
-                           Word token_ptr);
-Word resolve_shared_queue(void *raw_context, Word vm_id_ptr, Word vm_id_size, Word queue_name_ptr,
+Word clear_route_cache();
+Word get_shared_data(Word key_ptr, Word key_size, Word value_ptr_ptr, Word value_size_ptr,
+                     Word cas_ptr);
+Word set_shared_data(Word key_ptr, Word key_size, Word value_ptr, Word value_size, Word cas);
+Word register_shared_queue(Word queue_name_ptr, Word queue_name_size, Word token_ptr);
+Word resolve_shared_queue(Word vm_id_ptr, Word vm_id_size, Word queue_name_ptr,
                           Word queue_name_size, Word token_ptr);
-Word dequeue_shared_queue(void *raw_context, Word token, Word data_ptr_ptr, Word data_size_ptr);
-Word enqueue_shared_queue(void *raw_context, Word token, Word data_ptr, Word data_size);
-Word get_buffer_bytes(void *raw_context, Word type, Word start, Word length, Word ptr_ptr,
-                      Word size_ptr);
-Word get_buffer_status(void *raw_context, Word type, Word length_ptr, Word flags_ptr);
-Word set_buffer_bytes(void *raw_context, Word type, Word start, Word length, Word data_ptr,
-                      Word data_size);
-Word add_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_size, Word value_ptr,
-                          Word value_size);
-Word get_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_size,
-                          Word value_ptr_ptr, Word value_size_ptr);
-Word replace_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_size,
-                              Word value_ptr, Word value_size);
-Word remove_header_map_value(void *raw_context, Word type, Word key_ptr, Word key_size);
-Word get_header_map_pairs(void *raw_context, Word type, Word ptr_ptr, Word size_ptr);
-Word set_header_map_pairs(void *raw_context, Word type, Word ptr, Word size);
-Word get_header_map_size(void *raw_context, Word type, Word result_ptr);
-Word getRequestBodyBufferBytes(void *raw_context, Word start, Word length, Word ptr_ptr,
-                               Word size_ptr);
-Word get_response_body_buffer_bytes(void *raw_context, Word start, Word length, Word ptr_ptr,
-                                    Word size_ptr);
-Word http_call(void *raw_context, Word uri_ptr, Word uri_size, Word header_pairs_ptr,
-               Word header_pairs_size, Word body_ptr, Word body_size, Word trailer_pairs_ptr,
-               Word trailer_pairs_size, Word timeout_milliseconds, Word token_ptr);
-Word define_metric(void *raw_context, Word metric_type, Word name_ptr, Word name_size,
-                   Word result_ptr);
-Word increment_metric(void *raw_context, Word metric_id, int64_t offset);
-Word record_metric(void *raw_context, Word metric_id, uint64_t value);
-Word get_metric(void *raw_context, Word metric_id, Word result_uint64_ptr);
-Word grpc_call(void *raw_context, Word service_ptr, Word service_size, Word service_name_ptr,
-               Word service_name_size, Word method_name_ptr, Word method_name_size,
-               Word initial_metadata_ptr, Word initial_metadata_size, Word request_ptr,
-               Word request_size, Word timeout_milliseconds, Word token_ptr);
-Word grpc_stream(void *raw_context, Word service_ptr, Word service_size, Word service_name_ptr,
-                 Word service_name_size, Word method_name_ptr, Word method_name_size,
-                 Word initial_metadata_ptr, Word initial_metadata_size, Word token_ptr);
-Word grpc_cancel(void *raw_context, Word token);
-Word grpc_close(void *raw_context, Word token);
-Word grpc_send(void *raw_context, Word token, Word message_ptr, Word message_size, Word end_stream);
+Word dequeue_shared_queue(Word token, Word data_ptr_ptr, Word data_size_ptr);
+Word enqueue_shared_queue(Word token, Word data_ptr, Word data_size);
+Word get_buffer_bytes(Word type, Word start, Word length, Word ptr_ptr, Word size_ptr);
+Word get_buffer_status(Word type, Word length_ptr, Word flags_ptr);
+Word set_buffer_bytes(Word type, Word start, Word length, Word data_ptr, Word data_size);
+Word add_header_map_value(Word type, Word key_ptr, Word key_size, Word value_ptr, Word value_size);
+Word get_header_map_value(Word type, Word key_ptr, Word key_size, Word value_ptr_ptr,
+                          Word value_size_ptr);
+Word replace_header_map_value(Word type, Word key_ptr, Word key_size, Word value_ptr,
+                              Word value_size);
+Word remove_header_map_value(Word type, Word key_ptr, Word key_size);
+Word get_header_map_pairs(Word type, Word ptr_ptr, Word size_ptr);
+Word set_header_map_pairs(Word type, Word ptr, Word size);
+Word get_header_map_size(Word type, Word result_ptr);
+Word getRequestBodyBufferBytes(Word start, Word length, Word ptr_ptr, Word size_ptr);
+Word get_response_body_buffer_bytes(Word start, Word length, Word ptr_ptr, Word size_ptr);
+Word http_call(Word uri_ptr, Word uri_size, Word header_pairs_ptr, Word header_pairs_size,
+               Word body_ptr, Word body_size, Word trailer_pairs_ptr, Word trailer_pairs_size,
+               Word timeout_milliseconds, Word token_ptr);
+Word define_metric(Word metric_type, Word name_ptr, Word name_size, Word result_ptr);
+Word increment_metric(Word metric_id, int64_t offset);
+Word record_metric(Word metric_id, uint64_t value);
+Word get_metric(Word metric_id, Word result_uint64_ptr);
+Word grpc_call(Word service_ptr, Word service_size, Word service_name_ptr, Word service_name_size,
+               Word method_name_ptr, Word method_name_size, Word initial_metadata_ptr,
+               Word initial_metadata_size, Word request_ptr, Word request_size,
+               Word timeout_milliseconds, Word token_ptr);
+Word grpc_stream(Word service_ptr, Word service_size, Word service_name_ptr, Word service_name_size,
+                 Word method_name_ptr, Word method_name_size, Word initial_metadata_ptr,
+                 Word initial_metadata_size, Word token_ptr);
+Word grpc_cancel(Word token);
+Word grpc_close(Word token);
+Word grpc_send(Word token, Word message_ptr, Word message_size, Word end_stream);
 
-Word set_tick_period_milliseconds(void *raw_context, Word tick_period_milliseconds);
-Word get_current_time_nanoseconds(void *raw_context, Word result_uint64_ptr);
+Word set_tick_period_milliseconds(Word tick_period_milliseconds);
+Word get_current_time_nanoseconds(Word result_uint64_ptr);
 
-Word set_effective_context(void *raw_context, Word context_id);
-Word done(void *raw_context);
-Word call_foreign_function(void *raw_context, Word function_name, Word function_name_size,
-                           Word arguments, Word warguments_size, Word results, Word results_size);
+Word set_effective_context(Word context_id);
+Word done();
+Word call_foreign_function(Word function_name, Word function_name_size, Word arguments,
+                           Word warguments_size, Word results, Word results_size);
 
 // Runtime environment functions exported from envoy to wasm.
 
-Word wasi_unstable_fd_write(void *raw_context, Word fd, Word iovs, Word iovs_len,
-                            Word nwritten_ptr);
-Word wasi_unstable_fd_read(void *, Word, Word, Word, Word);
-Word wasi_unstable_fd_seek(void *, Word, int64_t, Word, Word);
-Word wasi_unstable_fd_close(void *, Word);
-Word wasi_unstable_fd_fdstat_get(void *, Word fd, Word statOut);
-Word wasi_unstable_environ_get(void *, Word, Word);
-Word wasi_unstable_environ_sizes_get(void *raw_context, Word count_ptr, Word buf_size_ptr);
-Word wasi_unstable_args_get(void *raw_context, Word argc_ptr, Word argv_buf_size_ptr);
-Word wasi_unstable_args_sizes_get(void *raw_context, Word argc_ptr, Word argv_buf_size_ptr);
-void wasi_unstable_proc_exit(void *, Word);
-Word wasi_unstable_clock_time_get(void *, Word, uint64_t, Word);
-Word wasi_unstable_random_get(void *, Word, Word);
-Word pthread_equal(void *, Word left, Word right);
+Word wasi_unstable_fd_write(Word fd, Word iovs, Word iovs_len, Word nwritten_ptr);
+Word wasi_unstable_fd_read(Word, Word, Word, Word);
+Word wasi_unstable_fd_seek(Word, int64_t, Word, Word);
+Word wasi_unstable_fd_close(Word);
+Word wasi_unstable_fd_fdstat_get(Word fd, Word statOut);
+Word wasi_unstable_environ_get(Word, Word);
+Word wasi_unstable_environ_sizes_get(Word count_ptr, Word buf_size_ptr);
+Word wasi_unstable_args_get(Word argc_ptr, Word argv_buf_size_ptr);
+Word wasi_unstable_args_sizes_get(Word argc_ptr, Word argv_buf_size_ptr);
+void wasi_unstable_proc_exit(Word);
+Word wasi_unstable_clock_time_get(Word, uint64_t, Word);
+Word wasi_unstable_random_get(Word, Word);
+Word pthread_equal(Word left, Word right);
 
 // Support for embedders, not exported to Wasm.
-
-// Any currently executing Wasm call context.
-::proxy_wasm::ContextBase *ContextOrEffectiveContext(::proxy_wasm::ContextBase *context);
 
 #define FOR_ALL_HOST_FUNCTIONS(_f)                                                                 \
   _f(log) _f(get_status) _f(set_property) _f(get_property) _f(send_local_response)                 \
@@ -181,10 +171,9 @@ Word pthread_equal(void *, Word left, Word right);
 // Helpers to generate a stub to pass to VM, in place of a restricted proxy-wasm capability.
 #define _CREATE_PROXY_WASM_STUB(_fn)                                                               \
   template <typename F> struct _fn##Stub;                                                          \
-  template <typename... Args> struct _fn##Stub<Word(void *, Args...)> {                            \
-    static Word stub(void *raw_context, Args...) {                                                 \
-      auto context = exports::ContextOrEffectiveContext(                                           \
-          static_cast<ContextBase *>((void)raw_context, current_context_));                        \
+  template <typename... Args> struct _fn##Stub<Word(Args...)> {                                    \
+    static Word stub(Args...) {                                                                    \
+      auto context = contextOrEffectiveContext();                                                  \
       context->wasmVm()->integration()->error(                                                     \
           "Attempted call to restricted proxy-wasm capability: proxy_" #_fn);                      \
       return WasmResult::InternalFailure;                                                          \
@@ -197,19 +186,17 @@ FOR_ALL_HOST_FUNCTIONS_ABI_SPECIFIC(_CREATE_PROXY_WASM_STUB)
 // Helpers to generate a stub to pass to VM, in place of a restricted WASI capability.
 #define _CREATE_WASI_STUB(_fn)                                                                     \
   template <typename F> struct _fn##Stub;                                                          \
-  template <typename... Args> struct _fn##Stub<Word(void *, Args...)> {                            \
-    static Word stub(void *raw_context, Args...) {                                                 \
-      auto context = exports::ContextOrEffectiveContext(                                           \
-          static_cast<ContextBase *>((void)raw_context, current_context_));                        \
+  template <typename... Args> struct _fn##Stub<Word(Args...)> {                                    \
+    static Word stub(Args...) {                                                                    \
+      auto context = contextOrEffectiveContext();                                                  \
       context->wasmVm()->integration()->error(                                                     \
           "Attempted call to restricted WASI capability: " #_fn);                                  \
       return 76; /* __WASI_ENOTCAPABLE */                                                          \
     }                                                                                              \
   };                                                                                               \
-  template <typename... Args> struct _fn##Stub<void(void *, Args...)> {                            \
-    static void stub(void *raw_context, Args...) {                                                 \
-      auto context = exports::ContextOrEffectiveContext(                                           \
-          static_cast<ContextBase *>((void)raw_context, current_context_));                        \
+  template <typename... Args> struct _fn##Stub<void(Args...)> {                                    \
+    static void stub(Args...) {                                                                    \
+      auto context = contextOrEffectiveContext();                                                  \
       context->wasmVm()->integration()->error(                                                     \
           "Attempted call to restricted WASI capability: " #_fn);                                  \
     }                                                                                              \

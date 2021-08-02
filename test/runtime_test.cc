@@ -98,14 +98,14 @@ public:
   int64_t counter = 0;
 };
 
-void nopCallback(void *raw_context) {}
+void nopCallback() {}
 
-void callback(void *) {
-  TestContext *context = static_cast<TestContext *>(current_context_);
+void callback() {
+  TestContext *context = static_cast<TestContext *>(contextOrEffectiveContext());
   context->increment();
 }
 
-Word callback2(void *, Word val) { return val + 100; }
+Word callback2(Word val) { return val + 100; }
 
 TEST_P(TestVM, StraceLogLevel) {
   if (runtime_ == "wavm") {
@@ -140,7 +140,6 @@ TEST_P(TestVM, Callback) {
   ASSERT_TRUE(vm_->load(source_, {}, {}));
 
   TestContext context;
-  current_context_ = &context;
 
   vm_->registerCallback(
       "env", "callback", &callback,
@@ -156,13 +155,13 @@ TEST_P(TestVM, Callback) {
   vm_->getFunction("run", &run);
   EXPECT_TRUE(run != nullptr);
   for (auto i = 0; i < 100; i++) {
-    run(current_context_);
+    run(&context);
   }
   ASSERT_EQ(context.counter, 100);
 
   WasmCallWord<1> run2;
   vm_->getFunction("run2", &run2);
-  Word res = run2(current_context_, Word{0});
+  Word res = run2(&context, Word{0});
   ASSERT_EQ(res.u32(), 100100); // 10000 (global) + 100(in callback)
 }
 
@@ -171,11 +170,10 @@ TEST_P(TestVM, Trap) {
   ASSERT_TRUE(vm_->load(source_, {}, {}));
   ASSERT_TRUE(vm_->link(""));
   TestContext context;
-  current_context_ = &context;
   WasmCallVoid<0> trigger;
   vm_->getFunction("trigger", &trigger);
   EXPECT_TRUE(trigger != nullptr);
-  trigger(current_context_);
+  trigger(&context);
   std::string exp_message = "Function: trigger failed";
   ASSERT_TRUE(integration_->error_message_.find(exp_message) != std::string::npos);
 }
@@ -191,11 +189,10 @@ TEST_P(TestVM, Trap2) {
   ASSERT_TRUE(vm_->load(source_, {}, {}));
   ASSERT_TRUE(vm_->link(""));
   TestContext context;
-  current_context_ = &context;
   WasmCallWord<1> trigger2;
   vm_->getFunction("trigger2", &trigger2);
   EXPECT_TRUE(trigger2 != nullptr);
-  trigger2(current_context_, 0);
+  trigger2(&context, 0);
   std::string exp_message = "Function: trigger2 failed";
   ASSERT_TRUE(integration_->error_message_.find(exp_message) != std::string::npos);
 }
