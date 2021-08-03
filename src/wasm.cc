@@ -47,8 +47,6 @@ std::mutex base_wasms_mutex;
 std::unordered_map<std::string, std::weak_ptr<WasmHandleBase>> *base_wasms = nullptr;
 std::unordered_map<std::string, WasmForeignFunction> *foreign_functions = nullptr;
 
-const std::string INLINE_STRING = "<inline>";
-
 std::vector<uint8_t> Sha256(const std::vector<std::string_view> parts) {
   uint8_t sha256[SHA256_DIGEST_LENGTH];
   SHA256_CTX sha_ctx;

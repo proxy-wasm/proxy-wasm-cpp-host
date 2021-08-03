@@ -359,10 +359,9 @@ std::string_view Wavm::getPrecompiledSectionName() { return "wavm.precompiled_ob
 
 std::unique_ptr<WasmVm> createWavmVm() { return std::make_unique<proxy_wasm::Wavm::Wavm>(); }
 
-template <typename R, typename... Args>
-IR::FunctionType inferHostFunctionType(R (*)(void *, Args...)) {
+template <typename R, typename... Args> IR::FunctionType inferHostFunctionType(R (*)(Args...)) {
   return IR::FunctionType(IR::inferResultType<R>(), IR::TypeTuple({IR::inferValueType<Args>()...}),
-                          IR::CallingConvention::intrinsic);
+                          IR::CallingConvention::c);
 }
 
 using namespace Wavm;

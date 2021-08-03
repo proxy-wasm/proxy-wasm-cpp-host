@@ -88,11 +88,11 @@ public:
 private:
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
-                                void (*function)(void *, Args...));
+                                void (*function)(Args...));
 
   template <typename R, typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
-                                R (*function)(void *, Args...));
+                                R (*function)(Args...));
 
   template <typename... Args>
   void getModuleFunctionImpl(std::string_view function_name,
@@ -442,7 +442,7 @@ template <typename T> WasmFunctypePtr newWasmNewFuncType() {
 
 template <typename... Args>
 void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
-                                    void (*function)(void *, Args...)) {
+                                    void (*function)(Args...)) {
   auto data =
       std::make_unique<HostFuncData>(std::string(module_name) + "." + std::string(function_name));
 
@@ -456,9 +456,8 @@ void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_vi
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params, sizeof...(Args)) + ")");
         }
-        auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
-        auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
-        auto fn = reinterpret_cast<void (*)(void *, Args...)>(func_data->raw_func_);
+        auto args = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
+        auto fn = reinterpret_cast<void (*)(Args...)>(func_data->raw_func_);
         std::apply(fn, args);
         if (log) {
           func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ + " return: void");
@@ -476,7 +475,7 @@ void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_vi
 
 template <typename R, typename... Args>
 void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
-                                    R (*function)(void *, Args...)) {
+                                    R (*function)(Args...)) {
   auto data =
       std::make_unique<HostFuncData>(std::string(module_name) + "." + std::string(function_name));
   WasmFunctypePtr type = newWasmNewFuncType<R, std::tuple<Args...>>();
@@ -489,9 +488,8 @@ void Wamr::registerHostFunctionImpl(std::string_view module_name, std::string_vi
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params, sizeof...(Args)) + ")");
         }
-        auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
-        auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
-        auto fn = reinterpret_cast<R (*)(void *, Args...)>(func_data->raw_func_);
+        auto args = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
+        auto fn = reinterpret_cast<R (*)(Args...)>(func_data->raw_func_);
         R res = std::apply(fn, args);
         assignVal<R>(res, results[0]);
         if (log) {

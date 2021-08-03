@@ -30,37 +30,42 @@ namespace proxy_wasm {
 
 class ContextBase;
 
-// These are templates and its helper for constructing signatures of functions calling into and out
-// of WASM VMs.
-// - WasmFuncTypeHelper is a helper for WasmFuncType and shouldn't be used anywhere else than
+// These are templates and its helper for constructing signatures of functions calling into Wasm
+// VMs.
+// - WasmCallInFuncTypeHelper is a helper for WasmFuncType and shouldn't be used anywhere else than
 // WasmFuncType definition.
-// - WasmFuncType takes 4 template parameter which are number of argument, return type, context type
-// and param type respectively, resolve to a function type.
+// - WasmCallInFuncType takes 4 template parameter which are number of argument, return type,
+// context type and param type respectively, resolve to a function type.
 //   For example `WasmFuncType<3, void, Context*, Word>` resolves to `void(Context*, Word, Word,
 //   Word)`
 template <size_t N, class ReturnType, class ContextType, class ParamType,
           class FuncBase = ReturnType(ContextType)>
-struct WasmFuncTypeHelper {};
+struct WasmCallInFuncTypeHelper {};
 
 template <size_t N, class ReturnType, class ContextType, class ParamType, class... Args>
-struct WasmFuncTypeHelper<N, ReturnType, ContextType, ParamType, ReturnType(ContextType, Args...)> {
+struct WasmCallInFuncTypeHelper<N, ReturnType, ContextType, ParamType,
+                                ReturnType(ContextType, Args...)> {
   // NOLINTNEXTLINE(readability-identifier-naming)
-  using type = typename WasmFuncTypeHelper<N - 1, ReturnType, ContextType, ParamType,
-                                           ReturnType(ContextType, Args..., ParamType)>::type;
+  using type = typename WasmCallInFuncTypeHelper<N - 1, ReturnType, ContextType, ParamType,
+                                                 ReturnType(ContextType, Args..., ParamType)>::type;
 };
 
 template <class ReturnType, class ContextType, class ParamType, class... Args>
-struct WasmFuncTypeHelper<0, ReturnType, ContextType, ParamType, ReturnType(ContextType, Args...)> {
+struct WasmCallInFuncTypeHelper<0, ReturnType, ContextType, ParamType,
+                                ReturnType(ContextType, Args...)> {
   using type = ReturnType(ContextType, Args...); // NOLINT(readability-identifier-naming)
 };
 
 template <size_t N, class ReturnType, class ContextType, class ParamType>
-using WasmFuncType = typename WasmFuncTypeHelper<N, ReturnType, ContextType, ParamType>::type;
+using WasmCallInFuncType =
+    typename WasmCallInFuncTypeHelper<N, ReturnType, ContextType, ParamType>::type;
 
 // Calls into the WASM VM.
 // 1st arg is always a pointer to Context (Context*).
-template <size_t N> using WasmCallVoid = std::function<WasmFuncType<N, void, ContextBase *, Word>>;
-template <size_t N> using WasmCallWord = std::function<WasmFuncType<N, Word, ContextBase *, Word>>;
+template <size_t N>
+using WasmCallVoid = std::function<WasmCallInFuncType<N, void, ContextBase *, Word>>;
+template <size_t N>
+using WasmCallWord = std::function<WasmCallInFuncType<N, Word, ContextBase *, Word>>;
 
 #define FOR_ALL_WASM_VM_EXPORTS(_f)                                                                \
   _f(proxy_wasm::WasmCallVoid<0>) _f(proxy_wasm::WasmCallVoid<1>) _f(proxy_wasm::WasmCallVoid<2>)  \
@@ -68,20 +73,44 @@ template <size_t N> using WasmCallWord = std::function<WasmFuncType<N, Word, Con
           _f(proxy_wasm::WasmCallWord<1>) _f(proxy_wasm::WasmCallWord<2>)                          \
               _f(proxy_wasm::WasmCallWord<3>)
 
+// These are templates and its helper for constructing signatures of functions callbacks from Wasm
+// VMs.
+// - WasmCallbackFuncTypeHelper is a helper for WasmFuncType and shouldn't be used anywhere else
+// than WasmFuncType definition.
+// - WasmCallbackFuncType takes 3 template parameter which are number of argument, return type, and
+// param type respectively, resolve to a function type.
+//   For example `WasmFuncType<3, Word>` resolves to `void(Word, Word, Word)`
+template <size_t N, class ReturnType, class ParamType, class FuncBase = ReturnType()>
+struct WasmCallbackFuncTypeHelper {};
+
+template <size_t N, class ReturnType, class ParamType, class... Args>
+struct WasmCallbackFuncTypeHelper<N, ReturnType, ParamType, ReturnType(Args...)> {
+  // NOLINTNEXTLINE(readability-identifier-naming)
+  using type = typename WasmCallbackFuncTypeHelper<N - 1, ReturnType, ParamType,
+                                                   ReturnType(Args..., ParamType)>::type;
+};
+
+template <class ReturnType, class ParamType, class... Args>
+struct WasmCallbackFuncTypeHelper<0, ReturnType, ParamType, ReturnType(Args...)> {
+  using type = ReturnType(Args...); // NOLINT(readability-identifier-naming)
+};
+
+template <size_t N, class ReturnType, class ParamType>
+using WasmCallbackFuncType = typename WasmCallbackFuncTypeHelper<N, ReturnType, ParamType>::type;
+
 // Calls out of the WASM VM.
-// 1st arg is always a pointer to raw_context (void*).
-template <size_t N> using WasmCallbackVoid = WasmFuncType<N, void, void *, Word> *;
-template <size_t N> using WasmCallbackWord = WasmFuncType<N, Word, void *, Word> *;
+template <size_t N> using WasmCallbackVoid = WasmCallbackFuncType<N, void, Word> *;
+template <size_t N> using WasmCallbackWord = WasmCallbackFuncType<N, Word, Word> *;
 
 // Using the standard g++/clang mangling algorithm:
 // https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling-builtin
 // Extended with W = Word
 // Z = void, j = uint32_t, l = int64_t, m = uint64_t
-using WasmCallback_WWl = Word (*)(void *, Word, int64_t);
-using WasmCallback_WWlWW = Word (*)(void *, Word, int64_t, Word, Word);
-using WasmCallback_WWm = Word (*)(void *, Word, uint64_t);
-using WasmCallback_WWmW = Word (*)(void *, Word, uint64_t, Word);
-using WasmCallback_dd = double (*)(void *, double);
+using WasmCallback_WWl = Word (*)(Word, int64_t);
+using WasmCallback_WWlWW = Word (*)(Word, int64_t, Word, Word);
+using WasmCallback_WWm = Word (*)(Word, uint64_t);
+using WasmCallback_WWmW = Word (*)(Word, uint64_t, Word);
+using WasmCallback_dd = double (*)(double);
 
 #define FOR_ALL_WASM_VM_IMPORTS(_f)                                                                \
   _f(proxy_wasm::WasmCallbackVoid<0>) _f(proxy_wasm::WasmCallbackVoid<1>)                          \
