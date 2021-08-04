@@ -59,7 +59,14 @@ TEST(TestBytecodeUtil, getFunctionNameIndex) {
   // OK.
   EXPECT_TRUE(BytecodeUtil::getFunctionNameIndex(source, actual));
   EXPECT_FALSE(actual.empty());
-  EXPECT_EQ(actual.find(0)->second, "proxy_abi_version_0_2_0");
+  bool abi_version_found = false;
+  for (auto it : actual) {
+    if (it.second == "proxy_abi_version_0_2_0") {
+      abi_version_found = true;
+      break;
+    }
+  }
+  EXPECT_TRUE(abi_version_found);
 
   // Fail due to the corrupted bytecode.
   // TODO(@mathetake): here we haven't covered all the parsing failure branches. Add more cases.

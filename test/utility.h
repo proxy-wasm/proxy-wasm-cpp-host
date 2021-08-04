@@ -67,37 +67,39 @@ class TestVM : public testing::TestWithParam<std::string> {
 public:
   std::unique_ptr<proxy_wasm::WasmVm> vm_;
 
-  TestVM() : integration_(new DummyIntegration{}) {
+  TestVM() {
     runtime_ = GetParam();
+    vm_ = newVm();
+  }
+
+  std::unique_ptr<proxy_wasm::WasmVm> newVm() {
+    std::unique_ptr<proxy_wasm::WasmVm> vm;
     if (runtime_ == "") {
       EXPECT_TRUE(false) << "runtime must not be empty";
 #if defined(PROXY_WASM_HAS_RUNTIME_V8)
     } else if (runtime_ == "v8") {
-      vm_ = proxy_wasm::createV8Vm();
+      vm = proxy_wasm::createV8Vm();
 #endif
 #if defined(PROXY_WASM_HAS_RUNTIME_WAVM)
     } else if (runtime_ == "wavm") {
-      vm_ = proxy_wasm::createWavmVm();
+      vm = proxy_wasm::createWavmVm();
 #endif
 #if defined(PROXY_WASM_HAS_RUNTIME_WASMTIME)
     } else if (runtime_ == "wasmtime") {
-      vm_ = proxy_wasm::createWasmtimeVm();
+      vm = proxy_wasm::createWasmtimeVm();
 #endif
 #if defined(PROXY_WASM_HAS_RUNTIME_WAMR)
     } else if (runtime_ == "wamr") {
-      vm_ = proxy_wasm::createWamrVm();
+      vm = proxy_wasm::createWamrVm();
 #endif
     } else {
       EXPECT_TRUE(false) << "compiled without support for the requested \"" << runtime_
                          << "\" runtime";
     }
-    vm_->integration().reset(integration_);
-  }
+    vm->integration().reset(new DummyIntegration{});
+    return vm;
+  };
 
-  void initialize(std::string filename) { source_ = readTestWasmFile(filename); }
-
-  DummyIntegration *integration_;
-  std::string source_;
   std::string runtime_;
 };
 } // namespace proxy_wasm
