@@ -29,6 +29,7 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
   const auto plugin_name = "plugin_name";
   const auto root_id = "root_id";
   const auto vm_id = "vm_id";
+  const auto vm_config = "vm_config";
   const auto plugin_config = "plugin_config";
   const auto fail_open = false;
 
@@ -38,8 +39,8 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
 
   // Define callbacks.
   WasmHandleFactory wasm_handle_factory =
-      [this](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
-    auto base_wasm = std::make_shared<WasmBase>(newVm(), "vm_id", "vm_config", vm_key,
+      [this, vm_id, vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
+    auto base_wasm = std::make_shared<WasmBase>(newVm(), vm_id, vm_config, vm_key,
                                                 std::unordered_map<std::string, std::string>{},
                                                 AllowedCapabilitiesMap{});
     return std::make_shared<WasmHandleBase>(base_wasm);
@@ -74,6 +75,8 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
   // Cause runtime crash.
   thread_local_plugin->wasm()->wasm_vm()->fail(FailState::RuntimeError, "runtime error msg");
   ASSERT_TRUE(thread_local_plugin->wasm()->isFailed());
+  // the Base Wasm should not be affected by cloned ones.
+  ASSERT_FALSE(base_wasm_handle->wasm()->isFailed());
 
   // Create another thread local plugin with the same configuration.
   // This one should not end up using the failed VM.
@@ -85,6 +88,9 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
   // Cause runtime crash again.
   thread_local_plugin_new->wasm()->wasm_vm()->fail(FailState::RuntimeError, "runtime error msg");
   ASSERT_TRUE(thread_local_plugin_new->wasm()->isFailed());
+  ASSERT_FALSE(base_wasm_handle->wasm()->isFailed());
+  // the Base Wasm should not be affected by cloned ones.
+  ASSERT_FALSE(base_wasm_handle->wasm()->isFailed());
 
   // This time, create another thread local plugin with *different* plugin key for the same vm_key.
   // This one also should not end up using the failed VM.
