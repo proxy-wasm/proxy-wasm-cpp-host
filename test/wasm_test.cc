@@ -80,14 +80,16 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
 
   // Create another thread local plugin with the same configuration.
   // This one should not end up using the failed VM.
-  auto thread_local_plugin_new = getOrCreateThreadLocalPlugin(
+  auto thread_local_plugin2 = getOrCreateThreadLocalPlugin(
       base_wasm_handle, plugin, wasm_handle_clone_factory, plugin_handle_factory);
-  ASSERT_TRUE(thread_local_plugin_new && thread_local_plugin_new->plugin());
-  ASSERT_FALSE(thread_local_plugin_new->wasm()->isFailed());
+  ASSERT_TRUE(thread_local_plugin2 && thread_local_plugin2->plugin());
+  ASSERT_FALSE(thread_local_plugin2->wasm()->isFailed());
+  // Verify the pointer to WasmBase is different from the failed one.
+  ASSERT_NE(thread_local_plugin2->wasm(), thread_local_plugin->wasm());
 
   // Cause runtime crash again.
-  thread_local_plugin_new->wasm()->wasm_vm()->fail(FailState::RuntimeError, "runtime error msg");
-  ASSERT_TRUE(thread_local_plugin_new->wasm()->isFailed());
+  thread_local_plugin2->wasm()->wasm_vm()->fail(FailState::RuntimeError, "runtime error msg");
+  ASSERT_TRUE(thread_local_plugin2->wasm()->isFailed());
   // the Base Wasm should not be affected by cloned ones.
   ASSERT_FALSE(base_wasm_handle->wasm()->isFailed());
 
@@ -95,10 +97,13 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
   // This one also should not end up using the failed VM.
   const auto plugin2 = std::make_shared<PluginBase>(plugin_name, root_id, vm_id, runtime_,
                                                     plugin_config, fail_open, "another_plugin_key");
-  auto thread_local_plugin_new2 = getOrCreateThreadLocalPlugin(
+  auto thread_local_plugin3 = getOrCreateThreadLocalPlugin(
       base_wasm_handle, plugin2, wasm_handle_clone_factory, plugin_handle_factory);
-  ASSERT_TRUE(thread_local_plugin_new2 && thread_local_plugin_new2->plugin());
-  ASSERT_FALSE(thread_local_plugin_new2->wasm()->isFailed());
+  ASSERT_TRUE(thread_local_plugin3 && thread_local_plugin3->plugin());
+  ASSERT_FALSE(thread_local_plugin3->wasm()->isFailed());
+  // Verify the pointer to WasmBase is different from the failed one.
+  ASSERT_NE(thread_local_plugin3->wasm(), thread_local_plugin->wasm());
+  ASSERT_NE(thread_local_plugin3->wasm(), thread_local_plugin2->wasm());
 }
 
 } // namespace proxy_wasm
