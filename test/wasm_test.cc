@@ -71,6 +71,11 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
   auto thread_local_plugin = getOrCreateThreadLocalPlugin(
       base_wasm_handle, plugin, wasm_handle_clone_factory, plugin_handle_factory);
   ASSERT_TRUE(thread_local_plugin && thread_local_plugin->plugin());
+  // If the VM is not failed, same WasmBase should be used for the same configuration.
+  ASSERT_EQ(getOrCreateThreadLocalPlugin(base_wasm_handle, plugin, wasm_handle_clone_factory,
+                                         plugin_handle_factory)
+                ->wasm(),
+            thread_local_plugin->wasm());
 
   // Cause runtime crash.
   thread_local_plugin->wasm()->wasm_vm()->fail(FailState::RuntimeError, "runtime error msg");
