@@ -88,7 +88,6 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
   // Cause runtime crash again.
   thread_local_plugin_new->wasm()->wasm_vm()->fail(FailState::RuntimeError, "runtime error msg");
   ASSERT_TRUE(thread_local_plugin_new->wasm()->isFailed());
-  ASSERT_FALSE(base_wasm_handle->wasm()->isFailed());
   // the Base Wasm should not be affected by cloned ones.
   ASSERT_FALSE(base_wasm_handle->wasm()->isFailed());
 
