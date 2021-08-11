@@ -47,8 +47,8 @@ TEST_P(TestVM, Basic) {
 }
 
 TEST_P(TestVM, Memory) {
-  initialize("abi_export.wasm");
-  ASSERT_TRUE(vm_->load(source_, {}, {}));
+  auto source = readTestWasmFile("abi_export.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
   ASSERT_TRUE(vm_->link(""));
 
   Word word;
@@ -68,8 +68,8 @@ TEST_P(TestVM, Clone) {
   if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
     return;
   }
-  initialize("abi_export.wasm");
-  ASSERT_TRUE(vm_->load(source_, {}, {}));
+  auto source = readTestWasmFile("abi_export.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
   ASSERT_TRUE(vm_->link(""));
   const auto address = 0x2000;
   Word word;
@@ -113,8 +113,10 @@ TEST_P(TestVM, StraceLogLevel) {
     // See https://github.com/proxy-wasm/proxy-wasm-cpp-host/issues/120.
     return;
   }
-  initialize("callback.wasm");
-  ASSERT_TRUE(vm_->load(source_, {}, {}));
+
+  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  auto source = readTestWasmFile("callback.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
   vm_->registerCallback("env", "callback", &nopCallback,
                         &ConvertFunctionWordToUint32<decltype(nopCallback),
                                                      nopCallback>::convertFunctionWordToUint32);
@@ -128,16 +130,16 @@ TEST_P(TestVM, StraceLogLevel) {
 
   run(nullptr);
   // no trace message found since DummyIntegration's log_level_ defaults to  LogLevel::info
-  EXPECT_EQ(integration_->trace_message_, "");
+  EXPECT_EQ(integration->trace_message_, "");
 
-  integration_->log_level_ = LogLevel::trace;
+  integration->log_level_ = LogLevel::trace;
   run(nullptr);
-  EXPECT_NE(integration_->trace_message_, "");
+  EXPECT_NE(integration->trace_message_, "");
 }
 
 TEST_P(TestVM, Callback) {
-  initialize("callback.wasm");
-  ASSERT_TRUE(vm_->load(source_, {}, {}));
+  auto source = readTestWasmFile("callback.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
 
   TestContext context;
 
@@ -166,8 +168,8 @@ TEST_P(TestVM, Callback) {
 }
 
 TEST_P(TestVM, Trap) {
-  initialize("trap.wasm");
-  ASSERT_TRUE(vm_->load(source_, {}, {}));
+  auto source = readTestWasmFile("trap.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
   ASSERT_TRUE(vm_->link(""));
   TestContext context;
   WasmCallVoid<0> trigger;
@@ -175,7 +177,8 @@ TEST_P(TestVM, Trap) {
   EXPECT_TRUE(trigger != nullptr);
   trigger(&context);
   std::string exp_message = "Function: trigger failed";
-  ASSERT_TRUE(integration_->error_message_.find(exp_message) != std::string::npos);
+  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 
 TEST_P(TestVM, Trap2) {
@@ -185,8 +188,8 @@ TEST_P(TestVM, Trap2) {
     // WAVM::Runtime::describeCallStack. Needs further investigation.
     return;
   }
-  initialize("trap.wasm");
-  ASSERT_TRUE(vm_->load(source_, {}, {}));
+  auto source = readTestWasmFile("trap.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
   ASSERT_TRUE(vm_->link(""));
   TestContext context;
   WasmCallWord<1> trigger2;
@@ -194,7 +197,8 @@ TEST_P(TestVM, Trap2) {
   EXPECT_TRUE(trigger2 != nullptr);
   trigger2(&context, 0);
   std::string exp_message = "Function: trigger2 failed";
-  ASSERT_TRUE(integration_->error_message_.find(exp_message) != std::string::npos);
+  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 
 } // namespace

@@ -78,9 +78,13 @@ cc_test(
 )
 
 cc_test(
-    name = "context_test",
-    srcs = ["context_test.cc"],
+    name = "wasm_test",
+    srcs = ["wasm_test.cc"],
+    data = [
+        "//test/test_data:abi_export.wasm",
+    ],
     deps = [
+        ":utility_lib",
         "//:lib",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",

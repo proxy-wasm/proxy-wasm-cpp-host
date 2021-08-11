@@ -208,7 +208,7 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, Wasm
   if (!wasm_vm_) {
     failed_ = FailState::UnableToCreateVm;
   } else {
-    wasm_vm_->setFailCallback([this](FailState fail_state) { failed_ = fail_state; });
+    wasm_vm_->addFailCallback([this](FailState fail_state) { failed_ = fail_state; });
   }
 }
 
@@ -222,7 +222,7 @@ WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
   if (!wasm_vm_) {
     failed_ = FailState::UnableToCreateVm;
   } else {
-    wasm_vm_->setFailCallback([this](FailState fail_state) { failed_ = fail_state; });
+    wasm_vm_->addFailCallback([this](FailState fail_state) { failed_ = fail_state; });
   }
 }
 
@@ -559,6 +559,14 @@ getOrCreateThreadLocalWasm(std::shared_ptr<WasmHandleBase> base_handle,
     return nullptr;
   }
   local_wasms[vm_key] = wasm_handle;
+  wasm_handle->wasm()->wasm_vm()->addFailCallback([vm_key](proxy_wasm::FailState fail_state) {
+    if (fail_state == proxy_wasm::FailState::RuntimeError) {
+      // If VM failed, erase the entry so that:
+      // 1) we can recreate the new thread local VM from the same base_wasm.
+      // 2) we wouldn't reuse the failed VM for new plugins accidentally.
+      local_wasms.erase(vm_key);
+    };
+  });
   return wasm_handle;
 }
 
@@ -594,6 +602,14 @@ std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
   }
   auto plugin_handle = plugin_factory(wasm_handle, plugin);
   local_plugins[key] = plugin_handle;
+  wasm_handle->wasm()->wasm_vm()->addFailCallback([key](proxy_wasm::FailState fail_state) {
+    if (fail_state == proxy_wasm::FailState::RuntimeError) {
+      // If VM failed, erase the entry so that:
+      // 1) we can recreate the new thread local plugin from the same base_wasm.
+      // 2) we wouldn't reuse the failed VM for new plugin configs accidentally.
+      local_plugins.erase(key);
+    };
+  });
   return plugin_handle;
 }
 
