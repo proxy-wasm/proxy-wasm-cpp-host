@@ -46,6 +46,15 @@ static std::string publickey(std::string filename) {
   return BytesToHex(bytes);
 }
 
+TEST(TestSignatureUtil, NoPublicKey) {
+#ifndef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
+  const auto bytecode = readTestWasmFile("abi_export.signed.with.key1.wasm");
+  std::string message;
+  EXPECT_TRUE(SignatureUtil::verifySignature(bytecode, "", message));
+  EXPECT_EQ(message, "");
+#endif
+}
+
 TEST(TestSignatureUtil, GoodSignature) {
   std::string pubkey = publickey("signature_key1.pub");
   const auto bytecode = readTestWasmFile("abi_export.signed.with.key1.wasm");
@@ -60,6 +69,20 @@ TEST(TestSignatureUtil, BadSignature) {
   std::string message;
   EXPECT_FALSE(SignatureUtil::verifySignature(bytecode, pubkey, message));
   EXPECT_EQ(message, "Signature mismatch");
+}
+
+TEST(TestSignatureUtil, BuildTimeKeyPrecedence) {
+  // Uses hard-coded key if defined.
+  std::string pubkey = publickey("signature_key2.pub");
+  const auto bytecode = readTestWasmFile("abi_export.signed.with.key1.wasm");
+  std::string message;
+#ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
+  EXPECT_TRUE(SignatureUtil::verifySignature(bytecode, pubkey, message));
+  EXPECT_EQ(message, "Wasm signature OK (Ed25519)");
+#else
+  EXPECT_FALSE(SignatureUtil::verifySignature(bytecode, pubkey, message));
+  EXPECT_EQ(message, "Signature mismatch");
+#endif
 }
 
 TEST(TestSignatureUtil, NoSignature) {

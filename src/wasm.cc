@@ -250,14 +250,12 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled, const std::
   }
 
   // Verify signature if a pubkey is present.
-  if (!pubkey.empty()) {
-    std::string message;
-    if (!SignatureUtil::verifySignature(code, pubkey, message)) {
-      fail(FailState::UnableToInitializeCode, message);
-      return false;
-    } else {
-      wasm_vm_->integration()->trace(message);
-    }
+  std::string message;
+  if (!SignatureUtil::verifySignature(code, pubkey, message)) {
+    fail(FailState::UnableToInitializeCode, message);
+    return false;
+  } else {
+    wasm_vm_->integration()->trace(message);
   }
 
   // Get ABI version from the module.
