@@ -176,6 +176,35 @@ public:
   uint32_t nextGaugeMetricId() { return next_gauge_metric_id_ += kMetricIdIncrement; }
   uint32_t nextHistogramMetricId() { return next_histogram_metric_id_ += kMetricIdIncrement; }
 
+  enum class CalloutType : uint32_t {
+    HttpCall = 0,
+    GrpcCall = 1,
+    GrpcStream = 2,
+  };
+  static const uint32_t kCalloutTypeMask = 0x3;  // Enough to cover the 3 types.
+  static const uint32_t kCalloutIncrement = 0x4; // Enough to cover the 3 types.
+  bool isHttpCallId(uint32_t callout_id) {
+    return (callout_id & kCalloutTypeMask) == static_cast<uint32_t>(CalloutType::HttpCall);
+  }
+  bool isGrpcCallId(uint32_t callout_id) {
+    return (callout_id & kCalloutTypeMask) == static_cast<uint32_t>(CalloutType::GrpcCall);
+  }
+  bool isGrpcStreamId(uint32_t callout_id) {
+    return (callout_id & kCalloutTypeMask) == static_cast<uint32_t>(CalloutType::GrpcStream);
+  }
+  uint32_t nextHttpCallId() {
+    // TODO(PiotrSikora): re-add rollover protection (requires at least 1 billion callouts).
+    return next_http_call_id_ += kCalloutIncrement;
+  }
+  uint32_t nextGrpcCallId() {
+    // TODO(PiotrSikora): re-add rollover protection (requires at least 1 billion callouts).
+    return next_grpc_call_id_ += kCalloutIncrement;
+  }
+  uint32_t nextGrpcStreamId() {
+    // TODO(PiotrSikora): re-add rollover protection (requires at least 1 billion callouts).
+    return next_grpc_stream_id_ += kCalloutIncrement;
+  }
+
 protected:
   friend class ContextBase;
   class ShutdownHandle;
@@ -278,6 +307,11 @@ protected:
   uint32_t next_counter_metric_id_ = static_cast<uint32_t>(MetricType::Counter);
   uint32_t next_gauge_metric_id_ = static_cast<uint32_t>(MetricType::Gauge);
   uint32_t next_histogram_metric_id_ = static_cast<uint32_t>(MetricType::Histogram);
+
+  // HTTP/gRPC callouts.
+  uint32_t next_http_call_id_ = static_cast<uint32_t>(CalloutType::HttpCall);
+  uint32_t next_grpc_call_id_ = static_cast<uint32_t>(CalloutType::GrpcCall);
+  uint32_t next_grpc_stream_id_ = static_cast<uint32_t>(CalloutType::GrpcStream);
 
   // Actions to be done after the call into the VM returns.
   std::deque<std::function<void()>> after_vm_call_actions_;
