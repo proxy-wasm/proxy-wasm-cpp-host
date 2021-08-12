@@ -14,3 +14,21 @@
 
 #[no_mangle]
 pub extern "C" fn proxy_abi_version_0_2_0() {}
+
+#[no_mangle]
+pub extern "C" fn proxy_on_vm_start(_: u32, _: usize) -> bool {
+    true
+}
+
+#[no_mangle]
+pub extern "C" fn proxy_on_context_create(_: u32, _: u32) {}
+
+#[no_mangle]
+pub extern "C" fn proxy_on_memory_allocate(size: usize) -> *mut u8 {
+    let mut vec: Vec<u8> = Vec::with_capacity(size);
+    unsafe {
+        vec.set_len(size);
+    }
+    let slice = vec.into_boxed_slice();
+    Box::into_raw(slice) as *mut u8
+}

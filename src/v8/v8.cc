@@ -97,11 +97,11 @@ private:
 
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
-                                void (*function)(void *, Args...));
+                                void (*function)(Args...));
 
   template <typename R, typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
-                                R (*function)(void *, Args...));
+                                R (*function)(Args...));
 
   template <typename... Args>
   void getModuleFunctionImpl(std::string_view function_name,
@@ -448,7 +448,7 @@ bool V8::setWord(uint64_t pointer, Word word) {
 
 template <typename... Args>
 void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
-                                  void (*function)(void *, Args...)) {
+                                  void (*function)(Args...)) {
   auto data =
       std::make_unique<FuncData>(std::string(module_name) + "." + std::string(function_name));
   auto type = wasm::FuncType::make(convertArgsTupleToValTypes<std::tuple<Args...>>(),
@@ -462,9 +462,8 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params, sizeof...(Args)) + ")");
         }
-        auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
-        auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
-        auto function = reinterpret_cast<void (*)(void *, Args...)>(func_data->raw_func_);
+        auto args = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
+        auto function = reinterpret_cast<void (*)(Args...)>(func_data->raw_func_);
         std::apply(function, args);
         if (log) {
           func_data->vm_->integration()->trace("[vm<-host] " + func_data->name_ + " return: void");
@@ -482,7 +481,7 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
 
 template <typename R, typename... Args>
 void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
-                                  R (*function)(void *, Args...)) {
+                                  R (*function)(Args...)) {
   auto data =
       std::make_unique<FuncData>(std::string(module_name) + "." + std::string(function_name));
   auto type = wasm::FuncType::make(convertArgsTupleToValTypes<std::tuple<Args...>>(),
@@ -496,9 +495,8 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params, sizeof...(Args)) + ")");
         }
-        auto args_tuple = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
-        auto args = std::tuple_cat(std::make_tuple(current_context_), args_tuple);
-        auto function = reinterpret_cast<R (*)(void *, Args...)>(func_data->raw_func_);
+        auto args = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
+        auto function = reinterpret_cast<R (*)(Args...)>(func_data->raw_func_);
         R rvalue = std::apply(function, args);
         results[0] = makeVal(rvalue);
         if (log) {

@@ -49,10 +49,10 @@ private:
 
 TEST_P(TestVM, Environment) {
   std::unordered_map<std::string, std::string> envs = {{"KEY1", "VALUE1"}, {"KEY2", "VALUE2"}};
-  initialize("env.wasm");
+  auto source = readTestWasmFile("env.wasm");
 
   auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", envs, {});
-  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, {}, {}));
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source, {}, {}));
 
   TestContext context(&wasm_base);
   current_context_ = &context;
@@ -72,9 +72,9 @@ TEST_P(TestVM, Environment) {
 }
 
 TEST_P(TestVM, WithoutEnvironment) {
-  initialize("env.wasm");
+  auto source = readTestWasmFile("env.wasm");
   auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", {}, {});
-  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, {}, {}));
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source, {}, {}));
 
   TestContext context(&wasm_base);
   current_context_ = &context;
@@ -92,9 +92,9 @@ TEST_P(TestVM, WithoutEnvironment) {
 }
 
 TEST_P(TestVM, Clock) {
-  initialize("clock.wasm");
+  auto source = readTestWasmFile("clock.wasm");
   auto wasm_base = WasmBase(std::move(vm_), "vm_id", "", "", {}, {});
-  ASSERT_TRUE(wasm_base.wasm_vm()->load(source_, {}, {}));
+  ASSERT_TRUE(wasm_base.wasm_vm()->load(source, {}, {}));
 
   TestContext context(&wasm_base);
   current_context_ = &context;
