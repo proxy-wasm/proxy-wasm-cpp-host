@@ -36,25 +36,30 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
   // Create a plugin.
   const auto plugin = std::make_shared<PluginBase>(plugin_name, root_id, vm_id, runtime_,
                                                    plugin_config, fail_open, "plugin_key");
+  // Define Restart rate limitter. We limit with the maximum of two.
+  VmCreationRateLimiter vm_create_rate_limiter = []() -> bool {
+    static int64_t count = 0;
+    return ++count < 2;
+  };
 
   // Define callbacks.
-  WasmHandleFactory wasm_handle_factory =
-      [this, vm_id, vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
+  WasmHandleFactory wasm_handle_factory = [this, vm_id, vm_config, vm_create_rate_limiter](
+                                              std::string_view vm_key) -> WasmHandleBaseSharedPtr {
     auto base_wasm = std::make_shared<WasmBase>(newVm(), vm_id, vm_config, vm_key,
                                                 std::unordered_map<std::string, std::string>{},
                                                 AllowedCapabilitiesMap{});
-    return std::make_shared<WasmHandleBase>(base_wasm);
+    return std::make_shared<WasmHandleBase>(base_wasm, vm_create_rate_limiter);
   };
 
   WasmHandleCloneFactory wasm_handle_clone_factory =
-      [this](std::shared_ptr<WasmHandleBase> base_wasm_handle) -> std::shared_ptr<WasmHandleBase> {
+      [this](WasmHandleBaseSharedPtr base_wasm_handle) -> WasmHandleBaseSharedPtr {
     auto wasm = std::make_shared<WasmBase>(base_wasm_handle,
                                            [this]() -> std::unique_ptr<WasmVm> { return newVm(); });
     return std::make_shared<WasmHandleBase>(wasm);
   };
 
   PluginHandleFactory plugin_handle_factory =
-      [](std::shared_ptr<WasmHandleBase> base_wasm,
+      [](WasmHandleBaseSharedPtr base_wasm,
          std::shared_ptr<PluginBase> plugin) -> std::shared_ptr<PluginHandleBase> {
     return std::make_shared<PluginHandleBase>(base_wasm, plugin);
   };
@@ -62,39 +67,56 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
   // Read the minimal loadable binary.
   auto source = readTestWasmFile("abi_export.wasm");
 
-  // Create base Wasm via createWasm.
-  auto base_wasm_handle =
-      createWasm("vm_key", source, plugin, wasm_handle_factory, wasm_handle_clone_factory, false);
+  // Create base Wasm via createBaseWasm.
+  auto base_wasm_handle = createBaseWasm("vm_key", source, plugin, wasm_handle_factory,
+                                         wasm_handle_clone_factory, false);
   ASSERT_TRUE(base_wasm_handle && base_wasm_handle->wasm());
 
+  // Create PluginHandleManagerBase
+  PluginHandleManagerBase plugin_handle_manager{
+      base_wasm_handle,
+      plugin,
+      wasm_handle_clone_factory,
+      plugin_handle_factory,
+  };
+
   // Create a thread local plugin.
-  auto thread_local_plugin = getOrCreateThreadLocalPlugin(
-      base_wasm_handle, plugin, wasm_handle_clone_factory, plugin_handle_factory);
-  ASSERT_TRUE(thread_local_plugin && thread_local_plugin->plugin());
+  auto thread_local_plugin = plugin_handle_manager.getHealthyPluginHandle();
+  ASSERT_TRUE(thread_local_plugin && !thread_local_plugin->isFailed());
   // If the VM is not failed, same WasmBase should be used for the same configuration.
-  ASSERT_EQ(getOrCreateThreadLocalPlugin(base_wasm_handle, plugin, wasm_handle_clone_factory,
-                                         plugin_handle_factory)
-                ->wasm(),
-            thread_local_plugin->wasm());
+  {
+    auto another_plugin =
+        PluginHandleManagerBase{
+            base_wasm_handle,
+            plugin,
+            wasm_handle_clone_factory,
+            plugin_handle_factory,
+        }
+            .getHealthyPluginHandle();
+    ASSERT_TRUE(another_plugin);
+    ASSERT_EQ(another_plugin->wasmHandle(), thread_local_plugin->wasmHandle());
+  }
 
   // Cause runtime crash.
-  thread_local_plugin->wasm()->wasm_vm()->fail(FailState::RuntimeError, "runtime error msg");
-  ASSERT_TRUE(thread_local_plugin->wasm()->isFailed());
+  thread_local_plugin->wasmHandle()->wasm()->wasm_vm()->fail(FailState::RuntimeError,
+                                                             "runtime error msg");
+  ASSERT_TRUE(thread_local_plugin->isFailed());
   // the Base Wasm should not be affected by cloned ones.
   ASSERT_FALSE(base_wasm_handle->wasm()->isFailed());
 
-  // Create another thread local plugin with the same configuration.
+  // Try restarting thread local plugin from the plugin manager, i.e. with the same configuration.
   // This one should not end up using the failed VM.
-  auto thread_local_plugin2 = getOrCreateThreadLocalPlugin(
-      base_wasm_handle, plugin, wasm_handle_clone_factory, plugin_handle_factory);
-  ASSERT_TRUE(thread_local_plugin2 && thread_local_plugin2->plugin());
-  ASSERT_FALSE(thread_local_plugin2->wasm()->isFailed());
+  ASSERT_TRUE(plugin_handle_manager.tryRestartPlugin());
+  auto thread_local_plugin2 = plugin_handle_manager.getHealthyPluginHandle();
+  ASSERT_TRUE(thread_local_plugin2 && thread_local_plugin2->wasmHandle()->wasm());
+  ASSERT_FALSE(thread_local_plugin2->isFailed());
   // Verify the pointer to WasmBase is different from the failed one.
-  ASSERT_NE(thread_local_plugin2->wasm(), thread_local_plugin->wasm());
+  ASSERT_NE(thread_local_plugin2->wasmHandle()->wasm(), thread_local_plugin->wasmHandle()->wasm());
 
   // Cause runtime crash again.
-  thread_local_plugin2->wasm()->wasm_vm()->fail(FailState::RuntimeError, "runtime error msg");
-  ASSERT_TRUE(thread_local_plugin2->wasm()->isFailed());
+  thread_local_plugin2->wasmHandle()->wasm()->wasm_vm()->fail(FailState::RuntimeError,
+                                                              "runtime error msg");
+  ASSERT_TRUE(thread_local_plugin2->isFailed());
   // the Base Wasm should not be affected by cloned ones.
   ASSERT_FALSE(base_wasm_handle->wasm()->isFailed());
 
@@ -102,13 +124,30 @@ TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
   // This one also should not end up using the failed VM.
   const auto plugin2 = std::make_shared<PluginBase>(plugin_name, root_id, vm_id, runtime_,
                                                     plugin_config, fail_open, "another_plugin_key");
-  auto thread_local_plugin3 = getOrCreateThreadLocalPlugin(
-      base_wasm_handle, plugin2, wasm_handle_clone_factory, plugin_handle_factory);
-  ASSERT_TRUE(thread_local_plugin3 && thread_local_plugin3->plugin());
-  ASSERT_FALSE(thread_local_plugin3->wasm()->isFailed());
+  PluginHandleManagerBase plugin_handle_manager2{
+      base_wasm_handle,
+      plugin2,
+      wasm_handle_clone_factory,
+      plugin_handle_factory,
+  };
+  auto thread_local_plugin3 = plugin_handle_manager2.getHealthyPluginHandle();
+  ASSERT_TRUE(thread_local_plugin3 && !thread_local_plugin3->isFailed());
   // Verify the pointer to WasmBase is different from the failed one.
-  ASSERT_NE(thread_local_plugin3->wasm(), thread_local_plugin->wasm());
-  ASSERT_NE(thread_local_plugin3->wasm(), thread_local_plugin2->wasm());
+  ASSERT_NE(thread_local_plugin3->wasmHandle()->wasm(), thread_local_plugin->wasmHandle()->wasm());
+  ASSERT_NE(thread_local_plugin3->wasmHandle()->wasm(), thread_local_plugin2->wasmHandle()->wasm());
+
+  // Though we've reached rate-limit max, the VM is still alive os restart plugin should succeed.
+  ASSERT_TRUE(plugin_handle_manager.tryRestartPlugin());
+
+  // Cause runtime crash again.
+  thread_local_plugin2->wasmHandle()->wasm()->wasm_vm()->fail(FailState::RuntimeError,
+                                                              "runtime error msg");
+  ASSERT_TRUE(thread_local_plugin2->isFailed());
+  // the Base Wasm should not be affected by cloned ones.
+  ASSERT_FALSE(base_wasm_handle->wasm()->isFailed());
+
+  // Now the restart is rate limitted - we shouldn't be able to create healthy PluginHandle.
+  ASSERT_FALSE(plugin_handle_manager.tryRestartPlugin());
 }
 
 } // namespace proxy_wasm

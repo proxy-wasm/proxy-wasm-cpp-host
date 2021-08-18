@@ -146,8 +146,8 @@ public:
   ContextBase();                                                   // Testing.
   ContextBase(WasmBase *wasm);                                     // Vm Context.
   ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin); // Root Context.
-  ContextBase(WasmBase *wasm, uint32_t parent_context_id,
-              std::shared_ptr<PluginHandleBase> plugin_handle); // Stream context.
+  ContextBase(std::shared_ptr<PluginHandleBase> plugin_handle,
+              bool fail_open); // Stream context.
   virtual ~ContextBase();
 
   WasmBase *wasm() const { return wasm_; }
@@ -166,9 +166,11 @@ public:
     }
     return parent;
   }
-  std::string_view root_id() const { return isRootContext() ? root_id_ : plugin_->root_id_; }
+  std::string_view root_id() const {
+    return isRootContext() ? root_id_ : root_context()->root_id();
+  }
   std::string_view log_prefix() const {
-    return isRootContext() ? root_log_prefix_ : plugin_->log_prefix();
+    return isRootContext() ? root_log_prefix_ : root_context()->log_prefix();
   }
   WasmVm *wasmVm() const;
 
@@ -229,7 +231,6 @@ public:
     return WasmResult::Unimplemented;
   }
   bool isFailed();
-  bool isFailOpen() { return plugin_->fail_open_; }
 
   //
   // General Callbacks.
@@ -402,12 +403,13 @@ protected:
   ContextBase *parent_context_{nullptr};            // set in all contexts.
   std::string root_id_;                             // set only in root context.
   std::string root_log_prefix_;                     // set only in root context.
-  std::shared_ptr<PluginBase> plugin_;              // set in root and stream contexts.
+  std::string plugin_key_;                          // set in root and stream contexts.
   std::shared_ptr<PluginHandleBase> plugin_handle_; // set only in stream context.
   std::shared_ptr<PluginBase> temp_plugin_;         // Remove once ABI v0.1.0 is gone.
   bool in_vm_context_created_ = false;
   bool destroyed_ = false;
-  bool stream_failed_ = false; // Set true after failStream is called in case of VM failure.
+  bool stream_failed_ = false; // set true after failStream is called in case of VM failure.
+  bool fail_open_ = false;     // set only in stream context.
 
 private:
   // helper functions

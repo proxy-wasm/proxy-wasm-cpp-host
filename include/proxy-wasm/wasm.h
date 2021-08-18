@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include <atomic>
+#include <cassert>
 #include <deque>
 #include <map>
 #include <memory>
@@ -36,6 +37,7 @@ namespace proxy_wasm {
 class ContextBase;
 class WasmBase;
 class WasmHandleBase;
+using WasmHandleBaseSharedPtr = std::shared_ptr<WasmHandleBase>;
 
 using WasmForeignFunction =
     std::function<WasmResult(WasmBase &, std::string_view, std::function<void *(size_t size)>)>;
@@ -55,7 +57,7 @@ public:
            std::string_view vm_configuration, std::string_view vm_key,
            std::unordered_map<std::string, std::string> envs,
            AllowedCapabilitiesMap allowed_capabilities);
-  WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
+  WasmBase(const WasmHandleBaseSharedPtr &base_wasm, WasmVmFactory factory);
   virtual ~WasmBase();
 
   bool load(const std::string &code, bool allow_precompiled = false);
@@ -289,7 +291,7 @@ protected:
   // is not enforced.
   AllowedCapabilitiesMap allowed_capabilities_;
 
-  std::shared_ptr<WasmHandleBase> base_wasm_handle_;
+  WasmHandleBaseSharedPtr base_wasm_handle_;
 
   // Used by the base_wasm to enable non-clonable thread local Wasm(s) to be constructed.
   std::string module_bytecode_;
@@ -319,65 +321,196 @@ protected:
   std::shared_ptr<VmIdHandle> vm_id_handle_;
 };
 
-// Handle which enables shutdown operations to run post deletion (e.g. post listener drain).
+/**
+ * VmCreationRateLimiter is used by base Wasms in order to rate limit the recovery recreation of
+ * Wasm VMs. Set via the constructor of WasmHandleBase managing a Wasm base.
+ */
+using VmCreationRateLimiter = std::function<bool()>;
+
+/**
+ * WasmHandleBase enables shutdown operations to run post deletion (e.g. post listener drain).
+ * TODO(mathetake): seems like when WasnHandle is deleted, the underlying WasmBase is also deleted,
+ * which means that all the root contexts and VM is deleted immediately after this handle is
+ * deleted. Maybe we don't need to define WasmHandleBase at all, though needs further investigation.
+ */
 class WasmHandleBase : public std::enable_shared_from_this<WasmHandleBase> {
 public:
-  explicit WasmHandleBase(std::shared_ptr<WasmBase> wasm_base) : wasm_base_(wasm_base) {}
+  /**
+   * @param wasm_base is the WasmBase managed by this WasmHandle. Must not be nullptr.
+   * @param rate_limiter is only used when this is for a base wasm instance.
+   */
+  explicit WasmHandleBase(std::shared_ptr<WasmBase> wasm_base,
+                          VmCreationRateLimiter rate_limiter = nullptr)
+      : wasm_base_(wasm_base), rate_limiter_(rate_limiter) {
+    assert(wasm_base_);
+  }
+
   ~WasmHandleBase() {
+    // For configuration canary, wasm_base_ becomes nullptr via kill().
     if (wasm_base_) {
       wasm_base_->startShutdown();
     }
   }
 
+  /**
+   * @return true if recreating a thread local wasm from the base wasm managed by this handle is
+   * allowed.
+   */
+  bool recreateAllowed() { return rate_limiter_ ? rate_limiter_() : false; }
+
+  /**
+   * Used to kill WasmBase managed by this WasmHandle, which means we just delete WasmBase without
+   * doing shutdown operations. Only used by canary handle when we create a base wasm.
+   */
   void kill() { wasm_base_ = nullptr; }
 
+  // TODO(@mathetake)　consider using WasmBase& instead of shared_ptr for return type.
   std::shared_ptr<WasmBase> &wasm() { return wasm_base_; }
 
 protected:
+  // Must not be nullptr.
+  // TODO(@mathetake): consider using unique_ptr instead.
   std::shared_ptr<WasmBase> wasm_base_;
+  // Only set for base wasms. Nullable.
+  VmCreationRateLimiter rate_limiter_;
 };
 
 std::string makeVmKey(std::string_view vm_id, std::string_view configuration,
                       std::string_view code);
 
-using WasmHandleFactory = std::function<std::shared_ptr<WasmHandleBase>(std::string_view vm_id)>;
-using WasmHandleCloneFactory =
-    std::function<std::shared_ptr<WasmHandleBase>(std::shared_ptr<WasmHandleBase> wasm)>;
+/**
+ * WasmHandleFactory is used to create a base wasm instance. TODO(@mathetake): Have separate classes
+ * of WasmHandle for "base wasm" and "thread local wasm" to make it clearer. Then rename this
+ * factory.
+ */
+using WasmHandleFactory = std::function<WasmHandleBaseSharedPtr(std::string_view vm_key)>;
 
-// Returns nullptr on failure (i.e. initialization of the VM fails).
-std::shared_ptr<WasmHandleBase>
-createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plugin,
-           WasmHandleFactory factory, WasmHandleCloneFactory clone_factory, bool allow_precompiled);
-// Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
-std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_id);
+/**
+ * WasmHandleCloneFactory is used to create (for non-clonable runtime) or clone from a given base
+ * wasm. TODO(@mahetake): Have separate classes of WasmHandle for "base wasm" and "thread local
+ * wasm" to make it clearer. Then rename this factory.
+ */
+using WasmHandleCloneFactory = std::function<WasmHandleBaseSharedPtr(WasmHandleBaseSharedPtr wasm)>;
 
+/**
+ * createBaseWasm create a "base wasm" from given arguments. a "base wasm" is used to
+ * create "thread local wasm" by clone or recreation. "base" and "thread local" are both
+ * instances of WasmBase/WasmHandleBase classes, so how it is created differentiates them.
+ * TODO(@mathetake): Have separate classes of WasmHandle for "base wasm" and "thread local wasm" to
+ * make it clearer.
+ * @return nullptr on failure (i.e. initialization of the VM fails).
+ */
+WasmHandleBaseSharedPtr createBaseWasm(std::string vm_key, std::string code,
+                                       std::shared_ptr<PluginBase> plugin,
+                                       WasmHandleFactory factory,
+                                       WasmHandleCloneFactory clone_factory,
+                                       bool allow_precompiled);
+
+/**
+ * getThreadLocalWasm gets the "thread local" wasm for given vm_key.
+ */
+WasmHandleBaseSharedPtr getThreadLocalWasm(std::string_view vm_key);
+
+/**
+ * PluginHandleBase corresponds to a single instance of Plugin, managing not only Wasm VM used by
+ * this plugin, but also its lifecycle. - when this is delted, this class invokes in-VM shutdown
+ * operation for this Plugin.
+ */
 class PluginHandleBase : public std::enable_shared_from_this<PluginHandleBase> {
 public:
-  explicit PluginHandleBase(std::shared_ptr<WasmHandleBase> wasm_handle,
-                            std::shared_ptr<PluginBase> plugin)
-      : plugin_(plugin), wasm_handle_(wasm_handle) {}
-  ~PluginHandleBase() {
-    if (wasm_handle_) {
-      wasm_handle_->wasm()->startShutdown(plugin_->key());
-    }
+  /**
+   * @param wasm_handle is the Wasm VM handle used by this plugin. Must not be nullptr.
+   * @param plugin is the configuration used to initialize this plugin and VM. Must not be nullptr.
+   */
+  explicit PluginHandleBase(WasmHandleBaseSharedPtr wasm_handle, std::shared_ptr<PluginBase> plugin)
+      : plugin_(plugin), wasm_handle_(wasm_handle) {
+    assert(plugin_ != nullptr);
+    assert(wasm_handle_ != nullptr);
   }
+  ~PluginHandleBase() { wasm_handle_->wasm()->startShutdown(plugin_->key()); }
 
+  /**
+   * @return true if the VM used by this plugin is not in a failed state.
+   */
+  bool isFailed() { return wasm_handle_->wasm()->isFailed(); }
+
+  // TODO(@mathetake)　consider using PluginBase& instead of shared_ptr for return type.
   std::shared_ptr<PluginBase> &plugin() { return plugin_; }
-  std::shared_ptr<WasmBase> &wasm() { return wasm_handle_->wasm(); }
+  // TODO(@mathetake)　consider using WasmHandleBase& instead of shared_ptr for return type.
+  WasmHandleBaseSharedPtr &wasmHandle() { return wasm_handle_; }
 
 protected:
+  // Must not be nullptr.
   std::shared_ptr<PluginBase> plugin_;
-  std::shared_ptr<WasmHandleBase> wasm_handle_;
+  // Must not be nullptr.
+  WasmHandleBaseSharedPtr wasm_handle_;
 };
 
+using PluginHandleBaseSharedPtr = std::shared_ptr<PluginHandleBase>;
 using PluginHandleFactory = std::function<std::shared_ptr<PluginHandleBase>(
-    std::shared_ptr<WasmHandleBase> base_wasm, std::shared_ptr<PluginBase> plugin)>;
+    WasmHandleBaseSharedPtr base_wasm, std::shared_ptr<PluginBase> plugin)>;
 
-// Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
-// using it it as a template.
-std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
-    std::shared_ptr<WasmHandleBase> base_wasm, std::shared_ptr<PluginBase> plugin,
-    WasmHandleCloneFactory clone_factory, PluginHandleFactory plugin_factory);
+/**
+ * PluginHandleManagerBase is responsible for create/recreate a plugin handle instance for given
+ * same plugin  configuration and base wasm. tryRestartPlugin can be used to restart
+ * PlugnHandle in case of VM failures.
+ */
+class PluginHandleManagerBase {
+public:
+  /**
+   * @param base_wasm_handle is used for initializing this plugin and thread local Wasm. This can be
+   * nullptr.
+   * @param plugin is the configuration used to initialize this plugin and Wasm VM.
+   * @param wasm_handle_clone_factory is used to clone a WasmHandle from the base_wasm_handle.
+   * @param plugin_factory is used to create a PluginHandleBase instance with the created
+   * thread-local WasmHandle.
+   */
+  PluginHandleManagerBase(const WasmHandleBaseSharedPtr base_wasm_handle,
+                          const std::shared_ptr<PluginBase> plugin,
+                          WasmHandleCloneFactory wasm_handle_clone_factory,
+                          PluginHandleFactory plugin_factory)
+      : base_wasm_handle_(base_wasm_handle), plugin_factory_(plugin_factory), plugin_(plugin),
+        wasm_handle_clone_factory_(wasm_handle_clone_factory) {
+    assert(plugin != nullptr);
+    assert(wasm_handle_clone_factory != nullptr);
+    assert(plugin_factory != nullptr);
+    initializePlugin();
+  }
+
+  /**
+   * tryRestartPlugin is used to restart plugin and re-create plugin_handle_.
+   * @return true if the restart succeeded, false otherwise.
+   */
+  bool tryRestartPlugin();
+
+  /**
+   * @return the current PluginHandleBase managed by this manager if it is healthy, otherwise
+   * nullptr so restarts can be tried at callsites.
+   */
+  PluginHandleBaseSharedPtr getHealthyPluginHandle() {
+    if (handle_ && !handle_->isFailed()) {
+      return handle_;
+    }
+    return nullptr;
+  };
+
+private:
+  // Set in the constructor.
+  const WasmHandleBaseSharedPtr base_wasm_handle_;
+  PluginHandleFactory plugin_factory_;
+  const std::shared_ptr<PluginBase> plugin_;
+  WasmHandleCloneFactory wasm_handle_clone_factory_;
+
+  // Set via initializePlugin or tryRestartPlugin.
+  PluginHandleBaseSharedPtr handle_{nullptr};
+
+  // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or
+  // using it it as a template.
+  PluginHandleBaseSharedPtr getOrCreateThreadLocalPlugin();
+  WasmHandleBaseSharedPtr getOrCreateThreadLocalWasmHandle();
+  bool tryStartPlugin(bool should_rate_limit);
+  void initializePlugin();
+};
 
 // Clear Base Wasm cache and the thread-local Wasm sandbox cache for the calling thread.
 void clearWasmCachesForTesting();

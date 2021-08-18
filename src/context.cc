@@ -27,7 +27,7 @@
 
 #define CHECK_FAIL(_stream_type, _stream_type2, _return_open, _return_closed)                      \
   if (isFailed()) {                                                                                \
-    if (plugin_->fail_open_) {                                                                     \
+    if (fail_open_) {                                                                              \
       return _return_open;                                                                         \
     } else if (!stream_failed_) {                                                                  \
       failStream(_stream_type);                                                                    \
@@ -92,15 +92,19 @@ ContextBase::ContextBase(WasmBase *wasm) : wasm_(wasm), parent_context_(this) {
 
 ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin)
     : wasm_(wasm), id_(wasm->allocContextId()), parent_context_(this), root_id_(plugin->root_id_),
-      root_log_prefix_(makeRootLogPrefix(plugin->vm_id_)), plugin_(plugin) {
+      root_log_prefix_(makeRootLogPrefix(plugin->vm_id_)), plugin_key_(plugin->key()) {
   wasm_->contexts_[id_] = this;
 }
 
 // NB: wasm can be nullptr if it failed to be created successfully.
-ContextBase::ContextBase(WasmBase *wasm, uint32_t parent_context_id,
-                         std::shared_ptr<PluginHandleBase> plugin_handle)
-    : wasm_(wasm), id_(wasm ? wasm->allocContextId() : 0), parent_context_id_(parent_context_id),
-      plugin_(plugin_handle->plugin()), plugin_handle_(plugin_handle) {
+ContextBase::ContextBase(std::shared_ptr<PluginHandleBase> plugin_handle, bool fail_open)
+    : wasm_(plugin_handle ? plugin_handle->wasmHandle()->wasm().get() : nullptr),
+      id_(wasm_ ? wasm_->allocContextId() : 0), plugin_handle_(plugin_handle),
+      fail_open_(fail_open) {
+
+  if (wasm_ && plugin_handle) {
+    parent_context_id_ = wasm_->getRootContext(plugin_handle->plugin(), false)->id();
+  }
   if (wasm_) {
     wasm_->contexts_[id_] = this;
     parent_context_ = wasm_->contexts_[parent_context_id_];
