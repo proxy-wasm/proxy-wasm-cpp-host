@@ -34,11 +34,8 @@ namespace proxy_wasm {
 #include "proxy_wasm_common.h"
 
 class ContextBase;
-class WasmBase;
 class WasmHandleBase;
 
-using WasmForeignFunction =
-    std::function<WasmResult(WasmBase &, std::string_view, std::function<void *(size_t size)>)>;
 using WasmVmFactory = std::function<std::unique_ptr<WasmVm>()>;
 using CallOnThreadFunction = std::function<void(std::function<void()>)>;
 
@@ -128,8 +125,6 @@ public:
   // Copy the data in 's' into the VM along with the pointer-size pair. Returns true on success.
   bool copyToPointerSize(std::string_view s, uint64_t ptr_ptr, uint64_t size_ptr);
   template <typename T> bool setDatatype(uint64_t ptr, const T &t);
-
-  WasmForeignFunction getForeignFunction(std::string_view function_name);
 
   void fail(FailState fail_state, std::string_view message) {
     error(message);
@@ -438,9 +433,5 @@ inline bool WasmBase::copyToPointerSize(std::string_view s, uint64_t ptr_ptr, ui
 template <typename T> inline bool WasmBase::setDatatype(uint64_t ptr, const T &t) {
   return wasm_vm_->setMemory(ptr, sizeof(T), &t);
 }
-
-struct RegisterForeignFunction {
-  RegisterForeignFunction(std::string name, WasmForeignFunction f);
-};
 
 } // namespace proxy_wasm
