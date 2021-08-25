@@ -37,8 +37,8 @@ ContextBase *contextOrEffectiveContext() {
 extern thread_local uint32_t effective_context_id_;
 
 std::unordered_map<std::string, WasmForeignFunction> &foreignFunctions() {
-    static auto ptr = new std::unordered_map<std::string, WasmForeignFunction>;
-    return *ptr;
+  static auto ptr = new std::unordered_map<std::string, WasmForeignFunction>;
+  return *ptr;
 }
 
 WasmForeignFunction getForeignFunction(std::string_view function_name) {
