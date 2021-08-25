@@ -36,22 +36,22 @@ ContextBase *contextOrEffectiveContext() {
 // of current_context_.
 extern thread_local uint32_t effective_context_id_;
 
-// Lookup table of foreign functions, using a pointer to avoid the initialization fiasco.
-std::unordered_map<std::string, WasmForeignFunction> *foreign_functions = nullptr;
+std::unordered_map<std::string, WasmForeignFunction> &foreignFunctions() {
+    static auto ptr = new std::unordered_map<std::string, WasmForeignFunction>;
+    return *ptr;
+}
 
 WasmForeignFunction getForeignFunction(std::string_view function_name) {
-  auto it = foreign_functions->find(std::string(function_name));
-  if (it != foreign_functions->end()) {
+  auto foreign_functions = foreignFunctions();
+  auto it = foreign_functions.find(std::string(function_name));
+  if (it != foreign_functions.end()) {
     return it->second;
   }
   return nullptr;
 }
 
 RegisterForeignFunction::RegisterForeignFunction(std::string name, WasmForeignFunction f) {
-  if (!foreign_functions) {
-    foreign_functions = new std::remove_reference<decltype(*foreign_functions)>::type;
-  }
-  (*foreign_functions)[name] = f;
+  foreignFunctions()[name] = f;
 }
 
 namespace exports {
