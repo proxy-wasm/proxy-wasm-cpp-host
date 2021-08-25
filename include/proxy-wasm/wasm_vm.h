@@ -177,8 +177,8 @@ class WasmVm {
 public:
   virtual ~WasmVm() = default;
   /**
-   * Return the runtime identifier.
-   * @return one of WasmRuntimeValues from well_known_names.h (e.g. "v8").
+   * Identify the Wasm runtime.
+   * @return the name of the underlying Wasm runtime.
    */
   virtual std::string_view runtime() = 0;
 

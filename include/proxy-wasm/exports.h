@@ -30,6 +30,36 @@ class ContextBase;
 
 extern thread_local ContextBase *current_context_;
 
+/**
+ * WasmForeignFunction is used for registering host-specific host functions.
+ * A foreign function can be registered via RegisterForeignFunction and available
+ * to Wasm modules via proxy_call_foreign_function.
+ * @param wasm is the WasmBase which the Wasm module is running on.
+ * @param argument is the view to the argument to the function passed by the module.
+ * @param alloc_result is used to allocate the result data of this foreign function.
+ */
+using WasmForeignFunction = std::function<WasmResult(
+    WasmBase &wasm, std::string_view argument, std::function<void *(size_t size)> alloc_result)>;
+
+/**
+ * Used to get the foreign function registered via RegisterForeignFunction for a given name.
+ * @param function_name is the name used to lookup the foreign function table.
+ * @return a WasmForeignFunction if registered.
+ */
+WasmForeignFunction getForeignFunction(std::string_view function_name);
+
+/**
+ * RegisterForeignFunction is used to register a foreign function in the lookup table
+ * used internally in getForeignFunction.
+ */
+struct RegisterForeignFunction {
+  /**
+   * @param function_name is the key for this foreign function.
+   * @param f is the function instance.
+   */
+  RegisterForeignFunction(std::string function_name, WasmForeignFunction f);
+};
+
 namespace exports {
 
 template <typename Pairs> size_t pairsSize(const Pairs &result) {

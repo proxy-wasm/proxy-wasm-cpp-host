@@ -36,6 +36,24 @@ ContextBase *contextOrEffectiveContext() {
 // of current_context_.
 extern thread_local uint32_t effective_context_id_;
 
+std::unordered_map<std::string, WasmForeignFunction> &foreignFunctions() {
+  static auto ptr = new std::unordered_map<std::string, WasmForeignFunction>;
+  return *ptr;
+}
+
+WasmForeignFunction getForeignFunction(std::string_view function_name) {
+  auto foreign_functions = foreignFunctions();
+  auto it = foreign_functions.find(std::string(function_name));
+  if (it != foreign_functions.end()) {
+    return it->second;
+  }
+  return nullptr;
+}
+
+RegisterForeignFunction::RegisterForeignFunction(std::string name, WasmForeignFunction f) {
+  foreignFunctions()[name] = f;
+}
+
 namespace exports {
 
 namespace {
@@ -220,7 +238,7 @@ Word call_foreign_function(Word function_name, Word function_name_size, Word arg
   if (!args_opt) {
     return WasmResult::InvalidMemoryAccess;
   }
-  auto f = context->wasm()->getForeignFunction(function.value());
+  auto f = getForeignFunction(function.value());
   if (!f) {
     return WasmResult::NotFound;
   }

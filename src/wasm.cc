@@ -45,7 +45,6 @@ thread_local std::unordered_map<std::string, std::weak_ptr<PluginHandleBase>> lo
 // Map from Wasm Key to the base Wasm instance, using a pointer to avoid the initialization fiasco.
 std::mutex base_wasms_mutex;
 std::unordered_map<std::string, std::weak_ptr<WasmHandleBase>> *base_wasms = nullptr;
-std::unordered_map<std::string, WasmForeignFunction> *foreign_functions = nullptr;
 
 std::vector<uint8_t> Sha256(const std::vector<std::string_view> parts) {
   uint8_t sha256[SHA256_DIGEST_LENGTH];
@@ -84,13 +83,6 @@ public:
 private:
   std::shared_ptr<WasmBase> wasm_;
 };
-
-RegisterForeignFunction::RegisterForeignFunction(std::string name, WasmForeignFunction f) {
-  if (!foreign_functions) {
-    foreign_functions = new std::remove_reference<decltype(*foreign_functions)>::type;
-  }
-  (*foreign_functions)[name] = f;
-}
 
 void WasmBase::registerCallbacks() {
 #define _REGISTER(_fn)                                                                             \
@@ -452,14 +444,6 @@ void WasmBase::finishShutdown() {
     (*it)->onDelete();
     it = pending_delete_.erase(it);
   }
-}
-
-WasmForeignFunction WasmBase::getForeignFunction(std::string_view function_name) {
-  auto it = foreign_functions->find(std::string(function_name));
-  if (it != foreign_functions->end()) {
-    return it->second;
-  }
-  return nullptr;
 }
 
 WasmHandleBaseSharedPtr createBaseWasm(std::string vm_key, std::string code,
