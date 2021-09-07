@@ -181,6 +181,22 @@ def proxy_wasm_cpp_host_repositories():
         actual = "@com_github_bytecodealliance_wasm_micro_runtime//:wamr_lib",
     )
 
+    # WasmEdge with dependencies.
+
+    maybe(
+        http_archive,
+        name = "com_github_wasmedge_wasmedge",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:wasmedge.BUILD",
+        sha256 = "6724955a967a1457bcf5dc1787a8da95feaba45d3b498ae42768ebf48f587299",
+        strip_prefix = "WasmEdge-proxy-wasm-0.9.1",
+        url = "https://github.com/WasmEdge/WasmEdge/archive/refs/tags/proxy-wasm/0.9.1.tar.gz",
+    )
+
+    native.bind(
+        name = "wasmedge",
+        actual = "@com_github_wasmedge_wasmedge//:wasmedge_lib",
+    )
+
     # Wasmtime with dependencies.
 
     maybe(
