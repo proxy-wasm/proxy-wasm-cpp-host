@@ -25,29 +25,25 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
+# Unsupported target "mod" with type "bench" omitted
+
 rust_library(
-    name = "clap",
+    name = "getrandom",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
-        "ansi_term",
-        "atty",
-        "color",
-        "default",
-        "strsim",
-        "suggestions",
-        "vec_map",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -55,17 +51,27 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "2.33.3",
+    version = "0.2.3",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__atty__0_2_14//:atty",
-        "@proxy_wasm_cpp_host__bitflags__1_3_2//:bitflags",
-        "@proxy_wasm_cpp_host__strsim__0_8_0//:strsim",
-        "@proxy_wasm_cpp_host__textwrap__0_11_0//:textwrap",
-        "@proxy_wasm_cpp_host__unicode_width__0_1_9//:unicode_width",
-        "@proxy_wasm_cpp_host__vec_map__0_8_2//:vec_map",
+        "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
     ] + selects.with_or({
-        # cfg(not(windows))
+        # cfg(all(target_arch = "wasm32", target_os = "unknown"))
+        (
+            "@rules_rust//rust/platform:wasm32-unknown-unknown",
+        ): [
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(target_os = "wasi")
+        (
+            "@rules_rust//rust/platform:wasm32-wasi",
+        ): [
+            "@proxy_wasm_cpp_host__wasi__0_10_2_wasi_snapshot_preview1//:wasi",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(unix)
         (
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
@@ -78,16 +84,20 @@ rust_library(
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
-            "@rules_rust//rust/platform:wasm32-unknown-unknown",
-            "@rules_rust//rust/platform:wasm32-wasi",
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@proxy_wasm_cpp_host__ansi_term__0_11_0//:ansi_term",
+            "@proxy_wasm_cpp_host__libc__0_2_103//:libc",
         ],
         "//conditions:default": [],
     }),
 )
+
+# Unsupported target "custom" with type "test" omitted
+
+# Unsupported target "normal" with type "test" omitted
+
+# Unsupported target "rdrand" with type "test" omitted

@@ -25,16 +25,18 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "aho_corasick",
+    name = "cranelift_wasm",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
+        "enable-serde",
+        "serde",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -48,9 +50,19 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.7.18",
+    version = "0.73.1",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_73_1//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__cranelift_entity__0_73_1//:cranelift_entity",
+        "@proxy_wasm_cpp_host__cranelift_frontend__0_73_1//:cranelift_frontend",
+        "@proxy_wasm_cpp_host__itertools__0_10_1//:itertools",
+        "@proxy_wasm_cpp_host__log__0_4_14//:log",
+        "@proxy_wasm_cpp_host__serde__1_0_130//:serde",
+        "@proxy_wasm_cpp_host__smallvec__1_7_0//:smallvec",
+        "@proxy_wasm_cpp_host__thiserror__1_0_29//:thiserror",
+        "@proxy_wasm_cpp_host__wasmparser__0_77_0//:wasmparser",
     ],
 )
+
+# Unsupported target "wasm_testsuite" with type "test" omitted

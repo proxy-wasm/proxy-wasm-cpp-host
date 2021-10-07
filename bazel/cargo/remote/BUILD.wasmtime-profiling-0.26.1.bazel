@@ -25,17 +25,15 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "aho_corasick",
+    name = "wasmtime_profiling",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -48,9 +46,16 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.7.18",
+    version = "0.26.1",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
+        "@proxy_wasm_cpp_host__anyhow__1_0_44//:anyhow",
+        "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
+        "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
+        "@proxy_wasm_cpp_host__libc__0_2_103//:libc",
+        "@proxy_wasm_cpp_host__serde__1_0_130//:serde",
+        "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_26_1//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__wasmtime_runtime__0_26_1//:wasmtime_runtime",
     ],
 )

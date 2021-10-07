@@ -68,7 +68,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host__fallible_iterator__0_2_0//:fallible_iterator",
-        "@proxy_wasm_cpp_host__indexmap__1_6_2//:indexmap",
+        "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
         "@proxy_wasm_cpp_host__stable_deref_trait__1_2_0//:stable_deref_trait",
     ],
 )
