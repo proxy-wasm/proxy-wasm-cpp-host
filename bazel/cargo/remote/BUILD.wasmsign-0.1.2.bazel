@@ -57,7 +57,7 @@ rust_binary(
         "@proxy_wasm_cpp_host__ed25519_compact__0_1_11//:ed25519_compact",
         "@proxy_wasm_cpp_host__hmac_sha512__0_1_9//:hmac_sha512",
         "@proxy_wasm_cpp_host__parity_wasm__0_42_2//:parity_wasm",
-        "@proxy_wasm_cpp_host__thiserror__1_0_29//:thiserror",
+        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
     ],
 )
 
@@ -86,6 +86,6 @@ rust_library(
         "@proxy_wasm_cpp_host__ed25519_compact__0_1_11//:ed25519_compact",
         "@proxy_wasm_cpp_host__hmac_sha512__0_1_9//:hmac_sha512",
         "@proxy_wasm_cpp_host__parity_wasm__0_42_2//:parity_wasm",
-        "@proxy_wasm_cpp_host__thiserror__1_0_29//:thiserror",
+        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
     ],
 )

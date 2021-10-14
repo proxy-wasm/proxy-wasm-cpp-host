@@ -50,11 +50,15 @@ rust_library(
     crate_features = [
         "archive",
         "coff",
+        "crc32fast",
         "elf",
+        "indexmap",
         "macho",
         "pe",
         "read_core",
+        "std",
         "unaligned",
+        "write_core",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -70,6 +74,8 @@ rust_library(
     version = "0.26.2",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__crc32fast__1_2_1//:crc32fast",
+        "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
         "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
     ],
 )

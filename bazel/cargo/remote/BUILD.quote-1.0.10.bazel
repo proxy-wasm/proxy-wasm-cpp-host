@@ -53,7 +53,7 @@ rust_library(
     version = "1.0.10",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__proc_macro2__1_0_29//:proc_macro2",
+        "@proxy_wasm_cpp_host__proc_macro2__1_0_30//:proc_macro2",
     ],
 )
 

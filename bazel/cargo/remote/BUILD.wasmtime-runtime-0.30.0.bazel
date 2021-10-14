@@ -54,7 +54,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.26.1",
+    version = "0.30.0",
     visibility = ["//visibility:private"],
     deps = [
         "@proxy_wasm_cpp_host__cc__1_0_71//:cc",
@@ -109,7 +109,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.26.1",
+    version = "0.30.0",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
@@ -124,8 +124,8 @@ rust_library(
         "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",
         "@proxy_wasm_cpp_host__rand__0_8_4//:rand",
         "@proxy_wasm_cpp_host__region__2_2_0//:region",
-        "@proxy_wasm_cpp_host__thiserror__1_0_29//:thiserror",
-        "@proxy_wasm_cpp_host__wasmtime_environ__0_26_1//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_30_0//:wasmtime_environ",
     ] + selects.with_or({
         # cfg(target_os = "linux")
         (

@@ -25,22 +25,22 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "addr2line" with type "example" omitted
-
 rust_library(
-    name = "addr2line",
+    name = "cranelift_entity",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "enable-serde",
+        "serde",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,15 +48,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.14.1",
+    version = "0.77.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__gimli__0_23_0//:gimli",
+        "@proxy_wasm_cpp_host__serde__1_0_130//:serde",
     ],
 )
-
-# Unsupported target "correctness" with type "test" omitted
-
-# Unsupported target "output_equivalence" with type "test" omitted
-
-# Unsupported target "parse" with type "test" omitted

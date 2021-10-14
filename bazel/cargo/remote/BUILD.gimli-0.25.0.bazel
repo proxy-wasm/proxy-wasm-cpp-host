@@ -44,7 +44,10 @@ rust_library(
     name = "gimli",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "fallible-iterator",
         "read",
+        "stable_deref_trait",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -60,6 +63,8 @@ rust_library(
     version = "0.25.0",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__fallible_iterator__0_2_0//:fallible_iterator",
+        "@proxy_wasm_cpp_host__stable_deref_trait__1_2_0//:stable_deref_trait",
     ],
 )
 
