@@ -714,7 +714,7 @@ dependencies = [
 
 [[package]]
 name = "wasmtime-c-api-bazel"
-version = "0.25.0"
+version = "0.30.0"
 dependencies = [
  "anyhow",
  "env_logger",
