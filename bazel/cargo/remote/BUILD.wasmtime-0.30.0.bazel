@@ -42,6 +42,8 @@ cargo_build_script(
     build_script_env = {
     },
     crate_features = [
+        "cranelift",
+        "wasmtime-cranelift",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -73,6 +75,8 @@ rust_library(
     aliases = {
     },
     crate_features = [
+        "cranelift",
+        "wasmtime-cranelift",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -108,6 +112,7 @@ rust_library(
         "@proxy_wasm_cpp_host__serde__1_0_130//:serde",
         "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
         "@proxy_wasm_cpp_host__wasmparser__0_80_2//:wasmparser",
+        "@proxy_wasm_cpp_host__wasmtime_cranelift__0_30_0//:wasmtime_cranelift",
         "@proxy_wasm_cpp_host__wasmtime_environ__0_30_0//:wasmtime_environ",
         "@proxy_wasm_cpp_host__wasmtime_jit__0_30_0//:wasmtime_jit",
         "@proxy_wasm_cpp_host__wasmtime_runtime__0_30_0//:wasmtime_runtime",

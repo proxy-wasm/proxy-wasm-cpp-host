@@ -58,6 +58,7 @@ rust_library(
         "read_core",
         "std",
         "unaligned",
+        "write",
         "write_core",
     ],
     crate_root = "src/lib.rs",
