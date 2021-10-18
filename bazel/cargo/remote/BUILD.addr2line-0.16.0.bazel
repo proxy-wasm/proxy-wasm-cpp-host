@@ -25,22 +25,22 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
+# Unsupported target "addr2line" with type "example" omitted
+
 rust_library(
-    name = "aho_corasick",
+    name = "addr2line",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -48,9 +48,15 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.7.18",
+    version = "0.16.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
+        "@proxy_wasm_cpp_host__gimli__0_25_0//:gimli",
     ],
 )
+
+# Unsupported target "correctness" with type "test" omitted
+
+# Unsupported target "output_equivalence" with type "test" omitted
+
+# Unsupported target "parse" with type "test" omitted

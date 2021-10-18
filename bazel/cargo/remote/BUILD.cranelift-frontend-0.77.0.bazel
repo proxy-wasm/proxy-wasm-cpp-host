@@ -25,13 +25,13 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "aho_corasick",
+    name = "cranelift_frontend",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
@@ -48,9 +48,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.7.18",
+    version = "0.77.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_77_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__log__0_4_14//:log",
+        "@proxy_wasm_cpp_host__smallvec__1_7_0//:smallvec",
+        "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
     ],
 )

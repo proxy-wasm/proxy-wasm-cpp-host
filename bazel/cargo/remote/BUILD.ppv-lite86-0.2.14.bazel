@@ -25,16 +25,16 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "aho_corasick",
+    name = "ppv_lite86",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
+        "simd",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -48,9 +48,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.7.18",
+    version = "0.2.14",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
     ],
 )

@@ -51,13 +51,13 @@ rust_binary(
     # buildifier: leave-alone
     deps = [
         ":wasmsign",
-        "@proxy_wasm_cpp_host__anyhow__1_0_40//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_44//:anyhow",
         "@proxy_wasm_cpp_host__byteorder__1_4_3//:byteorder",
         "@proxy_wasm_cpp_host__clap__2_33_3//:clap",
-        "@proxy_wasm_cpp_host__ed25519_compact__0_1_9//:ed25519_compact",
+        "@proxy_wasm_cpp_host__ed25519_compact__0_1_11//:ed25519_compact",
         "@proxy_wasm_cpp_host__hmac_sha512__0_1_9//:hmac_sha512",
         "@proxy_wasm_cpp_host__parity_wasm__0_42_2//:parity_wasm",
-        "@proxy_wasm_cpp_host__thiserror__1_0_24//:thiserror",
+        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
     ],
 )
 
@@ -80,12 +80,12 @@ rust_library(
     version = "0.1.2",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__anyhow__1_0_40//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_44//:anyhow",
         "@proxy_wasm_cpp_host__byteorder__1_4_3//:byteorder",
         "@proxy_wasm_cpp_host__clap__2_33_3//:clap",
-        "@proxy_wasm_cpp_host__ed25519_compact__0_1_9//:ed25519_compact",
+        "@proxy_wasm_cpp_host__ed25519_compact__0_1_11//:ed25519_compact",
         "@proxy_wasm_cpp_host__hmac_sha512__0_1_9//:hmac_sha512",
         "@proxy_wasm_cpp_host__parity_wasm__0_42_2//:parity_wasm",
-        "@proxy_wasm_cpp_host__thiserror__1_0_24//:thiserror",
+        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
     ],
 )

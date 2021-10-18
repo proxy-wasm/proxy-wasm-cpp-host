@@ -25,17 +25,41 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
+# Unsupported target "ar" with type "example" omitted
+
+# Unsupported target "dyldcachedump" with type "example" omitted
+
+# Unsupported target "nm" with type "example" omitted
+
+# Unsupported target "objcopy" with type "example" omitted
+
+# Unsupported target "objdump" with type "example" omitted
+
+# Unsupported target "objectmap" with type "example" omitted
+
+# Unsupported target "readobj" with type "example" omitted
+
 rust_library(
-    name = "aho_corasick",
+    name = "object",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
+        "archive",
+        "coff",
+        "crc32fast",
+        "elf",
+        "indexmap",
+        "macho",
+        "pe",
+        "read_core",
         "std",
+        "unaligned",
+        "write",
+        "write_core",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -48,9 +72,15 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.7.18",
+    version = "0.26.2",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__crc32fast__1_2_1//:crc32fast",
+        "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
         "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
     ],
 )
+
+# Unsupported target "integration" with type "test" omitted
+
+# Unsupported target "parse_self" with type "test" omitted

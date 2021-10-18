@@ -25,7 +25,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
@@ -37,31 +37,17 @@ load(
 )
 
 cargo_build_script(
-    name = "winapi_build_script",
+    name = "indexmap_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
-        "basetsd",
-        "consoleapi",
-        "errhandlingapi",
-        "fileapi",
-        "handleapi",
-        "impl-default",
-        "memoryapi",
-        "minwinbase",
-        "minwindef",
-        "processenv",
-        "std",
-        "sysinfoapi",
-        "winbase",
-        "wincon",
-        "winerror",
-        "winnt",
+        "serde",
+        "serde-1",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -69,37 +55,28 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.9",
+    version = "1.7.0",
     visibility = ["//visibility:private"],
     deps = [
+        "@proxy_wasm_cpp_host__autocfg__1_0_1//:autocfg",
     ],
 )
 
+# Unsupported target "bench" with type "bench" omitted
+
+# Unsupported target "faststring" with type "bench" omitted
+
 rust_library(
-    name = "winapi",
+    name = "indexmap",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "basetsd",
-        "consoleapi",
-        "errhandlingapi",
-        "fileapi",
-        "handleapi",
-        "impl-default",
-        "memoryapi",
-        "minwinbase",
-        "minwindef",
-        "processenv",
-        "std",
-        "sysinfoapi",
-        "winbase",
-        "wincon",
-        "winerror",
-        "winnt",
+        "serde",
+        "serde-1",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -107,9 +84,19 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.9",
+    version = "1.7.0",
     # buildifier: leave-alone
     deps = [
-        ":winapi_build_script",
+        ":indexmap_build_script",
+        "@proxy_wasm_cpp_host__hashbrown__0_11_2//:hashbrown",
+        "@proxy_wasm_cpp_host__serde__1_0_130//:serde",
     ],
 )
+
+# Unsupported target "equivalent_trait" with type "test" omitted
+
+# Unsupported target "macros_full_path" with type "test" omitted
+
+# Unsupported target "quick" with type "test" omitted
+
+# Unsupported target "tests" with type "test" omitted

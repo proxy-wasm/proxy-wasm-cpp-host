@@ -37,27 +37,11 @@ load(
 )
 
 cargo_build_script(
-    name = "winapi_build_script",
+    name = "psm_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
-        "basetsd",
-        "consoleapi",
-        "errhandlingapi",
-        "fileapi",
-        "handleapi",
-        "impl-default",
-        "memoryapi",
-        "minwinbase",
-        "minwindef",
-        "processenv",
-        "std",
-        "sysinfoapi",
-        "winbase",
-        "wincon",
-        "winerror",
-        "winnt",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -69,32 +53,29 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.9",
+    version = "0.1.16",
     visibility = ["//visibility:private"],
     deps = [
+        "@proxy_wasm_cpp_host__cc__1_0_71//:cc",
     ],
 )
 
+# Unsupported target "info" with type "example" omitted
+
+# Unsupported target "on_stack_fibo" with type "example" omitted
+
+# Unsupported target "on_stack_fibo_alloc_each_frame" with type "example" omitted
+
+# Unsupported target "panics" with type "example" omitted
+
+# Unsupported target "replace_stack_1" with type "example" omitted
+
+# Unsupported target "thread" with type "example" omitted
+
 rust_library(
-    name = "winapi",
+    name = "psm",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "basetsd",
-        "consoleapi",
-        "errhandlingapi",
-        "fileapi",
-        "handleapi",
-        "impl-default",
-        "memoryapi",
-        "minwinbase",
-        "minwindef",
-        "processenv",
-        "std",
-        "sysinfoapi",
-        "winbase",
-        "wincon",
-        "winerror",
-        "winnt",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -107,9 +88,13 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.9",
+    version = "0.1.16",
     # buildifier: leave-alone
     deps = [
-        ":winapi_build_script",
+        ":psm_build_script",
     ],
 )
+
+# Unsupported target "stack_direction" with type "test" omitted
+
+# Unsupported target "stack_direction_2" with type "test" omitted
