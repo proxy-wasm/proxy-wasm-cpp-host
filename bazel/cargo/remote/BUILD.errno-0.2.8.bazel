@@ -25,17 +25,19 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "region",
+    name = "errno",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -48,21 +50,38 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "2.2.0",
+    version = "0.2.8",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__bitflags__1_3_2//:bitflags",
-        "@proxy_wasm_cpp_host__libc__0_2_106//:libc",
     ] + selects.with_or({
-        # cfg(any(target_os = "macos", target_os = "ios"))
+        # cfg(target_os = "wasi")
+        (
+            "@rules_rust//rust/platform:wasm32-wasi",
+        ): [
+            "@proxy_wasm_cpp_host__libc__0_2_106//:libc",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(unix)
         (
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-linux-android",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
             "@rules_rust//rust/platform:i686-apple-darwin",
+            "@rules_rust//rust/platform:i686-linux-android",
+            "@rules_rust//rust/platform:i686-unknown-freebsd",
+            "@rules_rust//rust/platform:i686-unknown-linux-gnu",
+            "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
+            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
+            "@rules_rust//rust/platform:x86_64-linux-android",
+            "@rules_rust//rust/platform:x86_64-unknown-freebsd",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
-            "@proxy_wasm_cpp_host__mach__0_3_2//:mach",
+            "@proxy_wasm_cpp_host__libc__0_2_106//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

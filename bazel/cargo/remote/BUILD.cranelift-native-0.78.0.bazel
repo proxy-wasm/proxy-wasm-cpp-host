@@ -50,17 +50,17 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.77.0",
+    version = "0.78.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__cranelift_codegen__0_77_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_78_0//:cranelift_codegen",
         "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
     ] + selects.with_or({
         # cfg(target_arch = "s390x")
         (
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
         ): [
-            "@proxy_wasm_cpp_host__libc__0_2_103//:libc",
+            "@proxy_wasm_cpp_host__libc__0_2_106//:libc",
         ],
         "//conditions:default": [],
     }),

@@ -30,14 +30,12 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
 rust_library(
-    name = "quote",
+    name = "ppv_lite86",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "proc-macro",
+        "simd",
+        "std",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -50,13 +48,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.10",
+    version = "0.2.15",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__proc_macro2__1_0_32//:proc_macro2",
     ],
 )
-
-# Unsupported target "compiletest" with type "test" omitted
-
-# Unsupported target "test" with type "test" omitted
