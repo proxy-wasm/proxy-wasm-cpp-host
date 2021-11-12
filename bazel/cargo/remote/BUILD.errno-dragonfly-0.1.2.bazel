@@ -56,7 +56,7 @@ cargo_build_script(
     version = "0.1.2",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host__cc__1_0_71//:cc",
+        "@proxy_wasm_cpp_host__cc__1_0_72//:cc",
     ],
 )
 
@@ -80,6 +80,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":errno_dragonfly_build_script",
-        "@proxy_wasm_cpp_host__libc__0_2_106//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_107//:libc",
     ],
 )

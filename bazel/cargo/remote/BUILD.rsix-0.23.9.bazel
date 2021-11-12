@@ -57,7 +57,7 @@ cargo_build_script(
     version = "0.23.9",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host__cc__1_0_71//:cc",
+        "@proxy_wasm_cpp_host__cc__1_0_72//:cc",
         "@proxy_wasm_cpp_host__rustc_version__0_4_0//:rustc_version",
     ] + selects.with_or({
         # cfg(all(not(rsix_use_libc), any(target_os = "linux"), any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))
@@ -142,7 +142,7 @@ rust_library(
     deps = [
         ":rsix_build_script",
         "@proxy_wasm_cpp_host__bitflags__1_3_2//:bitflags",
-        "@proxy_wasm_cpp_host__io_lifetimes__0_3_1//:io_lifetimes",
+        "@proxy_wasm_cpp_host__io_lifetimes__0_3_3//:io_lifetimes",
         "@proxy_wasm_cpp_host__itoa__0_4_8//:itoa",
     ] + selects.with_or({
         # cfg(all(not(rsix_use_libc), any(target_os = "linux"), any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))
@@ -176,7 +176,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
             "@proxy_wasm_cpp_host__errno__0_2_8//:errno",
-            "@proxy_wasm_cpp_host__libc__0_2_106//:libc",
+            "@proxy_wasm_cpp_host__libc__0_2_107//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

@@ -58,7 +58,7 @@ cargo_build_script(
     version = "0.3.63",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host__cc__1_0_71//:cc",
+        "@proxy_wasm_cpp_host__cc__1_0_72//:cc",
     ] + selects.with_or({
         # cfg(windows)
         (
@@ -102,7 +102,7 @@ rust_library(
         ":backtrace_build_script",
         "@proxy_wasm_cpp_host__addr2line__0_17_0//:addr2line",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
-        "@proxy_wasm_cpp_host__libc__0_2_106//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_107//:libc",
         "@proxy_wasm_cpp_host__miniz_oxide__0_4_4//:miniz_oxide",
         "@proxy_wasm_cpp_host__object__0_27_1//:object",
         "@proxy_wasm_cpp_host__rustc_demangle__0_1_21//:rustc_demangle",

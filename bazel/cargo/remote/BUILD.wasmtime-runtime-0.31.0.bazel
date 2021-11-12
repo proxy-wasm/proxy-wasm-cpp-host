@@ -57,7 +57,7 @@ cargo_build_script(
     version = "0.31.0",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host__cc__1_0_71//:cc",
+        "@proxy_wasm_cpp_host__cc__1_0_72//:cc",
     ] + selects.with_or({
         # cfg(target_os = "linux")
         (
@@ -135,12 +135,12 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
-        "@proxy_wasm_cpp_host__anyhow__1_0_44//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_45//:anyhow",
         "@proxy_wasm_cpp_host__backtrace__0_3_63//:backtrace",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
         "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
-        "@proxy_wasm_cpp_host__libc__0_2_106//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_107//:libc",
         "@proxy_wasm_cpp_host__log__0_4_14//:log",
         "@proxy_wasm_cpp_host__memoffset__0_6_4//:memoffset",
         "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",

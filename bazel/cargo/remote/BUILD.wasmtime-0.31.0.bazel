@@ -83,7 +83,7 @@ rust_library(
     data = [],
     edition = "2018",
     proc_macro_deps = [
-        "@proxy_wasm_cpp_host__paste__1_0_5//:paste",
+        "@proxy_wasm_cpp_host__paste__1_0_6//:paste",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -96,14 +96,14 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":wasmtime_build_script",
-        "@proxy_wasm_cpp_host__anyhow__1_0_44//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_45//:anyhow",
         "@proxy_wasm_cpp_host__backtrace__0_3_63//:backtrace",
         "@proxy_wasm_cpp_host__bincode__1_3_3//:bincode",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__cpp_demangle__0_3_3//:cpp_demangle",
         "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
         "@proxy_wasm_cpp_host__lazy_static__1_4_0//:lazy_static",
-        "@proxy_wasm_cpp_host__libc__0_2_106//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_107//:libc",
         "@proxy_wasm_cpp_host__log__0_4_14//:log",
         "@proxy_wasm_cpp_host__object__0_27_1//:object",
         "@proxy_wasm_cpp_host__psm__0_1_16//:psm",
