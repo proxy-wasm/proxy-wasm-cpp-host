@@ -55,7 +55,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.44",
+    version = "1.0.45",
     visibility = ["//visibility:private"],
     deps = [
     ],
@@ -79,7 +79,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.44",
+    version = "1.0.45",
     # buildifier: leave-alone
     deps = [
         ":anyhow_build_script",

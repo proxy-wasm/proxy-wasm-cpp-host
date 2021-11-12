@@ -30,12 +30,8 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "benchmark" with type "bench" omitted
-
-# Unsupported target "simple" with type "example" omitted
-
 rust_library(
-    name = "wasmparser",
+    name = "wasmtime_types",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -50,8 +46,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.80.2",
+    version = "0.31.0",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__cranelift_entity__0_78_0//:cranelift_entity",
+        "@proxy_wasm_cpp_host__serde__1_0_130//:serde",
+        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
+        "@proxy_wasm_cpp_host__wasmparser__0_81_0//:wasmparser",
     ],
 )

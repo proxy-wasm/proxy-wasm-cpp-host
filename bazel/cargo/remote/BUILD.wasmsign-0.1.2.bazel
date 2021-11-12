@@ -51,7 +51,7 @@ rust_binary(
     # buildifier: leave-alone
     deps = [
         ":wasmsign",
-        "@proxy_wasm_cpp_host__anyhow__1_0_44//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_45//:anyhow",
         "@proxy_wasm_cpp_host__byteorder__1_4_3//:byteorder",
         "@proxy_wasm_cpp_host__clap__2_33_3//:clap",
         "@proxy_wasm_cpp_host__ed25519_compact__0_1_11//:ed25519_compact",
@@ -80,7 +80,7 @@ rust_library(
     version = "0.1.2",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__anyhow__1_0_44//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_45//:anyhow",
         "@proxy_wasm_cpp_host__byteorder__1_4_3//:byteorder",
         "@proxy_wasm_cpp_host__clap__2_33_3//:clap",
         "@proxy_wasm_cpp_host__ed25519_compact__0_1_11//:ed25519_compact",

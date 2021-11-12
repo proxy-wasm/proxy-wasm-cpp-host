@@ -48,25 +48,37 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.30.0",
+    version = "0.31.0",
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host__addr2line__0_16_0//:addr2line",
-        "@proxy_wasm_cpp_host__anyhow__1_0_44//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_45//:anyhow",
         "@proxy_wasm_cpp_host__bincode__1_3_3//:bincode",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__gimli__0_25_0//:gimli",
         "@proxy_wasm_cpp_host__log__0_4_14//:log",
         "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",
-        "@proxy_wasm_cpp_host__object__0_26_2//:object",
+        "@proxy_wasm_cpp_host__object__0_27_1//:object",
         "@proxy_wasm_cpp_host__region__2_2_0//:region",
         "@proxy_wasm_cpp_host__serde__1_0_130//:serde",
         "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
         "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
-        "@proxy_wasm_cpp_host__wasmparser__0_80_2//:wasmparser",
-        "@proxy_wasm_cpp_host__wasmtime_environ__0_30_0//:wasmtime_environ",
-        "@proxy_wasm_cpp_host__wasmtime_runtime__0_30_0//:wasmtime_runtime",
+        "@proxy_wasm_cpp_host__wasmparser__0_81_0//:wasmparser",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_31_0//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__wasmtime_runtime__0_31_0//:wasmtime_runtime",
     ] + selects.with_or({
+        # cfg(target_os = "linux")
+        (
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
+            "@rules_rust//rust/platform:i686-unknown-linux-gnu",
+            "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
+            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+        ): [
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
         # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",

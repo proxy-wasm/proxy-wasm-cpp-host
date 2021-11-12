@@ -31,7 +31,7 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_codegen_meta",
+    name = "cranelift_bforest",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -46,10 +46,9 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.77.0",
+    version = "0.78.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__cranelift_codegen_shared__0_77_0//:cranelift_codegen_shared",
-        "@proxy_wasm_cpp_host__cranelift_entity__0_77_0//:cranelift_entity",
+        "@proxy_wasm_cpp_host__cranelift_entity__0_78_0//:cranelift_entity",
     ],
 )

@@ -25,13 +25,13 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "wasmtime_environ",
+    name = "rustc_version",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -46,21 +46,11 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.30.0",
+    version = "0.4.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__anyhow__1_0_44//:anyhow",
-        "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
-        "@proxy_wasm_cpp_host__cranelift_entity__0_77_0//:cranelift_entity",
-        "@proxy_wasm_cpp_host__gimli__0_25_0//:gimli",
-        "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
-        "@proxy_wasm_cpp_host__log__0_4_14//:log",
-        "@proxy_wasm_cpp_host__more_asserts__0_2_1//:more_asserts",
-        "@proxy_wasm_cpp_host__object__0_26_2//:object",
-        "@proxy_wasm_cpp_host__serde__1_0_130//:serde",
-        "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
-        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
-        "@proxy_wasm_cpp_host__wasmparser__0_80_2//:wasmparser",
-        "@proxy_wasm_cpp_host__wasmtime_types__0_30_0//:wasmtime_types",
+        "@proxy_wasm_cpp_host__semver__1_0_4//:semver",
     ],
 )
+
+# Unsupported target "all" with type "test" omitted

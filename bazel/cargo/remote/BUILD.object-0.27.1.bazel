@@ -30,20 +30,6 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "ar" with type "example" omitted
-
-# Unsupported target "dyldcachedump" with type "example" omitted
-
-# Unsupported target "nm" with type "example" omitted
-
-# Unsupported target "objcopy" with type "example" omitted
-
-# Unsupported target "objdump" with type "example" omitted
-
-# Unsupported target "objectmap" with type "example" omitted
-
-# Unsupported target "readobj" with type "example" omitted
-
 rust_library(
     name = "object",
     srcs = glob(["**/*.rs"]),
@@ -72,7 +58,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.26.2",
+    version = "0.27.1",
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host__crc32fast__1_2_1//:crc32fast",

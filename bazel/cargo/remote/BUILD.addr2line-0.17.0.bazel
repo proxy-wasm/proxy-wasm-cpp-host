@@ -25,24 +25,22 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
+# Unsupported target "addr2line" with type "example" omitted
 
 rust_library(
-    name = "quote",
+    name = "addr2line",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "proc-macro",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -50,13 +48,15 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.10",
+    version = "0.17.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__proc_macro2__1_0_32//:proc_macro2",
+        "@proxy_wasm_cpp_host__gimli__0_26_1//:gimli",
     ],
 )
 
-# Unsupported target "compiletest" with type "test" omitted
+# Unsupported target "correctness" with type "test" omitted
 
-# Unsupported target "test" with type "test" omitted
+# Unsupported target "output_equivalence" with type "test" omitted
+
+# Unsupported target "parse" with type "test" omitted
