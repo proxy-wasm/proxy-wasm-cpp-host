@@ -344,7 +344,7 @@ std::shared_ptr<WasmHandleBase>
 createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plugin,
            WasmHandleFactory factory, WasmHandleCloneFactory clone_factory, bool allow_precompiled);
 // Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
-std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_id);
+std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_key);
 
 class PluginHandleBase : public std::enable_shared_from_this<PluginHandleBase> {
 public:
