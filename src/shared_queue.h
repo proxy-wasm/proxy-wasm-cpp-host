@@ -31,9 +31,9 @@ public:
   WasmResult enqueue(uint32_t token, std::string_view value);
 
   void deleteByVmId(std::string_view vm_id);
-  uint32_t nextQueueToken();
 
 private:
+  uint32_t nextQueueToken();
   struct Queue {
     std::string vm_key;
     uint32_t context_id;

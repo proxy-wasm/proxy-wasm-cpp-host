@@ -15,6 +15,7 @@
 #include "src/shared_queue.h"
 
 #include <thread>
+#include <atomic>
 
 #include "gtest/gtest.h"
 
@@ -24,10 +25,14 @@ namespace proxy_wasm {
 
 TEST(SharedQueue, NextQueueToken) {
   SharedQueue shared_queue(false);
-  for (auto i = 1; i < 5; i++) {
-    EXPECT_EQ(i, shared_queue.nextQueueToken());
+  std::string_view vm_id = "id";
+  std::string_view vm_key = "vm_key";
+  std::string_view queue_name = "name";
+  uint32_t context_id = 1;
+
+  for (auto i = 1; i <= 5; i++) {
+    EXPECT_EQ(i, shared_queue.registerQueue(vm_id, std::to_string(i), context_id, nullptr, vm_key));
   }
-  EXPECT_EQ(5, shared_queue.registerQueue("a", "b", 1, nullptr, "c"));
 }
 
 TEST(SharedQueue, SingleThread) {
@@ -88,7 +93,7 @@ TEST(SharedQueue, Concurrent) {
   std::string_view queue_name = "name";
   uint32_t context_id = 1;
 
-  auto queued_count = 0;
+  std::atomic<uint32_t> queued_count = 0;
   std::mutex mutex;
   std::function<void(std::function<void()>)> call_on_thread =
       [&mutex, &queued_count](const std::function<void()> &f) {

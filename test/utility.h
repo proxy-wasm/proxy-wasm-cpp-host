@@ -36,6 +36,11 @@
 #include "include/proxy-wasm/wamr.h"
 #endif
 
+#define SKIP_TEST_FOR_RUNTIME(runtime)                                                             \
+  if (runtime_ == #runtime) {                                                                      \
+    return;                                                                                        \
+  }
+
 namespace proxy_wasm {
 
 std::vector<std::string> getRuntimes();
