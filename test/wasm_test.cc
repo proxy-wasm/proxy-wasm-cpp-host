@@ -142,10 +142,11 @@ TEST_P(TestVM, DifferentRootContextsFromDifferentPluginKeys) {
   // Read the minimal loadable binary.
   std::string source = readTestWasmFile("abi_export.wasm");
 
+  const std::string vm_key = "vm_key";
   // Create base Wasm via createWasm.
   std::shared_ptr<WasmHandleBase> base_wasm_handle =
-      createWasm("vm_key", source, plugin1, wasm_handle_factory, wasm_handle_clone_factory, false);
-  EXPECT_TRUE(getThreadLocalWasm(vm_id) == base_wasm_handle);
+      createWasm(vm_key, source, plugin1, wasm_handle_factory, wasm_handle_clone_factory, false);
+  base_wasm_handle->wasm()->start(plugin1);
   ContextBase *root_context1 = base_wasm_handle->wasm()->getRootContext(plugin1, false);
   EXPECT_TRUE(root_context1 != nullptr);
 
@@ -155,7 +156,7 @@ TEST_P(TestVM, DifferentRootContextsFromDifferentPluginKeys) {
   EXPECT_TRUE(base_wasm_handle->wasm()->getRootContext(plugin2, false) == nullptr);
 
   // Create context from a plugin2.
-  base_wasm_handle->wasm()->createContext(plugin2);
+  base_wasm_handle->wasm()->start(plugin2);
   ContextBase *root_context2 = base_wasm_handle->wasm()->getRootContext(plugin2, false);
   EXPECT_TRUE(root_context2 != nullptr);
 

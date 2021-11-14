@@ -145,6 +145,9 @@ TEST_P(TestVM, BadExportFunction) {
   vm_->registerCallback(
       "env", "callback", &callback,
       &ConvertFunctionWordToUint32<decltype(callback), callback>::convertFunctionWordToUint32);
+  vm_->registerCallback(
+      "env", "callback2", &callback2,
+      &ConvertFunctionWordToUint32<decltype(callback2), callback2>::convertFunctionWordToUint32);
   ASSERT_TRUE(vm_->link(""));
 
   WasmCallVoid<0> run;

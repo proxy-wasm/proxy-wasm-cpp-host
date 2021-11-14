@@ -397,8 +397,10 @@ void getFunctionWavm(WasmVm *vm, std::string_view function_name,
     return;
   }
   if (!checkFunctionType(f, inferStdFunctionType(function))) {
+    *function = nullptr;
     wavm->fail(FailState::UnableToInitializeCode,
                "Bad function signature for: " + std::string(function_name));
+    return;
   }
   *function = [wavm, f, function_name](ContextBase *context, Args... args) -> R {
     WasmUntaggedValue values[] = {args...};
@@ -427,8 +429,10 @@ void getFunctionWavm(WasmVm *vm, std::string_view function_name,
     return;
   }
   if (!checkFunctionType(f, inferStdFunctionType(function))) {
+    *function = nullptr;
     wavm->fail(FailState::UnableToInitializeCode,
                "Bad function signature for: " + std::string(function_name));
+    return;
   }
   *function = [wavm, f, function_name](ContextBase *context, Args... args) {
     WasmUntaggedValue values[] = {args...};

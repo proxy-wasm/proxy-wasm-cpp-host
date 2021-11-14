@@ -131,6 +131,8 @@ cc_library(
     hdrs = ["utility.h"],
     deps = [
         "//:lib",
+        "//:wasmtime_lib",
+        "//:wavm_lib",
         "@com_google_googletest//:gtest",
     ],
 )
