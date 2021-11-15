@@ -136,18 +136,19 @@ WasmResult SharedQueue::enqueue(uint32_t token, std::string_view value) {
     call_on_thread = target_queue->call_on_thread;
     target_queue->queue.push_back(std::string(value));
   }
-
-  call_on_thread([vm_key, context_id, token] {
-    // This code may or may not execute in another thread.
-    // Make sure that the lock is no longer held here.
-    auto wasm = getThreadLocalWasm(vm_key);
-    if (wasm) {
-      auto context = wasm->wasm()->getContext(context_id);
-      if (context) {
-        context->onQueueReady(token);
+  if (call_on_thread != nullptr) {
+    call_on_thread([vm_key, context_id, token] {
+      // This code may or may not execute in another thread.
+      // Make sure that the lock is no longer held here.
+      auto wasm = getThreadLocalWasm(vm_key);
+      if (wasm) {
+        auto context = wasm->wasm()->getContext(context_id);
+        if (context) {
+          context->onQueueReady(token);
+        }
       }
-    }
-  });
+    });
+  }
   return WasmResult::Ok;
 }
 

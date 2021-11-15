@@ -16,6 +16,7 @@
 
 #include "gtest/gtest.h"
 #include <memory>
+#include <string>
 
 #include "test/utility.h"
 
@@ -145,6 +146,49 @@ TEST_P(WasmTest, DifferentRootContextsFromDifferentPluginKeys) {
   EXPECT_TRUE(root_context1->isRootContext() && root_context2->isRootContext());
   EXPECT_TRUE(root_context1 != root_context2);
   EXPECT_TRUE(root_context1->root_id() == root_context2->root_id());
+}
+
+TEST_P(WasmTest, SharedQueueProducerConsumer) {
+  const std::string plugin_name = "plugin_name";
+  const std::string root_id = "root_id";
+  const std::string plugin_config = "plugin_config";
+  const bool fail_open = false;
+  const std::shared_ptr<PluginBase> plugin1 = std::make_shared<PluginBase>(
+      plugin_name, root_id, vm_id_, runtime_, plugin_config, fail_open, "plugin1_key");
+
+  const std::string vm_key = "vm_key";
+  // Create base Wasm via createWasm.
+  std::shared_ptr<WasmHandleBase> base_wasm_handle =
+      createWasm(vm_key, source_, plugin1, wasm_handle_factory_, wasm_handle_clone_factory_, false);
+  base_wasm_handle->wasm()->start(plugin1);
+  ContextBase *root_context1 = base_wasm_handle->wasm()->getRootContext(plugin1, false);
+  EXPECT_TRUE(root_context1 != nullptr);
+
+  // Create a new plugin with different key.
+  const std::shared_ptr<PluginBase> plugin2 = std::make_shared<PluginBase>(
+      plugin_name, root_id, vm_id_, runtime_, plugin_config, fail_open, "plugin2_key");
+  EXPECT_TRUE(base_wasm_handle->wasm()->getRootContext(plugin2, false) == nullptr);
+
+  // Create context from a plugin2.
+  base_wasm_handle->wasm()->start(plugin2);
+  ContextBase *root_context2 = base_wasm_handle->wasm()->getRootContext(plugin2, false);
+  EXPECT_TRUE(root_context2 != nullptr);
+
+  // Verify that the 2 contexts can communicate through a shared queue.
+  std::string queue_name{"queue"};
+  SharedQueueDequeueToken token1;
+  EXPECT_EQ(root_context1->registerSharedQueue(queue_name, &token1), WasmResult::Ok);
+  SharedQueueDequeueToken token2;
+  EXPECT_EQ(root_context2->lookupSharedQueue(vm_id_, queue_name, &token2), WasmResult::Ok);
+  EXPECT_EQ(token1, token2);
+  for (int i = 0; i < 5; i++) {
+    root_context1->enqueueSharedQueue(token1, std::to_string(i));
+  }
+  std::string data;
+  for (int i = 0; i < 5; i++) {
+    root_context1->dequeueSharedQueue(token1, &data);
+    EXPECT_EQ(data, std::to_string(i));
+  }
 }
 
 } // namespace proxy_wasm

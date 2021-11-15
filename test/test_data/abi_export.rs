@@ -24,6 +24,9 @@ pub extern "C" fn proxy_on_vm_start(_: u32, _: usize) -> bool {
 pub extern "C" fn proxy_on_context_create(_: u32, _: u32) {}
 
 #[no_mangle]
+pub extern "C" fn proxy_on_queue_ready(_: u32, _: u32) {}
+
+#[no_mangle]
 pub extern "C" fn proxy_on_memory_allocate(size: usize) -> *mut u8 {
     let mut vec: Vec<u8> = Vec::with_capacity(size);
     unsafe {
