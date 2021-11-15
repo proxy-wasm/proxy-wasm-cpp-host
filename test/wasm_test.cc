@@ -182,13 +182,15 @@ TEST_P(WasmTest, SharedQueueProducerConsumer) {
   EXPECT_EQ(root_context2->lookupSharedQueue(vm_id_, queue_name, &token2), WasmResult::Ok);
   EXPECT_EQ(token1, token2);
   for (int i = 0; i < 5; i++) {
-    root_context1->enqueueSharedQueue(token1, std::to_string(i));
+    EXPECT_EQ(root_context1->enqueueSharedQueue(token1, std::to_string(i)), WasmResult::Ok);
   }
   std::string data;
   for (int i = 0; i < 5; i++) {
-    root_context1->dequeueSharedQueue(token1, &data);
+    EXPECT_EQ(root_context2->dequeueSharedQueue(token1, &data), WasmResult::Ok);
     EXPECT_EQ(data, std::to_string(i));
   }
+  EXPECT_EQ(root_context2->dequeueSharedQueue(token1, &data), WasmResult::Empty);
+  EXPECT_EQ(root_context2->dequeueSharedQueue(10086, &data), WasmResult::NotFound);
 }
 
 } // namespace proxy_wasm
