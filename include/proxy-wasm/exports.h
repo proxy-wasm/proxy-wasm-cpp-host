@@ -159,6 +159,11 @@ Word call_foreign_function(Word function_name, Word function_name_size, Word arg
 
 // Runtime environment functions exported from envoy to wasm.
 
+Word wasi_unstable_path_open(Word fd, Word dir_flags, Word path, Word path_len, Word oflags,
+                             int64_t fs_rights_base, int64_t fg_rights_inheriting, Word fd_flags,
+                             Word nwritten_ptr);
+Word wasi_unstable_fd_prestat_get(Word fd, Word buf_ptr);
+Word wasi_unstable_fd_prestat_dir_name(Word fd, Word path_ptr, Word path_len);
 Word wasi_unstable_fd_write(Word fd, Word iovs, Word iovs_len, Word nwritten_ptr);
 Word wasi_unstable_fd_read(Word, Word, Word, Word);
 Word wasi_unstable_fd_seek(Word, int64_t, Word, Word);
@@ -172,11 +177,6 @@ void wasi_unstable_proc_exit(Word);
 Word wasi_unstable_clock_time_get(Word, uint64_t, Word);
 Word wasi_unstable_random_get(Word, Word);
 Word pthread_equal(Word left, Word right);
-Word wasi_unstable_path_open(Word fd, Word dir_flags, Word path, Word path_len, Word oflags,
-                             int64_t fs_rights_base, int64_t fg_rights_inheriting, Word fd_flags,
-                             Word nwritten_ptr);
-Word wasi_unstable_fd_prestat_get(Word fd, Word buf_ptr);
-Word wasi_unstable_fd_prestat_dir_name(Word fd, Word path_ptr, Word path_len);
 
 // Support for embedders, not exported to Wasm.
 

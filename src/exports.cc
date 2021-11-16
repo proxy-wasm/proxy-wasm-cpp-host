@@ -666,6 +666,25 @@ Word grpc_send(Word token, Word message_ptr, Word message_size, Word end_stream)
   return context->grpcSend(token, message.value(), end_stream);
 }
 
+// __wasi_errno_t path_open(__wasi_fd_t fd, __wasi_lookupflags_t dirflags, const char *path,
+// size_t path_len, __wasi_oflags_t oflags, __wasi_rights_t fs_rights_base, __wasi_rights_t
+// fs_rights_inheriting,  __wasi_fdflags_t fdflags, __wasi_fd_t *retptr0)
+Word wasi_unstable_path_open(Word fd, Word dir_flags, Word path, Word path_len, Word oflags,
+                             int64_t fs_rights_base, int64_t fg_rights_inheriting, Word fd_flags,
+                             Word nwritten_ptr) {
+  return 44; // __WASI_ERRNO_NOENT
+}
+
+// __wasi_errno_t __wasi_fd_prestat_get(__wasi_fd_t fd, __wasi_prestat_t *retptr0)
+Word wasi_unstable_fd_prestat_get(Word fd, Word buf_ptr) {
+  return 8; // __WASI_ERRNO_BADF
+}
+
+// __wasi_errno_t __wasi_fd_prestat_dir_name(__wasi_fd_t fd, uint8_t * path, __wasi_size_t path_len)
+Word wasi_unstable_fd_prestat_dir_name(Word fd, Word path_ptr, Word path_len) {
+  return 52; // __WASI_ERRNO_ENOSYS
+}
+
 // Implementation of writev-like() syscall that redirects stdout/stderr to Envoy
 // logs.
 Word writevImpl(Word fd, Word iovs, Word iovs_len, Word *nwritten_ptr) {
@@ -713,29 +732,6 @@ Word writevImpl(Word fd, Word iovs, Word iovs_len, Word *nwritten_ptr) {
   }
   *nwritten_ptr = Word(written);
   return 0; // __WASI_ESUCCESS
-}
-
-// __wasi_errno_t path_open(__wasi_fd_t fd, __wasi_lookupflags_t dirflags, const char *path,
-// size_t path_len, __wasi_oflags_t oflags, __wasi_rights_t fs_rights_base, __wasi_rights_t
-// fs_rights_inheriting,  __wasi_fdflags_t fdflags, __wasi_fd_t *retptr0)
-Word wasi_unstable_path_open(Word fd, Word dir_flags, Word path, Word path_len, Word oflags,
-                             int64_t fs_rights_base, int64_t fg_rights_inheriting, Word fd_flags,
-                             Word nwritten_ptr) {
-  return 52; // __WASI_ERRNO_ENOSYS
-}
-
-// __wasi_errno_t __wasi_fd_read(__wasi_fd_t fd, __wasi_prestat_t *retptr0)
-Word wasi_unstable_fd_prestat_get(Word fd, Word buf_ptr) {
-  // If we throw other errors, the preopen in WASI ctors immediately exits the program,
-  // so we just return BADF so that ctors exist successfully even if
-  // we don't support any preopens yet.
-  // https://github.com/WebAssembly/wasi-libc/blob/f2e779e5f1ba4a539937cedeeaa762c1e0c162df/libc-bottom-half/sources/preopens.c#L218-L221
-  return 8; // __WASI_ERRNO_BADF
-}
-
-// __wasi_errno_t __wasi_fd_prestat_dir_name(__wasi_fd_t fd, uint8_t * path, __wasi_size_t path_len)
-Word wasi_unstable_fd_prestat_dir_name(Word fd, Word path_ptr, Word path_len) {
-  return 52; // __WASI_ERRNO_ENOSYS
 }
 
 // __wasi_errno_t __wasi_fd_write(_wasi_fd_t fd, const _wasi_ciovec_t *iov,
