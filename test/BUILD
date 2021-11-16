@@ -131,10 +131,6 @@ cc_library(
     hdrs = ["utility.h"],
     deps = [
         "//:lib",
-        "//:wamr_lib",
-        # wamr and wasmtime can't coexist for now because they have different definitions for same set of abi.
-        # "//:wasmtime_lib",
-        "//:wavm_lib",
         "@com_google_googletest//:gtest",
     ],
 )
