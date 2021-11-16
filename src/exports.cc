@@ -668,7 +668,7 @@ Word grpc_send(Word token, Word message_ptr, Word message_size, Word end_stream)
 
 // __wasi_errno_t path_open(__wasi_fd_t fd, __wasi_lookupflags_t dirflags, const char *path,
 // size_t path_len, __wasi_oflags_t oflags, __wasi_rights_t fs_rights_base, __wasi_rights_t
-// fs_rights_inheriting,  __wasi_fdflags_t fdflags, __wasi_fd_t *retptr0)
+// fs_rights_inheriting, __wasi_fdflags_t fdflags, __wasi_fd_t *retptr0)
 Word wasi_unstable_path_open(Word fd, Word dir_flags, Word path, Word path_len, Word oflags,
                              int64_t fs_rights_base, int64_t fg_rights_inheriting, Word fd_flags,
                              Word nwritten_ptr) {
