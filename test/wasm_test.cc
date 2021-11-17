@@ -15,7 +15,6 @@
 #include "include/proxy-wasm/wasm.h"
 
 #include "gtest/gtest.h"
-#include <memory>
 
 #include "test/utility.h"
 
