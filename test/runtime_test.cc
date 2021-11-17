@@ -132,35 +132,6 @@ TEST_P(TestVM, StraceLogLevel) {
   EXPECT_NE(integration->trace_message_, "");
 }
 
-TEST_P(TestVM, BadExportFunction) {
-  auto source = readTestWasmFile("callback.wasm");
-  ASSERT_TRUE(vm_->load(source, {}, {}));
-
-  TestContext context;
-  vm_->registerCallback(
-      "env", "callback", &callback,
-      &ConvertFunctionWordToUint32<decltype(callback), callback>::convertFunctionWordToUint32);
-  vm_->registerCallback(
-      "env", "callback2", &callback2,
-      &ConvertFunctionWordToUint32<decltype(callback2), callback2>::convertFunctionWordToUint32);
-  ASSERT_TRUE(vm_->link(""));
-
-  WasmCallVoid<0> run;
-  vm_->getFunction("non-existent", &run);
-  EXPECT_TRUE(run == nullptr);
-
-  WasmCallWord<2> bad_signature_run;
-  vm_->getFunction("run", &bad_signature_run);
-  EXPECT_TRUE(bad_signature_run == nullptr);
-
-  vm_->getFunction("run", &run);
-  EXPECT_TRUE(run != nullptr);
-  for (auto i = 0; i < 100; i++) {
-    run(&context);
-  }
-  ASSERT_EQ(context.counter, 100);
-}
-
 TEST_P(TestVM, Callback) {
   auto source = readTestWasmFile("callback.wasm");
   ASSERT_TRUE(vm_->load(source, {}, {}));
