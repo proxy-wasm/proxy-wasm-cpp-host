@@ -107,6 +107,8 @@ void callback() {
 Word callback2(Word val) { return val + 100; }
 
 TEST_P(TestVM, StraceLogLevel) {
+  // TODO(mathetake): strace is yet to be implemented for WAVM.
+  // See https://github.com/proxy-wasm/proxy-wasm-cpp-host/issues/120.
   SKIP_TEST_FOR_RUNTIME(wavm)
 
   auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
