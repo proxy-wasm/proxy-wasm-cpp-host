@@ -159,6 +159,11 @@ Word call_foreign_function(Word function_name, Word function_name_size, Word arg
 
 // Runtime environment functions exported from envoy to wasm.
 
+Word wasi_unstable_path_open(Word fd, Word dir_flags, Word path, Word path_len, Word oflags,
+                             int64_t fs_rights_base, int64_t fg_rights_inheriting, Word fd_flags,
+                             Word nwritten_ptr);
+Word wasi_unstable_fd_prestat_get(Word fd, Word buf_ptr);
+Word wasi_unstable_fd_prestat_dir_name(Word fd, Word path_ptr, Word path_len);
 Word wasi_unstable_fd_write(Word fd, Word iovs, Word iovs_len, Word nwritten_ptr);
 Word wasi_unstable_fd_read(Word, Word, Word, Word);
 Word wasi_unstable_fd_seek(Word, int64_t, Word, Word);
@@ -196,7 +201,7 @@ Word pthread_equal(Word left, Word right);
 #define FOR_ALL_WASI_FUNCTIONS(_f)                                                                 \
   _f(fd_write) _f(fd_read) _f(fd_seek) _f(fd_close) _f(fd_fdstat_get) _f(environ_get)              \
       _f(environ_sizes_get) _f(args_get) _f(args_sizes_get) _f(clock_time_get) _f(random_get)      \
-          _f(proc_exit)
+          _f(proc_exit) _f(path_open) _f(fd_prestat_get) _f(fd_prestat_dir_name)
 
 // Helpers to generate a stub to pass to VM, in place of a restricted proxy-wasm capability.
 #define _CREATE_PROXY_WASM_STUB(_fn)                                                               \
