@@ -24,36 +24,72 @@
 
 namespace proxy_wasm {
 
-TEST(TestSignatureUtil, GoodSignature) {
-#ifndef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
-  FAIL() << "Built without a key for verifying signed Wasm modules.";
-#endif
+std::string BytesToHex(std::vector<uint8_t> bytes) {
+  static const char *const hex = "0123456789ABCDEF";
+  std::string result;
+  result.reserve(bytes.size() * 2);
+  for (auto byte : bytes) {
+    result.push_back(hex[byte >> 4]);
+    result.push_back(hex[byte & 0xf]);
+  }
+  return result;
+}
 
+static std::string publickey(std::string filename) {
+  auto path = "test/test_data/" + filename;
+  std::ifstream file(path, std::ios::binary);
+  EXPECT_FALSE(file.fail()) << "failed to open: " << path;
+  std::stringstream file_string_stream;
+  file_string_stream << file.rdbuf();
+  std::string input = file_string_stream.str();
+  std::vector<uint8_t> bytes(input.begin() + 4, input.end());
+  return BytesToHex(bytes);
+}
+
+TEST(TestSignatureUtil, NoPublicKey) {
+#ifndef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
   const auto bytecode = readTestWasmFile("abi_export.signed.with.key1.wasm");
   std::string message;
-  EXPECT_TRUE(SignatureUtil::verifySignature(bytecode, message));
+  EXPECT_TRUE(SignatureUtil::verifySignature(bytecode, "", message));
+  EXPECT_EQ(message, "");
+#endif
+}
+
+TEST(TestSignatureUtil, GoodSignature) {
+  std::string pubkey = publickey("signature_key1.pub");
+  const auto bytecode = readTestWasmFile("abi_export.signed.with.key1.wasm");
+  std::string message;
+  EXPECT_TRUE(SignatureUtil::verifySignature(bytecode, pubkey, message));
   EXPECT_EQ(message, "Wasm signature OK (Ed25519)");
 }
 
 TEST(TestSignatureUtil, BadSignature) {
-#ifndef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
-  FAIL() << "Built without a key for verifying signed Wasm modules.";
-#endif
-
+  std::string pubkey = publickey("signature_key1.pub");
   const auto bytecode = readTestWasmFile("abi_export.signed.with.key2.wasm");
   std::string message;
-  EXPECT_FALSE(SignatureUtil::verifySignature(bytecode, message));
+  EXPECT_FALSE(SignatureUtil::verifySignature(bytecode, pubkey, message));
   EXPECT_EQ(message, "Signature mismatch");
 }
 
-TEST(TestSignatureUtil, NoSignature) {
-#ifndef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
-  FAIL() << "Built without a key for verifying signed Wasm modules.";
+TEST(TestSignatureUtil, BuildTimeKeyPrecedence) {
+  // Uses hard-coded key if defined.
+  std::string pubkey = publickey("signature_key2.pub");
+  const auto bytecode = readTestWasmFile("abi_export.signed.with.key1.wasm");
+  std::string message;
+#ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
+  EXPECT_TRUE(SignatureUtil::verifySignature(bytecode, pubkey, message));
+  EXPECT_EQ(message, "Wasm signature OK (Ed25519)");
+#else
+  EXPECT_FALSE(SignatureUtil::verifySignature(bytecode, pubkey, message));
+  EXPECT_EQ(message, "Signature mismatch");
 #endif
+}
 
+TEST(TestSignatureUtil, NoSignature) {
+  std::string pubkey = publickey("signature_key1.pub");
   const auto bytecode = readTestWasmFile("abi_export.wasm");
   std::string message;
-  EXPECT_FALSE(SignatureUtil::verifySignature(bytecode, message));
+  EXPECT_FALSE(SignatureUtil::verifySignature(bytecode, pubkey, message));
   EXPECT_EQ(message, "Custom Section \"signature_wasmsign\" not found");
 }
 

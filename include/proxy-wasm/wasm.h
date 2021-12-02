@@ -55,7 +55,7 @@ public:
   WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
   virtual ~WasmBase();
 
-  bool load(const std::string &code, bool allow_precompiled = false);
+  bool load(const std::string &code, bool allow_precompiled = false, const std::string pubkey = "");
   bool initialize();
   void startVm(ContextBase *root_context);
   bool configure(ContextBase *root_context, std::shared_ptr<PluginBase> plugin);
@@ -340,8 +340,10 @@ using WasmHandleCloneFactory =
     std::function<std::shared_ptr<WasmHandleBase>(std::shared_ptr<WasmHandleBase> wasm)>;
 
 // Returns nullptr on failure (i.e. initialization of the VM fails).
+// TODO: Consider a VerificationOptions struct rather than a single pubkey.
 std::shared_ptr<WasmHandleBase>
-createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plugin,
+    createWasm(std::string vm_key, std::string code, std::string pubkey,
+               std::shared_ptr<PluginBase> plugin,
            WasmHandleFactory factory, WasmHandleCloneFactory clone_factory, bool allow_precompiled);
 // Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
 std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_id);
