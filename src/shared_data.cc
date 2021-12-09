@@ -56,7 +56,8 @@ WasmResult SharedData::get(std::string_view vm_id, const std::string_view key,
   return WasmResult::NotFound;
 }
 
-WasmResult SharedData::keys(std::string_view vm_id, const std::string_view key_prefix, std::vector<std::string> *result) {
+WasmResult SharedData::keys(std::string_view vm_id, const std::string_view key_prefix,
+                            std::vector<std::string> *result) {
   std::lock_guard<std::mutex> lock(mutex_);
   auto map = data_.find(std::string(vm_id));
   if (map == data_.end()) {
