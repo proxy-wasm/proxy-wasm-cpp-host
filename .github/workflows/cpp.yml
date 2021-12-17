@@ -65,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runtime: ["wamr", "wasmtime", "wavm"]
+        runtime: ["v8", "wamr", "wasmtime", "wavm"]
 
     steps:
     - uses: actions/checkout@v2
