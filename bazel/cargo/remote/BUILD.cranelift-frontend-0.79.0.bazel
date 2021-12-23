@@ -25,27 +25,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "object",
+    name = "cranelift_frontend",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "archive",
-        "coff",
-        "crc32fast",
-        "elf",
-        "indexmap",
-        "macho",
-        "pe",
-        "read_core",
+        "default",
         "std",
-        "unaligned",
-        "write",
-        "write_core",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
@@ -58,15 +48,12 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.27.1",
+    version = "0.79.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__crc32fast__1_3_0//:crc32fast",
-        "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
-        "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_79_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__log__0_4_14//:log",
+        "@proxy_wasm_cpp_host__smallvec__1_7_0//:smallvec",
+        "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
     ],
 )
-
-# Unsupported target "integration" with type "test" omitted
-
-# Unsupported target "parse_self" with type "test" omitted

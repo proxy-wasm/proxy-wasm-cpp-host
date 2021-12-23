@@ -14,7 +14,7 @@ licenses([
 # Aliased targets
 alias(
     name = "anyhow",
-    actual = "@proxy_wasm_cpp_host__anyhow__1_0_45//:anyhow",
+    actual = "@proxy_wasm_cpp_host__anyhow__1_0_51//:anyhow",
     tags = [
         "cargo-raze",
         "manual",
@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "once_cell",
-    actual = "@proxy_wasm_cpp_host__once_cell__1_8_0//:once_cell",
+    actual = "@proxy_wasm_cpp_host__once_cell__1_9_0//:once_cell",
     tags = [
         "cargo-raze",
         "manual",
@@ -61,7 +61,7 @@ alias(
 
 alias(
     name = "wasmtime",
-    actual = "@proxy_wasm_cpp_host__wasmtime__0_31_0//:wasmtime",
+    actual = "@proxy_wasm_cpp_host__wasmtime__0_32_0//:wasmtime",
     tags = [
         "cargo-raze",
         "manual",

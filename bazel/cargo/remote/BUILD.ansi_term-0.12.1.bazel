@@ -25,32 +25,28 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT"
 ])
 
 # Generated Targets
 
+# Unsupported target "256_colours" with type "example" omitted
+
+# Unsupported target "basic_colours" with type "example" omitted
+
+# Unsupported target "rgb_colours" with type "example" omitted
+
 rust_library(
-    name = "object",
+    name = "ansi_term",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
     crate_features = [
-        "archive",
-        "coff",
-        "crc32fast",
-        "elf",
-        "indexmap",
-        "macho",
-        "pe",
-        "read_core",
-        "std",
-        "unaligned",
-        "write",
-        "write_core",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -58,15 +54,17 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.27.1",
+    version = "0.12.1",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__crc32fast__1_3_0//:crc32fast",
-        "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
-        "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
-    ],
+    ] + selects.with_or({
+        # cfg(target_os = "windows")
+        (
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@proxy_wasm_cpp_host__winapi__0_3_9//:winapi",
+        ],
+        "//conditions:default": [],
+    }),
 )
-
-# Unsupported target "integration" with type "test" omitted
-
-# Unsupported target "parse_self" with type "test" omitted

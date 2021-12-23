@@ -37,7 +37,7 @@ load(
 )
 
 cargo_build_script(
-    name = "errno_dragonfly_build_script",
+    name = "generic_array_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
@@ -45,7 +45,7 @@ cargo_build_script(
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -53,22 +53,22 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.2",
+    version = "0.14.4",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host__cc__1_0_72//:cc",
+        "@proxy_wasm_cpp_host__version_check__0_9_3//:version_check",
     ],
 )
 
 rust_library(
-    name = "errno_dragonfly",
+    name = "generic_array",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -76,10 +76,22 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.1.2",
+    version = "0.14.4",
     # buildifier: leave-alone
     deps = [
-        ":errno_dragonfly_build_script",
-        "@proxy_wasm_cpp_host__libc__0_2_112//:libc",
+        ":generic_array_build_script",
+        "@proxy_wasm_cpp_host__typenum__1_14_0//:typenum",
     ],
 )
+
+# Unsupported target "arr" with type "test" omitted
+
+# Unsupported target "generics" with type "test" omitted
+
+# Unsupported target "hex" with type "test" omitted
+
+# Unsupported target "import_name" with type "test" omitted
+
+# Unsupported target "iter" with type "test" omitted
+
+# Unsupported target "mod" with type "test" omitted

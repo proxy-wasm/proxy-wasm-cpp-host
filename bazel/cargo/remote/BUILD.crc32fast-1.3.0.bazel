@@ -25,32 +25,29 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
 
-rust_library(
-    name = "object",
+cargo_build_script(
+    name = "crc32fast_build_script",
     srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
     crate_features = [
-        "archive",
-        "coff",
-        "crc32fast",
-        "elf",
-        "indexmap",
-        "macho",
-        "pe",
-        "read_core",
+        "default",
         "std",
-        "unaligned",
-        "write",
-        "write_core",
     ],
-    crate_root = "src/lib.rs",
-    crate_type = "lib",
-    data = [],
-    edition = "2018",
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -58,15 +55,36 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.27.1",
-    # buildifier: leave-alone
+    version = "1.3.0",
+    visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host__crc32fast__1_3_0//:crc32fast",
-        "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
-        "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
     ],
 )
 
-# Unsupported target "integration" with type "test" omitted
+# Unsupported target "bench" with type "bench" omitted
 
-# Unsupported target "parse_self" with type "test" omitted
+rust_library(
+    name = "crc32fast",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+        "std",
+    ],
+    crate_root = "src/lib.rs",
+    crate_type = "lib",
+    data = [],
+    edition = "2015",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "1.3.0",
+    # buildifier: leave-alone
+    deps = [
+        ":crc32fast_build_script",
+        "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
+    ],
+)

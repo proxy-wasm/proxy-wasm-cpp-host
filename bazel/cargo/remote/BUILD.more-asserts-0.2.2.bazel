@@ -25,32 +25,20 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "unencumbered",  # CC0-1.0 from expression "CC0-1.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "object",
+    name = "more_asserts",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "archive",
-        "coff",
-        "crc32fast",
-        "elf",
-        "indexmap",
-        "macho",
-        "pe",
-        "read_core",
-        "std",
-        "unaligned",
-        "write",
-        "write_core",
     ],
     crate_root = "src/lib.rs",
     crate_type = "lib",
     data = [],
-    edition = "2018",
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -58,15 +46,8 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.27.1",
+    version = "0.2.2",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__crc32fast__1_3_0//:crc32fast",
-        "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
-        "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
     ],
 )
-
-# Unsupported target "integration" with type "test" omitted
-
-# Unsupported target "parse_self" with type "test" omitted
