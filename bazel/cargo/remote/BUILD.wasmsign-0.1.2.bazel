@@ -51,10 +51,10 @@ rust_binary(
     # buildifier: leave-alone
     deps = [
         ":wasmsign",
-        "@proxy_wasm_cpp_host__anyhow__1_0_51//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_52//:anyhow",
         "@proxy_wasm_cpp_host__byteorder__1_4_3//:byteorder",
         "@proxy_wasm_cpp_host__clap__2_34_0//:clap",
-        "@proxy_wasm_cpp_host__ed25519_compact__1_0_0//:ed25519_compact",
+        "@proxy_wasm_cpp_host__ed25519_compact__1_0_1//:ed25519_compact",
         "@proxy_wasm_cpp_host__hmac_sha512__1_1_1//:hmac_sha512",
         "@proxy_wasm_cpp_host__parity_wasm__0_42_2//:parity_wasm",
         "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
@@ -80,10 +80,10 @@ rust_library(
     version = "0.1.2",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__anyhow__1_0_51//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_52//:anyhow",
         "@proxy_wasm_cpp_host__byteorder__1_4_3//:byteorder",
         "@proxy_wasm_cpp_host__clap__2_34_0//:clap",
-        "@proxy_wasm_cpp_host__ed25519_compact__1_0_0//:ed25519_compact",
+        "@proxy_wasm_cpp_host__ed25519_compact__1_0_1//:ed25519_compact",
         "@proxy_wasm_cpp_host__hmac_sha512__1_1_1//:hmac_sha512",
         "@proxy_wasm_cpp_host__parity_wasm__0_42_2//:parity_wasm",
         "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",

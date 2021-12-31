@@ -56,7 +56,7 @@ cargo_build_script(
     version = "0.14.4",
     visibility = ["//visibility:private"],
     deps = [
-        "@proxy_wasm_cpp_host__version_check__0_9_3//:version_check",
+        "@proxy_wasm_cpp_host__version_check__0_9_4//:version_check",
     ],
 )
 
@@ -80,7 +80,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":generic_array_build_script",
-        "@proxy_wasm_cpp_host__typenum__1_14_0//:typenum",
+        "@proxy_wasm_cpp_host__typenum__1_15_0//:typenum",
     ],
 )
 

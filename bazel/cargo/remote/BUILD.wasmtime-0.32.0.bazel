@@ -96,7 +96,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":wasmtime_build_script",
-        "@proxy_wasm_cpp_host__anyhow__1_0_51//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_52//:anyhow",
         "@proxy_wasm_cpp_host__backtrace__0_3_63//:backtrace",
         "@proxy_wasm_cpp_host__bincode__1_3_3//:bincode",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",

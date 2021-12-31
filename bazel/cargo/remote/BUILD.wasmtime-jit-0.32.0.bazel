@@ -52,7 +52,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@proxy_wasm_cpp_host__addr2line__0_17_0//:addr2line",
-        "@proxy_wasm_cpp_host__anyhow__1_0_51//:anyhow",
+        "@proxy_wasm_cpp_host__anyhow__1_0_52//:anyhow",
         "@proxy_wasm_cpp_host__bincode__1_3_3//:bincode",
         "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
         "@proxy_wasm_cpp_host__gimli__0_26_1//:gimli",

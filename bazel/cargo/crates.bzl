@@ -53,12 +53,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__anyhow__1_0_51",
-        url = "https://crates.io/api/v1/crates/anyhow/1.0.51/download",
+        name = "proxy_wasm_cpp_host__anyhow__1_0_52",
+        url = "https://crates.io/api/v1/crates/anyhow/1.0.52/download",
         type = "tar.gz",
-        sha256 = "8b26702f315f53b6071259e15dd9d64528213b44d61de1ec926eca7715d62203",
-        strip_prefix = "anyhow-1.0.51",
-        build_file = Label("//bazel/cargo/remote:BUILD.anyhow-1.0.51.bazel"),
+        sha256 = "84450d0b4a8bd1ba4144ce8ce718fbc5d071358b1e5384bace6536b3d1f2d5b3",
+        strip_prefix = "anyhow-1.0.52",
+        build_file = Label("//bazel/cargo/remote:BUILD.anyhow-1.0.52.bazel"),
     )
 
     maybe(
@@ -283,12 +283,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__ed25519_compact__1_0_0",
-        url = "https://crates.io/api/v1/crates/ed25519-compact/1.0.0/download",
+        name = "proxy_wasm_cpp_host__ed25519_compact__1_0_1",
+        url = "https://crates.io/api/v1/crates/ed25519-compact/1.0.1/download",
         type = "tar.gz",
-        sha256 = "3ef48e534dc9c84a7194ee4831546acb5517bf52b23d29f31d6a143f49c2685d",
-        strip_prefix = "ed25519-compact-1.0.0",
-        build_file = Label("//bazel/cargo/remote:BUILD.ed25519-compact-1.0.0.bazel"),
+        sha256 = "85424599b04c7251cd887b95b13c2bb853f3050a2619f40fbf9c23d0baf47223",
+        strip_prefix = "ed25519-compact-1.0.1",
+        build_file = Label("//bazel/cargo/remote:BUILD.ed25519-compact-1.0.1.bazel"),
     )
 
     maybe(
@@ -593,12 +593,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__proc_macro2__1_0_34",
-        url = "https://crates.io/api/v1/crates/proc-macro2/1.0.34/download",
+        name = "proxy_wasm_cpp_host__proc_macro2__1_0_36",
+        url = "https://crates.io/api/v1/crates/proc-macro2/1.0.36/download",
         type = "tar.gz",
-        sha256 = "2f84e92c0f7c9d58328b85a78557813e4bd845130db68d7184635344399423b1",
-        strip_prefix = "proc-macro2-1.0.34",
-        build_file = Label("//bazel/cargo/remote:BUILD.proc-macro2-1.0.34.bazel"),
+        sha256 = "c7342d5883fbccae1cc37a2353b09c87c9b0f3afd73f5fb9bba687a1f733b029",
+        strip_prefix = "proc-macro2-1.0.36",
+        build_file = Label("//bazel/cargo/remote:BUILD.proc-macro2-1.0.36.bazel"),
     )
 
     maybe(
@@ -613,12 +613,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__quote__1_0_10",
-        url = "https://crates.io/api/v1/crates/quote/1.0.10/download",
+        name = "proxy_wasm_cpp_host__quote__1_0_14",
+        url = "https://crates.io/api/v1/crates/quote/1.0.14/download",
         type = "tar.gz",
-        sha256 = "38bc8cc6a5f2e3655e0899c1b848643b2562f853f114bfec7be120678e3ace05",
-        strip_prefix = "quote-1.0.10",
-        build_file = Label("//bazel/cargo/remote:BUILD.quote-1.0.10.bazel"),
+        sha256 = "47aa80447ce4daf1717500037052af176af5d38cc3e571d9ec1c7353fc10c87d",
+        strip_prefix = "quote-1.0.14",
+        build_file = Label("//bazel/cargo/remote:BUILD.quote-1.0.14.bazel"),
     )
 
     maybe(
@@ -813,12 +813,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__syn__1_0_83",
-        url = "https://crates.io/api/v1/crates/syn/1.0.83/download",
+        name = "proxy_wasm_cpp_host__syn__1_0_84",
+        url = "https://crates.io/api/v1/crates/syn/1.0.84/download",
         type = "tar.gz",
-        sha256 = "23a1dfb999630e338648c83e91c59a4e9fb7620f520c3194b6b89e276f2f1959",
-        strip_prefix = "syn-1.0.83",
-        build_file = Label("//bazel/cargo/remote:BUILD.syn-1.0.83.bazel"),
+        sha256 = "ecb2e6da8ee5eb9a61068762a32fa9619cc591ceb055b3687f4cd4051ec2e06b",
+        strip_prefix = "syn-1.0.84",
+        build_file = Label("//bazel/cargo/remote:BUILD.syn-1.0.84.bazel"),
     )
 
     maybe(
@@ -873,12 +873,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__typenum__1_14_0",
-        url = "https://crates.io/api/v1/crates/typenum/1.14.0/download",
+        name = "proxy_wasm_cpp_host__typenum__1_15_0",
+        url = "https://crates.io/api/v1/crates/typenum/1.15.0/download",
         type = "tar.gz",
-        sha256 = "b63708a265f51345575b27fe43f9500ad611579e764c79edbc2037b1121959ec",
-        strip_prefix = "typenum-1.14.0",
-        build_file = Label("//bazel/cargo/remote:BUILD.typenum-1.14.0.bazel"),
+        sha256 = "dcf81ac59edc17cc8697ff311e8f5ef2d99fcbd9817b34cec66f90b6c3dfd987",
+        strip_prefix = "typenum-1.15.0",
+        build_file = Label("//bazel/cargo/remote:BUILD.typenum-1.15.0.bazel"),
     )
 
     maybe(
@@ -913,12 +913,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__version_check__0_9_3",
-        url = "https://crates.io/api/v1/crates/version_check/0.9.3/download",
+        name = "proxy_wasm_cpp_host__version_check__0_9_4",
+        url = "https://crates.io/api/v1/crates/version_check/0.9.4/download",
         type = "tar.gz",
-        sha256 = "5fecdca9a5291cc2b8dcf7dc02453fee791a280f3743cb0905f8822ae463b3fe",
-        strip_prefix = "version_check-0.9.3",
-        build_file = Label("//bazel/cargo/remote:BUILD.version_check-0.9.3.bazel"),
+        sha256 = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f",
+        strip_prefix = "version_check-0.9.4",
+        build_file = Label("//bazel/cargo/remote:BUILD.version_check-0.9.4.bazel"),
     )
 
     maybe(

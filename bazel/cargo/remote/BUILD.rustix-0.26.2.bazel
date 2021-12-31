@@ -40,6 +40,7 @@ cargo_build_script(
     name = "rustix_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
+        "CARGO_CFG_RUSTIX_USE_LIBC": "1",
     },
     crate_features = [
         "default",
@@ -155,26 +156,18 @@ rust_library(
         "@proxy_wasm_cpp_host__bitflags__1_3_2//:bitflags",
         "@proxy_wasm_cpp_host__io_lifetimes__0_3_3//:io_lifetimes",
     ] + selects.with_or({
-        # cfg(all(not(rustix_use_libc), any(target_os = "linux"), any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))
-        (
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
-            "@rules_rust//rust/platform:i686-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-        ): [
-            "@proxy_wasm_cpp_host__linux_raw_sys__0_0_36//:linux_raw_sys",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
         # cfg(any(rustix_use_libc, not(all(any(target_os = "linux"), any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))))
         (
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
             "@rules_rust//rust/platform:aarch64-linux-android",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-linux-android",
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:i686-unknown-freebsd",
+            "@rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
             "@rules_rust//rust/platform:wasm32-unknown-unknown",
@@ -184,6 +177,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
             "@proxy_wasm_cpp_host__errno__0_2_8//:errno",
             "@proxy_wasm_cpp_host__libc__0_2_112//:libc",

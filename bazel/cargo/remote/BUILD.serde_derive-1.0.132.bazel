@@ -81,8 +81,8 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":serde_derive_build_script",
-        "@proxy_wasm_cpp_host__proc_macro2__1_0_34//:proc_macro2",
-        "@proxy_wasm_cpp_host__quote__1_0_10//:quote",
-        "@proxy_wasm_cpp_host__syn__1_0_83//:syn",
+        "@proxy_wasm_cpp_host__proc_macro2__1_0_36//:proc_macro2",
+        "@proxy_wasm_cpp_host__quote__1_0_14//:quote",
+        "@proxy_wasm_cpp_host__syn__1_0_84//:syn",
     ],
 )

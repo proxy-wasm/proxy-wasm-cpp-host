@@ -23,3 +23,6 @@ workspace_path = "//bazel/cargo"
 
 [package.metadata.raze.crates.wasmsign.'*']
 extra_aliased_targets = ["cargo_bin_wasmsign"]
+
+[package.metadata.raze.crates.rustix.'*'.buildrs_additional_environment_variables]
+CARGO_CFG_RUSTIX_USE_LIBC="1"
