@@ -52,15 +52,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
     ] + selects.with_or({
-        # cfg(target_os = "wasi")
-        (
-            "@rules_rust//rust/platform:wasm32-wasi",
-        ): [
-            "@proxy_wasm_cpp_host__libc__0_2_112//:libc",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(unix)
+        # cfg(unix), cfg(target_os = "wasi")
         (
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
@@ -78,6 +70,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:wasm32-wasi",
         ): [
             "@proxy_wasm_cpp_host__libc__0_2_112//:libc",
         ],
