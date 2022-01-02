@@ -583,12 +583,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__ppv_lite86__0_2_15",
-        url = "https://crates.io/api/v1/crates/ppv-lite86/0.2.15/download",
+        name = "proxy_wasm_cpp_host__ppv_lite86__0_2_16",
+        url = "https://crates.io/api/v1/crates/ppv-lite86/0.2.16/download",
         type = "tar.gz",
-        sha256 = "ed0cfbc8191465bed66e1718596ee0b0b35d5ee1f41c5df2189d0fe8bde535ba",
-        strip_prefix = "ppv-lite86-0.2.15",
-        build_file = Label("//bazel/cargo/remote:BUILD.ppv-lite86-0.2.15.bazel"),
+        sha256 = "eb9f9e6e233e5c4a35559a617bf40a4ec447db2e84c20b55a6f83167b7e57872",
+        strip_prefix = "ppv-lite86-0.2.16",
+        build_file = Label("//bazel/cargo/remote:BUILD.ppv-lite86-0.2.16.bazel"),
     )
 
     maybe(
@@ -738,6 +738,9 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
         type = "tar.gz",
         sha256 = "18c44018277ec7195538f5631b90def7ad975bb46370cb0f4eff4012de9333f8",
         strip_prefix = "rustix-0.26.2",
+        patches = [
+            "@proxy_wasm_cpp_host//bazel/cargo:rustix-no_git_check.patch",
+        ],
         build_file = Label("//bazel/cargo/remote:BUILD.rustix-0.26.2.bazel"),
     )
 
@@ -753,22 +756,22 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__serde__1_0_132",
-        url = "https://crates.io/api/v1/crates/serde/1.0.132/download",
+        name = "proxy_wasm_cpp_host__serde__1_0_133",
+        url = "https://crates.io/api/v1/crates/serde/1.0.133/download",
         type = "tar.gz",
-        sha256 = "8b9875c23cf305cd1fd7eb77234cbb705f21ea6a72c637a5c6db5fe4b8e7f008",
-        strip_prefix = "serde-1.0.132",
-        build_file = Label("//bazel/cargo/remote:BUILD.serde-1.0.132.bazel"),
+        sha256 = "97565067517b60e2d1ea8b268e59ce036de907ac523ad83a0475da04e818989a",
+        strip_prefix = "serde-1.0.133",
+        build_file = Label("//bazel/cargo/remote:BUILD.serde-1.0.133.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "proxy_wasm_cpp_host__serde_derive__1_0_132",
-        url = "https://crates.io/api/v1/crates/serde_derive/1.0.132/download",
+        name = "proxy_wasm_cpp_host__serde_derive__1_0_133",
+        url = "https://crates.io/api/v1/crates/serde_derive/1.0.133/download",
         type = "tar.gz",
-        sha256 = "ecc0db5cb2556c0e558887d9bbdcf6ac4471e83ff66cf696e5419024d1606276",
-        strip_prefix = "serde_derive-1.0.132",
-        build_file = Label("//bazel/cargo/remote:BUILD.serde_derive-1.0.132.bazel"),
+        sha256 = "ed201699328568d8d08208fdd080e3ff594e6c422e438b6705905da01005d537",
+        strip_prefix = "serde_derive-1.0.133",
+        build_file = Label("//bazel/cargo/remote:BUILD.serde_derive-1.0.133.bazel"),
     )
 
     maybe(

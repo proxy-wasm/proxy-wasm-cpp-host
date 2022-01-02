@@ -109,7 +109,7 @@ rust_library(
         "@proxy_wasm_cpp_host__psm__0_1_16//:psm",
         "@proxy_wasm_cpp_host__region__2_2_0//:region",
         "@proxy_wasm_cpp_host__rustc_demangle__0_1_21//:rustc_demangle",
-        "@proxy_wasm_cpp_host__serde__1_0_132//:serde",
+        "@proxy_wasm_cpp_host__serde__1_0_133//:serde",
         "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
         "@proxy_wasm_cpp_host__wasmparser__0_81_0//:wasmparser",
         "@proxy_wasm_cpp_host__wasmtime_cranelift__0_32_0//:wasmtime_cranelift",

@@ -24,5 +24,13 @@ workspace_path = "//bazel/cargo"
 [package.metadata.raze.crates.wasmsign.'*']
 extra_aliased_targets = ["cargo_bin_wasmsign"]
 
-[package.metadata.raze.crates.rustix.'*'.buildrs_additional_environment_variables]
-CARGO_CFG_RUSTIX_USE_LIBC="1"
+[package.metadata.raze.crates.rustix.'*']
+additional_flags = [
+    "--cfg=feature=\\\"cc\\\"",
+]
+buildrs_additional_deps = [
+    "@proxy_wasm_cpp_host__cc__1_0_72//:cc",
+]
+patches = [
+    "@proxy_wasm_cpp_host//bazel/cargo:rustix-no_git_check.patch",
+]

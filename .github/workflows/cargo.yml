@@ -40,6 +40,6 @@ jobs:
       run: |
         cargo install cargo-raze --version 0.12.0
         cargo raze
-        # Ignore manual changes in "cpufeatures, errno and rustix" crate until fixed in cargo-raze.
+        # Ignore manual changes in "cpufeatures and errno" crate until fixed in cargo-raze.
         # See: https://github.com/google/cargo-raze/issues/451
-        git diff --exit-code -- ':!remote/BUILD.cpufeatures-0.2.1.bazel' ':!remote/BUILD.errno-0.2.8.bazel' ':!remote/BUILD.rustix-0.26.2.bazel'
+        git diff --exit-code -- ':!remote/BUILD.cpufeatures-0.2.1.bazel' ':!remote/BUILD.errno-0.2.8.bazel'

@@ -58,7 +58,7 @@ rust_library(
         "@proxy_wasm_cpp_host__gimli__0_26_1//:gimli",
         "@proxy_wasm_cpp_host__object__0_27_1//:object",
         "@proxy_wasm_cpp_host__region__2_2_0//:region",
-        "@proxy_wasm_cpp_host__serde__1_0_132//:serde",
+        "@proxy_wasm_cpp_host__serde__1_0_133//:serde",
         "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
         "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
         "@proxy_wasm_cpp_host__wasmtime_environ__0_32_0//:wasmtime_environ",
