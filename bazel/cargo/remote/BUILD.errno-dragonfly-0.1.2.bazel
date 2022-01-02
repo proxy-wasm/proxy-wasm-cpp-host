@@ -80,6 +80,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":errno_dragonfly_build_script",
-        "@proxy_wasm_cpp_host__libc__0_2_107//:libc",
+        "@proxy_wasm_cpp_host__libc__0_2_112//:libc",
     ],
 )

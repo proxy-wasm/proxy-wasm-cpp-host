@@ -91,7 +91,7 @@ rust_library(
     deps = [
         ":indexmap_build_script",
         "@proxy_wasm_cpp_host__hashbrown__0_11_2//:hashbrown",
-        "@proxy_wasm_cpp_host__serde__1_0_130//:serde",
+        "@proxy_wasm_cpp_host__serde__1_0_133//:serde",
     ],
 )
 
