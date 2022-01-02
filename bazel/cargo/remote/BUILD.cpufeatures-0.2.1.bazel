@@ -52,16 +52,9 @@ rust_library(
     # buildifier: leave-alone
     deps = [
     ] + selects.with_or({
-        # aarch64-apple-darwin
+        # cfg(all(target_arch = "aarch64", target_os = "linux")), aarch64-apple-darwin
         (
             "@rules_rust//rust/platform:aarch64-apple-darwin",
-        ): [
-            "@proxy_wasm_cpp_host__libc__0_2_112//:libc",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(all(target_arch = "aarch64", target_os = "linux"))
-        (
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
         ): [
             "@proxy_wasm_cpp_host__libc__0_2_112//:libc",
