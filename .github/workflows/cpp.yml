@@ -71,8 +71,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependency
+    - name: Install dependency (Ubuntu)
+      if: ${{ matrix.os == "ubuntu-latest" }}
       run: sudo apt-get install ninja-build
+
+    - name: Install dependency (macOS)
+      if: ${{ matrix.os == "macos-latest" }}
+      run: brew install ninja
 
     - name: Mount Bazel cache
       uses: actions/cache@v2
