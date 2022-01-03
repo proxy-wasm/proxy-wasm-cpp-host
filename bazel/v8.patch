@@ -4,8 +4,9 @@
 7. Fix v8_torque when imported in another workspace. (https://crrev.com/c/3346680)
 4. Fix build with GCC and older versions of Clang. (https://crrev.com/c/3333635)
 5. Fix build on arm64. (https://crrev.com/c/3337367)
-6. Add support for building on s390x. (https://crrev.com/c/3346395)
-7. Expose :v8 and :wee8 libraries with headers. (https://crrev.com/c/3346681)
+6. Fix build on macOS. (https://crrev.com/c/3364916)
+7. Add support for building on s390x. (https://crrev.com/c/3346395)
+8. Expose :v8 and :wee8 libraries with headers. (https://crrev.com/c/3346681)
 
 diff --git a/.bazelrc b/.bazelrc
 index e0127628ca..ef69dda4a5 100644
@@ -33,7 +34,7 @@ index e0127628ca..ef69dda4a5 100644
  build:debug --compilation_mode=dbg
  build:debug --config=v8_enable_debugging_features
 diff --git a/BUILD.bazel b/BUILD.bazel
-index 3d37f45ced..b69e0ca3c2 100644
+index 3d37f45ced..b84afd0759 100644
 --- a/BUILD.bazel
 +++ b/BUILD.bazel
 @@ -3,6 +3,8 @@
@@ -470,15 +471,25 @@ index 3d37f45ced..b69e0ca3c2 100644
          "//conditions:default": [],
      }),
      features = ["-use_header_modules"],
-@@ -3248,6 +3322,7 @@ v8_library(
+@@ -3233,7 +3307,7 @@ v8_library(
+     ],
+     icu_deps = [
+         ":icu/generated_torque_headers",
+-        "@icu",
++        "@com_googlesource_chromium_icu//:icu",
+     ],
+     icu_srcs = [
+         ":generated_regexp_special_case",
+@@ -3248,23 +3322,29 @@ v8_library(
      ],
      deps = [
          ":v8_libbase",
-+        "@trace_event_common",
-         "@zlib",
+-        "@zlib",
++        "@com_googlesource_chromium_trace_event_common//:trace_event_common",
++        "@com_googlesource_chromium_zlib//:zlib",
      ],
  )
-@@ -3255,16 +3330,21 @@ v8_library(
+ 
  v8_library(
      name = "v8",
      srcs = [":v8_inspector_files"],
@@ -498,6 +509,15 @@ index 3d37f45ced..b69e0ca3c2 100644
 +    strip_include_prefix = "third_party",
 +    visibility = ["//visibility:public"],
      deps = [":noicu/v8"],
+ )
+ 
+@@ -3311,7 +3391,7 @@ v8_binary(
+         "UNISTR_FROM_CHAR_EXPLICIT=",
+     ],
+     deps = [
+-        "@icu",
++        "@com_googlesource_chromium_icu//:icu",
+     ],
  )
  
 @@ -3322,12 +3402,12 @@ v8_binary(
@@ -525,7 +545,7 @@ index 3d37f45ced..b69e0ca3c2 100644
      }),
      noicu_deps = [":v8_libshared_noicu"],
 diff --git a/WORKSPACE b/WORKSPACE
-index 32fff02aab..86ab4fd5d8 100644
+index 32fff02aab..4aacf4354f 100644
 --- a/WORKSPACE
 +++ b/WORKSPACE
 @@ -4,7 +4,9 @@
@@ -546,35 +566,35 @@ index 32fff02aab..86ab4fd5d8 100644
 -    name = "config",
 -    path = "bazel/config",
 -    build_file = "bazel/config/BUILD.bazel",
--)
--
--new_local_repository(
 +new_git_repository(
-     name = "zlib",
--    path = "third_party/zlib",
--    build_file = "bazel/BUILD.zlib",
-+    build_file = "//:bazel/BUILD.zlib",
-+    commit = "efd9399ae01364926be2a38946127fdf463480db",
-+    remote = "https://chromium.googlesource.com/chromium/src/third_party/zlib.git",
- )
- 
--new_local_repository(
-+new_git_repository(
-     name = "icu",
--    path = "third_party/icu",
--    build_file = "bazel/BUILD.icu",
++    name = "com_googlesource_chromium_icu",
 +    build_file = "//:bazel/BUILD.icu",
 +    commit = "fbc6faf1c2c429cd27fabe615a89f0b217aa4213",
 +    remote = "https://chromium.googlesource.com/chromium/deps/icu.git",
 +)
 +
 +new_git_repository(
-+    name = "trace_event_common",
++    name = "com_googlesource_chromium_trace_event_common",
 +    build_file = "//:bazel/BUILD.trace_event_common",
 +    commit = "7f36dbc19d31e2aad895c60261ca8f726442bfbb",
 +    remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
-+)
-+
+ )
+ 
+-new_local_repository(
+-    name = "zlib",
+-    path = "third_party/zlib",
+-    build_file = "bazel/BUILD.zlib",
++new_git_repository(
++    name = "com_googlesource_chromium_zlib",
++    build_file = "//:bazel/BUILD.zlib",
++    commit = "efd9399ae01364926be2a38946127fdf463480db",
++    remote = "https://chromium.googlesource.com/chromium/src/third_party/zlib.git",
+ )
+ 
+-new_local_repository(
+-    name = "icu",
+-    path = "third_party/icu",
+-    build_file = "bazel/BUILD.icu",
 +http_archive(
 +    name = "rules_python",
 +    sha256 = "cd6730ed53a002c56ce4e2f396ba3b3be262fd7cb68339f0377a45e8227fe332",
@@ -605,7 +625,7 @@ index 0000000000..685b284071
 +    visibility = ["//visibility:public"],
 +)
 diff --git a/bazel/config/BUILD.bazel b/bazel/config/BUILD.bazel
-index 78a1b5debd..4f07d57178 100644
+index 78a1b5debd..b7edae5815 100644
 --- a/bazel/config/BUILD.bazel
 +++ b/bazel/config/BUILD.bazel
 @@ -15,6 +15,20 @@ package(
@@ -685,17 +705,10 @@ index 78a1b5debd..4f07d57178 100644
  selects.config_setting_group(
      name = "is_msvc_asm_x64",
      match_all = [":is_windows", ":is_x64"],
-@@ -172,3 +201,48 @@ selects.config_setting_group(
+@@ -172,3 +201,64 @@ selects.config_setting_group(
      name = "is_msvc_asm_arm64",
      match_all = [":is_windows", ":is_arm64"],
  )
-+
-+config_setting(
-+    name = "is_clang",
-+    flag_values = {
-+        "@bazel_tools//tools/cpp:compiler": "clang",
-+    },
-+)
 +
 +config_setting(
 +    name = "is_compiler_default",
@@ -709,6 +722,29 @@ index 78a1b5debd..4f07d57178 100644
 +    match_all = [
 +        ":is_compiler_default",
 +        ":is_linux",
++    ],
++)
++
++selects.config_setting_group(
++    name = "is_compiler_default_on_macos",
++    match_all = [
++        ":is_compiler_default",
++        ":is_macos",
++    ],
++)
++
++config_setting(
++    name = "is_compiler_clang",
++    flag_values = {
++        "@bazel_tools//tools/cpp:compiler": "clang",
++    },
++)
++
++selects.config_setting_group(
++    name = "is_clang",
++    match_any = [
++        ":is_compiler_default_on_macos",
++        ":is_compiler_clang",
 +    ],
 +)
 +
@@ -748,7 +784,7 @@ index 2d5d241ebf..72aae9e270 100644
      if cpu_type in allowed_values:
          return V8CpuTypeInfo(value = cpu_type)
 diff --git a/bazel/defs.bzl b/bazel/defs.bzl
-index 53fccf92e7..3456dbbe4d 100644
+index 53fccf92e7..14fff6f049 100644
 --- a/bazel/defs.bzl
 +++ b/bazel/defs.bzl
 @@ -89,7 +89,7 @@ def _default_args():
@@ -863,7 +899,15 @@ index 53fccf92e7..3456dbbe4d 100644
              "//conditions:default": ":torque",
          }),
      )
-@@ -342,14 +373,14 @@ def _v8_target_cpu_transition_impl(settings, attr):
+@@ -334,6 +365,7 @@ def _v8_target_cpu_transition_impl(settings, attr):
+         "haswell": "x64",
+         "k8": "x64",
+         "x86_64": "x64",
++        "darwin": "x64",
+         "darwin_x86_64": "x64",
+         "x86": "ia32",
+         "ppc": "ppc64",
+@@ -342,14 +374,14 @@ def _v8_target_cpu_transition_impl(settings, attr):
          "armeabi-v7a": "arm32",
      }
      v8_target_cpu = mapping[settings["//command_line_option:cpu"]]

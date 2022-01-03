@@ -123,7 +123,7 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     new_git_repository(
-        name = "trace_event_common",
+        name = "com_googlesource_chromium_trace_event_common",
         build_file = "@v8//:bazel/BUILD.trace_event_common",
         commit = "7f36dbc19d31e2aad895c60261ca8f726442bfbb",
         remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
@@ -131,7 +131,7 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     new_git_repository(
-        name = "zlib",
+        name = "com_googlesource_chromium_zlib",
         build_file = "@v8//:bazel/BUILD.zlib",
         commit = "efd9399ae01364926be2a38946127fdf463480db",
         remote = "https://chromium.googlesource.com/chromium/src/third_party/zlib.git",
