@@ -34,7 +34,7 @@ index e0127628ca..ef69dda4a5 100644
  build:debug --compilation_mode=dbg
  build:debug --config=v8_enable_debugging_features
 diff --git a/BUILD.bazel b/BUILD.bazel
-index 3d37f45ced..b84afd0759 100644
+index c9864429a5..b1717e8fda 100644
 --- a/BUILD.bazel
 +++ b/BUILD.bazel
 @@ -3,6 +3,8 @@
@@ -187,7 +187,7 @@ index 3d37f45ced..b84afd0759 100644
          "include/cppgc/common.h",
          "include/v8-inspector-protocol.h",
          "include/v8-inspector.h",
-@@ -1963,8 +1960,6 @@ filegroup(
+@@ -1966,8 +1963,6 @@ filegroup(
          "src/snapshot/shared-heap-serializer.cc",
          "src/snapshot/snapshot-compression.cc",
          "src/snapshot/snapshot-compression.h",
@@ -196,7 +196,7 @@ index 3d37f45ced..b84afd0759 100644
          "src/snapshot/snapshot-data.cc",
          "src/snapshot/snapshot-data.h",
          "src/snapshot/snapshot-source-sink.cc",
-@@ -2069,7 +2064,7 @@ filegroup(
+@@ -2072,7 +2067,7 @@ filegroup(
          "src/heap/third-party/heap-api.h",
          "src/heap/third-party/heap-api-stub.cc",
      ] + select({
@@ -205,7 +205,7 @@ index 3d37f45ced..b84afd0759 100644
              "src/baseline/ia32/baseline-assembler-ia32-inl.h",
              "src/baseline/ia32/baseline-compiler-ia32-inl.h",
              "src/codegen/shared-ia32-x64/macro-assembler-shared-ia32-x64.h",
-@@ -2097,7 +2092,7 @@ filegroup(
+@@ -2100,7 +2095,7 @@ filegroup(
              "src/regexp/ia32/regexp-macro-assembler-ia32.h",
              "src/wasm/baseline/ia32/liftoff-assembler-ia32.h",
          ],
@@ -214,7 +214,7 @@ index 3d37f45ced..b84afd0759 100644
              "src/baseline/x64/baseline-assembler-x64-inl.h",
              "src/baseline/x64/baseline-compiler-x64-inl.h",
              "src/codegen/shared-ia32-x64/macro-assembler-shared-ia32-x64.h",
-@@ -2129,7 +2124,7 @@ filegroup(
+@@ -2132,7 +2127,7 @@ filegroup(
              "src/regexp/x64/regexp-macro-assembler-x64.h",
              "src/wasm/baseline/x64/liftoff-assembler-x64.h",
          ],
@@ -223,7 +223,7 @@ index 3d37f45ced..b84afd0759 100644
              "src/baseline/arm/baseline-assembler-arm-inl.h",
              "src/baseline/arm/baseline-compiler-arm-inl.h",
              "src/codegen/arm/assembler-arm-inl.h",
-@@ -2160,7 +2155,7 @@ filegroup(
+@@ -2163,7 +2158,7 @@ filegroup(
              "src/regexp/arm/regexp-macro-assembler-arm.h",
              "src/wasm/baseline/arm/liftoff-assembler-arm.h",
          ],
@@ -232,7 +232,7 @@ index 3d37f45ced..b84afd0759 100644
              "src/baseline/arm64/baseline-assembler-arm64-inl.h",
              "src/baseline/arm64/baseline-compiler-arm64-inl.h",
              "src/codegen/arm64/assembler-arm64-inl.h",
-@@ -2203,31 +2198,59 @@ filegroup(
+@@ -2206,31 +2201,59 @@ filegroup(
              "src/regexp/arm64/regexp-macro-assembler-arm64.h",
              "src/wasm/baseline/arm64/liftoff-assembler-arm64.h",
          ],
@@ -299,7 +299,7 @@ index 3d37f45ced..b84afd0759 100644
              "src/diagnostics/unwinding-info-win64.cc",
              "src/diagnostics/unwinding-info-win64.h",
          ],
-@@ -2709,10 +2732,11 @@ filegroup(
+@@ -2712,10 +2735,11 @@ filegroup(
          "src/interpreter/interpreter-intrinsics-generator.cc",
          "src/interpreter/interpreter-intrinsics-generator.h",
      ] + select({
@@ -315,7 +315,7 @@ index 3d37f45ced..b84afd0759 100644
      }) + select({
          ":is_v8_enable_webassembly": [
              "src/builtins/builtins-wasm-gen.cc",
-@@ -2829,13 +2853,14 @@ filegroup(
+@@ -2832,13 +2856,14 @@ filegroup(
          # Note these cannot be v8_target_is_* selects because these contain
          # inline assembly that runs inside the executable. Since these are
          # linked directly into mksnapshot, they must use the actual target cpu.
@@ -337,7 +337,7 @@ index 3d37f45ced..b84afd0759 100644
      }),
  )
  
-@@ -2989,16 +3014,17 @@ filegroup(
+@@ -2992,16 +3017,17 @@ filegroup(
      srcs = [
          "src/init/setup-isolate-deserialize.cc",
      ] + select({
@@ -359,7 +359,7 @@ index 3d37f45ced..b84afd0759 100644
      }),
  )
  
-@@ -3007,16 +3033,17 @@ filegroup(
+@@ -3010,16 +3036,17 @@ filegroup(
      srcs = [
          "src/init/setup-isolate-deserialize.cc",
      ] + select({
@@ -381,7 +381,7 @@ index 3d37f45ced..b84afd0759 100644
      }),
  )
  
-@@ -3047,7 +3074,7 @@ v8_torque(
+@@ -3050,7 +3077,7 @@ v8_torque(
          ":is_v8_annotate_torque_ir": ["-annotate-ir"],
          "//conditions:default": [],
      }) + select({
@@ -390,7 +390,7 @@ index 3d37f45ced..b84afd0759 100644
          "//conditions:default": [],
      }),
      extras = [
-@@ -3076,9 +3103,39 @@ v8_torque(
+@@ -3079,9 +3106,39 @@ v8_torque(
      noicu_srcs = [":noicu/torque_files"],
  )
  
@@ -431,7 +431,7 @@ index 3d37f45ced..b84afd0759 100644
      outs = [
          "include/inspector/Debugger.h",
          "include/inspector/Runtime.h",
-@@ -3099,10 +3156,27 @@ genrule(
+@@ -3102,10 +3159,27 @@ genrule(
          "src/inspector/protocol/Schema.cpp",
          "src/inspector/protocol/Schema.h",
      ],
@@ -462,7 +462,7 @@ index 3d37f45ced..b84afd0759 100644
  )
  
  filegroup(
-@@ -3215,7 +3289,7 @@ cc_library(
+@@ -3218,7 +3292,7 @@ cc_library(
          ":torque_base_files",
      ],
      copts = select({
@@ -471,7 +471,7 @@ index 3d37f45ced..b84afd0759 100644
          "//conditions:default": [],
      }),
      features = ["-use_header_modules"],
-@@ -3233,7 +3307,7 @@ v8_library(
+@@ -3236,7 +3310,7 @@ v8_library(
      ],
      icu_deps = [
          ":icu/generated_torque_headers",
@@ -480,7 +480,7 @@ index 3d37f45ced..b84afd0759 100644
      ],
      icu_srcs = [
          ":generated_regexp_special_case",
-@@ -3248,23 +3322,29 @@ v8_library(
+@@ -3251,23 +3325,29 @@ v8_library(
      ],
      deps = [
          ":v8_libbase",
@@ -511,7 +511,7 @@ index 3d37f45ced..b84afd0759 100644
      deps = [":noicu/v8"],
  )
  
-@@ -3311,7 +3391,7 @@ v8_binary(
+@@ -3314,7 +3394,7 @@ v8_binary(
          "UNISTR_FROM_CHAR_EXPLICIT=",
      ],
      deps = [
@@ -520,7 +520,7 @@ index 3d37f45ced..b84afd0759 100644
      ],
  )
  
-@@ -3322,12 +3402,12 @@ v8_binary(
+@@ -3325,12 +3405,12 @@ v8_binary(
          ":torque_base_files",
      ],
      copts = select({
@@ -535,7 +535,7 @@ index 3d37f45ced..b84afd0759 100644
          "//conditions:default": [],
      }),
      deps = ["v8_libbase"],
-@@ -3338,7 +3418,7 @@ v8_binary(
+@@ -3341,7 +3421,7 @@ v8_binary(
      srcs = [":mksnapshot_files"],
      icu_deps = [":icu/v8_libshared"],
      linkopts = select({
