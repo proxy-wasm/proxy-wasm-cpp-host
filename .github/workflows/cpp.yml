@@ -65,18 +65,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-20.04, macos-11]
         runtime: ["wamr", "wasmtime", "wavm"]
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Install dependency (Ubuntu)
-      if: ${{ matrix.os == "ubuntu-latest" }}
+      if: startsWith(matrix.os, 'ubuntu')
       run: sudo apt-get install ninja-build
 
     - name: Install dependency (macOS)
-      if: ${{ matrix.os == "macos-latest" }}
+      if: startsWith(matrix.os, 'macos')
       run: brew install ninja
 
     - name: Mount Bazel cache
