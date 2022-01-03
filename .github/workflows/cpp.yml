@@ -70,6 +70,8 @@ jobs:
         include:
         - os: macos-11
           runtime: 'v8'
+        - os: windows-2022
+          runtime: 'v8'
 
     steps:
     - uses: actions/checkout@v2
