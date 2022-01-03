@@ -57,6 +57,8 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "0ccf19f30f744fca635be5428f6460c14dfee19bfa0820c70e0fc9554f79c9b1",
         strip_prefix = "wasm-micro-runtime-cdf306364eff8f50fd6473b32a316cb90cc15a2f",
         url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/cdf306364eff8f50fd6473b32a316cb90cc15a2f.tar.gz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:wamr.patch"],
+        patch_args = ["-p1"],
     )
 
     native.bind(
