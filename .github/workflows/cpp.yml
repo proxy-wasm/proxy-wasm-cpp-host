@@ -105,7 +105,6 @@ jobs:
       with:
         path: |
           ~/.cache/bazel
-          ~/.cache/bazelisk
           /private/var/tmp/_bazel_runner/
         key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
