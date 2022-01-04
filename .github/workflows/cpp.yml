@@ -58,25 +58,34 @@ jobs:
         addlicense -check .
 
   build:
-    name: build (${{ matrix.runtime }} on ${{ matrix.os }})
+    name: build (${{ matrix.name }})
 
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        runtime: ['wamr', 'wasmtime', 'wavm']
-        os: [ubuntu-20.04]
         include:
-        - runtime: 'wamr'
+        - name: "WAMR on Linux"
+          runtime: 'wamr'
+          os: ubuntu-20.04
+        - name: "WAMR on macOS"
+          runtime: 'wamr'
           os: macos-11
-        - runtime: 'wasmtime'
+        - name: "Wasmtime on Linux"
+          runtime: 'wasmtime'
+          os: ubuntu-20.04
+        - name: "Wasmtime on macOS"
+          runtime: 'wasmtime'
           os: macos-11
+        - name: "WAVM on Linux"
+          runtime: 'wavm'
+          os: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependency (Ubuntu)
+    - name: Install dependency (Linux)
       if: startsWith(matrix.os, 'ubuntu')
       run: sudo apt-get install ninja-build
 
