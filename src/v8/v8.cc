@@ -25,8 +25,8 @@
 #include <utility>
 #include <vector>
 
-#include "v8.h"
-#include "v8-version.h"
+#include "include/v8.h"
+#include "include/v8-version.h"
 #include "wasm-api/wasm.hh"
 
 namespace proxy_wasm {

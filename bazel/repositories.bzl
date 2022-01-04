@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def proxy_wasm_cpp_host_repositories():
@@ -120,4 +121,40 @@ def proxy_wasm_cpp_host_repositories():
     native.bind(
         name = "wavm",
         actual = "@com_github_wavm_wavm//:wavm_lib",
+    )
+
+    git_repository(
+        name = "v8",
+        commit = "11559b4461ac0c3328354229e03c2a989b104ff9",
+        remote = "https://chromium.googlesource.com/v8/v8",
+        shallow_since = "1641210631 +0000",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
+        patch_args = ["-p1"],
+    )
+
+    new_git_repository(
+        name = "com_googlesource_chromium_trace_event_common",
+        build_file = "@v8//:bazel/BUILD.trace_event_common",
+        commit = "7f36dbc19d31e2aad895c60261ca8f726442bfbb",
+        remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
+        shallow_since = "1635355186 -0700",
+    )
+
+    new_git_repository(
+        name = "com_googlesource_chromium_zlib",
+        build_file = "@v8//:bazel/BUILD.zlib",
+        commit = "efd9399ae01364926be2a38946127fdf463480db",
+        remote = "https://chromium.googlesource.com/chromium/src/third_party/zlib.git",
+        shallow_since = "1638492135 -0800",
+    )
+
+    http_archive(
+        name = "rules_python",
+        sha256 = "cd6730ed53a002c56ce4e2f396ba3b3be262fd7cb68339f0377a45e8227fe332",
+        url = "https://github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz",
+    )
+
+    native.bind(
+        name = "wee8",
+        actual = "@v8//:wee8",
     )
