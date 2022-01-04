@@ -31,7 +31,7 @@ on:
 jobs:
 
   format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
@@ -58,20 +58,40 @@ jobs:
         addlicense -check .
 
   build:
-    name: build (${{ matrix.runtime }})
+    name: build (${{ matrix.name }})
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        runtime: ["wamr", "wasmtime", "wavm"]
+        include:
+        - name: 'WAMR on Linux'
+          runtime: 'wamr'
+          os: ubuntu-20.04
+        - name: 'WAMR on macOS'
+          runtime: 'wamr'
+          os: macos-11
+        - name: 'Wasmtime on Linux'
+          runtime: 'wasmtime'
+          os: ubuntu-20.04
+        - name: 'Wasmtime on macOS'
+          runtime: 'wasmtime'
+          os: macos-11
+        - name: 'WAVM on Linux'
+          runtime: 'wavm'
+          os: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependency
+    - name: Install dependency (Linux)
+      if: startsWith(matrix.os, 'ubuntu')
       run: sudo apt-get install ninja-build
+
+    - name: Install dependency (macOS)
+      if: startsWith(matrix.os, 'macos')
+      run: brew install ninja
 
     - name: Mount Bazel cache
       uses: actions/cache@v2
@@ -79,12 +99,12 @@ jobs:
         path: |
           ~/.cache/bazel
           ~/.cache/bazelisk
-        key: bazel-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Test
       run: |
-        bazel test --define runtime=${{ matrix.runtime }} //test/...
+        bazel test --test_output=errors --define runtime=${{ matrix.runtime }} //test/...
 
     - name: Test (signed Wasm module)
       run: |
-        bazel test --define runtime=${{ matrix.runtime }} --per_file_copt=//...@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test
+        bazel test --test_output=errors --define runtime=${{ matrix.runtime }} --per_file_copt=//...@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test

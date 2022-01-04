@@ -7,6 +7,7 @@ package(default_visibility = ["//visibility:public"])
 cc_test(
     name = "null_vm_test",
     srcs = ["null_vm_test.cc"],
+    linkstatic = 1,
     deps = [
         "//:lib",
         "@com_google_googletest//:gtest",
@@ -20,6 +21,7 @@ cc_test(
     data = [
         "//test/test_data:abi_export.wasm",
     ],
+    linkstatic = 1,
     deps = [
         ":utility_lib",
         "//:lib",
@@ -36,6 +38,7 @@ cc_test(
         "//test/test_data:abi_export.signed.with.key2.wasm",
         "//test/test_data:abi_export.wasm",
     ],
+    linkstatic = 1,
     # Test only when compiled to verify plugins.
     tags = ["manual"],
     deps = [
@@ -54,6 +57,7 @@ cc_test(
         "//test/test_data:callback.wasm",
         "//test/test_data:trap.wasm",
     ],
+    linkstatic = 1,
     deps = [
         ":utility_lib",
         "//:lib",
@@ -69,6 +73,7 @@ cc_test(
         "//test/test_data:clock.wasm",
         "//test/test_data:env.wasm",
     ],
+    linkstatic = 1,
     deps = [
         ":utility_lib",
         "//:lib",
@@ -83,6 +88,7 @@ cc_test(
     data = [
         "//test/test_data:abi_export.wasm",
     ],
+    linkstatic = 1,
     deps = [
         ":utility_lib",
         "//:lib",
@@ -94,6 +100,7 @@ cc_test(
 cc_test(
     name = "shared_data",
     srcs = ["shared_data_test.cc"],
+    linkstatic = 1,
     deps = [
         "//:lib",
         "@com_google_googletest//:gtest",
@@ -104,6 +111,7 @@ cc_test(
 cc_test(
     name = "shared_queue",
     srcs = ["shared_queue_test.cc"],
+    linkstatic = 1,
     deps = [
         "//:lib",
         "@com_google_googletest//:gtest",
@@ -114,6 +122,7 @@ cc_test(
 cc_test(
     name = "vm_id_handle",
     srcs = ["vm_id_handle_test.cc"],
+    linkstatic = 1,
     deps = [
         "//:lib",
         "@com_google_googletest//:gtest",
