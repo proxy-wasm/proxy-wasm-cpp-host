@@ -430,9 +430,6 @@ void convertArgsTupleToValTypesImpl(wasm_valtype_vec_t *types, std::index_sequen
   auto ps = std::array<wasm_valtype_t *, std::tuple_size<T>::value>{
       convertArgToValTypePtr<typename std::tuple_element<I, T>::type>()...};
   wasm_valtype_vec_new(types, size, ps.data());
-  for (auto i = ps.begin(); i < ps.end(); i++) { // TODO(mathetake): better way to handle?
-    wasm_valtype_delete(*i);
-  }
 }
 
 template <typename T, typename Is = std::make_index_sequence<std::tuple_size<T>::value>>

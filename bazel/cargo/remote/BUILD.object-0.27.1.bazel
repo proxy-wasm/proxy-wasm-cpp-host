@@ -61,7 +61,7 @@ rust_library(
     version = "0.27.1",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__crc32fast__1_2_1//:crc32fast",
+        "@proxy_wasm_cpp_host__crc32fast__1_3_0//:crc32fast",
         "@proxy_wasm_cpp_host__indexmap__1_7_0//:indexmap",
         "@proxy_wasm_cpp_host__memchr__2_4_1//:memchr",
     ],

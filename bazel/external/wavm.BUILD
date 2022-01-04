@@ -16,9 +16,7 @@ cmake(
         "WAVM_ENABLE_STATIC_LINKING": "on",
         "WAVM_ENABLE_RELEASE_ASSERTS": "on",
         "WAVM_ENABLE_UNWIND": "on",
-        # Workaround for the issue with statically linked libstdc++
-        # using -l:libstdc++.a.
-        "CMAKE_CXX_FLAGS": "-lstdc++ -Wno-unused-command-line-argument",
+        "CMAKE_CXX_FLAGS": "-Wno-unused-command-line-argument",
     },
     env_vars = {
         # Workaround for the -DDEBUG flag added in fastbuild on macOS,
