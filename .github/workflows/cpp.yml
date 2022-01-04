@@ -113,4 +113,4 @@ jobs:
 
     - name: Test (signed Wasm module)
       run: |
-        bazel test --test_output=errors --define runtime=${{ matrix.runtime }} --per_file_copt=//...@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test
+        bazel test --test_output=errors --define runtime=${{ matrix.runtime }} --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test
