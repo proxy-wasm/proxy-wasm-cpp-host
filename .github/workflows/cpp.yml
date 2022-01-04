@@ -99,12 +99,14 @@ jobs:
       if: startsWith(matrix.os, 'macos')
       run: brew install ninja
 
-    - name: Mount Bazel cache
+    - name: Bazel cache
+      if: matrix.runtime != 'wasmtime'
       uses: actions/cache@v2
       with:
         path: |
           ~/.cache/bazel
           ~/.cache/bazelisk
+          /private/var/tmp/_bazel_runner/
         key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Test
@@ -114,3 +116,10 @@ jobs:
     - name: Test (signed Wasm module)
       run: |
         bazel test --test_output=errors --define runtime=${{ matrix.runtime }} --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test
+
+    - name: Cleanup Bazel cache
+      if: matrix.runtime != 'wasmtime'
+      run: |
+        rm -rf $(bazel info output_base)/external/rust_*/*.tar.gz
+        rm -rf $(bazel info repository_cache)
+        rm -rf $(bazel info install_base)
