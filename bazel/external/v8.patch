@@ -784,7 +784,7 @@ index 2d5d241ebf..72aae9e270 100644
      if cpu_type in allowed_values:
          return V8CpuTypeInfo(value = cpu_type)
 diff --git a/bazel/defs.bzl b/bazel/defs.bzl
-index 53fccf92e7..6c2fb5166f 100644
+index 53fccf92e7..a4e7fd6068 100644
 --- a/bazel/defs.bzl
 +++ b/bazel/defs.bzl
 @@ -89,7 +89,7 @@ def _default_args():
@@ -796,7 +796,7 @@ index 53fccf92e7..6c2fb5166f 100644
                  "UNICODE",
                  "_UNICODE",
                  "_CRT_RAND_S",
-@@ -98,29 +98,59 @@ def _default_args():
+@@ -98,29 +98,70 @@ def _default_args():
              "//conditions:default": [],
          }),
          copts = select({
@@ -836,6 +836,17 @@ index 53fccf92e7..6c2fb5166f 100644
 +                "-std=gnu++17",
 +            ],
 +            "@v8//bazel/config:is_windows": [
++                "/DNTDDI_VERSION=0x0A000000",
++                "/D_WIN32_WINNT=0x0A00",
++                "/DWINVER=0x0A00",
++                "/DWIN32",
++                "/DWIN32_LEAN_AND_MEAN",
++                "/DNOMINMAX",
++                "/DNOKERNEL",
++                "/DNOUSER",
++                "/DNOSERVICE",
++                "/DNOSOUND",
++                "/DNOMCX",
 +                "/std:c++17",
 +            ],
 +            "//conditions:default": [],
@@ -860,7 +871,7 @@ index 53fccf92e7..6c2fb5166f 100644
              "//conditions:default": ["-Wl,--no-as-needed -ldl -pthread"],
          }) + select({
              ":should_add_rdynamic": ["-rdynamic"],
-@@ -248,8 +278,10 @@ def v8_library(
+@@ -248,8 +289,10 @@ def v8_library(
          )
  
  def _torque_impl(ctx):
@@ -873,7 +884,7 @@ index 53fccf92e7..6c2fb5166f 100644
  
      # Arguments
      args = []
-@@ -301,7 +333,6 @@ _v8_torque = rule(
+@@ -301,7 +344,6 @@ _v8_torque = rule(
              cfg = "exec",
          ),
          "args": attr.string_list(),
@@ -881,7 +892,7 @@ index 53fccf92e7..6c2fb5166f 100644
      },
  )
  
-@@ -313,7 +344,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
+@@ -313,7 +355,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
          args = args,
          extras = extras,
          tool = select({
@@ -890,7 +901,7 @@ index 53fccf92e7..6c2fb5166f 100644
              "//conditions:default": ":torque",
          }),
      )
-@@ -324,7 +355,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
+@@ -324,7 +366,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
          args = args,
          extras = extras,
          tool = select({
@@ -899,7 +910,7 @@ index 53fccf92e7..6c2fb5166f 100644
              "//conditions:default": ":torque",
          }),
      )
-@@ -334,7 +365,9 @@ def _v8_target_cpu_transition_impl(settings, attr):
+@@ -334,7 +376,9 @@ def _v8_target_cpu_transition_impl(settings, attr):
          "haswell": "x64",
          "k8": "x64",
          "x86_64": "x64",
@@ -909,7 +920,7 @@ index 53fccf92e7..6c2fb5166f 100644
          "x86": "ia32",
          "ppc": "ppc64",
          "arm64-v8a": "arm64",
-@@ -342,14 +375,14 @@ def _v8_target_cpu_transition_impl(settings, attr):
+@@ -342,14 +386,14 @@ def _v8_target_cpu_transition_impl(settings, attr):
          "armeabi-v7a": "arm32",
      }
      v8_target_cpu = mapping[settings["//command_line_option:cpu"]]
