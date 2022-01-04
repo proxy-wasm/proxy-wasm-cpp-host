@@ -66,19 +66,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: "WAMR on Linux"
+        - name: 'WAMR on Linux'
           runtime: 'wamr'
           os: ubuntu-20.04
-        - name: "WAMR on macOS"
+        - name: 'WAMR on macOS'
           runtime: 'wamr'
           os: macos-11
-        - name: "Wasmtime on Linux"
+        - name: 'Wasmtime on Linux'
           runtime: 'wasmtime'
           os: ubuntu-20.04
-        - name: "Wasmtime on macOS"
+        - name: 'Wasmtime on macOS'
           runtime: 'wasmtime'
           os: macos-11
-        - name: "WAVM on Linux"
+        - name: 'WAVM on Linux'
           runtime: 'wavm'
           os: ubuntu-20.04
 
