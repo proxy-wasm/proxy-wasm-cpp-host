@@ -106,7 +106,7 @@ jobs:
         path: |
           ~/.cache/bazel
           /private/var/tmp/_bazel_runner/
-        key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: test1-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Test
       run: |
@@ -119,6 +119,21 @@ jobs:
     - name: Cleanup Bazel cache
       if: matrix.runtime != 'wasmtime'
       run: |
-        rm -rf $(bazel info output_base)/external/rust_*/*.tar.gz
+        export OUTPUT=$(bazel info output_base)
+        # BoringSSL's test data (90 MiB).
+        rm -rf ${OUTPUT}/external/boringssl/crypto_test_data.cc
+        rm -rf ${OUTPUT}/external/boringssl/src/crypto/*/test/
+        rm -rf ${OUTPUT}/external/boringssl/src/third_party/wycheproof_testvectors/
+        # LLVM's tests (500 MiB).
+        rm -rf ${OUTPUT}/external/llvm*/test/
+        # V8's tests (100 MiB).
+        mv ${OUTPUT}/external/v8/test/torque ${OUTPUT}/external/v8/test_torque
+        rm -rf ${OUTPUT}/external/v8/test/*
+        mv ${OUTPUT}/external/v8/test_torque ${OUTPUT}/external/v8/test/torque
+        # Unnecessary CMake tools (65 MiB).
+        rm -rf ${OUTPUT}/external/cmake-*/bin/{ccmake,cmake-gui,cpack,ctest}
+        # Distfiles for Rust toolchains (350 MiB).
+        rm -rf ${OUTPUT}/external/rust_*/*.tar.gz
+        # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
         rm -rf $(bazel info repository_cache)
         rm -rf $(bazel info install_base)
