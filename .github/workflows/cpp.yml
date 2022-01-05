@@ -66,10 +66,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: 'V8 on Windows (static)'
+        - name: 'V8 on Windows (Zm1000)'
           runtime: 'v8'
           os: windows-2019
-          flags: '--dynamic_mode=off --features=static_link_msvcrt'
+          flags: '--dynamic_mode=off --features=static_link_msvcrt --cxxopt=/Zm1000'
 
     steps:
     - uses: actions/checkout@v2
@@ -89,6 +89,11 @@ jobs:
           ~/.cache/bazel
           ~/.cache/bazelisk
         key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+
+    - name: Build inspector files
+      if: ${{ matrix.runtime }} == 'v8'
+      run: |
+        bazel build ${{ matrix.flags }} -s --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} @v8//:generated_inspector_files
 
     - name: Test
       run: |
