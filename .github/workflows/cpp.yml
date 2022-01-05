@@ -66,27 +66,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: 'V8 on Linux'
+        - name: 'V8 on Windows (debug)'
           runtime: 'v8'
-          os: ubuntu-20.04
-        - name: 'V8 on macOS'
+          os: windows-2019
+          flags: '-c dbg'
+        - name: 'V8 on Windows (fastbuild)'
           runtime: 'v8'
-          os: macos-11
-        - name: 'WAMR on Linux'
-          runtime: 'wamr'
-          os: ubuntu-20.04
-        - name: 'WAMR on macOS'
-          runtime: 'wamr'
-          os: macos-11
-        - name: 'Wasmtime on Linux'
-          runtime: 'wasmtime'
-          os: ubuntu-20.04
-        - name: 'Wasmtime on macOS'
-          runtime: 'wasmtime'
-          os: macos-11
-        - name: 'WAVM on Linux'
-          runtime: 'wavm'
-          os: ubuntu-20.04
+          os: windows-2019
+          flags: '-c fastbuild'
+        - name: 'V8 on Windows (release)'
+          runtime: 'v8'
+          os: windows-2019
+          flags: '-c opt'
+        - name: 'V8 on Windows (static)'
+          runtime: 'v8'
+          os: windows-2019
+          flags: '--dynamic_mode=off'
+        - name: 'V8 on Windows (/Os)'
+          runtime: 'v8'
+          os: windows-2019
+          flags: '--cxxopt=/Os'
 
     steps:
     - uses: actions/checkout@v2
@@ -109,8 +108,8 @@ jobs:
 
     - name: Test
       run: |
-        bazel test --test_output=errors --define runtime=${{ matrix.runtime }} //test/...
+        bazel test ${{ matrix.flags }} -s --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} //test/...
 
     - name: Test (signed Wasm module)
       run: |
-        bazel test --test_output=errors --define runtime=${{ matrix.runtime }} --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test
+        bazel test ${{ matrix.flags }} -s --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test

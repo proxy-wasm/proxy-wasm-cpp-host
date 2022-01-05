@@ -34,7 +34,7 @@ index e0127628ca..ef69dda4a5 100644
  build:debug --compilation_mode=dbg
  build:debug --config=v8_enable_debugging_features
 diff --git a/BUILD.bazel b/BUILD.bazel
-index c9864429a5..b1717e8fda 100644
+index c9864429a5..6ffb23f2b3 100644
 --- a/BUILD.bazel
 +++ b/BUILD.bazel
 @@ -3,6 +3,8 @@
@@ -87,7 +87,7 @@ index c9864429a5..b1717e8fda 100644
          ":is_v8_enable_backtrace",
      ],
  )
-@@ -290,37 +285,41 @@ v8_config(
+@@ -290,43 +285,43 @@ v8_config(
          "V8_ADVANCED_BIGINT_ALGORITHMS",
          "V8_CONCURRENT_MARKING",
      ] + select({
@@ -137,8 +137,14 @@ index c9864429a5..b1717e8fda 100644
 +        "@v8//bazel/config:is_windows": [
              "V8_HAVE_TARGET_OS",
              "V8_TARGET_OS_WIN",
-             "UNICODE",
-@@ -622,7 +621,7 @@ filegroup(
+-            "UNICODE",
+-            "_UNICODE",
+-            "_CRT_RAND_S",
+-            "_WIN32_WINNT=0x0602",
+         ],
+     }) + select({
+         ":is_v8_enable_pointer_compression": [
+@@ -622,7 +617,7 @@ filegroup(
          "src/base/vlq-base64.h",
          "src/base/platform/yield-processor.h",
      ] + select({
@@ -147,7 +153,7 @@ index c9864429a5..b1717e8fda 100644
              "src/base/platform/platform-posix.cc",
              "src/base/platform/platform-posix.h",
              "src/base/platform/platform-posix-time.cc",
-@@ -630,19 +629,19 @@ filegroup(
+@@ -630,19 +625,19 @@ filegroup(
          ],
          "//conditions:default": [],
      }) + select({
@@ -171,7 +177,7 @@ index c9864429a5..b1717e8fda 100644
              "src/base/win32-headers.h",
              "src/base/debug/stack_trace_win.cc",
              "src/base/platform/platform-win32.cc",
-@@ -654,7 +653,6 @@ filegroup(
+@@ -654,7 +649,6 @@ filegroup(
  filegroup(
      name = "v8_libplatform_files",
      srcs = [
@@ -179,7 +185,7 @@ index c9864429a5..b1717e8fda 100644
          "include/libplatform/libplatform.h",
          "include/libplatform/libplatform-export.h",
          "include/libplatform/v8-tracing.h",
-@@ -982,7 +980,6 @@ filegroup(
+@@ -982,7 +976,6 @@ filegroup(
          ":v8_cppgc_shared_files",
          ":v8_bigint",
          ":generated_bytecode_builtins_list",
@@ -187,7 +193,7 @@ index c9864429a5..b1717e8fda 100644
          "include/cppgc/common.h",
          "include/v8-inspector-protocol.h",
          "include/v8-inspector.h",
-@@ -1966,8 +1963,6 @@ filegroup(
+@@ -1966,8 +1959,6 @@ filegroup(
          "src/snapshot/shared-heap-serializer.cc",
          "src/snapshot/snapshot-compression.cc",
          "src/snapshot/snapshot-compression.h",
@@ -196,7 +202,7 @@ index c9864429a5..b1717e8fda 100644
          "src/snapshot/snapshot-data.cc",
          "src/snapshot/snapshot-data.h",
          "src/snapshot/snapshot-source-sink.cc",
-@@ -2072,7 +2067,7 @@ filegroup(
+@@ -2072,7 +2063,7 @@ filegroup(
          "src/heap/third-party/heap-api.h",
          "src/heap/third-party/heap-api-stub.cc",
      ] + select({
@@ -205,7 +211,7 @@ index c9864429a5..b1717e8fda 100644
              "src/baseline/ia32/baseline-assembler-ia32-inl.h",
              "src/baseline/ia32/baseline-compiler-ia32-inl.h",
              "src/codegen/shared-ia32-x64/macro-assembler-shared-ia32-x64.h",
-@@ -2100,7 +2095,7 @@ filegroup(
+@@ -2100,7 +2091,7 @@ filegroup(
              "src/regexp/ia32/regexp-macro-assembler-ia32.h",
              "src/wasm/baseline/ia32/liftoff-assembler-ia32.h",
          ],
@@ -214,7 +220,7 @@ index c9864429a5..b1717e8fda 100644
              "src/baseline/x64/baseline-assembler-x64-inl.h",
              "src/baseline/x64/baseline-compiler-x64-inl.h",
              "src/codegen/shared-ia32-x64/macro-assembler-shared-ia32-x64.h",
-@@ -2132,7 +2127,7 @@ filegroup(
+@@ -2132,7 +2123,7 @@ filegroup(
              "src/regexp/x64/regexp-macro-assembler-x64.h",
              "src/wasm/baseline/x64/liftoff-assembler-x64.h",
          ],
@@ -223,7 +229,7 @@ index c9864429a5..b1717e8fda 100644
              "src/baseline/arm/baseline-assembler-arm-inl.h",
              "src/baseline/arm/baseline-compiler-arm-inl.h",
              "src/codegen/arm/assembler-arm-inl.h",
-@@ -2163,7 +2158,7 @@ filegroup(
+@@ -2163,7 +2154,7 @@ filegroup(
              "src/regexp/arm/regexp-macro-assembler-arm.h",
              "src/wasm/baseline/arm/liftoff-assembler-arm.h",
          ],
@@ -232,7 +238,7 @@ index c9864429a5..b1717e8fda 100644
              "src/baseline/arm64/baseline-assembler-arm64-inl.h",
              "src/baseline/arm64/baseline-compiler-arm64-inl.h",
              "src/codegen/arm64/assembler-arm64-inl.h",
-@@ -2206,31 +2201,59 @@ filegroup(
+@@ -2206,31 +2197,59 @@ filegroup(
              "src/regexp/arm64/regexp-macro-assembler-arm64.h",
              "src/wasm/baseline/arm64/liftoff-assembler-arm64.h",
          ],
@@ -299,7 +305,7 @@ index c9864429a5..b1717e8fda 100644
              "src/diagnostics/unwinding-info-win64.cc",
              "src/diagnostics/unwinding-info-win64.h",
          ],
-@@ -2712,10 +2735,11 @@ filegroup(
+@@ -2712,10 +2731,11 @@ filegroup(
          "src/interpreter/interpreter-intrinsics-generator.cc",
          "src/interpreter/interpreter-intrinsics-generator.h",
      ] + select({
@@ -315,7 +321,7 @@ index c9864429a5..b1717e8fda 100644
      }) + select({
          ":is_v8_enable_webassembly": [
              "src/builtins/builtins-wasm-gen.cc",
-@@ -2832,13 +2856,14 @@ filegroup(
+@@ -2832,13 +2852,14 @@ filegroup(
          # Note these cannot be v8_target_is_* selects because these contain
          # inline assembly that runs inside the executable. Since these are
          # linked directly into mksnapshot, they must use the actual target cpu.
@@ -337,7 +343,7 @@ index c9864429a5..b1717e8fda 100644
      }),
  )
  
-@@ -2992,16 +3017,17 @@ filegroup(
+@@ -2992,16 +3013,17 @@ filegroup(
      srcs = [
          "src/init/setup-isolate-deserialize.cc",
      ] + select({
@@ -359,7 +365,7 @@ index c9864429a5..b1717e8fda 100644
      }),
  )
  
-@@ -3010,16 +3036,17 @@ filegroup(
+@@ -3010,16 +3032,17 @@ filegroup(
      srcs = [
          "src/init/setup-isolate-deserialize.cc",
      ] + select({
@@ -381,7 +387,7 @@ index c9864429a5..b1717e8fda 100644
      }),
  )
  
-@@ -3050,7 +3077,7 @@ v8_torque(
+@@ -3050,7 +3073,7 @@ v8_torque(
          ":is_v8_annotate_torque_ir": ["-annotate-ir"],
          "//conditions:default": [],
      }) + select({
@@ -390,7 +396,7 @@ index c9864429a5..b1717e8fda 100644
          "//conditions:default": [],
      }),
      extras = [
-@@ -3079,9 +3106,39 @@ v8_torque(
+@@ -3079,9 +3102,39 @@ v8_torque(
      noicu_srcs = [":noicu/torque_files"],
  )
  
@@ -431,7 +437,7 @@ index c9864429a5..b1717e8fda 100644
      outs = [
          "include/inspector/Debugger.h",
          "include/inspector/Runtime.h",
-@@ -3102,10 +3159,27 @@ genrule(
+@@ -3102,10 +3155,27 @@ genrule(
          "src/inspector/protocol/Schema.cpp",
          "src/inspector/protocol/Schema.h",
      ],
@@ -462,7 +468,7 @@ index c9864429a5..b1717e8fda 100644
  )
  
  filegroup(
-@@ -3218,7 +3292,7 @@ cc_library(
+@@ -3218,7 +3288,7 @@ cc_library(
          ":torque_base_files",
      ],
      copts = select({
@@ -471,7 +477,7 @@ index c9864429a5..b1717e8fda 100644
          "//conditions:default": [],
      }),
      features = ["-use_header_modules"],
-@@ -3236,7 +3310,7 @@ v8_library(
+@@ -3236,7 +3306,7 @@ v8_library(
      ],
      icu_deps = [
          ":icu/generated_torque_headers",
@@ -480,7 +486,7 @@ index c9864429a5..b1717e8fda 100644
      ],
      icu_srcs = [
          ":generated_regexp_special_case",
-@@ -3251,23 +3325,29 @@ v8_library(
+@@ -3251,23 +3321,29 @@ v8_library(
      ],
      deps = [
          ":v8_libbase",
@@ -511,7 +517,7 @@ index c9864429a5..b1717e8fda 100644
      deps = [":noicu/v8"],
  )
  
-@@ -3314,7 +3394,7 @@ v8_binary(
+@@ -3314,7 +3390,7 @@ v8_binary(
          "UNISTR_FROM_CHAR_EXPLICIT=",
      ],
      deps = [
@@ -520,7 +526,7 @@ index c9864429a5..b1717e8fda 100644
      ],
  )
  
-@@ -3325,12 +3405,12 @@ v8_binary(
+@@ -3325,12 +3401,12 @@ v8_binary(
          ":torque_base_files",
      ],
      copts = select({
@@ -535,7 +541,7 @@ index c9864429a5..b1717e8fda 100644
          "//conditions:default": [],
      }),
      deps = ["v8_libbase"],
-@@ -3341,7 +3421,7 @@ v8_binary(
+@@ -3341,7 +3417,7 @@ v8_binary(
      srcs = [":mksnapshot_files"],
      icu_deps = [":icu/v8_libshared"],
      linkopts = select({
@@ -784,7 +790,7 @@ index 2d5d241ebf..72aae9e270 100644
      if cpu_type in allowed_values:
          return V8CpuTypeInfo(value = cpu_type)
 diff --git a/bazel/defs.bzl b/bazel/defs.bzl
-index 53fccf92e7..14fff6f049 100644
+index 53fccf92e7..f63d492d06 100644
 --- a/bazel/defs.bzl
 +++ b/bazel/defs.bzl
 @@ -89,7 +89,7 @@ def _default_args():
@@ -796,7 +802,7 @@ index 53fccf92e7..14fff6f049 100644
                  "UNICODE",
                  "_UNICODE",
                  "_CRT_RAND_S",
-@@ -98,29 +98,59 @@ def _default_args():
+@@ -98,29 +98,77 @@ def _default_args():
              "//conditions:default": [],
          }),
          copts = select({
@@ -836,6 +842,20 @@ index 53fccf92e7..14fff6f049 100644
 +                "-std=gnu++17",
 +            ],
 +            "@v8//bazel/config:is_windows": [
++                "/DNTDDI_VERSION=0x0A000000",
++                "/D_WIN32_WINNT=0x0A00",
++                "/DWINVER=0x0A00",
++                "/DWIN32",
++                "/DWIN32_LEAN_AND_MEAN",
++                "/DNOMINMAX",
++                "/DNOKERNEL",
++                "/DNOUSER",
++                "/DNOSERVICE",
++                "/DNOSOUND",
++                "/DNOMCX",
++                "/D_CRT_RAND_S",
++                "/D_UNICODE",
++                "/DUNICODE",
 +                "/std:c++17",
 +            ],
 +            "//conditions:default": [],
@@ -844,6 +864,10 @@ index 53fccf92e7..14fff6f049 100644
 +                # Non-debug builds without optimizations fail because
 +                # of recursive inlining of "always_inline" functions.
 +                "-O1",
++            ],
++            "@v8//bazel/config:is_windows": [
++                # Workaround for .lib exceeding 4 GiB (error LNK1248).
++                # "/Os",
 +            ],
 +            "//conditions:default": [],
          }),
@@ -860,7 +884,7 @@ index 53fccf92e7..14fff6f049 100644
              "//conditions:default": ["-Wl,--no-as-needed -ldl -pthread"],
          }) + select({
              ":should_add_rdynamic": ["-rdynamic"],
-@@ -248,8 +278,10 @@ def v8_library(
+@@ -248,8 +296,10 @@ def v8_library(
          )
  
  def _torque_impl(ctx):
@@ -873,7 +897,7 @@ index 53fccf92e7..14fff6f049 100644
  
      # Arguments
      args = []
-@@ -301,7 +333,6 @@ _v8_torque = rule(
+@@ -301,7 +351,6 @@ _v8_torque = rule(
              cfg = "exec",
          ),
          "args": attr.string_list(),
@@ -881,7 +905,7 @@ index 53fccf92e7..14fff6f049 100644
      },
  )
  
-@@ -313,7 +344,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
+@@ -313,7 +362,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
          args = args,
          extras = extras,
          tool = select({
@@ -890,7 +914,7 @@ index 53fccf92e7..14fff6f049 100644
              "//conditions:default": ":torque",
          }),
      )
-@@ -324,7 +355,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
+@@ -324,7 +373,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
          args = args,
          extras = extras,
          tool = select({
@@ -899,15 +923,17 @@ index 53fccf92e7..14fff6f049 100644
              "//conditions:default": ":torque",
          }),
      )
-@@ -334,6 +365,7 @@ def _v8_target_cpu_transition_impl(settings, attr):
+@@ -334,7 +383,9 @@ def _v8_target_cpu_transition_impl(settings, attr):
          "haswell": "x64",
          "k8": "x64",
          "x86_64": "x64",
 +        "darwin": "x64",
          "darwin_x86_64": "x64",
++        "x64_windows": "x64",
          "x86": "ia32",
          "ppc": "ppc64",
-@@ -342,14 +374,14 @@ def _v8_target_cpu_transition_impl(settings, attr):
+         "arm64-v8a": "arm64",
+@@ -342,14 +393,14 @@ def _v8_target_cpu_transition_impl(settings, attr):
          "armeabi-v7a": "arm32",
      }
      v8_target_cpu = mapping[settings["//command_line_option:cpu"]]
