@@ -55,7 +55,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.32.0",
+    version = "0.32.1",
     visibility = ["//visibility:private"],
     deps = [
     ] + selects.with_or({
@@ -92,7 +92,7 @@ rust_library(
         "cargo-raze",
         "manual",
     ],
-    version = "0.32.0",
+    version = "0.32.1",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_build_script",
@@ -112,10 +112,10 @@ rust_library(
         "@proxy_wasm_cpp_host__serde__1_0_133//:serde",
         "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
         "@proxy_wasm_cpp_host__wasmparser__0_81_0//:wasmparser",
-        "@proxy_wasm_cpp_host__wasmtime_cranelift__0_32_0//:wasmtime_cranelift",
-        "@proxy_wasm_cpp_host__wasmtime_environ__0_32_0//:wasmtime_environ",
-        "@proxy_wasm_cpp_host__wasmtime_jit__0_32_0//:wasmtime_jit",
-        "@proxy_wasm_cpp_host__wasmtime_runtime__0_32_0//:wasmtime_runtime",
+        "@proxy_wasm_cpp_host__wasmtime_cranelift__0_32_1//:wasmtime_cranelift",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_32_1//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__wasmtime_jit__0_32_1//:wasmtime_jit",
+        "@proxy_wasm_cpp_host__wasmtime_runtime__0_32_1//:wasmtime_runtime",
     ] + selects.with_or({
         # cfg(target_os = "windows")
         (
