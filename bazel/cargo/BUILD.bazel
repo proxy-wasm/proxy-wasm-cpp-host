@@ -61,7 +61,7 @@ alias(
 
 alias(
     name = "wasmtime",
-    actual = "@proxy_wasm_cpp_host__wasmtime__0_32_0//:wasmtime",
+    actual = "@proxy_wasm_cpp_host__wasmtime__0_32_1//:wasmtime",
     tags = [
         "cargo-raze",
         "manual",
