@@ -66,26 +66,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: 'V8 on Windows (debug)'
-          runtime: 'v8'
-          os: windows-2019
-          flags: '-c dbg'
-        - name: 'V8 on Windows (fastbuild)'
-          runtime: 'v8'
-          os: windows-2019
-          flags: '-c fastbuild'
-        - name: 'V8 on Windows (release)'
-          runtime: 'v8'
-          os: windows-2019
-          flags: '-c opt'
         - name: 'V8 on Windows (static)'
           runtime: 'v8'
           os: windows-2019
-          flags: '--dynamic_mode=off'
-        - name: 'V8 on Windows (/Os)'
-          runtime: 'v8'
-          os: windows-2019
-          flags: '--cxxopt=/Os'
+          flags: '--dynamic_mode=off --features=static_link_msvcrt'
 
     steps:
     - uses: actions/checkout@v2
