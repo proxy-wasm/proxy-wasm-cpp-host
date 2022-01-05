@@ -106,7 +106,7 @@ jobs:
         path: |
           ~/.cache/bazel
           /private/var/tmp/_bazel_runner/
-        key: test1-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Test
       run: |
