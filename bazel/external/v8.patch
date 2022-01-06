@@ -437,7 +437,7 @@ index 0000000000..6273e8acef
 +If ($InputDir -eq "") {$InputDir = '.'}
 +
 +$ModifiedConfig = (Get-Content $InputConfig).replace('"path": "../../', '"path": "' + $InputDir + '/').replace('"output": "../../', '"output": "').replace('"output": "protocol"', '"output": "src/inspector/protocol"')
-+
++echo $ModifiedConfig
 +Set-Content modified_config.json $ModifiedConfig
 +
 +& $Generator --jinja_dir .  --inspector_protocol_dir third_party/inspector_protocol --config modified_config.json --output_base $OutputDir
