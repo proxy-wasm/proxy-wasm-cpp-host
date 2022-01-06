@@ -427,7 +427,7 @@ index 0000000000..6273e8acef
 +# Copyright 2021 the V8 project authors. All rights reserved.
 +# Use of this source code is governed by a BSD-style license that can be
 +# found in the LICENSE file.
-+
++Set-PSDebug -Trace 1
 +$Generator = $args[0]
 +$InputPdl = $args[1]
 +$InputConfig = $args[2]
