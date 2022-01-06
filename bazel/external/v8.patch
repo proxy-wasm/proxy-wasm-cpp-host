@@ -420,7 +420,7 @@ index 202dd81d7c..0000000000
 \ No newline at end of file
 diff --git a/bazel/generate-inspector-files.ps1 b/bazel/generate-inspector-files.ps1
 new file mode 100755
-index 0000000000..cbe3473385
+index 0000000000..90bbdb0466
 --- /dev/null
 +++ b/bazel/generate-inspector-files.ps1
 @@ -0,0 +1,17 @@
@@ -437,10 +437,10 @@ index 0000000000..cbe3473385
 +If ($InputDir -eq "") {$InputDir = '.'}
 +
 +$ModifiedConfig = (Get-Content $InputConfig).replace('"path": "../../', '"path": "' + $InputDir + '/').replace('"output": "../../', '"output": "').replace('"output": "protocol"', '"output": "src/inspector/protocol"')
-+ 
++
 +Set-Content modified_config.json $ModifiedConfig
 +
-+$Generator --jinja_dir .  --inspector_protocol_dir third_party/inspector_protocol --config modified_config.json --output_base $OutputDir
++Invoke-Expression $Generator --jinja_dir .  --inspector_protocol_dir third_party/inspector_protocol --config modified_config.json --output_base $OutputDir
 diff --git a/bazel/generate-inspector-files.sh b/bazel/generate-inspector-files.sh
 index 9547041c33..8950c5dcff 100755
 --- a/bazel/generate-inspector-files.sh
