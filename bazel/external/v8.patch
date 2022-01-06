@@ -6,7 +6,7 @@
 6. Add support for building on s390x. (https://crrev.com/c/3346395)
 
 diff --git a/BUILD.bazel b/BUILD.bazel
-index 5d607a5048..168b5e37a7 100644
+index 5d607a5048..d2f3030326 100644
 --- a/BUILD.bazel
 +++ b/BUILD.bazel
 @@ -3,6 +3,8 @@
@@ -175,12 +175,9 @@ index 5d607a5048..168b5e37a7 100644
      outs = [
          "include/inspector/Debugger.h",
          "include/inspector/Runtime.h",
-@@ -3091,11 +3155,18 @@ genrule(
-         "src/inspector/protocol/Runtime.h",
+@@ -3092,10 +3156,15 @@ genrule(
          "src/inspector/protocol/Schema.cpp",
          "src/inspector/protocol/Schema.h",
-+        "src/inspector/protocol/base_string_adapter.cc",
-+        "src/inspector/protocol/base_string_adapter.h",
      ],
 -    cmd = "bazel/generate-inspector-files.sh $(@D)",
 -    cmd_bat = "bazel\\generate-inspector-files.cmd $(@D)",
@@ -197,7 +194,7 @@ index 5d607a5048..168b5e37a7 100644
  )
  
  filegroup(
-@@ -3226,7 +3297,7 @@ v8_library(
+@@ -3226,7 +3295,7 @@ v8_library(
      ],
      icu_deps = [
          ":icu/generated_torque_headers",
@@ -206,7 +203,7 @@ index 5d607a5048..168b5e37a7 100644
      ],
      icu_srcs = [
          ":generated_regexp_special_case",
-@@ -3241,7 +3312,8 @@ v8_library(
+@@ -3241,7 +3310,8 @@ v8_library(
      ],
      deps = [
          ":v8_libbase",
@@ -216,7 +213,7 @@ index 5d607a5048..168b5e37a7 100644
      ],
  )
  
-@@ -3309,7 +3381,7 @@ v8_binary(
+@@ -3309,7 +3379,7 @@ v8_binary(
          "UNISTR_FROM_CHAR_EXPLICIT=",
      ],
      deps = [
