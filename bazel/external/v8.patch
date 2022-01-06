@@ -6,7 +6,7 @@
 6. Add support for building on s390x. (https://crrev.com/c/3346395)
 
 diff --git a/BUILD.bazel b/BUILD.bazel
-index 5d607a5048..12f37c64d2 100644
+index 5d607a5048..168b5e37a7 100644
 --- a/BUILD.bazel
 +++ b/BUILD.bazel
 @@ -3,6 +3,8 @@
@@ -175,25 +175,29 @@ index 5d607a5048..12f37c64d2 100644
      outs = [
          "include/inspector/Debugger.h",
          "include/inspector/Runtime.h",
-@@ -3092,10 +3156,14 @@ genrule(
+@@ -3091,11 +3155,18 @@ genrule(
+         "src/inspector/protocol/Runtime.h",
          "src/inspector/protocol/Schema.cpp",
          "src/inspector/protocol/Schema.h",
++        "src/inspector/protocol/base_string_adapter.cc",
++        "src/inspector/protocol/base_string_adapter.h",
      ],
 -    cmd = "bazel/generate-inspector-files.sh $(@D)",
 -    cmd_bat = "bazel\\generate-inspector-files.cmd $(@D)",
 -    local = 1,
-+    cmd_bash = "$(location :bazel/generate-inspector-files.sh) $(location :code_generator) $(SRCS) $(@D)",
-+    cmd_ps = "$(location :bazel/generate-inspector-files.ps1) $(location :code_generator) $(SRCS) $(@D)",
++    cmd = "$(location :code_generator) --jinja_dir . \
++           --inspector_protocol_dir third_party/inspector_protocol \
++           --config $(location :src/inspector/inspector_protocol_config.json) \
++           --config_value protocol.path=$(location :include/js_protocol.pdl) \
++           --output_base $(@D)/src/inspector",
      message = "Generating inspector files",
 +    tools = [
-+        ":bazel/generate-inspector-files.ps1",
-+        ":bazel/generate-inspector-files.sh",
 +        ":code_generator",
 +    ],
  )
  
  filegroup(
-@@ -3226,7 +3294,7 @@ v8_library(
+@@ -3226,7 +3297,7 @@ v8_library(
      ],
      icu_deps = [
          ":icu/generated_torque_headers",
@@ -202,7 +206,7 @@ index 5d607a5048..12f37c64d2 100644
      ],
      icu_srcs = [
          ":generated_regexp_special_case",
-@@ -3241,7 +3309,8 @@ v8_library(
+@@ -3241,7 +3312,8 @@ v8_library(
      ],
      deps = [
          ":v8_libbase",
@@ -212,7 +216,7 @@ index 5d607a5048..12f37c64d2 100644
      ],
  )
  
-@@ -3309,7 +3378,7 @@ v8_binary(
+@@ -3309,7 +3381,7 @@ v8_binary(
          "UNISTR_FROM_CHAR_EXPLICIT=",
      ],
      deps = [
@@ -222,7 +226,7 @@ index 5d607a5048..12f37c64d2 100644
  )
  
 diff --git a/WORKSPACE b/WORKSPACE
-index 289902f68d..4aacf4354f 100644
+index 289902f68d..c9331b34cf 100644
 --- a/WORKSPACE
 +++ b/WORKSPACE
 @@ -4,7 +4,9 @@
@@ -235,7 +239,7 @@ index 289902f68d..4aacf4354f 100644
  http_archive(
      name = "bazel_skylib",
      urls = [
-@@ -16,14 +18,37 @@ http_archive(
+@@ -16,14 +18,38 @@ http_archive(
  load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
  bazel_skylib_workspace()
  
@@ -270,8 +274,9 @@ index 289902f68d..4aacf4354f 100644
 -    build_file = "bazel/BUILD.icu",
 +http_archive(
 +    name = "rules_python",
-+    sha256 = "cd6730ed53a002c56ce4e2f396ba3b3be262fd7cb68339f0377a45e8227fe332",
-+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz",
++    sha256 = "a30abdfc7126d497a7698c29c46ea9901c6392d6ed315171a6df5ce433aa4502",
++    strip_prefix = "rules_python-0.6.0",
++    url = "https://github.com/bazelbuild/rules_python/archive/0.6.0.tar.gz",
 +)
 +
 +load("@rules_python//python:pip.bzl", "pip_install")
@@ -418,55 +423,26 @@ index 202dd81d7c..0000000000
 -COPY out\inspector\gen\include\inspector\* %BAZEL_OUT%\include\inspector\
 -COPY out\inspector\gen\src\inspector\protocol\* %BAZEL_OUT%\src\inspector\protocol\
 \ No newline at end of file
-diff --git a/bazel/generate-inspector-files.ps1 b/bazel/generate-inspector-files.ps1
-new file mode 100755
-index 0000000000..6273e8acef
---- /dev/null
-+++ b/bazel/generate-inspector-files.ps1
-@@ -0,0 +1,17 @@
-+# Copyright 2021 the V8 project authors. All rights reserved.
-+# Use of this source code is governed by a BSD-style license that can be
-+# found in the LICENSE file.
-+Set-PSDebug -Trace 1
-+$Generator = $args[0]
-+$InputPdl = $args[1]
-+$InputConfig = $args[2]
-+$OutputDir = $args[3]
-+
-+$InputDir = $InputPdl | Split-Path | Split-Path
-+If ($InputDir -eq "") {$InputDir = '.'} else {$InputDir = $InputDir.replace('\','/')}
-+
-+$ModifiedConfig = (Get-Content $InputConfig).replace('"path": "../../', '"path": "' + $InputDir + '/').replace('"output": "../../', '"output": "').replace('"output": "protocol"', '"output": "src/inspector/protocol"')
-+echo $ModifiedConfig
-+Set-Content modified_config.json $ModifiedConfig
-+
-+Get-ItemProperty "$Generator"
 diff --git a/bazel/generate-inspector-files.sh b/bazel/generate-inspector-files.sh
-index 9547041c33..8950c5dcff 100755
+deleted file mode 100755
+index 9547041c33..0000000000
 --- a/bazel/generate-inspector-files.sh
-+++ b/bazel/generate-inspector-files.sh
-@@ -4,18 +4,20 @@
- 
- set -e
- 
++++ /dev/null
+@@ -1,21 +0,0 @@
+-# Copyright 2021 the V8 project authors. All rights reserved.
+-# Use of this source code is governed by a BSD-style license that can be
+-# found in the LICENSE file.
+-
+-set -e
+-
 -BAZEL_OUT=$1
-+GENERATOR=$1
-+INPUT_PDL=$2
-+INPUT_CONFIG=$3
-+OUTPUT_DIR=$4
- 
+-
 -# Create a default GN output folder
 -gn gen out/inspector
-+INPUT_DIR=$(dirname $(dirname "${INPUT_PDL}"))
- 
+-
 -# Generate inspector files
 -autoninja -C out/inspector src/inspector:protocol_generated_sources
-+sed -e 's@"path": "..\/..\/@"path": "'"${INPUT_DIR}"'\/@g' \
-+    -e 's@"output": "..\/..\/@"output": "@g' \
-+    -e 's@"output": "protocol"@"output": "src\/inspector\/protocol"@g' \
-+    "${INPUT_CONFIG}" \
-+    > modified_config.json
- 
+-
 -# Create directories in bazel output folder
 -mkdir -p $BAZEL_OUT/include/inspector
 -mkdir -p $BAZEL_OUT/src/inspector/protocol
@@ -474,10 +450,6 @@ index 9547041c33..8950c5dcff 100755
 -# Copy generated files to bazel output folder
 -cp out/inspector/gen/include/inspector/* $BAZEL_OUT/include/inspector/
 -cp out/inspector/gen/src/inspector/protocol/* $BAZEL_OUT/src/inspector/protocol/
-+${GENERATOR} --jinja_dir . \
-+    --inspector_protocol_dir third_party/inspector_protocol \
-+    --config modified_config.json \
-+    --output_base "${OUTPUT_DIR}"
 diff --git a/bazel/requirements.in b/bazel/requirements.in
 new file mode 100644
 index 0000000000..7f7afbf3bf
@@ -572,3 +544,27 @@ index 0000000000..a9c132f688
 +    --hash=sha256:f9081981fe268bd86831e5c75f7de206ef275defcb82bc70740ae6dc507aee51 \
 +    --hash=sha256:fa130dd50c57d53368c9d59395cb5526eda596d3ffe36666cd81a44d56e48872
 +    # via jinja2
+diff --git a/src/inspector/BUILD.gn b/src/inspector/BUILD.gn
+index 495354da45..1473f30df0 100644
+--- a/src/inspector/BUILD.gn
++++ b/src/inspector/BUILD.gn
+@@ -47,6 +47,8 @@ inspector_protocol_generate("protocol_generated_sources") {
+ 
+   inspector_protocol_dir = _inspector_protocol
+   out_dir = target_gen_dir
++  _protocol_path=rebase_path(v8_inspector_js_protocol, root_build_dir)
++  config_values = [ "protocol.path=$_protocol_path" ]
+   config_file = v8_path_prefix + "/src/inspector/inspector_protocol_config.json"
+   inputs = [
+     v8_inspector_js_protocol,
+diff --git a/src/inspector/inspector_protocol_config.json b/src/inspector/inspector_protocol_config.json
+index bd4f9c534c..ba96b34574 100644
+--- a/src/inspector/inspector_protocol_config.json
++++ b/src/inspector/inspector_protocol_config.json
+@@ -1,6 +1,5 @@
+ {
+     "protocol": {
+-        "path": "../../include/js_protocol.pdl",
+         "package": "src/inspector/protocol",
+         "output": "protocol",
+         "namespace": ["v8_inspector", "protocol"],
