@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -31,12 +32,13 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_codegen_shared",
+    name = "cranelift_frontend",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -44,10 +46,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=cranelift-frontend",
         "manual",
     ],
-    version = "0.79.0",
+    version = "0.79.1",
     # buildifier: leave-alone
     deps = [
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_79_1//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__log__0_4_14//:log",
+        "@proxy_wasm_cpp_host__smallvec__1_7_0//:smallvec",
+        "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
     ],
 )

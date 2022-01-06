@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -31,16 +32,13 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_native",
+    name = "wasmtime_jit",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -48,19 +46,31 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=wasmtime-jit",
         "manual",
     ],
-    version = "0.79.0",
+    version = "0.32.1",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__cranelift_codegen__0_79_0//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__addr2line__0_17_0//:addr2line",
+        "@proxy_wasm_cpp_host__anyhow__1_0_52//:anyhow",
+        "@proxy_wasm_cpp_host__bincode__1_3_3//:bincode",
+        "@proxy_wasm_cpp_host__cfg_if__1_0_0//:cfg_if",
+        "@proxy_wasm_cpp_host__gimli__0_26_1//:gimli",
+        "@proxy_wasm_cpp_host__object__0_27_1//:object",
+        "@proxy_wasm_cpp_host__region__2_2_0//:region",
+        "@proxy_wasm_cpp_host__serde__1_0_133//:serde",
         "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
+        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
+        "@proxy_wasm_cpp_host__wasmtime_environ__0_32_1//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__wasmtime_runtime__0_32_1//:wasmtime_runtime",
     ] + selects.with_or({
-        # cfg(target_arch = "s390x")
+        # cfg(target_os = "windows")
         (
-            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@proxy_wasm_cpp_host__libc__0_2_112//:libc",
+            "@proxy_wasm_cpp_host__winapi__0_3_9//:winapi",
         ],
         "//conditions:default": [],
     }),

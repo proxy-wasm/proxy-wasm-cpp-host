@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -31,12 +32,13 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "wasmtime_cranelift",
+    name = "cranelift_wasm",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -44,24 +46,21 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=cranelift-wasm",
         "manual",
     ],
-    version = "0.32.0",
+    version = "0.79.1",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__anyhow__1_0_52//:anyhow",
-        "@proxy_wasm_cpp_host__cranelift_codegen__0_79_0//:cranelift_codegen",
-        "@proxy_wasm_cpp_host__cranelift_entity__0_79_0//:cranelift_entity",
-        "@proxy_wasm_cpp_host__cranelift_frontend__0_79_0//:cranelift_frontend",
-        "@proxy_wasm_cpp_host__cranelift_native__0_79_0//:cranelift_native",
-        "@proxy_wasm_cpp_host__cranelift_wasm__0_79_0//:cranelift_wasm",
-        "@proxy_wasm_cpp_host__gimli__0_26_1//:gimli",
+        "@proxy_wasm_cpp_host__cranelift_codegen__0_79_1//:cranelift_codegen",
+        "@proxy_wasm_cpp_host__cranelift_entity__0_79_1//:cranelift_entity",
+        "@proxy_wasm_cpp_host__cranelift_frontend__0_79_1//:cranelift_frontend",
+        "@proxy_wasm_cpp_host__itertools__0_10_3//:itertools",
         "@proxy_wasm_cpp_host__log__0_4_14//:log",
-        "@proxy_wasm_cpp_host__more_asserts__0_2_2//:more_asserts",
-        "@proxy_wasm_cpp_host__object__0_27_1//:object",
-        "@proxy_wasm_cpp_host__target_lexicon__0_12_2//:target_lexicon",
-        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
+        "@proxy_wasm_cpp_host__smallvec__1_7_0//:smallvec",
         "@proxy_wasm_cpp_host__wasmparser__0_81_0//:wasmparser",
-        "@proxy_wasm_cpp_host__wasmtime_environ__0_32_0//:wasmtime_environ",
+        "@proxy_wasm_cpp_host__wasmtime_types__0_32_1//:wasmtime_types",
     ],
 )
+
+# Unsupported target "wasm_testsuite" with type "test" omitted

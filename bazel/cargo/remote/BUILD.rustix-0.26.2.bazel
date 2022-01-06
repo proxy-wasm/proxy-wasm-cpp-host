@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -65,10 +66,10 @@ cargo_build_script(
     ] + selects.with_or({
         # cfg(all(not(rustix_use_libc), any(target_os = "linux"), any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))
         (
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
         ): [
             "@proxy_wasm_cpp_host__linux_raw_sys__0_0_36//:linux_raw_sys",
         ],
@@ -76,37 +77,22 @@ cargo_build_script(
     }) + selects.with_or({
         # cfg(any(rustix_use_libc, not(all(any(target_os = "linux"), any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))))
         (
+            "@rules_rust//rust/platform:i686-apple-darwin",
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
             "@rules_rust//rust/platform:aarch64-linux-android",
-            "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-linux-android",
-            "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
             "@rules_rust//rust/platform:wasm32-unknown-unknown",
             "@rules_rust//rust/platform:wasm32-wasi",
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
             "@rules_rust//rust/platform:x86_64-linux-android",
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
-        ): [
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(any(target_os = "android", target_os = "linux"))
-        (
-            "@rules_rust//rust/platform:aarch64-linux-android",
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
-            "@rules_rust//rust/platform:i686-linux-android",
-            "@rules_rust//rust/platform:i686-unknown-linux-gnu",
-            "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
-            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-linux-android",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
         ): [
         ],
         "//conditions:default": [],
@@ -140,7 +126,6 @@ rust_library(
         "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -149,6 +134,7 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=rustix",
         "manual",
     ],
     version = "0.26.2",
@@ -160,10 +146,10 @@ rust_library(
     ] + selects.with_or({
         # cfg(all(not(rustix_use_libc), any(target_os = "linux"), any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))
         (
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
         ): [
             "@proxy_wasm_cpp_host__linux_raw_sys__0_0_36//:linux_raw_sys",
         ],
@@ -171,40 +157,25 @@ rust_library(
     }) + selects.with_or({
         # cfg(any(rustix_use_libc, not(all(any(target_os = "linux"), any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))))
         (
+            "@rules_rust//rust/platform:i686-apple-darwin",
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
             "@rules_rust//rust/platform:aarch64-linux-android",
-            "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-linux-android",
-            "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
             "@rules_rust//rust/platform:wasm32-unknown-unknown",
             "@rules_rust//rust/platform:wasm32-wasi",
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-ios",
             "@rules_rust//rust/platform:x86_64-linux-android",
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
             "@proxy_wasm_cpp_host__errno__0_2_8//:errno",
             "@proxy_wasm_cpp_host__libc__0_2_112//:libc",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(any(target_os = "android", target_os = "linux"))
-        (
-            "@rules_rust//rust/platform:aarch64-linux-android",
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
-            "@rules_rust//rust/platform:i686-linux-android",
-            "@rules_rust//rust/platform:i686-unknown-linux-gnu",
-            "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
-            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-linux-android",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-        ): [
         ],
         "//conditions:default": [],
     }) + selects.with_or({

@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -25,47 +26,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
-# buildifier: disable=out-of-order-load
-# buildifier: disable=load-on-top
-load(
-    "@rules_rust//cargo:cargo_build_script.bzl",
-    "cargo_build_script",
-)
-
-cargo_build_script(
-    name = "typenum_build_script",
-    srcs = glob(["**/*.rs"]),
-    build_script_env = {
-    },
-    crate_features = [
-    ],
-    crate_root = "build/main.rs",
-    data = glob(["**"]),
-    edition = "2018",
-    rustc_flags = [
-        "--cap-lints=allow",
-    ],
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-    version = "1.15.0",
-    visibility = ["//visibility:private"],
-    deps = [
-    ],
-)
 
 rust_library(
-    name = "typenum",
+    name = "wasmtime_types",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -73,13 +44,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=wasmtime-types",
         "manual",
     ],
-    version = "1.15.0",
+    version = "0.32.1",
     # buildifier: leave-alone
     deps = [
-        ":typenum_build_script",
+        "@proxy_wasm_cpp_host__cranelift_entity__0_79_1//:cranelift_entity",
+        "@proxy_wasm_cpp_host__serde__1_0_133//:serde",
+        "@proxy_wasm_cpp_host__thiserror__1_0_30//:thiserror",
+        "@proxy_wasm_cpp_host__wasmparser__0_81_0//:wasmparser",
     ],
 )
-
-# Unsupported target "test" with type "test" omitted
