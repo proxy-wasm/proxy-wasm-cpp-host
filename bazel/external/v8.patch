@@ -440,7 +440,7 @@ index 0000000000..6273e8acef
 +echo $ModifiedConfig
 +Set-Content modified_config.json $ModifiedConfig
 +
-+Start-Process -FilePath "$Generator" -ArgumentList "--jinja_dir .","--inspector_protocol_dir third_party/inspector_protocol","--config modified_config.json","--output_base $OutputDir"
++cmd.exe /c "$Generator" -ArgumentList "--jinja_dir .","--inspector_protocol_dir third_party/inspector_protocol","--config modified_config.json","--output_base $OutputDir"
 diff --git a/bazel/generate-inspector-files.sh b/bazel/generate-inspector-files.sh
 index 9547041c33..8950c5dcff 100755
 --- a/bazel/generate-inspector-files.sh
