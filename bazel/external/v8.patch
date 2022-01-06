@@ -6,7 +6,7 @@
 6. Add support for building on s390x. (https://crrev.com/c/3346395)
 
 diff --git a/BUILD.bazel b/BUILD.bazel
-index 5d607a5048..8f8069789b 100644
+index 5d607a5048..afd8fbd0de 100644
 --- a/BUILD.bazel
 +++ b/BUILD.bazel
 @@ -3,6 +3,8 @@
@@ -175,38 +175,23 @@ index 5d607a5048..8f8069789b 100644
      outs = [
          "include/inspector/Debugger.h",
          "include/inspector/Runtime.h",
-@@ -3092,10 +3156,27 @@ genrule(
+@@ -3092,10 +3156,12 @@ genrule(
          "src/inspector/protocol/Schema.cpp",
          "src/inspector/protocol/Schema.h",
      ],
 -    cmd = "bazel/generate-inspector-files.sh $(@D)",
 -    cmd_bat = "bazel\\generate-inspector-files.cmd $(@D)",
 -    local = 1,
-+    cmd = """
-+        export DIR=$$(dirname $$(dirname $(location :include/js_protocol.pdl))) \
-+        && \
-+        sed -e 's@"path": "..\\/..\\/@"path": "'"$${DIR}"'\\/@g' \
-+            -e 's@"output": "..\\/..\\/@"output": "@g' \
-+            -e 's@"output": "protocol"@"output": "src\\/inspector\\/protocol"@g' \
-+            $(location src/inspector/inspector_protocol_config.json) \
-+            > modified_config.json \
-+        && \
-+        $(location :code_generator) \
-+            --jinja_dir . \
-+            --inspector_protocol_dir third_party/inspector_protocol \
-+            --config modified_config.json \
-+            --output_base $(@D) \
-+        && \
-+        rm modified_config.json
-+        """,
++    cmd = "$(location :bazel/generate-inspector-files.sh) $(location :code_generator) $(SRCS) $(@D)",
      message = "Generating inspector files",
 +    tools = [
++        ":bazel/generate-inspector-files.sh",
 +        ":code_generator",
 +    ],
  )
  
  filegroup(
-@@ -3226,7 +3307,7 @@ v8_library(
+@@ -3226,7 +3292,7 @@ v8_library(
      ],
      icu_deps = [
          ":icu/generated_torque_headers",
@@ -215,7 +200,7 @@ index 5d607a5048..8f8069789b 100644
      ],
      icu_srcs = [
          ":generated_regexp_special_case",
-@@ -3241,7 +3322,8 @@ v8_library(
+@@ -3241,7 +3307,8 @@ v8_library(
      ],
      deps = [
          ":v8_libbase",
@@ -225,7 +210,7 @@ index 5d607a5048..8f8069789b 100644
      ],
  )
  
-@@ -3309,7 +3391,7 @@ v8_binary(
+@@ -3309,7 +3376,7 @@ v8_binary(
          "UNISTR_FROM_CHAR_EXPLICIT=",
      ],
      deps = [
@@ -234,19 +219,6 @@ index 5d607a5048..8f8069789b 100644
      ],
  )
  
-diff --git a/WATCHLISTS b/WATCHLISTS
-index 7145f150b9..b1dc86db9d 100644
---- a/WATCHLISTS
-+++ b/WATCHLISTS
-@@ -143,7 +143,7 @@
-     ],
-     'merges': [
-       # Only enabled on branches created with tools/release/create_release.py
--      # 'v8-merges@googlegroups.com',
-+      'v8-merges@googlegroups.com',
-     ],
-     'wasm': [
-       'wasm-v8@google.com',
 diff --git a/WORKSPACE b/WORKSPACE
 index 289902f68d..4aacf4354f 100644
 --- a/WORKSPACE
@@ -445,25 +417,35 @@ index 202dd81d7c..0000000000
 -COPY out\inspector\gen\src\inspector\protocol\* %BAZEL_OUT%\src\inspector\protocol\
 \ No newline at end of file
 diff --git a/bazel/generate-inspector-files.sh b/bazel/generate-inspector-files.sh
-deleted file mode 100755
-index 9547041c33..0000000000
+index 9547041c33..bede198480 100755
 --- a/bazel/generate-inspector-files.sh
-+++ /dev/null
-@@ -1,21 +0,0 @@
--# Copyright 2021 the V8 project authors. All rights reserved.
--# Use of this source code is governed by a BSD-style license that can be
--# found in the LICENSE file.
--
--set -e
--
++++ b/bazel/generate-inspector-files.sh
+@@ -4,18 +4,21 @@
+ 
+ set -e
+ 
 -BAZEL_OUT=$1
--
++GENERATOR=$1
++INPUT_PDL=$2
++INPUT_DIR=$(dirname $(dirname "${INPUT_PLD}"))
++INPUT_CONFIG=$3
++OUTPUT_DIR=$4
+ 
 -# Create a default GN output folder
 -gn gen out/inspector
--
++sed -e 's@"path": "..\/..\/@"path": "'"${INPUT_DIR}"'\/@g' \
++    -e 's@"output": "..\/..\/@"output": "@g' \
++    -e 's@"output": "protocol"@"output": "src\/inspector\/protocol"@g' \
++    "${INPUT_CONFIG}" \
++    > modified_config.json
+ 
 -# Generate inspector files
 -autoninja -C out/inspector src/inspector:protocol_generated_sources
--
++${GENERATOR} --jinja_dir . \
++    --inspector_protocol_dir third_party/inspector_protocol \
++    --config modified_config.json \
++    --output_base "${OUTPUT_DIR}"
+ 
 -# Create directories in bazel output folder
 -mkdir -p $BAZEL_OUT/include/inspector
 -mkdir -p $BAZEL_OUT/src/inspector/protocol
@@ -471,6 +453,7 @@ index 9547041c33..0000000000
 -# Copy generated files to bazel output folder
 -cp out/inspector/gen/include/inspector/* $BAZEL_OUT/include/inspector/
 -cp out/inspector/gen/src/inspector/protocol/* $BAZEL_OUT/src/inspector/protocol/
++rm modified_config.json
 diff --git a/bazel/requirements.in b/bazel/requirements.in
 new file mode 100644
 index 0000000000..7f7afbf3bf
