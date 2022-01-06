@@ -10,9 +10,10 @@ load("@bazel_skylib//lib:selects.bzl", "selects")
 
 # buildifier: disable=load
 load(
-    "@rules_rust//rust:rust.bzl",
+    "@rules_rust//rust:defs.bzl",
     "rust_binary",
     "rust_library",
+    "rust_proc_macro",
     "rust_test",
 )
 
@@ -59,15 +60,7 @@ cargo_build_script(
     visibility = ["//visibility:private"],
     deps = [
         "@proxy_wasm_cpp_host__cc__1_0_72//:cc",
-    ] + selects.with_or({
-        # cfg(windows)
-        (
-            "@rules_rust//rust/platform:i686-pc-windows-msvc",
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
-        ): [
-        ],
-        "//conditions:default": [],
-    }),
+    ],
 )
 
 # Unsupported target "benchmarks" with type "bench" omitted
@@ -79,14 +72,11 @@ cargo_build_script(
 rust_library(
     name = "backtrace",
     srcs = glob(["**/*.rs"]),
-    aliases = {
-    },
     crate_features = [
         "default",
         "std",
     ],
     crate_root = "src/lib.rs",
-    crate_type = "lib",
     data = [],
     edition = "2018",
     rustc_flags = [
@@ -94,6 +84,7 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
+        "crate-name=backtrace",
         "manual",
     ],
     version = "0.3.63",
@@ -106,15 +97,7 @@ rust_library(
         "@proxy_wasm_cpp_host__miniz_oxide__0_4_4//:miniz_oxide",
         "@proxy_wasm_cpp_host__object__0_27_1//:object",
         "@proxy_wasm_cpp_host__rustc_demangle__0_1_21//:rustc_demangle",
-    ] + selects.with_or({
-        # cfg(windows)
-        (
-            "@rules_rust//rust/platform:i686-pc-windows-msvc",
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
-        ): [
-        ],
-        "//conditions:default": [],
-    }),
+    ],
 )
 
 # Unsupported target "accuracy" with type "test" omitted
