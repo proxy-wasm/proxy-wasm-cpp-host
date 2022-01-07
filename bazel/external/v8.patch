@@ -784,7 +784,7 @@ index 2d5d241ebf..72aae9e270 100644
      if cpu_type in allowed_values:
          return V8CpuTypeInfo(value = cpu_type)
 diff --git a/bazel/defs.bzl b/bazel/defs.bzl
-index 53fccf92e7..14fff6f049 100644
+index 53fccf92e7..8efd27f129 100644
 --- a/bazel/defs.bzl
 +++ b/bazel/defs.bzl
 @@ -89,7 +89,7 @@ def _default_args():
@@ -796,7 +796,7 @@ index 53fccf92e7..14fff6f049 100644
                  "UNICODE",
                  "_UNICODE",
                  "_CRT_RAND_S",
-@@ -98,29 +98,59 @@ def _default_args():
+@@ -98,29 +98,63 @@ def _default_args():
              "//conditions:default": [],
          }),
          copts = select({
@@ -817,6 +817,10 @@ index 53fccf92e7..14fff6f049 100644
                  "-isystem .",
              ],
              "//conditions:default": [],
++        }) + select({
++            "@v8//bazel/config:is_s390x": [
++                "-fno-integrated-as",
++            ],
 +        }) + select({
 +            "@v8//bazel/config:is_clang": [
 +                "-Wno-invalid-offsetof",
@@ -860,9 +864,9 @@ index 53fccf92e7..14fff6f049 100644
              "//conditions:default": ["-Wl,--no-as-needed -ldl -pthread"],
          }) + select({
              ":should_add_rdynamic": ["-rdynamic"],
-@@ -248,8 +278,10 @@ def v8_library(
+@@ -248,8 +282,10 @@ def v8_library(
          )
- 
+
  def _torque_impl(ctx):
 -    v8root = "."
 -    prefix = ctx.attr.prefix
@@ -870,18 +874,18 @@ index 53fccf92e7..14fff6f049 100644
 +        v8root = "."
 +    else:
 +        v8root = "external/v8"
- 
+
      # Arguments
      args = []
-@@ -301,7 +333,6 @@ _v8_torque = rule(
+@@ -301,7 +337,6 @@ _v8_torque = rule(
              cfg = "exec",
          ),
          "args": attr.string_list(),
 -        "v8root": attr.label(default = ":v8_root"),
      },
  )
- 
-@@ -313,7 +344,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
+
+@@ -313,7 +348,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
          args = args,
          extras = extras,
          tool = select({
@@ -890,7 +894,7 @@ index 53fccf92e7..14fff6f049 100644
              "//conditions:default": ":torque",
          }),
      )
-@@ -324,7 +355,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
+@@ -324,7 +359,7 @@ def v8_torque(name, noicu_srcs, icu_srcs, args, extras):
          args = args,
          extras = extras,
          tool = select({
@@ -899,7 +903,7 @@ index 53fccf92e7..14fff6f049 100644
              "//conditions:default": ":torque",
          }),
      )
-@@ -334,6 +365,7 @@ def _v8_target_cpu_transition_impl(settings, attr):
+@@ -334,22 +369,24 @@ def _v8_target_cpu_transition_impl(settings, attr):
          "haswell": "x64",
          "k8": "x64",
          "x86_64": "x64",
@@ -907,13 +911,15 @@ index 53fccf92e7..14fff6f049 100644
          "darwin_x86_64": "x64",
          "x86": "ia32",
          "ppc": "ppc64",
-@@ -342,14 +374,14 @@ def _v8_target_cpu_transition_impl(settings, attr):
+         "arm64-v8a": "arm64",
+         "arm": "arm64",
          "armeabi-v7a": "arm32",
++        "s390x": "s390x",
      }
      v8_target_cpu = mapping[settings["//command_line_option:cpu"]]
 -    return {"@config//:v8_target_cpu": v8_target_cpu}
 +    return {"@v8//bazel/config:v8_target_cpu": v8_target_cpu}
- 
+
  # Set the v8_target_cpu to be the correct architecture given the cpu specified
  # on the command line.
  v8_target_cpu_transition = transition(
