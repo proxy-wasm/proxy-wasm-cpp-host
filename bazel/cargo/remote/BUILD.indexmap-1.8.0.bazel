@@ -26,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
@@ -38,12 +38,13 @@ load(
 )
 
 cargo_build_script(
-    name = "semver_build_script",
+    name = "indexmap_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
-        "default",
+        "serde",
+        "serde-1",
         "std",
     ],
     crate_root = "build.rs",
@@ -56,19 +57,23 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.4",
+    version = "1.8.0",
     visibility = ["//visibility:private"],
     deps = [
+        "@proxy_wasm_cpp_host__autocfg__1_0_1//:autocfg",
     ],
 )
 
-# Unsupported target "parse" with type "bench" omitted
+# Unsupported target "bench" with type "bench" omitted
+
+# Unsupported target "faststring" with type "bench" omitted
 
 rust_library(
-    name = "semver",
+    name = "indexmap",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
+        "serde",
+        "serde-1",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -79,18 +84,22 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=semver",
+        "crate-name=indexmap",
         "manual",
     ],
-    version = "1.0.4",
+    version = "1.8.0",
     # buildifier: leave-alone
     deps = [
-        ":semver_build_script",
+        ":indexmap_build_script",
+        "@proxy_wasm_cpp_host__hashbrown__0_11_2//:hashbrown",
+        "@proxy_wasm_cpp_host__serde__1_0_133//:serde",
     ],
 )
 
-# Unsupported target "test_identifier" with type "test" omitted
+# Unsupported target "equivalent_trait" with type "test" omitted
 
-# Unsupported target "test_version" with type "test" omitted
+# Unsupported target "macros_full_path" with type "test" omitted
 
-# Unsupported target "test_version_req" with type "test" omitted
+# Unsupported target "quick" with type "test" omitted
+
+# Unsupported target "tests" with type "test" omitted
