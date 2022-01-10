@@ -678,9 +678,6 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
         type = "tar.gz",
         sha256 = "b2dcfc2778a90e38f56a708bfc90572422e11d6c7ee233d053d1f782cf9df6d2",
         strip_prefix = "rustix-0.31.3",
-        patches = [
-            "@proxy_wasm_cpp_host//bazel/cargo:rustix-no_git_check.patch",
-        ],
         build_file = Label("//bazel/cargo/remote:BUILD.rustix-0.31.3.bazel"),
     )
 

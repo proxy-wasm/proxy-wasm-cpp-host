@@ -31,6 +31,3 @@ additional_flags = [
 buildrs_additional_deps = [
     "@proxy_wasm_cpp_host__cc__1_0_72//:cc",
 ]
-patches = [
-    "@proxy_wasm_cpp_host//bazel/cargo:rustix-no_git_check.patch",
-]
