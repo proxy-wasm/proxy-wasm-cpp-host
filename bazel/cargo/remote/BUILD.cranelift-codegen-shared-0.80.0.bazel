@@ -32,11 +32,9 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_entity",
+    name = "cranelift_codegen_shared",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "enable-serde",
-        "serde",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -46,12 +44,11 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-entity",
+        "crate-name=cranelift-codegen-shared",
         "manual",
     ],
-    version = "0.79.1",
+    version = "0.80.0",
     # buildifier: leave-alone
     deps = [
-        "@proxy_wasm_cpp_host__serde__1_0_133//:serde",
     ],
 )
