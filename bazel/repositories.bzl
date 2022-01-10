@@ -125,11 +125,16 @@ def proxy_wasm_cpp_host_repositories():
 
     git_repository(
         name = "v8",
-        commit = "11559b4461ac0c3328354229e03c2a989b104ff9",
+        commit = "a5ff33ec02e0dff53217bf7fd5ca0ec504775d23",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1641210631 +0000",
+        shallow_since = "1641852349 +0000",
         patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
         patch_args = ["-p1"],
+    )
+
+    native.bind(
+        name = "wee8",
+        actual = "@v8//:wee8",
     )
 
     new_git_repository(
@@ -140,6 +145,11 @@ def proxy_wasm_cpp_host_repositories():
         shallow_since = "1635355186 -0700",
     )
 
+    native.bind(
+        name = "base_trace_event_common",
+        actual = "@com_googlesource_chromium_trace_event_common//:trace_event_common",
+    )
+
     new_git_repository(
         name = "com_googlesource_chromium_zlib",
         build_file = "@v8//:bazel/BUILD.zlib",
@@ -148,13 +158,19 @@ def proxy_wasm_cpp_host_repositories():
         shallow_since = "1638492135 -0800",
     )
 
-    http_archive(
-        name = "rules_python",
-        sha256 = "cd6730ed53a002c56ce4e2f396ba3b3be262fd7cb68339f0377a45e8227fe332",
-        url = "https://github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz",
+    native.bind(
+        name = "zlib",
+        actual = "@com_googlesource_chromium_zlib//:zlib",
     )
 
     native.bind(
-        name = "wee8",
-        actual = "@v8//:wee8",
+        name = "zlib_compression_utils",
+        actual = "@com_googlesource_chromium_zlib//:zlib_compression_utils",
+    )
+
+    http_archive(
+        name = "rules_python",
+        sha256 = "a30abdfc7126d497a7698c29c46ea9901c6392d6ed315171a6df5ce433aa4502",
+        strip_prefix = "rules_python-0.6.0",
+        url = "https://github.com/bazelbuild/rules_python/archive/0.6.0.tar.gz",
     )
