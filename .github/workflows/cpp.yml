@@ -66,15 +66,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: 'V8 on Windows #1'
+        - name: 'V8 on Windows #1 (full)'
           runtime: 'v8'
           os: windows-2019
-        - name: 'V8 on Windows #2'
+          flags: '--linkopt=/DEBUG:FULL'
+        - name: 'V8 on Windows #2 (fastlink)'
           runtime: 'v8'
           os: windows-2019
-        - name: 'V8 on Windows #3'
+          flags: '--linkopt=/DEBUG:FASTLINK'
+        - name: 'V8 on Windows #3 (none)'
           runtime: 'v8'
           os: windows-2019
+          flags: '--linkopt=/DEBUG:NONE'
 
     steps:
     - uses: actions/checkout@v2
@@ -99,20 +102,20 @@ jobs:
     - name: Generate inspector files
       if: matrix.runtime == 'v8'
       run: |
-        bazel build --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} @v8//:generated_inspector_files
+        bazel build ${{ matrix.flags }} --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} @v8//:generated_inspector_files
 
     - name: Generate torque files
       if: matrix.runtime == 'v8'
       run: |
-        bazel build --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} @v8//:noicu/generated_torque_files
+        bazel build ${{ matrix.flags }} --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} @v8//:noicu/generated_torque_files
 
     - name: Test
       run: |
-        bazel test --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} //test/...
+        bazel test ${{ matrix.flags }} --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} //test/... || cat bazel-out/x64_windows-fastbuild/bin/external/v8/v8_libshared_noicu.lo.lib-2.params
 
     - name: Test (signed Wasm module)
       run: |
-        bazel test --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test
+        bazel test ${{ matrix.flags }} --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test
 
     - name: Cleanup Bazel cache
       if: matrix.runtime != 'wasmtime'
