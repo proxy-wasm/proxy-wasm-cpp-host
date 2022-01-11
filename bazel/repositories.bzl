@@ -70,9 +70,9 @@ def proxy_wasm_cpp_host_repositories():
     http_archive(
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "80b5b3d149776bd56a872730775445bdfba1fb6a75eb79230a7686092932c1dc",
-        strip_prefix = "wasmtime-0.32.1",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.32.1.tar.gz",
+        sha256 = "c59a2aa110b25921d370944287cd97205c73cf3dc76776c5b3551135c1e42ddc",
+        strip_prefix = "wasmtime-0.33.0",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.33.0.tar.gz",
     )
 
     http_archive(
@@ -125,19 +125,29 @@ def proxy_wasm_cpp_host_repositories():
 
     git_repository(
         name = "v8",
-        commit = "8280a12b2bdf7c22235d44f27998d6de3b47a3bd",
+        commit = "a5ff33ec02e0dff53217bf7fd5ca0ec504775d23",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1641557155 +0000",
+        shallow_since = "1641852349 +0000",
         patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
         patch_args = ["-p1"],
     )
 
+    native.bind(
+        name = "wee8",
+        actual = "@v8//:wee8",
+    )
+
     new_git_repository(
-        name = "com_googlesource_chromium_base_trace_event_common",
+        name = "com_googlesource_chromium_trace_event_common",
         build_file = "@v8//:bazel/BUILD.trace_event_common",
         commit = "7f36dbc19d31e2aad895c60261ca8f726442bfbb",
         remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
         shallow_since = "1635355186 -0700",
+    )
+
+    native.bind(
+        name = "base_trace_event_common",
+        actual = "@com_googlesource_chromium_trace_event_common//:trace_event_common",
     )
 
     new_git_repository(
@@ -148,13 +158,19 @@ def proxy_wasm_cpp_host_repositories():
         shallow_since = "1638492135 -0800",
     )
 
-    http_archive(
-        name = "rules_python",
-        sha256 = "cd6730ed53a002c56ce4e2f396ba3b3be262fd7cb68339f0377a45e8227fe332",
-        url = "https://github.com/bazelbuild/rules_python/releases/download/0.5.0/rules_python-0.5.0.tar.gz",
+    native.bind(
+        name = "zlib",
+        actual = "@com_googlesource_chromium_zlib//:zlib",
     )
 
     native.bind(
-        name = "wee8",
-        actual = "@v8//:wee8",
+        name = "zlib_compression_utils",
+        actual = "@com_googlesource_chromium_zlib//:zlib_compression_utils",
+    )
+
+    http_archive(
+        name = "rules_python",
+        sha256 = "a30abdfc7126d497a7698c29c46ea9901c6392d6ed315171a6df5ce433aa4502",
+        strip_prefix = "rules_python-0.6.0",
+        url = "https://github.com/bazelbuild/rules_python/archive/0.6.0.tar.gz",
     )
