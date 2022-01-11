@@ -22,7 +22,7 @@ index f162149f0a..8e2db11b48 100644
          includes = ["include"],
          linkopts = select({
              "@v8//bazel/config:is_windows": [
-+                "/DEBUG:FULL"
++                "/DEBUG:FULL",
                  "Winmm.lib",
                  "DbgHelp.lib",
                  "Advapi32.lib",
