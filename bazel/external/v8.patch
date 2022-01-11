@@ -1,4 +1,5 @@
-# Set v8_enable_handle_zapping=False to regain performance.
+# 1. Set v8_enable_handle_zapping=False to regain performance.
+# 2. Fix linking on Windows.
 
 diff --git a/BUILD.bazel b/BUILD.bazel
 index 7d09243ee9..b9dec574e9 100644
@@ -13,3 +14,15 @@ index 7d09243ee9..b9dec574e9 100644
  )
  
  v8_flag(name = "v8_enable_hugepage")
+diff --git a/bazel/defs.bzl b/bazel/defs.bzl
+index f162149f0a..8e2db11b48 100644
+--- a/bazel/defs.bzl
++++ b/bazel/defs.bzl
+@@ -155,6 +155,7 @@ def _default_args():
+         includes = ["include"],
+         linkopts = select({
+             "@v8//bazel/config:is_windows": [
++                "/DEBUG:FULL"
+                 "Winmm.lib",
+                 "DbgHelp.lib",
+                 "Advapi32.lib",
