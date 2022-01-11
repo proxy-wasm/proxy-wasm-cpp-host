@@ -112,12 +112,12 @@ jobs:
         key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Generate inspector files
-      if: ${{ matrix.runtime }} == 'v8'
+      if: matrix.runtime == 'v8'
       run: |
         bazel build --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} @v8//:generated_inspector_files
 
     - name: Generate torque files
-      if: ${{ matrix.runtime }} == 'v8'
+      if: matrix.runtime == 'v8'
       run: |
         bazel build --verbose_failures --test_output=errors --define runtime=${{ matrix.runtime }} @v8//:noicu/generated_torque_files
 
