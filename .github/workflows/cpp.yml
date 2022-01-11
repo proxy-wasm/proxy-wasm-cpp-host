@@ -66,30 +66,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: 'V8 on Linux'
-          runtime: 'v8'
-          os: ubuntu-20.04
-        - name: 'V8 on macOS'
-          runtime: 'v8'
-          os: macos-11
-        - name: 'V8 on Windows'
+        - name: 'V8 on Windows #1'
           runtime: 'v8'
           os: windows-2019
-        - name: 'WAMR on Linux'
-          runtime: 'wamr'
-          os: ubuntu-20.04
-        - name: 'WAMR on macOS'
-          runtime: 'wamr'
-          os: macos-11
-        - name: 'Wasmtime on Linux'
-          runtime: 'wasmtime'
-          os: ubuntu-20.04
-        - name: 'Wasmtime on macOS'
-          runtime: 'wasmtime'
-          os: macos-11
-        - name: 'WAVM on Linux'
-          runtime: 'wavm'
-          os: ubuntu-20.04
+        - name: 'V8 on Windows #2'
+          runtime: 'v8'
+          os: windows-2019
+        - name: 'V8 on Windows #3'
+          runtime: 'v8'
+          os: windows-2019
 
     steps:
     - uses: actions/checkout@v2
