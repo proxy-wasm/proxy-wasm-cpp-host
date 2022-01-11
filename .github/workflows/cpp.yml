@@ -66,22 +66,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: 'V8 on Windows #1 (full)'
-          runtime: 'v8'
+        - name: 'Wasmtime on Windows'
+          runtime: 'wasmtime'
           os: windows-2019
-          flags: '--copt=/DEBUG:FULL'
-        - name: 'V8 on Windows #2 (fastlink)'
-          runtime: 'v8'
-          os: windows-2019
-          flags: '--copt=/DEBUG:FASTLINK'
-        - name: 'V8 on Windows #3 (none)'
-          runtime: 'v8'
-          os: windows-2019
-          flags: '--copt=/DEBUG:NONE'
-        - name: 'V8 on Windows #4 (/Zi)'
-          runtime: 'v8'
-          os: windows-2019
-          flags: '--copt=/Zi'
 
     steps:
     - uses: actions/checkout@v2
