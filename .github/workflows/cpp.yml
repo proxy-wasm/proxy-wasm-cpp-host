@@ -78,6 +78,10 @@ jobs:
           runtime: 'v8'
           os: windows-2019
           flags: '--linkopt=/DEBUG:NONE'
+        - name: 'V8 on Windows #4 (/Zi)'
+          runtime: 'v8'
+          os: windows-2019
+          flags: '--linkopt=/Zi'
 
     steps:
     - uses: actions/checkout@v2
