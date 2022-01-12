@@ -5,14 +5,6 @@ licenses(["notice"])  # Apache 2
 
 package(default_visibility = ["//visibility:public"])
 
-cc_library(
-    name = "helpers_lib",
-    srcs = [
-        "crates/runtime/src/helpers.c",
-    ],
-    visibility = ["//visibility:private"],
-)
-
 rust_library(
     name = "rust_c_api",
     srcs = glob(["crates/c-api/src/**/*.rs"]),
@@ -24,7 +16,6 @@ rust_library(
         "@proxy_wasm_cpp_host//bazel/cargo:wasmtime_c_api_macros",
     ],
     deps = [
-        ":helpers_lib",
         "@proxy_wasm_cpp_host//bazel/cargo:anyhow",
         "@proxy_wasm_cpp_host//bazel/cargo:env_logger",
         "@proxy_wasm_cpp_host//bazel/cargo:once_cell",
