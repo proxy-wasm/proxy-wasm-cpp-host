@@ -17,3 +17,8 @@ config_setting(
     name = "runtime_wavm",
     values = {"define": "runtime=wavm"},
 )
+
+config_setting(
+    name = "linux_s390x",
+    values = {"cpu": "s390x"},
+)

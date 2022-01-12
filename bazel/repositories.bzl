@@ -92,6 +92,7 @@ def proxy_wasm_cpp_host_repositories():
         name = "rules_rust",
         sha256 = "d195a85d38ee2dd7aecfedba6c9814a2ff22f968abac0818fd91e35c5b7aca6f",
         strip_prefix = "rules_rust-6f79458dee68d691d6a5aee67b06a620bdf9293f",
+        # NOTE: Update Rust version for Linux/s390x in bazel/dependencies.bzl.
         url = "https://github.com/bazelbuild/rules_rust/archive/6f79458dee68d691d6a5aee67b06a620bdf9293f.tar.gz",
     )
 

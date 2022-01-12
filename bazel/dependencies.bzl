@@ -15,11 +15,19 @@
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@proxy_wasm_cpp_host//bazel/cargo:crates.bzl", "proxy_wasm_cpp_host_fetch_remote_crates")
 load("@rules_python//python:pip.bzl", "pip_install")
-load("@rules_rust//rust:repositories.bzl", "rust_repositories")
+load("@rules_rust//rust:repositories.bzl", "rust_repositories", "rust_repository_set")
 
 def proxy_wasm_cpp_host_dependencies():
     protobuf_deps()
+
     rust_repositories()
+    rust_repository_set(
+        name = "rust_linux_s390x",
+        exec_triple = "s390x-unknown-linux-gnu",
+        extra_target_triples = ["wasm32-unknown-unknown", "wasm32-wasi"],
+        version = "1.55.0",
+    )
+
     proxy_wasm_cpp_host_fetch_remote_crates()
 
     pip_install(
