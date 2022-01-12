@@ -113,22 +113,22 @@ jobs:
         key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Test
-      run: |
-        bazel test \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              ${{ matrix.flags }} \
+      run: >
+        bazel test
+              --verbose_failures
+              --test_output=errors
+              --define runtime=${{ matrix.runtime }}
+              ${{ matrix.flags }}
               //test/...
 
     - name: Test (signed Wasm module)
-      run: |
-        bazel test \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              ${{ matrix.flags }} \
-              --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" \
+      run: >
+        bazel test
+              --verbose_failures
+              --test_output=errors
+              --define runtime=${{ matrix.runtime }}
+              ${{ matrix.flags }}
+              --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
               //test:signature_util_test
 
     - name: Cleanup Bazel cache
