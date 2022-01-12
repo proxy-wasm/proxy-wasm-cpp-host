@@ -92,41 +92,41 @@ jobs:
 
     - name: Generate inspector files
       if: matrix.runtime == 'v8'
-      run: |
+      run: >
         bazel build \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              ${{ matrix.flags }} \
-              @v8//:generated_inspector_files
+        --verbose_failures \
+        --test_output=errors \
+        --define runtime=${{ matrix.runtime }} \
+        ${{ matrix.flags }} \
+        @v8//:generated_inspector_files
 
     - name: Generate torque files
       if: matrix.runtime == 'v8'
-      run: |
+      run: >
         bazel build \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              v8//:noicu/generated_torque_files
+        --verbose_failures \
+        --test_output=errors \
+        --define runtime=${{ matrix.runtime }} \
+        v8//:noicu/generated_torque_files
 
     - name: Test
-      run: |
-        bazel test \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              ${{ matrix.flags }} \
-              //test/...
+      run: >
+        bazel test
+        --verbose_failures
+        --test_output=errors
+        --define runtime=${{ matrix.runtime }}
+        ${{ matrix.flags }}
+        //test/...
 
     - name: Test (signed Wasm module)
-      run: |
-        bazel test \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              ${{ matrix.flags }} \
-              --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" \
-              //test:signature_util_test
+      run: >
+        bazel test
+        --verbose_failures
+        --test_output=errors
+        --define runtime=${{ matrix.runtime }}
+        ${{ matrix.flags }}
+        --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
+        //test:signature_util_test
 
     - name: Cleanup Bazel cache
       if: matrix.runtime != 'wasmtime'
