@@ -174,3 +174,12 @@ def proxy_wasm_cpp_host_repositories():
         strip_prefix = "rules_python-0.6.0",
         url = "https://github.com/bazelbuild/rules_python/archive/0.6.0.tar.gz",
     )
+
+    http_archive(
+        name = "bazel_skylib",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+        ],
+        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
+    )
