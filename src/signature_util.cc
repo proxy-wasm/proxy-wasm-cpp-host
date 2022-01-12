@@ -17,8 +17,10 @@
 #include <array>
 #include <cstring>
 
-#include <openssl/curve25519.h>
+#ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
+#include <openssl/evp.h>
 #include <openssl/sha.h>
+#endif
 
 #include "include/proxy-wasm/bytecode_util.h"
 
@@ -103,7 +105,27 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
 
   static const auto ed25519_pubkey = hex2pubkey<32>(PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY);
 
-  if (!ED25519_verify(hash, sizeof(hash), signature, ed25519_pubkey.data())) {
+  EVP_PKEY *pubkey = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, nullptr, ed25519_pubkey.data(),
+                                                 32 /* ED25519_PUBLIC_KEY_LEN */);
+  if (!pubkey) {
+    message = "Failed to load the public key";
+    return false;
+  }
+
+  EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+  if (!mdctx) {
+    message = "Failed to allocate memory for EVP_MD_CTX";
+    EVP_PKEY_free(pubkey);
+    return false;
+  }
+
+  bool ok = EVP_DigestVerifyInit(mdctx, nullptr, nullptr, nullptr, pubkey) &&
+            EVP_DigestVerify(mdctx, signature, 64 /* ED25519_SIGNATURE_LEN */, hash, sizeof(hash));
+
+  EVP_MD_CTX_free(mdctx);
+  EVP_PKEY_free(pubkey);
+
+  if (!ok) {
     message = "Signature mismatch";
     return false;
   }
