@@ -90,10 +90,10 @@ def proxy_wasm_cpp_host_repositories():
 
     http_archive(
         name = "rules_rust",
-        sha256 = "d195a85d38ee2dd7aecfedba6c9814a2ff22f968abac0818fd91e35c5b7aca6f",
-        strip_prefix = "rules_rust-6f79458dee68d691d6a5aee67b06a620bdf9293f",
+        sha256 = "8a2052e8ec707aa04a6b9e72bfc67fea44e915ecab1d2d0a4835ad51c2410c36",
+        strip_prefix = "rules_rust-b16c26ba5faf1c58ebe94582afd20567ce676e6d",
         # NOTE: Update Rust version for Linux/s390x in bazel/dependencies.bzl.
-        url = "https://github.com/bazelbuild/rules_rust/archive/6f79458dee68d691d6a5aee67b06a620bdf9293f.tar.gz",
+        url = "https://github.com/bazelbuild/rules_rust/archive/b16c26ba5faf1c58ebe94582afd20567ce676e6d.tar.gz",
     )
 
     http_archive(
@@ -174,4 +174,13 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "a30abdfc7126d497a7698c29c46ea9901c6392d6ed315171a6df5ce433aa4502",
         strip_prefix = "rules_python-0.6.0",
         url = "https://github.com/bazelbuild/rules_python/archive/0.6.0.tar.gz",
+    )
+
+    http_archive(
+        name = "bazel_skylib",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+        ],
+        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
     )
