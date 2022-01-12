@@ -77,7 +77,7 @@ wasi_rust_binary_rule = rule(
     attrs = _wasm_attrs(wasi_rust_transition),
 )
 
-def wasm_rust_binary(name, tags = [], rustc_flags = [], wasi = False, signing_key = [], **kwargs):
+def wasm_rust_binary(name, tags = [], wasi = False, signing_key = [], rustc_flags = [], **kwargs):
     wasm_name = "_wasm_" + name.replace(".", "_")
     kwargs.setdefault("visibility", ["//visibility:public"])
 
