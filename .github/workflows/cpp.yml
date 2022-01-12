@@ -84,6 +84,9 @@ jobs:
         - name: 'Wasmtime on macOS'
           runtime: 'wasmtime'
           os: macos-11
+        - name: 'Wasmtime on Windows'
+          runtime: 'wasmtime'
+          os: windows-2019
         - name: 'WAVM on Linux'
           runtime: 'wavm'
           os: ubuntu-20.04
