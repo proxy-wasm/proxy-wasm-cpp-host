@@ -96,6 +96,7 @@ jobs:
     - name: Test
       run: >
         bazel test
+        --subcommands
         --verbose_failures
         --test_output=errors
         --define runtime=${{ matrix.runtime }}
@@ -105,6 +106,7 @@ jobs:
     - name: Test (signed Wasm module)
       run: >
         bazel test
+        --subcommands
         --verbose_failures
         --test_output=errors
         --define runtime=${{ matrix.runtime }}
