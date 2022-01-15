@@ -621,6 +621,21 @@ struct SharedDataInterface {
    * @param data is a location to store the returned value.
    */
   virtual WasmResult setSharedData(std::string_view key, std::string_view value, uint32_t cas) = 0;
+
+  /**
+   * Return all the keys which match the given key_prefix
+   * @param key_prefix is used to restrict the results to keys matching the given prefix
+   * @param data is a location to store the returned value.
+   */
+  virtual WasmResult getSharedDataKeys(std::string_view key_prefix, std::vector<std::string> *result) = 0;
+
+  /**
+   * Removes the given key from the data shared between VMs.
+   * @param key is a proxy-wide key mapping to the shared data value.
+   * @param cas is a compare-and-swap value. If it is zero it is ignored, otherwise it must match
+   * the cas associated with the value.
+   */
+  virtual WasmResult removeSharedDataKey(std::string_view key, uint32_t cas) = 0;
 }; // namespace proxy_wasm
 
 struct SharedQueueInterface {

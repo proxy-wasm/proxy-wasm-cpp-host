@@ -353,6 +353,9 @@ public:
   WasmResult getSharedData(std::string_view key,
                            std::pair<std::string, uint32_t /* cas */> *data) override;
   WasmResult setSharedData(std::string_view key, std::string_view value, uint32_t cas) override;
+  WasmResult getSharedDataKeys(std::string_view key_prefix, std::vector<std::string> *result) override;
+  WasmResult removeSharedDataKey(std::string_view key, uint32_t cas) override;
+
 
   // Shared Queue
   WasmResult registerSharedQueue(std::string_view queue_name,
