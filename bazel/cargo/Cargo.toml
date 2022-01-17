@@ -36,3 +36,9 @@ buildrs_additional_deps = [
 additional_deps = [
     "@proxy_wasm_cpp_host__rustix__0_31_3//:rustix",
 ]
+
+[package.metadata.raze.crates.wasmtime-runtime.'*']
+patches = [
+    "@proxy_wasm_cpp_host//bazel/cargo:wasmtime.patch",
+]
+patch_args = ["-p3"]
