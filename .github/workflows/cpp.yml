@@ -66,31 +66,39 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: 'V8 on Linux'
+        - name: 'V8 on Linux/x86_64'
           runtime: 'v8'
           os: ubuntu-20.04
           flags: '--define crypto=system'
-        - name: 'V8 on macOS'
+        - name: 'V8 on macOS/x86_64'
           runtime: 'v8'
           os: macos-11
-        - name: 'WAMR on Linux'
+        - name: 'WAMR on Linux/x86_64'
           runtime: 'wamr'
           os: ubuntu-20.04
-        - name: 'WAMR on macOS'
+        - name: 'WAMR on macOS/x86_64'
           runtime: 'wamr'
           os: macos-11
-        - name: 'Wasmtime on Linux'
+        - name: 'Wasmtime on Linux/x86_64'
           runtime: 'wasmtime'
           os: ubuntu-20.04
-        - name: 'Wasmtime on macOS'
+        - name: 'Wasmtime on Linux/aarch64'
+          runtime: 'wasmtime'
+          os: ubuntu-20.04
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/arm64 piotrsikora/build-tools:bazel-4.2.2-clang-13-gcc-11
+        - name: 'Wasmtime on macOS/x86_64'
           runtime: 'wasmtime'
           os: macos-11
-        - name: 'WAVM on Linux'
+        - name: 'WAVM on Linux/x86_64'
           runtime: 'wavm'
           os: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Install Docker/QEMU
+      if: startsWith(matrix.run_under, 'docker')
+      uses: docker/setup-qemu-action@v1
 
     - name: Install dependency (Linux)
       if: startsWith(matrix.os, 'ubuntu')
@@ -110,23 +118,25 @@ jobs:
         key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Test
-      run: |
-        bazel test \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              ${{ matrix.flags }} \
-              //test/...
+      run: >
+        ${{ matrix.run_under }}
+        bazel test
+        --verbose_failures
+        --test_output=errors
+        --define runtime=${{ matrix.runtime }}
+        ${{ matrix.flags }}
+        //test/...
 
     - name: Test (signed Wasm module)
-      run: |
-        bazel test \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              ${{ matrix.flags }} \
-              --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" \
-              //test:signature_util_test
+      run: >
+        ${{ matrix.run_under }}
+        bazel test
+        --verbose_failures
+        --test_output=errors
+        --define runtime=${{ matrix.runtime }}
+        ${{ matrix.flags }}
+        --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
+        //test:signature_util_test
 
     - name: Cleanup Bazel cache
       if: matrix.runtime != 'wasmtime'
