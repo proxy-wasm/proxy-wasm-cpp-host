@@ -104,6 +104,10 @@ jobs:
       if: startsWith(matrix.run_under, 'docker')
       uses: docker/setup-qemu-action@v1
 
+    - name: Activate Docker/QEMU
+      if: startsWith(matrix.run_under, 'docker')
+      run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
     - name: Install dependency (Linux)
       if: startsWith(matrix.os, 'ubuntu')
       run: sudo apt-get install ninja-build
