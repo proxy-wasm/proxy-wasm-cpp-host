@@ -130,7 +130,7 @@ jobs:
           /private/var/tmp/_bazel_runner/
         key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
-    - name: Test
+    - name: Bazel build/test
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
@@ -140,7 +140,7 @@ jobs:
         ${{ matrix.flags }}
         //test/...
 
-    - name: Test (signed Wasm module)
+    - name: Bazel build/test (signed Wasm module)
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
