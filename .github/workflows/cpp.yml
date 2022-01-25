@@ -58,7 +58,7 @@ jobs:
         addlicense -check .
 
   build:
-    name: build (${{ matrix.name }})
+    name: ${{ matrix.action }} with ${{ matrix.name }}
 
     runs-on: ${{ matrix.os }}
 
@@ -66,28 +66,40 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: 'V8 on Linux'
+        - name: 'V8 on Linux/x86_64'
           runtime: 'v8'
           os: ubuntu-20.04
+          action: test
           flags: '--define crypto=system'
-        - name: 'V8 on macOS'
+        - name: 'V8 on macOS/x86_64'
           runtime: 'v8'
           os: macos-11
-        - name: 'WAMR on Linux'
+          action: test
+        - name: 'WAMR on Linux/x86_64'
           runtime: 'wamr'
           os: ubuntu-20.04
-        - name: 'WAMR on macOS'
+          action: test
+        - name: 'WAMR on macOS/x86_64'
           runtime: 'wamr'
           os: macos-11
-        - name: 'Wasmtime on Linux'
+          action: test
+        - name: 'Wasmtime on Linux/x86_64'
           runtime: 'wasmtime'
           os: ubuntu-20.04
-        - name: 'Wasmtime on macOS'
+          action: test
+        - name: 'Wasmtime on Linux/aarch64'
+          runtime: 'wasmtime'
+          os: ubuntu-20.04
+          action: build
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/arm64 piotrsikora/build-tools:bazel-4.2.2-clang-13-gcc-11
+        - name: 'Wasmtime on macOS/x86_64'
           runtime: 'wasmtime'
           os: macos-11
-        - name: 'WAVM on Linux'
+          action: test
+        - name: 'WAVM on Linux/x86_64'
           runtime: 'wavm'
           os: ubuntu-20.04
+          action: test
 
     steps:
     - uses: actions/checkout@v2
@@ -100,8 +112,12 @@ jobs:
       if: startsWith(matrix.os, 'macos')
       run: brew install ninja
 
+    - name: Activate Docker/QEMU
+      if: startsWith(matrix.run_under, 'docker')
+      run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
     - name: Bazel cache
-      if: matrix.runtime != 'wasmtime'
+      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
       uses: actions/cache@v2
       with:
         path: |
@@ -109,27 +125,29 @@ jobs:
           /private/var/tmp/_bazel_runner/
         key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
-    - name: Test
-      run: |
-        bazel test \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              ${{ matrix.flags }} \
-              //test/...
+    - name: Bazel build/test
+      run: >
+        ${{ matrix.run_under }}
+        bazel ${{ matrix.action }}
+        --verbose_failures
+        --test_output=errors
+        --define runtime=${{ matrix.runtime }}
+        ${{ matrix.flags }}
+        //test/...
 
-    - name: Test (signed Wasm module)
-      run: |
-        bazel test \
-              --verbose_failures \
-              --test_output=errors \
-              --define runtime=${{ matrix.runtime }} \
-              ${{ matrix.flags }} \
-              --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" \
-              //test:signature_util_test
+    - name: Bazel build/test (signed Wasm module)
+      run: >
+        ${{ matrix.run_under }}
+        bazel ${{ matrix.action }}
+        --verbose_failures
+        --test_output=errors
+        --define runtime=${{ matrix.runtime }}
+        ${{ matrix.flags }}
+        --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
+        //test:signature_util_test
 
     - name: Cleanup Bazel cache
-      if: matrix.runtime != 'wasmtime'
+      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
       run: |
         export OUTPUT=$(bazel info output_base)
         # BoringSSL's test data (90 MiB).

@@ -31,3 +31,8 @@ additional_flags = [
 buildrs_additional_deps = [
     "@proxy_wasm_cpp_host__cc__1_0_72//:cc",
 ]
+
+[package.metadata.raze.crates.wasmtime-jit.'*']
+additional_deps = [
+    "@proxy_wasm_cpp_host__rustix__0_31_3//:rustix",
+]
