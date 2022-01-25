@@ -117,6 +117,8 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "bf2b2aec8a4c6a5413081c0527cb40dd16cb67e9c74a91f8a82fe1cf27a3c5d5",
         strip_prefix = "WAVM-c8997ebf154f3b42e688e670a7d0fa045b7a32a0",
         url = "https://github.com/WAVM/WAVM/archive/c8997ebf154f3b42e688e670a7d0fa045b7a32a0.tar.gz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:wavm.patch"],
+        patch_args = ["-p1"],
     )
 
     native.bind(

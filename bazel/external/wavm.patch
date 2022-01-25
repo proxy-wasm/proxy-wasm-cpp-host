@@ -1,0 +1,14 @@
+# Fix build with Clang 13. (https://github.com/WAVM/WAVM/pull/332)
+
+diff --git a/Lib/Platform/POSIX/ThreadPOSIX.cpp b/Lib/Platform/POSIX/ThreadPOSIX.cpp
+index e1f232f6..d3241349 100644
+--- a/Lib/Platform/POSIX/ThreadPOSIX.cpp
++++ b/Lib/Platform/POSIX/ThreadPOSIX.cpp
+@@ -173,6 +173,7 @@ WAVM_NO_ASAN static void touchStackPages(U8* minAddr, Uptr numBytesPerPage)
+ 		sum += *touchAddr;
+ 		if(touchAddr < minAddr + numBytesPerPage) { break; }
+ 	}
++	WAVM_SUPPRESS_UNUSED(sum);
+ }
+ 
+ bool Platform::initThreadAndGlobalSignalsOnce()
