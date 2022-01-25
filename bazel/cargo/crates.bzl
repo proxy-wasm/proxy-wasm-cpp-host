@@ -906,6 +906,12 @@ def proxy_wasm_cpp_host_fetch_remote_crates():
         type = "tar.gz",
         sha256 = "abc7cd79937edd6e238b337608ebbcaf9c086a8457f01dfd598324f7fa56d81a",
         strip_prefix = "wasmtime-runtime-0.33.0",
+        patches = [
+            "@proxy_wasm_cpp_host//bazel/cargo:wasmtime.patch",
+        ],
+        patch_args = [
+            "-p3",
+        ],
         build_file = Label("//bazel/cargo/remote:BUILD.wasmtime-runtime-0.33.0.bazel"),
     )
 
