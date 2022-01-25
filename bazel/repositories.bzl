@@ -25,9 +25,10 @@ def proxy_wasm_cpp_host_repositories():
 
     http_archive(
         name = "boringssl",
-        sha256 = "bb55b0ed2f0cb548b5dce6a6b8307ce37f7f748eb9f1be6bfe2d266ff2b4d52b",
-        strip_prefix = "boringssl-2192bbc878822cf6ab5977d4257a1339453d9d39",
-        urls = ["https://github.com/google/boringssl/archive/2192bbc878822cf6ab5977d4257a1339453d9d39.tar.gz"],
+        # 2022-01-10 (master-with-bazel)
+        sha256 = "a530919e3141d00d593a0d74cd0f9f88707e35ec58bb62245968fec16cb9257f",
+        strip_prefix = "boringssl-9420fb54116466923afa1f34a23dd8a4a7ddb69d",
+        urls = ["https://github.com/google/boringssl/archive/9420fb54116466923afa1f34a23dd8a4a7ddb69d.tar.gz"],
     )
 
     http_archive(
@@ -55,11 +56,10 @@ def proxy_wasm_cpp_host_repositories():
     http_archive(
         name = "com_github_bytecodealliance_wasm_micro_runtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
-        sha256 = "0ccf19f30f744fca635be5428f6460c14dfee19bfa0820c70e0fc9554f79c9b1",
-        strip_prefix = "wasm-micro-runtime-cdf306364eff8f50fd6473b32a316cb90cc15a2f",
-        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/cdf306364eff8f50fd6473b32a316cb90cc15a2f.tar.gz",
-        patches = ["@proxy_wasm_cpp_host//bazel/external:wamr.patch"],
-        patch_args = ["-p1"],
+        # WAMR-01-18-2022
+        sha256 = "af88da144bcb5ecac417af7fd34130487f5e4792e79670f07530474b2ef43912",
+        strip_prefix = "wasm-micro-runtime-d856af6c33591815ab4c890f0606bc99ee8135ad",
+        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/d856af6c33591815ab4c890f0606bc99ee8135ad.tar.gz",
     )
 
     native.bind(
@@ -117,6 +117,8 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "bf2b2aec8a4c6a5413081c0527cb40dd16cb67e9c74a91f8a82fe1cf27a3c5d5",
         strip_prefix = "WAVM-c8997ebf154f3b42e688e670a7d0fa045b7a32a0",
         url = "https://github.com/WAVM/WAVM/archive/c8997ebf154f3b42e688e670a7d0fa045b7a32a0.tar.gz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:wavm.patch"],
+        patch_args = ["-p1"],
     )
 
     native.bind(
@@ -126,11 +128,10 @@ def proxy_wasm_cpp_host_repositories():
 
     git_repository(
         name = "v8",
-        commit = "a5ff33ec02e0dff53217bf7fd5ca0ec504775d23",
+        # 9.9.115.3
+        commit = "90f089d97b6e4146ad106eee1829d86ad6392027",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1641852349 +0000",
-        patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
-        patch_args = ["-p1"],
+        shallow_since = "1643043727 +0000",
     )
 
     native.bind(
@@ -139,7 +140,7 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     new_git_repository(
-        name = "com_googlesource_chromium_trace_event_common",
+        name = "com_googlesource_chromium_base_trace_event_common",
         build_file = "@v8//:bazel/BUILD.trace_event_common",
         commit = "7f36dbc19d31e2aad895c60261ca8f726442bfbb",
         remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
@@ -148,15 +149,15 @@ def proxy_wasm_cpp_host_repositories():
 
     native.bind(
         name = "base_trace_event_common",
-        actual = "@com_googlesource_chromium_trace_event_common//:trace_event_common",
+        actual = "@com_googlesource_chromium_base_trace_event_common//:trace_event_common",
     )
 
     new_git_repository(
         name = "com_googlesource_chromium_zlib",
         build_file = "@v8//:bazel/BUILD.zlib",
-        commit = "efd9399ae01364926be2a38946127fdf463480db",
+        commit = "fc5cfd78a357d5bb7735a58f383634faaafe706a",
         remote = "https://chromium.googlesource.com/chromium/src/third_party/zlib.git",
-        shallow_since = "1638492135 -0800",
+        shallow_since = "1642005087 -0800",
     )
 
     native.bind(
