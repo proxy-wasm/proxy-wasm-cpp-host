@@ -24,10 +24,24 @@ namespace proxy_wasm {
 
 TEST(SharedData, SingleThread) {
   SharedData shared_data(false);
+  std::string_view vm_id = "id";
+
+  // Validate we get an 'Ok' response when fetching keys before anything
+  // is initialized.
+  std::vector<std::string> keys;
+  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "", &keys));
+  EXPECT_EQ(0, keys.size());
+
+  // Validate that we clear the result set
+  std::vector<std::string> nonEmptyKeys(2);
+  nonEmptyKeys[0] = "valueA";
+  nonEmptyKeys[1] = "valueB";
+  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "", &nonEmptyKeys));
+  EXPECT_EQ(0, nonEmptyKeys.size());
+
   std::pair<std::string, uint32_t> result;
   EXPECT_EQ(WasmResult::NotFound, shared_data.get("non-exist", "non-exists", &result));
 
-  std::string_view vm_id = "id";
   std::string_view key = "key";
   std::string_view value = "1";
   EXPECT_EQ(WasmResult::Ok, shared_data.set(vm_id, key, value, 0));
@@ -45,7 +59,6 @@ TEST(SharedData, SingleThread) {
   EXPECT_EQ(value, result.first);
   EXPECT_EQ(result.second, 3);
 
-  std::vector<std::string> keys;
   EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "unmatched-prefix", &keys));
   EXPECT_EQ(0, keys.size());
 
@@ -57,12 +70,25 @@ TEST(SharedData, SingleThread) {
   EXPECT_EQ(key, keys[0]);
 
   keys.clear();
-  EXPECT_EQ(WasmResult::CasMismatch, shared_data.remove(vm_id, key, 911));
+  EXPECT_EQ(WasmResult::CasMismatch, shared_data.remove(vm_id, key, 911, nullptr));
   EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "ke", &keys));
   EXPECT_EQ(1, keys.size());
 
-  EXPECT_EQ(WasmResult::Ok, shared_data.remove(vm_id, key, 0));
+  EXPECT_EQ(WasmResult::Ok, shared_data.remove(vm_id, key, 0, nullptr));
   EXPECT_EQ(WasmResult::NotFound, shared_data.get(vm_id, key, &result));
+
+  EXPECT_EQ(WasmResult::NotFound, shared_data.remove(vm_id, "non-existent_key", 0, nullptr));
+
+  EXPECT_EQ(WasmResult::Ok, shared_data.set(vm_id, key, value, 0));
+  EXPECT_EQ(WasmResult::Ok, shared_data.set(vm_id, key, value, 0));
+  EXPECT_EQ(WasmResult::Ok, shared_data.get(vm_id, key, &result));
+
+  uint32_t expectedCasValue = result.second;
+
+  std::pair<std::string, uint32_t> removeResult;
+  EXPECT_EQ(WasmResult::Ok, shared_data.remove(vm_id, key, 0, &removeResult));
+  EXPECT_EQ(value, removeResult.first);
+  EXPECT_EQ(removeResult.second, expectedCasValue);
 }
 
 void incrementData(SharedData *shared_data, std::string_view vm_id, std::string_view key) {

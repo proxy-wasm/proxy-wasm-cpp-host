@@ -197,10 +197,10 @@ WasmResult ContextBase::getSharedDataKeys(std::string_view key_prefix,
   return getGlobalSharedData().keys(wasm_->vm_id(), key_prefix, result);
 }
 
-WasmResult ContextBase::removeSharedDataKey(std::string_view key, uint32_t cas) {
-  return getGlobalSharedData().remove(wasm_->vm_id(), key, cas);
+WasmResult ContextBase::removeSharedDataKey(std::string_view key, uint32_t cas,
+                                            std::pair<std::string, uint32_t> *result) {
+  return getGlobalSharedData().remove(wasm_->vm_id(), key, cas, result);
 }
-
 
 // Shared Queue
 

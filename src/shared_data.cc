@@ -58,10 +58,12 @@ WasmResult SharedData::get(std::string_view vm_id, const std::string_view key,
 
 WasmResult SharedData::keys(std::string_view vm_id, const std::string_view key_prefix,
                             std::vector<std::string> *result) {
+  result->clear();
+
   std::lock_guard<std::mutex> lock(mutex_);
   auto map = data_.find(std::string(vm_id));
   if (map == data_.end()) {
-    return WasmResult::NotFound;
+    return WasmResult::Ok;
   }
 
   for (auto kv : map->second) {
@@ -70,26 +72,6 @@ WasmResult SharedData::keys(std::string_view vm_id, const std::string_view key_p
     }
   }
 
-  return WasmResult::Ok;
-}
-
-WasmResult SharedData::remove(std::string_view vm_id, std::string_view key, uint32_t cas) {
-  std::lock_guard<std::mutex> lock(mutex_);
-  std::unordered_map<std::string, std::pair<std::string, uint32_t>> *map;
-  auto map_it = data_.find(std::string(vm_id));
-  if (map_it == data_.end()) {
-    return WasmResult::Ok;
-  } else {
-    map = &map_it->second;
-  }
-
-  auto it = map->find(std::string(key));
-  if (it != map->end()) {
-    if (cas && cas != it->second.second) {
-      return WasmResult::CasMismatch;
-    }
-    map->erase(it);
-  }
   return WasmResult::Ok;
 }
 
@@ -113,6 +95,32 @@ WasmResult SharedData::set(std::string_view vm_id, std::string_view key, std::st
     map->emplace(key, std::make_pair(std::string(value), nextCas()));
   }
   return WasmResult::Ok;
+}
+
+WasmResult SharedData::remove(std::string_view vm_id, std::string_view key, uint32_t cas,
+                              std::pair<std::string, uint32_t> *result) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  std::unordered_map<std::string, std::pair<std::string, uint32_t>> *map;
+  auto map_it = data_.find(std::string(vm_id));
+  if (map_it == data_.end()) {
+    return WasmResult::NotFound;
+  } else {
+    map = &map_it->second;
+  }
+
+  auto it = map->find(std::string(key));
+  if (it != map->end()) {
+    if (cas && cas != it->second.second) {
+      return WasmResult::CasMismatch;
+    }
+    if (result != nullptr) {
+      //                printf("Here w/ %s", it->second.first.c_str());
+      *result = it->second;
+    }
+    map->erase(it);
+    return WasmResult::Ok;
+  }
+  return WasmResult::NotFound;
 }
 
 } // namespace proxy_wasm
