@@ -162,6 +162,8 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "408d11708643ea826f519ff79761fcdfc12d641a2510229eec459e72f8163020",
         strip_prefix = "llvm-13.0.0.src",
         url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/llvm-13.0.0.src.tar.xz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:llvm13.patch"],
+        patch_args = ["-p1"],
     )
 
     # Wasmtime with dependencies.
@@ -214,4 +216,6 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "7d9a8405f557cefc5a21bf5672af73903b64749d9bc3a50322239f56f34ffddf",
         strip_prefix = "llvm-12.0.1.src",
         url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-12.0.1.src.tar.xz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:llvm.patch"],
+        patch_args = ["-p1"],
     )
