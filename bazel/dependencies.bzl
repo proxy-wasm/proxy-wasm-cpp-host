@@ -13,8 +13,8 @@
 # limitations under the License.
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime:crates.bzl", "wasmtime_fetch_remote_crates")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign:crates.bzl", "wasmsign_fetch_remote_crates")
+load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime:crates.bzl", "wasmtime_fetch_remote_crates")
 load("@rules_python//python:pip.bzl", "pip_install")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories", "rust_repository_set")
 
@@ -29,8 +29,8 @@ def proxy_wasm_cpp_host_dependencies():
         version = "1.57.0",
     )
 
-    wasmtime_fetch_remote_crates()
     wasmsign_fetch_remote_crates()
+    wasmtime_fetch_remote_crates()
 
     pip_install(
         name = "v8_python_deps",

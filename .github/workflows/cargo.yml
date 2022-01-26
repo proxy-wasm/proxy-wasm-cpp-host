@@ -39,8 +39,8 @@ jobs:
       working-directory: bazel/cargo
       run: |
         cargo install cargo-raze --version 0.14.1
-        cd wasmtime && cargo raze && cd ..
         cd wasmsign && cargo raze && cd ..
+        cd wasmtime && cargo raze && cd ..
         # Ignore manual changes in "errno" crate until fixed in cargo-raze.
         # See: https://github.com/google/cargo-raze/issues/451
         git diff --exit-code -- ':!wasmtime/remote/BUILD.errno-0.2.8.bazel'
