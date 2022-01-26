@@ -103,14 +103,14 @@ jobs:
           os: ubuntu-20.04
           arch: aarch64
           action: build
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/arm64 piotrsikora/build-tools:bazel-4.2.2-clang-13-gcc-11
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/arm64 piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
         - name: 'Wasmtime on Linux/s390x'
           runtime: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-20.04
           arch: s390x
           action: build
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-4.2.2-clang-13-gcc-11
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
         - name: 'Wasmtime on macOS/x86_64'
           runtime: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
