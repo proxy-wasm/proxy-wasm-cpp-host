@@ -150,7 +150,7 @@ jobs:
         path: |
           ~/.cache/bazel
           /private/var/tmp/_bazel_runner/
-        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
         restore-keys: |
           ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-
           ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}
