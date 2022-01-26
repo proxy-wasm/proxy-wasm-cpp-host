@@ -1,7 +1,7 @@
 diff --git a/llvm/cmake/modules/HandleLLVMOptions.cmake b/llvm/cmake/modules/HandleLLVMOptions.cmake
 index 0c3419390c27..352e9402d808 100644
---- a/llvm/cmake/modules/HandleLLVMOptions.cmake
-+++ b/llvm/cmake/modules/HandleLLVMOptions.cmake
+--- a/cmake/modules/HandleLLVMOptions.cmake
++++ b/cmake/modules/HandleLLVMOptions.cmake
 @@ -917,14 +917,6 @@ if (UNIX AND
    append("-fdiagnostics-color" CMAKE_C_FLAGS CMAKE_CXX_FLAGS)
  endif()
