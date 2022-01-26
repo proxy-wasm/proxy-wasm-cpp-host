@@ -128,7 +128,7 @@ jobs:
         path: |
           ~/.cache/bazel
           /private/var/tmp/_bazel_runner/
-        key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
 
     - name: Bazel build/test
       run: >
