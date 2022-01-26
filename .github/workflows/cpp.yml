@@ -68,42 +68,60 @@ jobs:
         include:
         - name: 'V8 on Linux/x86_64'
           runtime: 'v8'
+          repo: 'v8'
           os: ubuntu-20.04
+          arch: x86_64
           action: test
           flags: '--define crypto=system'
         - name: 'V8 on macOS/x86_64'
           runtime: 'v8'
+          repo: 'v8'
           os: macos-11
+          arch: x86_64
           action: test
         - name: 'WAMR on Linux/x86_64'
           runtime: 'wamr'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: ubuntu-20.04
+          arch: x86_64
           action: test
         - name: 'WAMR on macOS/x86_64'
           runtime: 'wamr'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: macos-11
+          arch: x86_64
           action: test
         - name: 'Wasmtime on Linux/x86_64'
           runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-20.04
+          arch: x86_64
           action: test
         - name: 'Wasmtime on Linux/aarch64'
           runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-20.04
+          arch: aarch64
           action: build
           run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/arm64 piotrsikora/build-tools:bazel-4.2.2-clang-13-gcc-11
         - name: 'Wasmtime on Linux/s390x'
           runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-20.04
+          arch: s390x
           action: build
           run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-4.2.2-clang-13-gcc-11
         - name: 'Wasmtime on macOS/x86_64'
           runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
           os: macos-11
+          arch: x86_64
           action: test
         - name: 'WAVM on Linux/x86_64'
           runtime: 'wavm'
+          repo: 'com_github_wavm_wavm'
           os: ubuntu-20.04
+          arch: x86_64
           action: test
 
     steps:
@@ -121,6 +139,10 @@ jobs:
       if: startsWith(matrix.run_under, 'docker')
       run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
+    - name: Set cache key
+      id: cache-key
+      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
+
     - name: Bazel cache
       if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
       uses: actions/cache@v2
@@ -128,7 +150,10 @@ jobs:
         path: |
           ~/.cache/bazel
           /private/var/tmp/_bazel_runner/
-        key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        restore-keys: |
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}
 
     - name: Bazel build/test
       run: >
