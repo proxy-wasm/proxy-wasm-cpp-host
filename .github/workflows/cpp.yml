@@ -58,7 +58,7 @@ jobs:
         addlicense -check .
 
   build:
-    name: build (${{ matrix.name }})
+    name: ${{ matrix.action }} with ${{ matrix.name }}
 
     runs-on: ${{ matrix.os }}
 
@@ -66,36 +66,40 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - name: 'Wasmtime on Linux'
+        - name: 'Wasmtime on Windows/x86_64'
           runtime: 'wasmtime'
-          os: ubuntu-20.04
-        - name: 'Wasmtime on Windows'
-          runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
           os: windows-2019
+          arch: x86_64
+          action: test
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependency (Linux)
-      if: startsWith(matrix.os, 'ubuntu')
-      run: sudo apt-get install ninja-build
+    - name: Activate Docker/QEMU
+      if: startsWith(matrix.run_under, 'docker')
+      run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-    - name: Install dependency (macOS)
-      if: startsWith(matrix.os, 'macos')
-      run: brew install ninja
+    - name: Set cache key
+      id: cache-key
+      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
 
     - name: Bazel cache
-      if: matrix.runtime != 'wasmtime'
+      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
       uses: actions/cache@v2
       with:
         path: |
           ~/.cache/bazel
           /private/var/tmp/_bazel_runner/
-        key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        restore-keys: |
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}
 
-    - name: Test
+    - name: Bazel build/test
       run: >
-        bazel test
+        ${{ matrix.run_under }}
+        bazel ${{ matrix.action }}
         --subcommands
         --verbose_failures
         --test_output=errors
@@ -103,9 +107,10 @@ jobs:
         ${{ matrix.flags }}
         //test/...
 
-    - name: Test (signed Wasm module)
+    - name: Bazel build/test (signed Wasm module)
       run: >
-        bazel test
+        ${{ matrix.run_under }}
+        bazel ${{ matrix.action }}
         --subcommands
         --verbose_failures
         --test_output=errors
@@ -115,7 +120,7 @@ jobs:
         //test:signature_util_test
 
     - name: Cleanup Bazel cache
-      if: matrix.runtime != 'wasmtime'
+      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
       run: |
         export OUTPUT=$(bazel info output_base)
         # BoringSSL's test data (90 MiB).

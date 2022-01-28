@@ -37,13 +37,6 @@ cmake(
         "LLVM_TARGETS_TO_BUILD": "X86",
         "CMAKE_CXX_FLAGS": "-Wno-unused-command-line-argument",
     },
-    env_vars = {
-        # Workaround for the -DDEBUG flag added in fastbuild on macOS,
-        # which conflicts with DEBUG macro used in LLVM.
-        "CFLAGS": "-UDEBUG",
-        "CXXFLAGS": "-UDEBUG",
-        "ASMFLAGS": "-UDEBUG",
-    },
     generate_args = ["-GNinja"],
     lib_source = ":srcs",
     out_static_libs = [
