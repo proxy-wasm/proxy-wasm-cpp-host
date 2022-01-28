@@ -114,7 +114,6 @@ WasmResult SharedData::remove(std::string_view vm_id, std::string_view key, uint
       return WasmResult::CasMismatch;
     }
     if (result != nullptr) {
-      //                printf("Here w/ %s", it->second.first.c_str());
       *result = it->second;
     }
     map->erase(it);
