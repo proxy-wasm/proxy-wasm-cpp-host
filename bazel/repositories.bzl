@@ -32,9 +32,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_foreign_cc",
-        sha256 = "d54742ffbdc6924f222d2179f0e10e911c5c659c4ae74158e9fe827aad862ac6",
-        strip_prefix = "rules_foreign_cc-0.2.0",
-        url = "https://github.com/bazelbuild/rules_foreign_cc/archive/0.2.0.tar.gz",
+        sha256 = "bcd0c5f46a49b85b384906daae41d277b3dc0ff27c7c752cc51e43048a58ec83",
+        strip_prefix = "rules_foreign_cc-0.7.1",
+        url = "https://github.com/bazelbuild/rules_foreign_cc/archive/0.7.1.tar.gz",
     )
 
     maybe(
@@ -48,10 +48,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "8a2052e8ec707aa04a6b9e72bfc67fea44e915ecab1d2d0a4835ad51c2410c36",
-        strip_prefix = "rules_rust-b16c26ba5faf1c58ebe94582afd20567ce676e6d",
+        sha256 = "6c26af1bb98276917fcf29ea942615ab375cf9d3c52f15c27fdd176ced3ee906",
+        strip_prefix = "rules_rust-b3ddf6f096887b757ab1a661662a95d6b2699fa7",
         # NOTE: Update Rust version for Linux/s390x in bazel/dependencies.bzl.
-        url = "https://github.com/bazelbuild/rules_rust/archive/b16c26ba5faf1c58ebe94582afd20567ce676e6d.tar.gz",
+        url = "https://github.com/bazelbuild/rules_rust/archive/b3ddf6f096887b757ab1a661662a95d6b2699fa7.tar.gz",
     )
 
     # Core.
