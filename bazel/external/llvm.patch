@@ -1,4 +1,7 @@
-diff --git a/llvm/cmake/modules/HandleLLVMOptions.cmake b/llvm/cmake/modules/HandleLLVMOptions.cmake
+# Workaround for different linkers used in cmake()'s generate and build steps.
+# See: https://github.com/bazelbuild/rules_foreign_cc/issues/863
+
+diff --git a/cmake/modules/HandleLLVMOptions.cmake b/cmake/modules/HandleLLVMOptions.cmake
 index 5d4d692a70ac..0a2e441b1b94 100644
 --- a/cmake/modules/HandleLLVMOptions.cmake
 +++ b/cmake/modules/HandleLLVMOptions.cmake
