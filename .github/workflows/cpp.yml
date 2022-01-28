@@ -100,7 +100,7 @@ jobs:
         --test_output=errors
         --define runtime=${{ matrix.runtime }}
         ${{ matrix.flags }}
-        v8//:noicu/generated_torque_files
+        @v8//:noicu/generated_torque_files
 
     - name: Bazel build/test
       run: >
