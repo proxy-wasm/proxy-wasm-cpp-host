@@ -29,7 +29,7 @@ def proxy_wasm_cpp_host_dependencies():
         name = "rust_linux_s390x",
         exec_triple = "s390x-unknown-linux-gnu",
         extra_target_triples = ["wasm32-unknown-unknown", "wasm32-wasi"],
-        version = "1.57.0",
+        version = "1.58.1",
     )
 
     # Core dependencies.
