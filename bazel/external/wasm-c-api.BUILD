@@ -9,6 +9,12 @@ cc_library(
     hdrs = [
         "include/wasm.h",
     ],
+    copts = select({
+        "@platforms//os:windows": [
+            "-D_WIN32",
+        ],
+        "//conditions:default": [],
+    }),
     include_prefix = "wasmtime",
     deps = [
         "@com_github_bytecodealliance_wasmtime//:rust_c_api",
