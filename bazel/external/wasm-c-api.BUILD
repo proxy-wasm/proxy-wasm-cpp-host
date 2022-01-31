@@ -11,7 +11,7 @@ cc_library(
     ],
     copts = select({
         "@platforms//os:windows": [
-            "-D_WIN32",
+            "-DWASM_API_EXTERN="
         ],
         "//conditions:default": [],
     }),
