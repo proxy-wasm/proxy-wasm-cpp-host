@@ -49,7 +49,7 @@ jobs:
       run: |
         go install github.com/bazelbuild/buildtools/buildifier@latest
         export PATH=$PATH:$(go env GOPATH)/bin
-        find . -name "BUILD" | xargs -n1 buildifier -mode=check
+        find . -name "WORKSPACE" -o -name "*BUILD*" -o -name "*.bzl" | xargs -n1 buildifier -mode=check
 
     - name: Format (addlicense)
       run: |
