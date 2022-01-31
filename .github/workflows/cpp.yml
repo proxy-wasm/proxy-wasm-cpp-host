@@ -31,7 +31,7 @@ on:
 jobs:
 
   format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
@@ -58,33 +58,136 @@ jobs:
         addlicense -check .
 
   build:
-    name: build (${{ matrix.runtime }})
+    name: ${{ matrix.action }} with ${{ matrix.name }}
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        runtime: ["wamr", "wasmtime", "wavm"]
+        include:
+        - name: 'V8 on Linux/x86_64'
+          runtime: 'v8'
+          repo: 'v8'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: '--define crypto=system'
+        - name: 'V8 on macOS/x86_64'
+          runtime: 'v8'
+          repo: 'v8'
+          os: macos-11
+          arch: x86_64
+          action: test
+        - name: 'WAMR on Linux/x86_64'
+          runtime: 'wamr'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+        - name: 'WAMR on macOS/x86_64'
+          runtime: 'wamr'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
+          os: macos-11
+          arch: x86_64
+          action: test
+        - name: 'Wasmtime on Linux/x86_64'
+          runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+        - name: 'Wasmtime on Linux/aarch64'
+          runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: ubuntu-20.04
+          arch: aarch64
+          action: build
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/arm64 piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
+        - name: 'Wasmtime on Linux/s390x'
+          runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: ubuntu-20.04
+          arch: s390x
+          action: build
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
+        - name: 'Wasmtime on macOS/x86_64'
+          runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: macos-11
+          arch: x86_64
+          action: test
+        - name: 'WAVM on Linux/x86_64'
+          runtime: 'wavm'
+          repo: 'com_github_wavm_wavm'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependency
-      run: sudo apt-get install ninja-build
+    - name: Activate Docker/QEMU
+      if: startsWith(matrix.run_under, 'docker')
+      run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-    - name: Mount Bazel cache
+    - name: Set cache key
+      id: cache-key
+      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
+
+    - name: Bazel cache
+      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
       uses: actions/cache@v2
       with:
         path: |
           ~/.cache/bazel
-          ~/.cache/bazelisk
-        key: bazel-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+          /private/var/tmp/_bazel_runner/
+        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        restore-keys: |
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}
 
-    - name: Test
-      run: |
-        bazel test --define runtime=${{ matrix.runtime }} //test/...
+    - name: Bazel build/test
+      run: >
+        ${{ matrix.run_under }}
+        bazel ${{ matrix.action }}
+        --verbose_failures
+        --test_output=errors
+        --define runtime=${{ matrix.runtime }}
+        ${{ matrix.flags }}
+        //test/...
 
-    - name: Test (signed Wasm module)
+    - name: Bazel build/test (signed Wasm module)
+      run: >
+        ${{ matrix.run_under }}
+        bazel ${{ matrix.action }}
+        --verbose_failures
+        --test_output=errors
+        --define runtime=${{ matrix.runtime }}
+        ${{ matrix.flags }}
+        --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
+        //test:signature_util_test
+
+    - name: Cleanup Bazel cache
+      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
       run: |
-        bazel test --define runtime=${{ matrix.runtime }} --per_file_copt=//...@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" //test:signature_util_test
+        export OUTPUT=$(bazel info output_base)
+        # BoringSSL's test data (90 MiB).
+        rm -rf ${OUTPUT}/external/boringssl/crypto_test_data.cc
+        rm -rf ${OUTPUT}/external/boringssl/src/crypto/*/test/
+        rm -rf ${OUTPUT}/external/boringssl/src/third_party/wycheproof_testvectors/
+        # LLVM's tests (500 MiB).
+        rm -rf ${OUTPUT}/external/llvm*/test/
+        # V8's tests (100 MiB).
+        if [ -d "${OUTPUT}/external/v8/test/torque" ]; then
+          mv ${OUTPUT}/external/v8/test/torque ${OUTPUT}/external/v8/test_torque
+          rm -rf ${OUTPUT}/external/v8/test/*
+          mv ${OUTPUT}/external/v8/test_torque ${OUTPUT}/external/v8/test/torque
+        fi
+        # Unnecessary CMake tools (65 MiB).
+        rm -rf ${OUTPUT}/external/cmake-*/bin/{ccmake,cmake-gui,cpack,ctest}
+        # Distfiles for Rust toolchains (350 MiB).
+        rm -rf ${OUTPUT}/external/rust_*/*.tar.gz
+        # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
+        rm -rf $(bazel info repository_cache)
+        rm -rf $(bazel info install_base)
