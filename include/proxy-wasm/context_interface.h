@@ -596,7 +596,7 @@ struct GeneralInterface {
 };
 
 /**
- * SharedDataInterface is for shaing data between VMs. In general the VMs may be on different
+ * SharedDataInterface is for sharing data between VMs. In general the VMs may be on different
  * threads.  Keys can have any format, but good practice would use reverse DNS and namespacing
  * prefixes to avoid conflicts.
  */
@@ -623,12 +623,10 @@ struct SharedDataInterface {
   virtual WasmResult setSharedData(std::string_view key, std::string_view value, uint32_t cas) = 0;
 
   /**
-   * Return all the keys which match the given key_prefix
-   * @param key_prefix is used to restrict the results to keys matching the given prefix
+   * Return all the keys from the data shraed between VMs
    * @param data is a location to store the returned value.
    */
-  virtual WasmResult getSharedDataKeys(std::string_view key_prefix,
-                                       std::vector<std::string> *result) = 0;
+  virtual WasmResult getSharedDataKeys(std::vector<std::string> *result) = 0;
 
   /**
    * Removes the given key from the data shared between VMs.

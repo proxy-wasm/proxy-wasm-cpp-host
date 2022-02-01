@@ -29,14 +29,14 @@ TEST(SharedData, SingleThread) {
   // Validate we get an 'Ok' response when fetching keys before anything
   // is initialized.
   std::vector<std::string> keys;
-  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "", &keys));
+  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, &keys));
   EXPECT_EQ(0, keys.size());
 
   // Validate that we clear the result set
   std::vector<std::string> nonEmptyKeys(2);
   nonEmptyKeys[0] = "valueA";
   nonEmptyKeys[1] = "valueB";
-  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "", &nonEmptyKeys));
+  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, &nonEmptyKeys));
   EXPECT_EQ(0, nonEmptyKeys.size());
 
   std::pair<std::string, uint32_t> result;
@@ -59,19 +59,13 @@ TEST(SharedData, SingleThread) {
   EXPECT_EQ(value, result.first);
   EXPECT_EQ(result.second, 3);
 
-  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "unmatched-prefix", &keys));
-  EXPECT_EQ(0, keys.size());
-
-  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "keyyyyy", &keys));
-  EXPECT_EQ(0, keys.size());
-
-  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "ke", &keys));
+  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, &keys));
   EXPECT_EQ(1, keys.size());
   EXPECT_EQ(key, keys[0]);
 
   keys.clear();
   EXPECT_EQ(WasmResult::CasMismatch, shared_data.remove(vm_id, key, 911, nullptr));
-  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, "ke", &keys));
+  EXPECT_EQ(WasmResult::Ok, shared_data.keys(vm_id, &keys));
   EXPECT_EQ(1, keys.size());
 
   EXPECT_EQ(WasmResult::Ok, shared_data.remove(vm_id, key, 0, nullptr));
