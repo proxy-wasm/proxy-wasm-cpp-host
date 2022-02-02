@@ -322,7 +322,7 @@ bool V8::link(std::string_view debug_name) {
         fail(FailState::UnableToInitializeCode,
              std::string("Failed to load Wasm module due to a missing import: ") +
                  std::string(module) + "." + std::string(name));
-        break;
+        return false;
       }
       auto func = it->second.get()->callback_.get();
       if (!equalValTypes(import_type->func()->params(), func->type()->params()) ||
@@ -334,7 +334,7 @@ bool V8::link(std::string_view debug_name) {
                  printValTypes(import_type->func()->results()) +
                  ", but host exports: " + printValTypes(func->type()->params()) + " -> " +
                  printValTypes(func->type()->results()));
-        break;
+        return false;
       }
       imports.push_back(func);
     } break;
@@ -344,6 +344,7 @@ bool V8::link(std::string_view debug_name) {
       fail(FailState::UnableToInitializeCode,
            "Failed to load Wasm module due to a missing import: " + std::string(module) + "." +
                std::string(name));
+      return false;
     } break;
 
     case wasm::EXTERN_MEMORY: {
@@ -369,6 +370,10 @@ bool V8::link(std::string_view debug_name) {
   }
 
   instance_ = wasm::Instance::make(store_.get(), module_.get(), imports.data());
+  if (!instance_) {
+    fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
+    return false;
+  }
 
   const auto export_types = module_.get()->exports();
   const auto exports = instance_.get()->exports();

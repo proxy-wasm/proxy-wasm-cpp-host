@@ -239,7 +239,7 @@ bool Wasmtime::link(std::string_view debug_name) {
         fail(FailState::UnableToInitializeCode,
              std::string("Failed to load Wasm module due to a missing import: ") +
                  std::string(module_name) + "." + std::string(name));
-        break;
+        return false;
       }
 
       auto func = it->second->callback_.get();
@@ -256,7 +256,7 @@ bool Wasmtime::link(std::string_view debug_name) {
                 printValTypes(wasm_functype_results(exp_type)) +
                 ", but host exports: " + printValTypes(wasm_functype_params(actual_type.get())) +
                 " -> " + printValTypes(wasm_functype_results(actual_type.get())));
-        break;
+        return false;
       }
       imports.push_back(wasm_func_as_extern(func));
     } break;
@@ -265,6 +265,7 @@ bool Wasmtime::link(std::string_view debug_name) {
       fail(FailState::UnableToInitializeCode,
            "Failed to load Wasm module due to a missing import: " + std::string(module_name) + "." +
                std::string(name));
+      return false;
     } break;
     case WASM_EXTERN_MEMORY: {
       assert(memory_ == nullptr);
@@ -289,7 +290,10 @@ bool Wasmtime::link(std::string_view debug_name) {
 
   wasm_extern_vec_t imports_vec = {imports.size(), imports.data()};
   instance_ = wasm_instance_new(store_.get(), module_.get(), &imports_vec, nullptr);
-  assert(instance_ != nullptr);
+  if (!instance_) {
+    fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
+    return false;
+  }
 
   WasmExportTypeVec export_types;
   wasm_module_exports(module_.get(), export_types.get());
