@@ -421,20 +421,10 @@ inline bool WasmBase::copyToPointerSize(std::string_view s, uint64_t ptr_ptr, ui
     }
     memcpy(p, s.data(), size);
   }
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (!wasm_vm_->setWord(ptr_ptr, Word(__builtin_bswap32(pointer)))) {
-#else
   if (!wasm_vm_->setWord(ptr_ptr, Word(pointer))) {
-#endif
     return false;
   }
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (!wasm_vm_->setWord(size_ptr, Word(__builtin_bswap32(size)))) {
-#else
   if (!wasm_vm_->setWord(size_ptr, Word(size))) {
-#endif
     return false;
   }
   return true;

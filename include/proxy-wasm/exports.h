@@ -74,12 +74,12 @@ template <typename Pairs> size_t pairsSize(const Pairs &result) {
 
 template <typename Pairs> void marshalPairs(const Pairs &result, char *buffer) {
   char *b = buffer;
-  *reinterpret_cast<uint32_t *>(b) = result.size();
+  *reinterpret_cast<uint32_t *>(b) = htole32(result.size());
   b += sizeof(uint32_t);
   for (auto &p : result) {
-    *reinterpret_cast<uint32_t *>(b) = p.first.size();
+    *reinterpret_cast<uint32_t *>(b) = htole32(p.first.size());
     b += sizeof(uint32_t);
-    *reinterpret_cast<uint32_t *>(b) = p.second.size();
+    *reinterpret_cast<uint32_t *>(b) = htole32(p.second.size());
     b += sizeof(uint32_t);
   }
   for (auto &p : result) {

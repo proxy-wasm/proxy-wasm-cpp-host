@@ -64,33 +64,16 @@ Pairs toPairs(std::string_view buffer) {
   if (buffer.size() < sizeof(uint32_t)) {
     return {};
   }
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  auto size = __builtin_bswap32(*reinterpret_cast<const uint32_t *>(b));
-#else
-  auto size = *reinterpret_cast<const uint32_t *>(b);
-#endif
+  auto size = le32toh(*reinterpret_cast<const uint32_t *>(b));
   b += sizeof(uint32_t);
   if (sizeof(uint32_t) + size * 2 * sizeof(uint32_t) > buffer.size()) {
     return {};
   }
   result.resize(size);
   for (uint32_t i = 0; i < size; i++) {
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    result[i].first =
-        std::string_view(nullptr, __builtin_bswap32(*reinterpret_cast<const uint32_t *>(b)));
-#else
-    result[i].first = std::string_view(nullptr, *reinterpret_cast<const uint32_t *>(b));
-#endif
+    result[i].first = std::string_view(nullptr, le32toh(*reinterpret_cast<const uint32_t *>(b)));
     b += sizeof(uint32_t);
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    result[i].second =
-        std::string_view(nullptr, __builtin_bswap32(*reinterpret_cast<const uint32_t *>(b)));
-#else
-    result[i].second = std::string_view(nullptr, *reinterpret_cast<const uint32_t *>(b));
-#endif
+    result[i].second = std::string_view(nullptr, le32toh(*reinterpret_cast<const uint32_t *>(b)));
     b += sizeof(uint32_t);
   }
   for (auto &p : result) {
@@ -111,20 +94,10 @@ bool getPairs(ContextBase *context, const Pairs &result, uint64_t ptr_ptr, uint6
   uint64_t ptr;
   char *buffer = static_cast<char *>(context->wasm()->allocMemory(size, &ptr));
   marshalPairs(result, buffer);
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (!context->wasmVm()->setWord(ptr_ptr, Word(__builtin_bswap32(ptr)))) {
-#else
   if (!context->wasmVm()->setWord(ptr_ptr, Word(ptr))) {
-#endif
     return false;
   }
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (!context->wasmVm()->setWord(size_ptr, Word(__builtin_bswap32(size)))) {
-#else
   if (!context->wasmVm()->setWord(size_ptr, Word(size))) {
-#endif
     return false;
   }
   return true;
@@ -284,21 +257,10 @@ Word call_foreign_function(Word function_name, Word function_name_size, Word arg
     result_size = s;
     return result;
   });
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (results && !context->wasmVm()->setWord(results, Word(__builtin_bswap32(address)))) {
-#else
   if (results && !context->wasmVm()->setWord(results, Word(address))) {
-#endif
     return WasmResult::InvalidMemoryAccess;
   }
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (results_size &&
-      !context->wasmVm()->setWord(results_size, Word(__builtin_bswap32(result_size)))) {
-#else
   if (results_size && !context->wasmVm()->setWord(results_size, Word(result_size))) {
-#endif
     return WasmResult::InvalidMemoryAccess;
   }
   if (!results) {
@@ -500,12 +462,7 @@ Word get_header_map_size(Word type, Word result_ptr) {
   if (result != WasmResult::Ok) {
     return result;
   }
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (!context->wasmVm()->setWord(result_ptr, Word(__builtin_bswap32(size)))) {
-#else
   if (!context->wasmVm()->setWord(result_ptr, Word(size))) {
-#endif
     return WasmResult::InvalidMemoryAccess;
   }
   return WasmResult::Ok;
@@ -546,12 +503,7 @@ Word get_buffer_status(Word type, Word length_ptr, Word flags_ptr) {
   }
   auto length = buffer->size();
   uint32_t flags = 0;
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (!context->wasmVm()->setWord(length_ptr, Word(__builtin_bswap32(length)))) {
-#else
   if (!context->wasmVm()->setWord(length_ptr, Word(length))) {
-#endif
     return WasmResult::InvalidMemoryAccess;
   }
   if (!context->wasm()->setDatatype(flags_ptr, flags)) {
@@ -760,13 +712,8 @@ Word writevImpl(Word fd, Word iovs, Word iovs_len, Word *nwritten_ptr) {
     }
     const uint32_t *iovec = reinterpret_cast<const uint32_t *>(memslice.value().data());
     if (iovec[1] /* buf_len */) {
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-      memslice = context->wasmVm()->getMemory(__builtin_bswap32(iovec[0]) /* buf */,
-                                              __builtin_bswap32(iovec[1]) /* buf_len */);
-#else
-      memslice = context->wasmVm()->getMemory(iovec[0] /* buf */, iovec[1] /* buf_len */);
-#endif
+      memslice = context->wasmVm()->getMemory(le32toh(iovec[0]) /* buf */,
+                                              le32toh(iovec[1]) /* buf_len */);
       if (!memslice) {
         return 21; // __WASI_EFAULT
       }
@@ -798,12 +745,7 @@ Word wasi_unstable_fd_write(Word fd, Word iovs, Word iovs_len, Word nwritten_ptr
   if (result != 0) { // __WASI_ESUCCESS
     return result;
   }
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (!context->wasmVm()->setWord(nwritten_ptr, Word(__builtin_bswap32(nwritten)))) {
-#else
   if (!context->wasmVm()->setWord(nwritten_ptr, Word(nwritten))) {
-#endif
     return 21; // __WASI_EFAULT
   }
   return 0; // __WASI_ESUCCESS
@@ -857,12 +799,7 @@ Word wasi_unstable_environ_get(Word environ_array_ptr, Word environ_buf) {
   auto word_size = context->wasmVm()->getWordSize();
   auto &envs = context->wasm()->envs();
   for (auto e : envs) {
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    if (!context->wasmVm()->setWord(environ_array_ptr, __builtin_bswap32(environ_buf))) {
-#else
     if (!context->wasmVm()->setWord(environ_array_ptr, environ_buf)) {
-#endif
       return 21; // __WASI_EFAULT
     }
 
@@ -887,12 +824,7 @@ Word wasi_unstable_environ_get(Word environ_array_ptr, Word environ_buf) {
 Word wasi_unstable_environ_sizes_get(Word count_ptr, Word buf_size_ptr) {
   auto context = contextOrEffectiveContext();
   auto &envs = context->wasm()->envs();
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (!context->wasmVm()->setWord(count_ptr, Word(__builtin_bswap32(envs.size())))) {
-#else
   if (!context->wasmVm()->setWord(count_ptr, Word(envs.size()))) {
-#endif
     return 21; // __WASI_EFAULT
   }
 
@@ -901,12 +833,7 @@ Word wasi_unstable_environ_sizes_get(Word count_ptr, Word buf_size_ptr) {
     // len(key) + len(value) + 1('=') + 1(null terminator)
     size += e.first.size() + e.second.size() + 2;
   }
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  if (!context->wasmVm()->setWord(buf_size_ptr, Word(__builtin_bswap32(size)))) {
-#else
   if (!context->wasmVm()->setWord(buf_size_ptr, Word(size))) {
-#endif
     return 21; // __WASI_EFAULT
   }
   return 0; // __WASI_ESUCCESS

@@ -56,7 +56,7 @@ TEST_P(TestVM, Memory) {
   ASSERT_TRUE(vm_->getWord(0x2000, &word));
   ASSERT_EQ(100, word.u64_);
 
-  int32_t data[2] = {-1, 200};
+  uint32_t data[2] = {htole32(static_cast<uint32_t>(-1)), htole32(200)};
   ASSERT_TRUE(vm_->setMemory(0x200, sizeof(int32_t) * 2, static_cast<void *>(data)));
   ASSERT_TRUE(vm_->getWord(0x200, &word));
   ASSERT_EQ(-1, static_cast<int32_t>(word.u64_));
