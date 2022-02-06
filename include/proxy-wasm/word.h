@@ -17,6 +17,11 @@
 
 #include <iostream>
 
+#ifdef __APPLE__
+#define htole32(x) (x)
+#define le32toh(x) (x)
+#endif
+
 namespace proxy_wasm {
 
 #include "proxy_wasm_common.h"
