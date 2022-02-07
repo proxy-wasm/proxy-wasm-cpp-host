@@ -91,6 +91,8 @@ TEST_P(TestVM, Clone) {
   ASSERT_NE(100, word.u64_);
 }
 
+#if defined(__linux__) && defined(__x86_64__)
+
 TEST_P(TestVM, CloneUntilOutOfMemory) {
   if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
     return;
@@ -120,6 +122,8 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
   }
   EXPECT_GE(clones.size(), 1000);
 }
+
+#endif
 
 class TestContext : public ContextBase {
 public:
