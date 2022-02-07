@@ -261,9 +261,15 @@ std::unique_ptr<WasmVm> Wavm::clone() {
   wavm->integration().reset(integration()->clone());
 
   wavm->compartment_ = WAVM::Runtime::cloneCompartment(compartment_);
+  if (wavm->compartment_ == nullptr) {
+    return nullptr;
+  }
   wavm->memory_ = WAVM::Runtime::remapToClonedCompartment(memory_, wavm->compartment_);
   wavm->memory_base_ = WAVM::Runtime::getMemoryBaseAddress(wavm->memory_);
   wavm->context_ = WAVM::Runtime::createContext(wavm->compartment_);
+  if (wavm->context_ == nullptr) {
+    return nullptr;
+  }
 
   for (auto &p : intrinsic_module_instances_) {
     wavm->intrinsic_module_instances_.emplace(
