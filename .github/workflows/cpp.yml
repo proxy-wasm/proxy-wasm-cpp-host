@@ -196,7 +196,7 @@ jobs:
 
     - name: Mangle build rules to use existing test data
       run: >
-        sed '' 's/.wasm//g' test/BUILD > test/BUILD.tmp && mv test/BUILD.tmp test/BUILD;
+        sed 's/.wasm//g' test/BUILD > test/BUILD.tmp && mv test/BUILD.tmp test/BUILD;
         echo "package(default_visibility = [\"//visibility:public\"])" > test/test_data/BUILD;
         for i in $(ls -1 *.wasm | sed 's/.wasm$//g');
           do echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD;
