@@ -258,7 +258,7 @@ Wavm::~Wavm() {
 
 std::unique_ptr<WasmVm> Wavm::clone() {
   auto wavm = std::make_unique<Wavm>();
-  if (wamv == nullptr) {
+  if (wavm == nullptr) {
     return nullptr;
   }
 
