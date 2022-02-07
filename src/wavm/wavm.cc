@@ -258,6 +258,10 @@ Wavm::~Wavm() {
 
 std::unique_ptr<WasmVm> Wavm::clone() {
   auto wavm = std::make_unique<Wavm>();
+  if (wamv == nullptr) {
+    return nullptr;
+  }
+
   wavm->integration().reset(integration()->clone());
 
   wavm->compartment_ = WAVM::Runtime::cloneCompartment(compartment_);
