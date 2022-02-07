@@ -84,7 +84,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: test_data
-        path: bazel-bin/test/test_data/
+        path: bazel-bin/*/test_data/*.wasm
         if-no-files-found: error
         retention-days: 3
 
