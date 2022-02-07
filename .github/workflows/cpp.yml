@@ -84,7 +84,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: test_data
-        path: bazel-bin/*/test_data/*.wasm
+        path: bazel-bin/test/test_data/*.wasm
         if-no-files-found: error
         retention-days: 3
 
@@ -193,6 +193,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: test_data
+        path: test/test_data/
 
     - name: Mangle build rules to use existing test data
       run: >
