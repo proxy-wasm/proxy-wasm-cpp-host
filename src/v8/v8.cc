@@ -250,24 +250,31 @@ template <typename T, typename U> constexpr T convertValTypesToArgsTuple(const U
 bool V8::load(std::string_view bytecode, std::string_view precompiled,
               const std::unordered_map<uint32_t, std::string> function_names) {
   store_ = wasm::Store::make(engine());
+  if (store_ == nullptr) {
+    return false;
+  }
 
   if (!precompiled.empty()) {
     auto vec = wasm::vec<byte_t>::make_uninitialized(precompiled.size());
     ::memcpy(vec.get(), precompiled.data(), precompiled.size());
     module_ = wasm::Module::deserialize(store_.get(), vec);
+    if (module_ == nullptr) {
+      return false;
+    }
 
   } else {
     auto vec = wasm::vec<byte_t>::make_uninitialized(bytecode.size());
     ::memcpy(vec.get(), bytecode.data(), bytecode.size());
     module_ = wasm::Module::make(store_.get(), vec);
-  }
-
-  if (!module_) {
-    return false;
+    if (module_ == nullptr) {
+      return false;
+    }
   }
 
   shared_module_ = module_->share();
-  assert(shared_module_ != nullptr);
+  if (shared_module_ == nullptr) {
+    return false;
+  }
 
   function_names_index_ = function_names;
 
@@ -278,10 +285,26 @@ std::unique_ptr<WasmVm> V8::clone() {
   assert(shared_module_ != nullptr);
 
   auto clone = std::make_unique<V8>();
-  clone->integration().reset(integration()->clone());
+  if (clone == nullptr) {
+    return nullptr;
+  }
+
   clone->store_ = wasm::Store::make(engine());
+  if (clone->store_ == nullptr) {
+    return nullptr;
+  }
 
   clone->module_ = wasm::Module::obtain(clone->store_.get(), shared_module_.get());
+  if (clone->module_ == nullptr) {
+    return nullptr;
+  }
+
+  auto integration_clone = integration()->clone();
+  if (integration_clone == nullptr) {
+    return nullptr;
+  }
+  clone->integration().reset(integration_clone);
+
   clone->function_names_index_ = function_names_index_;
 
   return clone;
@@ -350,7 +373,13 @@ bool V8::link(std::string_view debug_name) {
     case wasm::EXTERN_MEMORY: {
       assert(memory_ == nullptr);
       auto type = wasm::MemoryType::make(import_type->memory()->limits());
+      if (type == nullptr) {
+        return false;
+      }
       memory_ = wasm::Memory::make(store_.get(), type.get());
+      if (memory_ == nullptr) {
+        return false;
+      }
       imports.push_back(memory_.get());
     } break;
 
@@ -359,7 +388,13 @@ bool V8::link(std::string_view debug_name) {
       auto type =
           wasm::TableType::make(wasm::ValType::make(import_type->table()->element()->kind()),
                                 import_type->table()->limits());
+      if (type == nullptr) {
+        return false;
+      }
       table_ = wasm::Table::make(store_.get(), type.get());
+      if (table_ == nullptr) {
+        return false;
+      }
       imports.push_back(table_.get());
     } break;
     }
@@ -370,7 +405,7 @@ bool V8::link(std::string_view debug_name) {
   }
 
   instance_ = wasm::Instance::make(store_.get(), module_.get(), imports.data());
-  if (!instance_) {
+  if (instance_ == nullptr) {
     fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
     return false;
   }
@@ -400,6 +435,9 @@ bool V8::link(std::string_view debug_name) {
       assert(export_item->memory() != nullptr);
       assert(memory_ == nullptr);
       memory_ = exports[i]->memory()->copy();
+      if (memory_ == nullptr) {
+        return false;
+      }
     } break;
 
     case wasm::EXTERN_TABLE: {
@@ -408,7 +446,7 @@ bool V8::link(std::string_view debug_name) {
     }
   }
 
-  return !isFailed();
+  return true;
 }
 
 uint64_t V8::getMemorySize() { return memory_->data_size(); }

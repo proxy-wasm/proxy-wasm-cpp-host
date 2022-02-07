@@ -112,28 +112,49 @@ private:
 bool Wasmtime::load(std::string_view bytecode, std::string_view,
                     const std::unordered_map<uint32_t, std::string>) {
   store_ = wasm_store_new(engine());
+  if (store_ == nullptr) {
+    return false;
+  }
 
   WasmByteVec vec;
   wasm_byte_vec_new(vec.get(), bytecode.size(), bytecode.data());
 
   module_ = wasm_module_new(store_.get(), vec.get());
-  if (!module_) {
+  if (module_ == nullptr) {
     return false;
   }
 
   shared_module_ = wasm_module_share(module_.get());
-  assert(shared_module_ != nullptr);
+  if (shared_module_ == nullptr) {
+    return false;
+  }
 
   return true;
 }
 
 std::unique_ptr<WasmVm> Wasmtime::clone() {
   assert(shared_module_ != nullptr);
-  auto clone = std::make_unique<Wasmtime>();
 
-  clone->integration().reset(integration()->clone());
+  auto clone = std::make_unique<Wasmtime>();
+  if (clone == nullptr) {
+    return nullptr;
+  }
+
   clone->store_ = wasm_store_new(engine());
+  if (clone->store_ == nullptr) {
+    return nullptr;
+  }
+
   clone->module_ = wasm_module_obtain(clone->store_.get(), shared_module_.get());
+  if (clone->module_ == nullptr) {
+    return nullptr;
+  }
+
+  auto integration_clone = integration()->clone();
+  if (integration_clone == nullptr) {
+    return nullptr;
+  }
+  clone->integration().reset(integration_clone);
 
   return clone;
 }
@@ -271,14 +292,26 @@ bool Wasmtime::link(std::string_view debug_name) {
       assert(memory_ == nullptr);
       const wasm_memorytype_t *memory_type =
           wasm_externtype_as_memorytype_const(extern_type); // owned by `extern_type`
+      if (memory_type == nullptr) {
+        return false;
+      }
       memory_ = wasm_memory_new(store_.get(), memory_type);
+      if (memory_ == nullptr) {
+        return false;
+      }
       imports.push_back(wasm_memory_as_extern(memory_.get()));
     } break;
     case WASM_EXTERN_TABLE: {
       assert(table_ == nullptr);
       const wasm_tabletype_t *table_type =
           wasm_externtype_as_tabletype_const(extern_type); // owned by `extern_type`
+      if (table_type == nullptr) {
+        return false;
+      }
       table_ = wasm_table_new(store_.get(), table_type, nullptr);
+      if (table_ == nullptr) {
+        return false;
+      }
       imports.push_back(wasm_table_as_extern(table_.get()));
     } break;
     }
@@ -290,7 +323,7 @@ bool Wasmtime::link(std::string_view debug_name) {
 
   wasm_extern_vec_t imports_vec = {imports.size(), imports.data()};
   instance_ = wasm_instance_new(store_.get(), module_.get(), &imports_vec, nullptr);
-  if (!instance_) {
+  if (instance_ == nullptr) {
     fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
     return false;
   }
@@ -320,7 +353,9 @@ bool Wasmtime::link(std::string_view debug_name) {
     case WASM_EXTERN_MEMORY: {
       assert(memory_ == nullptr);
       memory_ = wasm_memory_copy(wasm_extern_as_memory(actual_extern));
-      assert(memory_ != nullptr);
+      if (memory_ == nullptr) {
+        return false;
+      }
     } break;
     case WASM_EXTERN_TABLE: {
       // TODO(mathetake): add support when/if needed.

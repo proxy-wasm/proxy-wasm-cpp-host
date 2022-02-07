@@ -116,12 +116,19 @@ private:
 bool Wamr::load(std::string_view bytecode, std::string_view,
                 const std::unordered_map<uint32_t, std::string>) {
   store_ = wasm_store_new(engine());
+  if (store_ == nullptr) {
+    return false;
+  }
 
   WasmByteVec vec;
   wasm_byte_vec_new(vec.get(), bytecode.size(), bytecode.data());
-  module_ = wasm_module_new(store_.get(), vec.get());
 
-  return module_ != nullptr;
+  module_ = wasm_module_new(store_.get(), vec.get());
+  if (module_ == nullptr) {
+    return false;
+  }
+
+  return true;
 }
 
 static bool equalValTypes(const wasm_valtype_vec_t *left, const wasm_valtype_vec_t *right) {
@@ -257,14 +264,26 @@ bool Wamr::link(std::string_view debug_name) {
       assert(memory_ == nullptr);
       const wasm_memorytype_t *memory_type =
           wasm_externtype_as_memorytype_const(extern_type); // owned by `extern_type`
+      if (memory_type == nullptr) {
+        return false;
+      }
       memory_ = wasm_memory_new(store_.get(), memory_type);
+      if (memory_ == nullptr) {
+        return false;
+      }
       imports.push_back(wasm_memory_as_extern(memory_.get()));
     } break;
     case WASM_EXTERN_TABLE: {
       assert(table_ == nullptr);
       const wasm_tabletype_t *table_type =
           wasm_externtype_as_tabletype_const(extern_type); // owned by `extern_type`
+      if (table_type == nullptr) {
+        return false;
+      }
       table_ = wasm_table_new(store_.get(), table_type, nullptr);
+      if (table_ == nullptr) {
+        return false;
+      }
       imports.push_back(wasm_table_as_extern(table_.get()));
     } break;
     }
@@ -276,7 +295,7 @@ bool Wamr::link(std::string_view debug_name) {
 
   wasm_extern_vec_t imports_vec = {imports.size(), imports.data()};
   instance_ = wasm_instance_new(store_.get(), module_.get(), &imports_vec, nullptr);
-  if (!instance_) {
+  if (instance_ == nullptr) {
     fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
     return false;
   }
@@ -306,7 +325,9 @@ bool Wamr::link(std::string_view debug_name) {
     case WASM_EXTERN_MEMORY: {
       assert(memory_ == nullptr);
       memory_ = wasm_memory_copy(wasm_extern_as_memory(actual_extern));
-      assert(memory_ != nullptr);
+      if (memory_ == nullptr) {
+        return false;
+      }
     } break;
     case WASM_EXTERN_TABLE: {
       // TODO(mathetake): add support when/if needed.
