@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel-zig-cc//toolchain:defs.bzl", zig_register_toolchains = "register_toolchains")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign:crates.bzl", "wasmsign_fetch_remote_crates")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime:crates.bzl", "wasmtime_fetch_remote_crates")
@@ -31,6 +32,8 @@ def proxy_wasm_cpp_host_dependencies():
         extra_target_triples = ["wasm32-unknown-unknown", "wasm32-wasi"],
         version = "1.58.1",
     )
+
+    zig_register_toolchains()
 
     # Core dependencies.
 
