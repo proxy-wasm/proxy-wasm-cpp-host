@@ -95,7 +95,7 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
   if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
     return;
   }
-  
+
   auto source = readTestWasmFile("abi_export.wasm");
   ASSERT_TRUE(vm_->load(source, {}, {}));
   ASSERT_TRUE(vm_->link(""));
