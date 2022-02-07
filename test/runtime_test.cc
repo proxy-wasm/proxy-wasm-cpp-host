@@ -91,6 +91,32 @@ TEST_P(TestVM, Clone) {
   ASSERT_NE(100, word.u64_);
 }
 
+TEST_P(TestVM, CloneUntilOutOfMemory) {
+  if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
+    return;
+  }
+  
+  auto source = readTestWasmFile("abi_export.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
+  ASSERT_TRUE(vm_->link(""));
+
+  std::vector<std::unique_ptr<WasmVm>> clones;
+  for (;;) {
+    auto clone = vm_->clone();
+    if (clone == nullptr) {
+      break;
+    }
+    if (clone->cloneable() != proxy_wasm::Cloneable::InstantiatedModule) {
+      if (clone->link("") == false) {
+        break;
+      }
+    }
+    // Prevent clone from droping out of scope and freeing memory.
+    clones.push_back(std::move(clone));
+  }
+  ASSERT_GE(clones.size(), 1000);
+}
+
 class TestContext : public ContextBase {
 public:
   TestContext(){};
