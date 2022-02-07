@@ -114,7 +114,7 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
     // Prevent clone from droping out of scope and freeing memory.
     clones.push_back(std::move(clone));
   }
-  ASSERT_GE(clones.size(), 1000);
+  EXPECT_GE(clones.size(), 1000);
 }
 
 class TestContext : public ContextBase {
