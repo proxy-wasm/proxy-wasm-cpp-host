@@ -85,6 +85,7 @@ jobs:
       with:
         name: test_data
         path: bazel-bin/test/test_data/
+        if-no-files-found: error
         retention-days: 3
 
     - name: Cleanup Bazel cache
@@ -192,7 +193,6 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: test_data
-        if-no-files-found: error
 
     - name: Mangle build rules to use existing test data
       run: >
