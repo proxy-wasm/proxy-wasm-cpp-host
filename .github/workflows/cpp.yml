@@ -128,6 +128,7 @@ jobs:
           arch: aarch64
           action: test
           flags: --config=zig-cc-linux-aarch64 --@v8//bazel/config:v8_target_cpu=arm64
+          deps: qemu-user-static libc6-arm64-cross
         - name: 'V8 on macOS/x86_64'
           runtime: 'v8'
           repo: 'v8'
@@ -186,6 +187,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Install dependencies (Linux)
+      if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
+      run: sudo apt-get install -y ${{ matrix.deps }}
 
     - name: Activate Docker/QEMU
       if: ${{ matrix.arch != 'x86_64' }}
