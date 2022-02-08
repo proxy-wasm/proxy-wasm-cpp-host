@@ -193,7 +193,7 @@ jobs:
       run: sudo apt-get install -y ${{ matrix.deps }}
 
     - name: Activate Docker/QEMU
-      if: ${{ matrix.arch != 'x86_64' }}
+      if: startsWith(matrix.run_under, 'docker')
       run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
     - name: Set cache key
