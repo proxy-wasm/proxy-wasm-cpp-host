@@ -66,7 +66,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Bazel cache
-      uses: actions/cache@v2
+      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
       with:
         path: |
           ~/.cache/bazel
@@ -88,7 +88,12 @@ jobs:
         if-no-files-found: error
         retention-days: 3
 
+    - name: Skip Bazel cache update
+      if: ${{ github.ref != 'refs/heads/master' }}
+      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
+
     - name: Cleanup Bazel cache
+      if: ${{ github.ref == 'refs/heads/master' }}
       run: |
         export OUTPUT=$(bazel info output_base)
         # Distfiles for Rust toolchains (350 MiB).
