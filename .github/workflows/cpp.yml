@@ -57,8 +57,50 @@ jobs:
         export PATH=$PATH:$(go env GOPATH)/bin
         addlicense -check .
 
+  test_data:
+    name: build test data
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Bazel cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/bazel
+        key: test_data-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl', 'bazel/cargo/wasmsign/crates.bzl') }}
+
+    - name: Bazel build
+      run: >
+        bazel build
+        --verbose_failures
+        --test_output=errors
+        -c opt
+        $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
+
+    - name: Upload test data
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_data
+        path: bazel-bin/test/test_data/*.wasm
+        if-no-files-found: error
+        retention-days: 3
+
+    - name: Cleanup Bazel cache
+      run: |
+        export OUTPUT=$(bazel info output_base)
+        # Distfiles for Rust toolchains (350 MiB).
+        rm -rf ${OUTPUT}/external/rust_*/*.tar.gz
+        # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
+        rm -rf $(bazel info repository_cache)
+        rm -rf $(bazel info install_base)
+
   build:
     name: ${{ matrix.action }} with ${{ matrix.name }}
+
+    needs: test_data
 
     runs-on: ${{ matrix.os }}
 
@@ -145,6 +187,20 @@ jobs:
         key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
         restore-keys: |
           ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-
+
+    - name: Download test data
+      uses: actions/download-artifact@v2
+      with:
+        name: test_data
+        path: test/test_data/
+
+    - name: Mangle build rules to use existing test data
+      run: >
+        sed 's/\.wasm//g' test/BUILD > test/BUILD.tmp && mv test/BUILD.tmp test/BUILD;
+        echo "package(default_visibility = [\"//visibility:public\"])" > test/test_data/BUILD;
+        for i in $(cd test/test_data && ls -1 *.wasm | sed 's/\.wasm$//g');
+          do echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD;
+        done
 
     - name: Bazel build/test
       run: >
