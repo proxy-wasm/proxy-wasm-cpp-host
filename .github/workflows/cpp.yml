@@ -49,7 +49,7 @@ jobs:
       run: |
         go install github.com/bazelbuild/buildtools/buildifier@latest
         export PATH=$PATH:$(go env GOPATH)/bin
-        find . -name "BUILD" | xargs -n1 buildifier -mode=check
+        find . -name "WORKSPACE" -o -name "*BUILD*" -o -name "*.bzl" | xargs -n1 buildifier -mode=check
 
     - name: Format (addlicense)
       run: |
@@ -68,58 +68,72 @@ jobs:
         include:
         - name: 'V8 on Linux/x86_64'
           runtime: 'v8'
+          repo: 'v8'
           os: ubuntu-20.04
+          arch: x86_64
           action: test
           flags: '--define crypto=system'
         - name: 'V8 on macOS/x86_64'
           runtime: 'v8'
+          repo: 'v8'
           os: macos-11
+          arch: x86_64
           action: test
         - name: 'WAMR on Linux/x86_64'
           runtime: 'wamr'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: ubuntu-20.04
+          arch: x86_64
           action: test
         - name: 'WAMR on macOS/x86_64'
           runtime: 'wamr'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: macos-11
+          arch: x86_64
           action: test
         - name: 'Wasmtime on Linux/x86_64'
           runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-20.04
+          arch: x86_64
           action: test
         - name: 'Wasmtime on Linux/aarch64'
           runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-20.04
+          arch: aarch64
           action: build
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/arm64 piotrsikora/build-tools:bazel-4.2.2-clang-13-gcc-11
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/arm64 piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
         - name: 'Wasmtime on Linux/s390x'
           runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-20.04
-          action: build
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-4.2.2-clang-13-gcc-11
+          arch: s390x
+          action: test
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
         - name: 'Wasmtime on macOS/x86_64'
           runtime: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
           os: macos-11
+          arch: x86_64
           action: test
         - name: 'WAVM on Linux/x86_64'
           runtime: 'wavm'
+          repo: 'com_github_wavm_wavm'
           os: ubuntu-20.04
+          arch: x86_64
           action: test
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependency (Linux)
-      if: startsWith(matrix.os, 'ubuntu')
-      run: sudo apt-get install ninja-build
-
-    - name: Install dependency (macOS)
-      if: startsWith(matrix.os, 'macos')
-      run: brew install ninja
-
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
       run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+    - name: Set cache key
+      id: cache-key
+      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
 
     - name: Bazel cache
       if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
@@ -128,7 +142,10 @@ jobs:
         path: |
           ~/.cache/bazel
           /private/var/tmp/_bazel_runner/
-        key: bazel-${{ matrix.os }}-${{ matrix.runtime }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/cargo/Cargo.raze.lock', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        restore-keys: |
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}
 
     - name: Bazel build/test
       run: >

@@ -56,7 +56,7 @@ TEST_P(TestVM, Memory) {
   ASSERT_TRUE(vm_->getWord(0x2000, &word));
   ASSERT_EQ(100, word.u64_);
 
-  int32_t data[2] = {-1, 200};
+  uint32_t data[2] = {htole32(static_cast<uint32_t>(-1)), htole32(200)};
   ASSERT_TRUE(vm_->setMemory(0x200, sizeof(int32_t) * 2, static_cast<void *>(data)));
   ASSERT_TRUE(vm_->getWord(0x200, &word));
   ASSERT_EQ(-1, static_cast<int32_t>(word.u64_));
@@ -90,6 +90,40 @@ TEST_P(TestVM, Clone) {
   ASSERT_TRUE(vm_->getWord(address, &word));
   ASSERT_NE(100, word.u64_);
 }
+
+#if defined(__linux__) && defined(__x86_64__)
+
+TEST_P(TestVM, CloneUntilOutOfMemory) {
+  if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
+    return;
+  }
+  if (runtime_ == "wavm") {
+    // TODO(PiotrSikora): Figure out why this fails on the CI.
+    return;
+  }
+
+  auto source = readTestWasmFile("abi_export.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
+  ASSERT_TRUE(vm_->link(""));
+
+  std::vector<std::unique_ptr<WasmVm>> clones;
+  for (;;) {
+    auto clone = vm_->clone();
+    if (clone == nullptr) {
+      break;
+    }
+    if (clone->cloneable() != proxy_wasm::Cloneable::InstantiatedModule) {
+      if (clone->link("") == false) {
+        break;
+      }
+    }
+    // Prevent clone from droping out of scope and freeing memory.
+    clones.push_back(std::move(clone));
+  }
+  EXPECT_GE(clones.size(), 1000);
+}
+
+#endif
 
 class TestContext : public ContextBase {
 public:

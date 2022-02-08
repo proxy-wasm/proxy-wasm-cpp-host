@@ -258,26 +258,51 @@ Wavm::~Wavm() {
 
 std::unique_ptr<WasmVm> Wavm::clone() {
   auto wavm = std::make_unique<Wavm>();
-  wavm->integration().reset(integration()->clone());
+  if (wavm == nullptr) {
+    return nullptr;
+  }
 
   wavm->compartment_ = WAVM::Runtime::cloneCompartment(compartment_);
+  if (wavm->compartment_ == nullptr) {
+    return nullptr;
+  }
+
+  wavm->context_ = WAVM::Runtime::cloneContext(context_, wavm->compartment_);
+  if (wavm->context_ == nullptr) {
+    return nullptr;
+  }
+
   wavm->memory_ = WAVM::Runtime::remapToClonedCompartment(memory_, wavm->compartment_);
   wavm->memory_base_ = WAVM::Runtime::getMemoryBaseAddress(wavm->memory_);
-  wavm->context_ = WAVM::Runtime::createContext(wavm->compartment_);
+  wavm->module_instance_ =
+      WAVM::Runtime::remapToClonedCompartment(module_instance_, wavm->compartment_);
 
   for (auto &p : intrinsic_module_instances_) {
     wavm->intrinsic_module_instances_.emplace(
         p.first, WAVM::Runtime::remapToClonedCompartment(p.second, wavm->compartment_));
   }
-  wavm->module_instance_ =
-      WAVM::Runtime::remapToClonedCompartment(module_instance_, wavm->compartment_);
+
+  auto integration_clone = integration()->clone();
+  if (integration_clone == nullptr) {
+    return nullptr;
+  }
+  wavm->integration().reset(integration_clone);
+
   return wavm;
 }
 
 bool Wavm::load(std::string_view bytecode, std::string_view precompiled,
                 const std::unordered_map<uint32_t, std::string>) {
   compartment_ = WAVM::Runtime::createCompartment();
+  if (compartment_ == nullptr) {
+    return false;
+  }
+
   context_ = WAVM::Runtime::createContext(compartment_);
+  if (context_ == nullptr) {
+    return false;
+  }
+
   if (!WASM::loadBinaryModule(reinterpret_cast<const unsigned char *>(bytecode.data()),
                               bytecode.size(), ir_module_)) {
     return false;
@@ -286,11 +311,18 @@ bool Wavm::load(std::string_view bytecode, std::string_view precompiled,
   if (!precompiled.empty()) {
     module_ = WAVM::Runtime::loadPrecompiledModule(
         ir_module_, {precompiled.data(), precompiled.data() + precompiled.size()});
+    if (module_ == nullptr) {
+      return false;
+    }
+
   } else {
     module_ = WAVM::Runtime::compileModule(ir_module_);
+    if (module_ == nullptr) {
+      return false;
+    }
   }
 
-  return module_ != nullptr;
+  return true;
 }
 
 bool Wavm::link(std::string_view debug_name) {
@@ -298,9 +330,13 @@ bool Wavm::link(std::string_view debug_name) {
   for (auto &p : intrinsic_modules_) {
     auto instance = Intrinsics::instantiateModule(compartment_, {&intrinsic_modules_[p.first]},
                                                   std::string(p.first));
+    if (instance == nullptr) {
+      return false;
+    }
     intrinsic_module_instances_.emplace(p.first, instance);
     rootResolver.moduleNameToInstanceMap().set(p.first, instance);
   }
+
   WAVM::Runtime::LinkResult link_result = linkModule(ir_module_, rootResolver);
   if (!link_result.missingImports.empty()) {
     for (auto &i : link_result.missingImports) {
@@ -309,10 +345,20 @@ bool Wavm::link(std::string_view debug_name) {
     fail(FailState::MissingFunction, "Failed to load Wasm module due to a missing import(s)");
     return false;
   }
+
   module_instance_ = instantiateModule(
       compartment_, module_, std::move(link_result.resolvedImports), std::string(debug_name));
+  if (module_instance_ == nullptr) {
+    return false;
+  }
+
   memory_ = getDefaultMemory(module_instance_);
+  if (memory_ == nullptr) {
+    return false;
+  }
+
   memory_base_ = WAVM::Runtime::getMemoryBaseAddress(memory_);
+
   return true;
 }
 
@@ -344,12 +390,12 @@ bool Wavm::getWord(uint64_t pointer, Word *data) {
   auto p = reinterpret_cast<char *>(memory_base_ + pointer);
   uint32_t data32;
   memcpy(&data32, p, sizeof(uint32_t));
-  data->u64_ = data32;
+  data->u64_ = le32toh(data32);
   return true;
 }
 
 bool Wavm::setWord(uint64_t pointer, Word data) {
-  uint32_t data32 = data.u32();
+  uint32_t data32 = htole32(data.u32());
   return setMemory(pointer, sizeof(uint32_t), &data32);
 }
 
