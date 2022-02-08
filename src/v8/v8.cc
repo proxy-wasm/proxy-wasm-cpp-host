@@ -475,7 +475,7 @@ bool V8::getWord(uint64_t pointer, Word *word) {
   }
   uint32_t word32;
   ::memcpy(&word32, memory_->data() + pointer, size);
-  word->u64_ = word32;
+  word->u64_ = le32toh(word32);
   return true;
 }
 
@@ -484,7 +484,7 @@ bool V8::setWord(uint64_t pointer, Word word) {
   if (pointer + size > memory_->data_size()) {
     return false;
   }
-  uint32_t word32 = word.u32();
+  uint32_t word32 = htole32(word.u32());
   ::memcpy(memory_->data() + pointer, &word32, size);
   return true;
 }
