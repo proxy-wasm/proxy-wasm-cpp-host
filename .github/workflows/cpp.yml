@@ -66,7 +66,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Bazel cache
-      uses: actions/cache@v2
+      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
       with:
         path: |
           ~/.cache/bazel
@@ -88,7 +88,12 @@ jobs:
         if-no-files-found: error
         retention-days: 3
 
+    - name: Skip Bazel cache update
+      if: ${{ github.ref != 'refs/heads/master' }}
+      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
+
     - name: Cleanup Bazel cache
+      if: ${{ github.ref == 'refs/heads/master' }}
       run: |
         export OUTPUT=$(bazel info output_base)
         # Distfiles for Rust toolchains (350 MiB).
@@ -179,7 +184,7 @@ jobs:
 
     - name: Bazel cache
       if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
-      uses: actions/cache@v2
+      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
       with:
         path: |
           ~/.cache/bazel
@@ -187,7 +192,6 @@ jobs:
         key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
         restore-keys: |
           ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-
-          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}
 
     - name: Download test data
       uses: actions/download-artifact@v2
@@ -224,8 +228,12 @@ jobs:
         --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
         //test:signature_util_test
 
+    - name: Skip Bazel cache update
+      if: ${{ github.ref != 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
+      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
+
     - name: Cleanup Bazel cache
-      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
+      if: ${{ github.ref == 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
       run: |
         export OUTPUT=$(bazel info output_base)
         # BoringSSL's test data (90 MiB).
