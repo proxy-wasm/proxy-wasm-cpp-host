@@ -1,0 +1,15 @@
+# Disable pointer compression (limits the maximum number of WasmVMs).
+
+diff --git a/BUILD.bazel b/BUILD.bazel
+index 1cc0121e60..4947c1dba2 100644
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -161,7 +161,7 @@ v8_int(
+ # If no explicit value for v8_enable_pointer_compression, we set it to 'none'.
+ v8_string(
+     name = "v8_enable_pointer_compression",
+-    default = "none",
++    default = "False",
+ )
+ 
+ # Default setting for v8_enable_pointer_compression.
