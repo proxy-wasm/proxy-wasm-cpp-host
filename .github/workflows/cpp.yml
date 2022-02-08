@@ -229,7 +229,7 @@ jobs:
         //test:signature_util_test
 
     - name: Skip Bazel cache update
-      if: ${{ github.ref != 'refs/heads/master' }}
+      if: ${{ github.ref != 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
       run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
 
     - name: Cleanup Bazel cache
