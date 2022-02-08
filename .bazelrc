@@ -1,5 +1,12 @@
-build --action_env=CC=clang
-build --action_env=CXX=clang++
+# Pass CC, CXX and PATH from the environment.
+build --action_env=CC
+build --action_env=CXX
+build --action_env=PATH
+
+# Use Clang compiler.
+build:clang --action_env=BAZEL_COMPILER=clang
+build:clang --action_env=CC=clang
+build:clang --action_env=CXX=clang++
 
 build --enable_platform_specific_config
 
