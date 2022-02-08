@@ -94,10 +94,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         git_repository,
         name = "v8",
-        # 10.0.100 (plus a fix for v8_target_cpu)
-        commit = "d053afc9ee5965c83970798fbb8a3ed4ff465533",
+        # 10.0.101
+        commit = "a3377e2234a32e1a67a620a180415b40f3dadb80",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1644319553 +0000",
+        shallow_since = "1644336206 +0000",
         patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
         patch_args = ["-p1"],
     )
