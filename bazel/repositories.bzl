@@ -59,10 +59,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "boringssl",
-        # 2022-01-10 (master-with-bazel)
-        sha256 = "a530919e3141d00d593a0d74cd0f9f88707e35ec58bb62245968fec16cb9257f",
-        strip_prefix = "boringssl-9420fb54116466923afa1f34a23dd8a4a7ddb69d",
-        urls = ["https://github.com/google/boringssl/archive/9420fb54116466923afa1f34a23dd8a4a7ddb69d.tar.gz"],
+        # 2022-02-07 (master-with-bazel)
+        sha256 = "7dec97795a7ac7e3832228e4440ee06cceb18d3663f4580b0840e685281e28a0",
+        strip_prefix = "boringssl-eaa29f431f71b8121e1da76bcd3ddc2248238ade",
+        urls = ["https://github.com/google/boringssl/archive/eaa29f431f71b8121e1da76bcd3ddc2248238ade.tar.gz"],
     )
 
     maybe(
