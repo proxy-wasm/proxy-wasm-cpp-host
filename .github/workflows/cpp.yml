@@ -137,7 +137,7 @@ jobs:
 
     - name: Bazel cache
       if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
-      uses: actions/cache@v2
+      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
       with:
         path: |
           ~/.cache/bazel
@@ -145,7 +145,6 @@ jobs:
         key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
         restore-keys: |
           ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-
-          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}
 
     - name: Bazel build/test
       run: >
@@ -169,7 +168,7 @@ jobs:
         //test:signature_util_test
 
     - name: Cleanup Bazel cache
-      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
+      if: ${{ github.ref == 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
       run: |
         export OUTPUT=$(bazel info output_base)
         # BoringSSL's test data (90 MiB).
@@ -191,3 +190,7 @@ jobs:
         # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
         rm -rf $(bazel info repository_cache)
         rm -rf $(bazel info install_base)
+
+    - name: Skip cache update
+      if: ${{ github.ref != 'refs/heads/master' }}
+      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
