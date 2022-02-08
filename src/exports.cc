@@ -64,16 +64,16 @@ Pairs toPairs(std::string_view buffer) {
   if (buffer.size() < sizeof(uint32_t)) {
     return {};
   }
-  auto size = *reinterpret_cast<const uint32_t *>(b);
+  auto size = le32toh(*reinterpret_cast<const uint32_t *>(b));
   b += sizeof(uint32_t);
   if (sizeof(uint32_t) + size * 2 * sizeof(uint32_t) > buffer.size()) {
     return {};
   }
   result.resize(size);
   for (uint32_t i = 0; i < size; i++) {
-    result[i].first = std::string_view(nullptr, *reinterpret_cast<const uint32_t *>(b));
+    result[i].first = std::string_view(nullptr, le32toh(*reinterpret_cast<const uint32_t *>(b)));
     b += sizeof(uint32_t);
-    result[i].second = std::string_view(nullptr, *reinterpret_cast<const uint32_t *>(b));
+    result[i].second = std::string_view(nullptr, le32toh(*reinterpret_cast<const uint32_t *>(b)));
     b += sizeof(uint32_t);
   }
   for (auto &p : result) {
@@ -666,6 +666,25 @@ Word grpc_send(Word token, Word message_ptr, Word message_size, Word end_stream)
   return context->grpcSend(token, message.value(), end_stream);
 }
 
+// __wasi_errno_t path_open(__wasi_fd_t fd, __wasi_lookupflags_t dirflags, const char *path,
+// size_t path_len, __wasi_oflags_t oflags, __wasi_rights_t fs_rights_base, __wasi_rights_t
+// fs_rights_inheriting, __wasi_fdflags_t fdflags, __wasi_fd_t *retptr0)
+Word wasi_unstable_path_open(Word fd, Word dir_flags, Word path, Word path_len, Word oflags,
+                             int64_t fs_rights_base, int64_t fg_rights_inheriting, Word fd_flags,
+                             Word nwritten_ptr) {
+  return 44; // __WASI_ERRNO_NOENT
+}
+
+// __wasi_errno_t __wasi_fd_prestat_get(__wasi_fd_t fd, __wasi_prestat_t *retptr0)
+Word wasi_unstable_fd_prestat_get(Word fd, Word buf_ptr) {
+  return 8; // __WASI_ERRNO_BADF
+}
+
+// __wasi_errno_t __wasi_fd_prestat_dir_name(__wasi_fd_t fd, uint8_t * path, __wasi_size_t path_len)
+Word wasi_unstable_fd_prestat_dir_name(Word fd, Word path_ptr, Word path_len) {
+  return 52; // __WASI_ERRNO_ENOSYS
+}
+
 // Implementation of writev-like() syscall that redirects stdout/stderr to Envoy
 // logs.
 Word writevImpl(Word fd, Word iovs, Word iovs_len, Word *nwritten_ptr) {
@@ -693,7 +712,8 @@ Word writevImpl(Word fd, Word iovs, Word iovs_len, Word *nwritten_ptr) {
     }
     const uint32_t *iovec = reinterpret_cast<const uint32_t *>(memslice.value().data());
     if (iovec[1] /* buf_len */) {
-      memslice = context->wasmVm()->getMemory(iovec[0] /* buf */, iovec[1] /* buf_len */);
+      memslice = context->wasmVm()->getMemory(le32toh(iovec[0]) /* buf */,
+                                              le32toh(iovec[1]) /* buf_len */);
       if (!memslice) {
         return 21; // __WASI_EFAULT
       }

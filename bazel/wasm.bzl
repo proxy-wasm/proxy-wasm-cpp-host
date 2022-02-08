@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_rust//rust:rust.bzl", "rust_binary")
+load("@rules_rust//rust:defs.bzl", "rust_binary")
 
 def _wasm_rust_transition_impl(settings, attr):
     return {
@@ -63,7 +63,7 @@ def _wasm_attrs(transition):
     return {
         "binary": attr.label(mandatory = True, cfg = transition),
         "signing_key": attr.label_list(allow_files = True),
-        "_wasmsign_tool": attr.label(default = "//bazel/cargo:cargo_bin_wasmsign", executable = True, cfg = "exec"),
+        "_wasmsign_tool": attr.label(default = "//bazel/cargo/wasmsign:cargo_bin_wasmsign", executable = True, cfg = "exec"),
         "_whitelist_function_transition": attr.label(default = "@bazel_tools//tools/whitelists/function_transition_whitelist"),
     }
 
@@ -77,7 +77,7 @@ wasi_rust_binary_rule = rule(
     attrs = _wasm_attrs(wasi_rust_transition),
 )
 
-def wasm_rust_binary(name, tags = [], wasi = False, signing_key = [], **kwargs):
+def wasm_rust_binary(name, tags = [], wasi = False, signing_key = [], rustc_flags = [], **kwargs):
     wasm_name = "_wasm_" + name.replace(".", "_")
     kwargs.setdefault("visibility", ["//visibility:public"])
 
@@ -87,6 +87,11 @@ def wasm_rust_binary(name, tags = [], wasi = False, signing_key = [], **kwargs):
         crate_type = "cdylib",
         out_binary = True,
         tags = ["manual"],
+        # Rust doesn't distribute rust-lld for Linux/s390x.
+        rustc_flags = rustc_flags + select({
+            "//bazel:linux_s390x": ["-C", "linker=/usr/bin/lld"],
+            "//conditions:default": [],
+        }),
         **kwargs
     )
 

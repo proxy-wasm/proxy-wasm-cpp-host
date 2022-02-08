@@ -56,10 +56,16 @@ cc_library(
         "include/proxy-wasm/bytecode_util.h",
         "include/proxy-wasm/signature_util.h",
     ],
+    linkopts = select({
+        "//bazel:crypto_system": ["-lcrypto"],
+        "//conditions:default": [],
+    }),
     deps = [
         ":headers",
-        "@boringssl//:crypto",
-    ],
+    ] + select({
+        "//bazel:crypto_system": [],
+        "//conditions:default": ["@boringssl//:crypto"],
+    }),
 )
 
 cc_library(

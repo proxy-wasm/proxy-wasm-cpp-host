@@ -1,0 +1,20 @@
+[package]
+edition = "2018"
+name = "wasmsign-bazel"
+version = "0.1.2"
+
+[lib]
+path = "fake_lib.rs"
+
+[dependencies]
+wasmsign = {git = "https://github.com/jedisct1/wasmsign", revision = "fa4d5598f778390df09be94232972b5b865a56b8"}
+
+[package.metadata.raze]
+rust_rules_workspace_name = "rules_rust"
+gen_workspace_prefix = "wasmsign"
+genmode = "Remote"
+package_aliases_dir = "."
+workspace_path = "//bazel/cargo/wasmsign"
+
+[package.metadata.raze.crates.wasmsign.'*']
+extra_aliased_targets = ["cargo_bin_wasmsign"]
