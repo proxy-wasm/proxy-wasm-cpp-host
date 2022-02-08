@@ -32,13 +32,9 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_native",
+    name = "wasmtime_types",
     srcs = glob(["**/*.rs"]),
-    aliases = {
-    },
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -48,21 +44,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-native",
+        "crate-name=wasmtime-types",
         "manual",
     ],
-    version = "0.80.0",
+    version = "0.34.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_codegen__0_80_0//:cranelift_codegen",
-        "@wasmtime__target_lexicon__0_12_2//:target_lexicon",
-    ] + selects.with_or({
-        # cfg(target_arch = "s390x")
-        (
-            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
-        ): [
-            "@wasmtime__libc__0_2_114//:libc",
-        ],
-        "//conditions:default": [],
-    }),
+        "@wasmtime__cranelift_entity__0_81_0//:cranelift_entity",
+        "@wasmtime__serde__1_0_136//:serde",
+        "@wasmtime__thiserror__1_0_30//:thiserror",
+        "@wasmtime__wasmparser__0_82_0//:wasmparser",
+    ],
 )
