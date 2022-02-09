@@ -26,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR (Apache-2.0 OR MIT)"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
@@ -38,11 +38,13 @@ load(
 )
 
 cargo_build_script(
-    name = "io_lifetimes_build_script",
+    name = "wasmtime_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
+        "cranelift",
+        "wasmtime-cranelift",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -54,11 +56,11 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.4.4",
+    version = "0.34.0",
     visibility = ["//visibility:private"],
     deps = [
     ] + selects.with_or({
-        # cfg(windows)
+        # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
@@ -68,40 +70,54 @@ cargo_build_script(
     }),
 )
 
-# Unsupported target "easy-conversions" with type "example" omitted
-
-# Unsupported target "flexible-apis" with type "example" omitted
-
-# Unsupported target "hello" with type "example" omitted
-
-# Unsupported target "owning-wrapper" with type "example" omitted
-
-# Unsupported target "portable-views" with type "example" omitted
-
 rust_library(
-    name = "io_lifetimes",
+    name = "wasmtime",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
+        "cranelift",
+        "wasmtime-cranelift",
     ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
+    proc_macro_deps = [
+        "@wasmtime__paste__1_0_6//:paste",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=io-lifetimes",
+        "crate-name=wasmtime",
         "manual",
     ],
-    version = "0.4.4",
+    version = "0.34.0",
     # buildifier: leave-alone
     deps = [
-        ":io_lifetimes_build_script",
+        ":wasmtime_build_script",
+        "@wasmtime__anyhow__1_0_53//:anyhow",
+        "@wasmtime__backtrace__0_3_64//:backtrace",
+        "@wasmtime__bincode__1_3_3//:bincode",
+        "@wasmtime__cfg_if__1_0_0//:cfg_if",
+        "@wasmtime__indexmap__1_8_0//:indexmap",
+        "@wasmtime__lazy_static__1_4_0//:lazy_static",
+        "@wasmtime__libc__0_2_117//:libc",
+        "@wasmtime__log__0_4_14//:log",
+        "@wasmtime__object__0_27_1//:object",
+        "@wasmtime__once_cell__1_9_0//:once_cell",
+        "@wasmtime__psm__0_1_16//:psm",
+        "@wasmtime__region__2_2_0//:region",
+        "@wasmtime__serde__1_0_136//:serde",
+        "@wasmtime__target_lexicon__0_12_3//:target_lexicon",
+        "@wasmtime__wasmparser__0_82_0//:wasmparser",
+        "@wasmtime__wasmtime_cranelift__0_34_0//:wasmtime_cranelift",
+        "@wasmtime__wasmtime_environ__0_34_0//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit__0_34_0//:wasmtime_jit",
+        "@wasmtime__wasmtime_runtime__0_34_0//:wasmtime_runtime",
     ] + selects.with_or({
-        # cfg(windows)
+        # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
@@ -111,11 +127,3 @@ rust_library(
         "//conditions:default": [],
     }),
 )
-
-# Unsupported target "api" with type "test" omitted
-
-# Unsupported target "assumptions" with type "test" omitted
-
-# Unsupported target "ffi" with type "test" omitted
-
-# Unsupported target "niche-optimizations" with type "test" omitted

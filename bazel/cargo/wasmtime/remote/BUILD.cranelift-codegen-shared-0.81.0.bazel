@@ -32,10 +32,9 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "regalloc",
+    name = "cranelift_codegen_shared",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -45,14 +44,11 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=regalloc",
+        "crate-name=cranelift-codegen-shared",
         "manual",
     ],
-    version = "0.0.33",
+    version = "0.81.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__log__0_4_14//:log",
-        "@wasmtime__rustc_hash__1_1_0//:rustc_hash",
-        "@wasmtime__smallvec__1_8_0//:smallvec",
     ],
 )

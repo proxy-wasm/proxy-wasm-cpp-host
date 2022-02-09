@@ -31,12 +31,14 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "benchmark" with type "bench" omitted
+
+# Unsupported target "simple" with type "example" omitted
+
 rust_library(
-    name = "cranelift_frontend",
+    name = "wasmparser",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -46,15 +48,11 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-frontend",
+        "crate-name=wasmparser",
         "manual",
     ],
-    version = "0.80.0",
+    version = "0.82.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_codegen__0_80_0//:cranelift_codegen",
-        "@wasmtime__log__0_4_14//:log",
-        "@wasmtime__smallvec__1_8_0//:smallvec",
-        "@wasmtime__target_lexicon__0_12_2//:target_lexicon",
     ],
 )
