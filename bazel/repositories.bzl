@@ -102,10 +102,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         git_repository,
         name = "v8",
-        # 9.9.115.3
-        commit = "90f089d97b6e4146ad106eee1829d86ad6392027",
+        # 10.0.101
+        commit = "a3377e2234a32e1a67a620a180415b40f3dadb80",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1643043727 +0000",
+        shallow_since = "1644336206 +0000",
         patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
         patch_args = ["-p1"],
     )
@@ -119,9 +119,9 @@ def proxy_wasm_cpp_host_repositories():
         new_git_repository,
         name = "com_googlesource_chromium_base_trace_event_common",
         build_file = "@v8//:bazel/BUILD.trace_event_common",
-        commit = "7f36dbc19d31e2aad895c60261ca8f726442bfbb",
+        commit = "d115b033c4e53666b535cbd1985ffe60badad082",
         remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
-        shallow_since = "1635355186 -0700",
+        shallow_since = "1642576054 -0800",
     )
 
     native.bind(
@@ -133,9 +133,9 @@ def proxy_wasm_cpp_host_repositories():
         new_git_repository,
         name = "com_googlesource_chromium_zlib",
         build_file = "@v8//:bazel/BUILD.zlib",
-        commit = "fc5cfd78a357d5bb7735a58f383634faaafe706a",
+        commit = "3fc79233fe8ff5cf39fec4c8b8a46272d4f11cec",
         remote = "https://chromium.googlesource.com/chromium/src/third_party/zlib.git",
-        shallow_since = "1642005087 -0800",
+        shallow_since = "1644209500 -0800",
     )
 
     native.bind(
@@ -171,9 +171,9 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "c59a2aa110b25921d370944287cd97205c73cf3dc76776c5b3551135c1e42ddc",
-        strip_prefix = "wasmtime-0.33.0",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.33.0.tar.gz",
+        sha256 = "bf643b1863b19ab49aa1e8cc7aec52c81e5aff12daeb4eca4c31a437046957be",
+        strip_prefix = "wasmtime-0.34.0",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.34.0.tar.gz",
     )
 
     maybe(

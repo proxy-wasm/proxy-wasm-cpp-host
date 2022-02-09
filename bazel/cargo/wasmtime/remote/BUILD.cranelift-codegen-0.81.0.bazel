@@ -26,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
@@ -38,13 +38,15 @@ load(
 )
 
 cargo_build_script(
-    name = "backtrace_build_script",
+    name = "cranelift_codegen_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
         "default",
+        "gimli",
         "std",
+        "unwind",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -56,25 +58,23 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.63",
+    version = "0.81.0",
     visibility = ["//visibility:private"],
     deps = [
-        "@wasmtime__cc__1_0_72//:cc",
+        "@wasmtime__cranelift_codegen_meta__0_81_0//:cranelift_codegen_meta",
     ],
 )
 
-# Unsupported target "benchmarks" with type "bench" omitted
-
-# Unsupported target "backtrace" with type "example" omitted
-
-# Unsupported target "raw" with type "example" omitted
+# Unsupported target "x64-evex-encoding" with type "bench" omitted
 
 rust_library(
-    name = "backtrace",
+    name = "cranelift_codegen",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
+        "gimli",
         "std",
+        "unwind",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -84,28 +84,20 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=backtrace",
+        "crate-name=cranelift-codegen",
         "manual",
     ],
-    version = "0.3.63",
+    version = "0.81.0",
     # buildifier: leave-alone
     deps = [
-        ":backtrace_build_script",
-        "@wasmtime__addr2line__0_17_0//:addr2line",
-        "@wasmtime__cfg_if__1_0_0//:cfg_if",
-        "@wasmtime__libc__0_2_114//:libc",
-        "@wasmtime__miniz_oxide__0_4_4//:miniz_oxide",
-        "@wasmtime__object__0_27_1//:object",
-        "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
+        ":cranelift_codegen_build_script",
+        "@wasmtime__cranelift_bforest__0_81_0//:cranelift_bforest",
+        "@wasmtime__cranelift_codegen_shared__0_81_0//:cranelift_codegen_shared",
+        "@wasmtime__cranelift_entity__0_81_0//:cranelift_entity",
+        "@wasmtime__gimli__0_26_1//:gimli",
+        "@wasmtime__log__0_4_14//:log",
+        "@wasmtime__regalloc__0_0_34//:regalloc",
+        "@wasmtime__smallvec__1_8_0//:smallvec",
+        "@wasmtime__target_lexicon__0_12_3//:target_lexicon",
     ],
 )
-
-# Unsupported target "accuracy" with type "test" omitted
-
-# Unsupported target "concurrent-panics" with type "test" omitted
-
-# Unsupported target "long_fn_name" with type "test" omitted
-
-# Unsupported target "skip_inner_frames" with type "test" omitted
-
-# Unsupported target "smoke" with type "test" omitted
