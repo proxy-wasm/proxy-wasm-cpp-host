@@ -31,6 +31,14 @@ def proxy_wasm_cpp_host_repositories():
 
     maybe(
         http_archive,
+        name = "bazel-zig-cc",
+        sha256 = "ad6384b4d16ebb3e5047df6548a195e598346da84e5f320250beb9198705ac81",
+        strip_prefix = "bazel-zig-cc-v0.4.4",
+        url = "https://git.sr.ht/~motiejus/bazel-zig-cc/archive/v0.4.4.tar.gz",
+    )
+
+    maybe(
+        http_archive,
         name = "rules_foreign_cc",
         sha256 = "bcd0c5f46a49b85b384906daae41d277b3dc0ff27c7c752cc51e43048a58ec83",
         strip_prefix = "rules_foreign_cc-0.7.1",
