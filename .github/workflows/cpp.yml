@@ -195,7 +195,9 @@ jobs:
 
     - name: Install dependencies (macOS)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'macos') }}
-      run: brew install ${{ matrix.deps }}
+      run: |
+         brew install ${{ matrix.deps }}
+         echo '/usr/local/opt/binutils/bin' >> $GITHUB_PATH
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
