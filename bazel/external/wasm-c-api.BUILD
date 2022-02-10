@@ -34,8 +34,10 @@ genrule(
         done
         if command -v $(OBJCOPY); then
             $(OBJCOPY) --redefine-syms=prefixed $(<) $@
-        elif command -v gobjcopy; then
-            gobjcopy --redefine-syms=prefixed $(<) $@
+        elif command -v objcopy; then
+            objcopy --redefine-syms=prefixed $(<) $@
+        elif command -v llvm-objcopy; then
+            llvm-objcopy --redefine-syms=prefixed $(<) $@
         else
             echo \"Couldn't find objcopy tool.\"
             exit 1
