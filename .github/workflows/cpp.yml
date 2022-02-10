@@ -160,7 +160,7 @@ jobs:
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-20.04
           arch: aarch64
-          action: test
+          action: build
           flags: --config=zig-cc-linux-aarch64
           deps: qemu-user-static libc6-arm64-cross
         - name: 'Wasmtime on Linux/s390x'
