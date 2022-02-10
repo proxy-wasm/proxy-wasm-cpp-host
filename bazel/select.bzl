@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+def proxy_wasm_select_runtime_nullvm(xs):
+    return select({
+        "@proxy_wasm_cpp_host//bazel:runtime_nullvm": xs,
+        "//conditions:default": [],
+    })
+
 def proxy_wasm_select_runtime_v8(xs):
     return select({
         "@proxy_wasm_cpp_host//bazel:runtime_v8": xs,

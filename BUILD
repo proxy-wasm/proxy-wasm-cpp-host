@@ -1,6 +1,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load(
     "@proxy_wasm_cpp_host//bazel:select.bzl",
+    "proxy_wasm_select_runtime_nullvm",
     "proxy_wasm_select_runtime_v8",
     "proxy_wasm_select_runtime_wamr",
     "proxy_wasm_select_runtime_wasmtime",
@@ -155,8 +156,9 @@ cc_library(
     name = "lib",
     deps = [
         ":base_lib",
-        ":null_lib",
-    ] + proxy_wasm_select_runtime_v8(
+    ] + proxy_wasm_select_runtime_nullvm(
+        [":null_lib"],
+    ) + proxy_wasm_select_runtime_v8(
         [":v8_lib"],
     ) + proxy_wasm_select_runtime_wamr(
         [":wamr_lib"],

@@ -1,6 +1,11 @@
 load("@bazel_skylib//lib:selects.bzl", "selects")
 
 config_setting(
+    name = "runtime_nullvm",
+    values = {"define": "runtime=nullvm"},
+)
+
+config_setting(
     name = "runtime_v8",
     values = {"define": "runtime=v8"},
 )

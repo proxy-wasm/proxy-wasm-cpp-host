@@ -114,6 +114,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
+        - name: 'NullVM on Linux/x86_64'
+          runtime: 'nullvm'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
         - name: 'V8 on Linux/x86_64'
           runtime: 'v8'
           repo: 'v8'
@@ -197,11 +202,12 @@ jobs:
       run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
     - name: Set cache key
-      id: cache-key
+      if: ${{ (matrix.runtime != 'nullvm' && matrix.runtime != 'wasmtime') || startsWith(matrix.run_under, 'docker') }}
       run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
+      id: cache-key
 
     - name: Bazel cache
-      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
+      if: ${{ (matrix.runtime != 'nullvm' && matrix.runtime != 'wasmtime') || startsWith(matrix.run_under, 'docker') }}
       uses: PiotrSikora/cache@v2.1.7-with-skip-cache
       with:
         path: |
@@ -247,11 +253,11 @@ jobs:
         //test:signature_util_test
 
     - name: Skip Bazel cache update
-      if: ${{ github.ref != 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
+      if: ${{ github.ref != 'refs/heads/master' && ((matrix.runtime != 'nullvm' && matrix.runtime != 'wasmtime') || startsWith(matrix.run_under, 'docker') }}
       run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
 
     - name: Cleanup Bazel cache
-      if: ${{ github.ref == 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
+      if: ${{ github.ref == 'refs/heads/master' && ((matrix.runtime != 'nullvm' && matrix.runtime != 'wasmtime') || startsWith(matrix.run_under, 'docker') }}
       run: |
         export OUTPUT=$(bazel info output_base)
         # BoringSSL's test data (90 MiB).
