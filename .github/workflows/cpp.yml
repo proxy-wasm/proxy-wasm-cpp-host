@@ -177,7 +177,7 @@ jobs:
           os: macos-11
           arch: x86_64
           action: test
-          deps: llvm
+          deps: llvm # dummy target to trigger $PATH expansion
         - name: 'WAVM on Linux/x86_64'
           runtime: 'wavm'
           repo: 'com_github_wavm_wavm'
@@ -195,7 +195,7 @@ jobs:
 
     - name: Install dependencies (macOS)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'macos') }}
-      run: brew install ${{ matrix.deps }}
+      run: echo '$(brew --prefix llvm)/bin/' >> $GITHUB_PATH
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
