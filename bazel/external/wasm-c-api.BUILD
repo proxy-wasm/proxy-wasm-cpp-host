@@ -39,7 +39,7 @@ genrule(
         elif command -v llvm-objcopy; then
             llvm-objcopy --redefine-syms=prefixed $(<) $@
         else
-            echo \"PATH=$PATH\"
+            echo \"PATH=$$PATH\"
             ls -ld /usr/local/opt/llvm/bin/
             echo \"Couldn't find objcopy tool.\"
             exit 1
