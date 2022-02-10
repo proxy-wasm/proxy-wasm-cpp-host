@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 
+#include "include/proxy-wasm/bytecode_util.h"
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
 
@@ -232,16 +233,32 @@ TEST_P(TestVM, Callback) {
 
 TEST_P(TestVM, Trap) {
   auto source = readTestWasmFile("trap.wasm");
-  ASSERT_TRUE(vm_->load(source, {}, {}));
+  std::unordered_map<uint32_t, std::string> function_names;
+  EXPECT_TRUE(BytecodeUtil::getFunctionNameIndex(source, function_names));
+  ASSERT_TRUE(vm_->load(source, {}, function_names));
   ASSERT_TRUE(vm_->link(""));
   TestContext context;
   WasmCallVoid<0> trigger;
   vm_->getFunction("trigger", &trigger);
-  EXPECT_TRUE(trigger != nullptr);
+  ASSERT_TRUE(trigger != nullptr);
   trigger(&context);
   std::string exp_message = "Function: trigger failed";
   auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
-  ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
+  EXPECT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
+
+  if (runtime_ == "wamr" || runtime_ == "wasmtime") {
+    // TODO(PiotrSikora): Stacktrace not supported in WAMR and Wasmtime.
+    return;
+  }
+  exp_message = "Proxy-Wasm plugin in-VM backtrace:";
+  EXPECT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
+
+  if (runtime_ == "wavm") {
+    // WAVM uses custom format for stacktraces.
+    return;
+  }
+  exp_message = " - trigger";
+  EXPECT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 
 TEST_P(TestVM, Trap2) {
@@ -257,11 +274,11 @@ TEST_P(TestVM, Trap2) {
   TestContext context;
   WasmCallWord<1> trigger2;
   vm_->getFunction("trigger2", &trigger2);
-  EXPECT_TRUE(trigger2 != nullptr);
+  ASSERT_TRUE(trigger2 != nullptr);
   trigger2(&context, 0);
   std::string exp_message = "Function: trigger2 failed";
   auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
-  ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
+  EXPECT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 
 } // namespace
