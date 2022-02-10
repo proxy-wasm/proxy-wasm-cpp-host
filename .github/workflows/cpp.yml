@@ -201,15 +201,15 @@ jobs:
       run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
 
     - name: Bazel cache
-      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
+      #if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
       uses: PiotrSikora/cache@v2.1.7-with-skip-cache
       with:
         path: |
           ~/.cache/bazel
           /private/var/tmp/_bazel_runner/
-        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}-test
         restore-keys: |
-          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.runtime }}-${{ steps.cache-key.outputs.uniq }}-test
 
     - name: Download test data
       uses: actions/download-artifact@v2
@@ -246,12 +246,8 @@ jobs:
         --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
         //test:signature_util_test
 
-    - name: Skip Bazel cache update
-      if: ${{ github.ref != 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
-      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
-
     - name: Cleanup Bazel cache
-      if: ${{ github.ref == 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
+      #if: ${{ github.ref == 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
       run: |
         export OUTPUT=$(${{ matrix.run_under }} bazel info output_base)
         # BoringSSL's test data (90 MiB).
