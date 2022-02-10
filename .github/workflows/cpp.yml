@@ -250,6 +250,8 @@ jobs:
       #if: ${{ github.ref == 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
       run: |
         export OUTPUT=$(${{ matrix.run_under }} bazel info output_base)
+        echo "===== BEFORE ====="
+        du -s ${OUTPUT}/external/* $(dirname ${OUTPUT})/* | sort -rn | head -20
         # BoringSSL's test data (90 MiB).
         rm -rf ${OUTPUT}/external/boringssl/crypto_test_data.cc
         rm -rf ${OUTPUT}/external/boringssl/src/crypto/*/test/
@@ -269,3 +271,5 @@ jobs:
         # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
         rm -rf ${OUTPUT}/../cache
         rm -rf ${OUTPUT}/../install
+        echo "===== AFTER ====="
+        du -s ${OUTPUT}/external/* $(dirname ${OUTPUT})/* | sort -rn | head -20
