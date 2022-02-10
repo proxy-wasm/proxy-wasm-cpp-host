@@ -29,7 +29,7 @@ genrule(
         "wasmtime_prefixed_wasm_c_api.a",
     ],
     cmd = """
-        for symbol in $$(nm -P $(<) 2>/dev/null | grep ^wasm_ | cut -d" " -f1); do
+        for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
             echo "$$symbol wasmtime_$$symbol" >>prefixed
         done
         objcopy --redefine-syms=prefixed $(<) $@
