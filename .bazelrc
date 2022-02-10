@@ -19,6 +19,7 @@ build:zig-cc-linux-aarch64 --config=zig-cc
 build:zig-cc-linux-aarch64 --platforms @zig_sdk//:linux_aarch64_platform
 build:zig-cc-linux-aarch64 --run_under=qemu-aarch64-static
 build:zig-cc-linux-aarch64 --test_env=QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
+build:zig-cc-linux-aarch64 --test_env=QEMU_CPU=max
 
 build --enable_platform_specific_config
 
