@@ -38,6 +38,7 @@ genrule(
             gobjcopy --redefine-syms=prefixed $(<) $@
         else
             echo \"Couldn't find objcopy tool.\"
+            exit 1
         fi
         """,
     toolchains = ["@bazel_tools//tools/cpp:current_cc_toolchain"],
