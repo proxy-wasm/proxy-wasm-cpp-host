@@ -35,7 +35,6 @@ def proxy_wasm_cpp_host_dependencies():
 
     zig_register_toolchains()
 
-
     # Test dependencies.
 
     wasmsign_fetch_remote_crates()
