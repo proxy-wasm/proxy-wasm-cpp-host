@@ -20,9 +20,10 @@
 
 namespace proxy_wasm {
 
-auto test_values = testing::ValuesIn(getRuntimes());
-
-INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, test_values);
+INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, testing::ValuesIn(getRuntimes()),
+                         [](const testing::TestParamInfo<std::string> &info) {
+                           return info.param;
+                         });
 
 // Failcallbacks only used for runtimes - not available for nullvm.
 TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {

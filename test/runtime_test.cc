@@ -29,9 +29,10 @@
 namespace proxy_wasm {
 namespace {
 
-auto test_values = testing::ValuesIn(getRuntimes());
-
-INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, test_values);
+INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, testing::ValuesIn(getRuntimes()),
+                         [](const testing::TestParamInfo<std::string> &info) {
+                           return info.param;
+                         });
 
 TEST_P(TestVM, Basic) {
   if (runtime_ == "wamr") {

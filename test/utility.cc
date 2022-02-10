@@ -21,14 +21,14 @@ std::vector<std::string> getRuntimes() {
 #if defined(PROXY_WASM_HAS_RUNTIME_V8)
     "v8",
 #endif
-#if defined(PROXY_WASM_HAS_RUNTIME_WAVM)
-    "wavm",
+#if defined(PROXY_WASM_HAS_RUNTIME_WAMR)
+    "wamr",
 #endif
 #if defined(PROXY_WASM_HAS_RUNTIME_WASMTIME)
     "wasmtime",
 #endif
-#if defined(PROXY_WASM_HAS_RUNTIME_WAMR)
-    "wamr",
+#if defined(PROXY_WASM_HAS_RUNTIME_WAVM)
+    "wavm",
 #endif
     ""
   };
