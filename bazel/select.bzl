@@ -14,24 +14,28 @@
 
 def proxy_wasm_select_runtime_v8(xs):
     return select({
+        "@proxy_wasm_cpp_host//bazel:runtime_multi": xs,
         "@proxy_wasm_cpp_host//bazel:runtime_v8": xs,
         "//conditions:default": [],
     })
 
 def proxy_wasm_select_runtime_wamr(xs):
     return select({
+        "@proxy_wasm_cpp_host//bazel:runtime_multi": xs,
         "@proxy_wasm_cpp_host//bazel:runtime_wamr": xs,
         "//conditions:default": [],
     })
 
 def proxy_wasm_select_runtime_wasmtime(xs):
     return select({
+        "@proxy_wasm_cpp_host//bazel:runtime_multi": xs,
         "@proxy_wasm_cpp_host//bazel:runtime_wasmtime": xs,
         "//conditions:default": [],
     })
 
 def proxy_wasm_select_runtime_wavm(xs):
     return select({
+        "@proxy_wasm_cpp_host//bazel:runtime_multi": xs,
         "@proxy_wasm_cpp_host//bazel:runtime_wavm": xs,
         "//conditions:default": [],
     })
