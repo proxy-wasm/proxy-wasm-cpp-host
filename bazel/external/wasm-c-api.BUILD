@@ -30,10 +30,11 @@ genrule(
     ],
     cmd = """
         for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
-            echo "$$symbol wasmtime_$$symbol" >>prefixed
+            echo $$symbol | sed -r 's/^(_?)(wasm_[a-z_]+)$$/\\1\\2 \\1wasmtime_\\2/' >>prefixed
         done
-        objcopy --redefine-syms=prefixed $(<) $@
+        $(OBJCOPY) --redefine-syms=prefixed $(<) $@
         """,
+    toolchains = ["@bazel_tools//tools/cpp:current_cc_toolchain"],
 )
 
 cc_library(
