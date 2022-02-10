@@ -4,8 +4,19 @@ licenses(["notice"])  # Apache 2
 
 package(default_visibility = ["//visibility:public"])
 
+cc_library(
+    name = "wasmtime_lib",
+    hdrs = [
+        "include/wasm.h",
+    ],
+    include_prefix = "wasmtime",
+    deps = [
+        "@com_github_bytecodealliance_wasmtime//:rust_c_api",
+    ],
+)
+
 genrule(
-    name = "wasmtime_prefixed_wasm_c_api_headers",
+    name = "prefixed_wasmtime_c_api_headers",
     srcs = [
         "include/wasm.h",
     ],
@@ -21,38 +32,30 @@ genrule(
 )
 
 genrule(
-    name = "wasmtime_prefixed_wasm_c_api_lib",
+    name = "prefixed_wasmtime_c_api_lib",
     srcs = [
         "@com_github_bytecodealliance_wasmtime//:rust_c_api",
     ],
     outs = [
-        "wasmtime_prefixed_wasm_c_api.a",
+        "prefixed_wasmtime_c_api.a",
     ],
     cmd = """
         for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
             echo $$symbol | sed -r 's/^(_?)(wasm_[a-z_]+)$$/\\1\\2 \\1wasmtime_\\2/' >>prefixed
         done
-        if command -v $(OBJCOPY); then
-            $(OBJCOPY) --redefine-syms=prefixed $(<) $@
-        elif command -v objcopy; then
-            objcopy --redefine-syms=prefixed $(<) $@
-        elif command -v llvm-objcopy; then
-            llvm-objcopy --redefine-syms=prefixed $(<) $@
-        else
-            echo \"Couldn't find objcopy tool.\"
-            exit 1
-        fi
+        # This should be OBJCOPY, but bazel-zig-cc doesn't define it.
+        objcopy --redefine-syms=prefixed $(<) $@
         """,
     toolchains = ["@bazel_tools//tools/cpp:current_cc_toolchain"],
 )
 
 cc_library(
-    name = "wasmtime_lib",
+    name = "prefixed_wasmtime_lib",
     srcs = [
-        ":wasmtime_prefixed_wasm_c_api_lib",
+        ":prefixed_wasmtime_c_api_lib",
     ],
     hdrs = [
-        ":wasmtime_prefixed_wasm_c_api_headers",
+        ":prefixed_wasmtime_c_api_headers",
     ],
     linkstatic = 1,
 )

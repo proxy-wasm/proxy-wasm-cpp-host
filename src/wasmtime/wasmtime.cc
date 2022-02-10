@@ -24,7 +24,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "include/proxy-wasm/wasm_vm.h"
 #include "src/wasmtime/types.h"
 
 #include "wasmtime/include/wasm.h"
@@ -43,8 +42,8 @@ struct HostFuncData {
 
 using HostFuncDataPtr = std::unique_ptr<HostFuncData>;
 
-wasmtime_wasm_engine_t *engine() {
-  static const auto engine = WasmEnginePtr(wasmtime_wasm_engine_new());
+wasm_engine_t *engine() {
+  static const auto engine = WasmEnginePtr(wasm_engine_new());
   return engine.get();
 }
 
@@ -111,20 +110,20 @@ private:
 
 bool Wasmtime::load(std::string_view bytecode, std::string_view,
                     const std::unordered_map<uint32_t, std::string>) {
-  store_ = wasmtime_wasm_store_new(engine());
+  store_ = wasm_store_new(engine());
   if (store_ == nullptr) {
     return false;
   }
 
   WasmByteVec vec;
-  wasmtime_wasm_byte_vec_new(vec.get(), bytecode.size(), bytecode.data());
+  wasm_byte_vec_new(vec.get(), bytecode.size(), bytecode.data());
 
-  module_ = wasmtime_wasm_module_new(store_.get(), vec.get());
+  module_ = wasm_module_new(store_.get(), vec.get());
   if (module_ == nullptr) {
     return false;
   }
 
-  shared_module_ = wasmtime_wasm_module_share(module_.get());
+  shared_module_ = wasm_module_share(module_.get());
   if (shared_module_ == nullptr) {
     return false;
   }
@@ -140,12 +139,12 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
     return nullptr;
   }
 
-  clone->store_ = wasmtime_wasm_store_new(engine());
+  clone->store_ = wasm_store_new(engine());
   if (clone->store_ == nullptr) {
     return nullptr;
   }
 
-  clone->module_ = wasmtime_wasm_module_obtain(clone->store_.get(), shared_module_.get());
+  clone->module_ = wasm_module_obtain(clone->store_.get(), shared_module_.get());
   if (clone->module_ == nullptr) {
     return nullptr;
   }
@@ -159,14 +158,13 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
   return clone;
 }
 
-static bool equalValTypes(const wasmtime_wasm_valtype_vec_t *left,
-                          const wasmtime_wasm_valtype_vec_t *right) {
+static bool equalValTypes(const wasm_valtype_vec_t *left, const wasm_valtype_vec_t *right) {
   if (left->size != right->size) {
     return false;
   }
 
   for (size_t i = 0; i < left->size; i++) {
-    if (wasmtime_wasm_valtype_kind(left->data[i]) != wasmtime_wasm_valtype_kind(right->data[i])) {
+    if (wasm_valtype_kind(left->data[i]) != wasm_valtype_kind(right->data[i])) {
       return false;
     }
   }
@@ -174,7 +172,7 @@ static bool equalValTypes(const wasmtime_wasm_valtype_vec_t *left,
   return true;
 }
 
-static std::string printValue(const wasmtime_wasm_val_t &value) {
+static std::string printValue(const wasm_val_t &value) {
   switch (value.kind) {
   case WASM_I32:
     return std::to_string(value.of.i32);
@@ -189,7 +187,7 @@ static std::string printValue(const wasmtime_wasm_val_t &value) {
   }
 }
 
-static std::string printValues(const wasmtime_wasm_val_vec_t *values) {
+static std::string printValues(const wasm_val_vec_t *values) {
   if (values->size == 0) {
     return "";
   }
@@ -204,7 +202,7 @@ static std::string printValues(const wasmtime_wasm_val_vec_t *values) {
   return s;
 }
 
-static const char *printValKind(wasmtime_wasm_valkind_t kind) {
+static const char *printValKind(wasm_valkind_t kind) {
   switch (kind) {
   case WASM_I32:
     return "i32";
@@ -223,7 +221,7 @@ static const char *printValKind(wasmtime_wasm_valkind_t kind) {
   }
 }
 
-static std::string printValTypes(const wasmtime_wasm_valtype_vec_t *types) {
+static std::string printValTypes(const wasm_valtype_vec_t *types) {
   if (types->size == 0) {
     return "void";
   }
@@ -234,7 +232,7 @@ static std::string printValTypes(const wasmtime_wasm_valtype_vec_t *types) {
     if (i) {
       s.append(" ");
     }
-    s.append(printValKind(wasmtime_wasm_valtype_kind(types->data[i])));
+    s.append(printValKind(wasm_valtype_kind(types->data[i])));
   }
   return s;
 }
@@ -243,21 +241,18 @@ bool Wasmtime::link(std::string_view debug_name) {
   assert(module_ != nullptr);
 
   WasmImporttypeVec import_types;
-  wasmtime_wasm_module_imports(module_.get(), import_types.get());
+  wasm_module_imports(module_.get(), import_types.get());
 
-  std::vector<wasmtime_wasm_extern_t *> imports;
+  std::vector<wasm_extern_t *> imports;
   for (size_t i = 0; i < import_types.get()->size; i++) {
-    const wasmtime_wasm_name_t *module_name_ptr =
-        wasmtime_wasm_importtype_module(import_types.get()->data[i]);
-    const wasmtime_wasm_name_t *name_ptr =
-        wasmtime_wasm_importtype_name(import_types.get()->data[i]);
-    const wasmtime_wasm_externtype_t *extern_type =
-        wasmtime_wasm_importtype_type(import_types.get()->data[i]);
+    const wasm_name_t *module_name_ptr = wasm_importtype_module(import_types.get()->data[i]);
+    const wasm_name_t *name_ptr = wasm_importtype_name(import_types.get()->data[i]);
+    const wasm_externtype_t *extern_type = wasm_importtype_type(import_types.get()->data[i]);
 
     std::string_view module_name(module_name_ptr->data, module_name_ptr->size);
     std::string_view name(name_ptr->data, name_ptr->size);
     assert(name_ptr->size > 0);
-    switch (wasmtime_wasm_externtype_kind(extern_type)) {
+    switch (wasm_externtype_kind(extern_type)) {
     case WASM_EXTERN_FUNC: {
       auto it = host_functions_.find(std::string(module_name) + "." + std::string(name));
       if (it == host_functions_.end()) {
@@ -268,24 +263,22 @@ bool Wasmtime::link(std::string_view debug_name) {
       }
 
       auto func = it->second->callback_.get();
-      const wasmtime_wasm_functype_t *exp_type =
-          wasmtime_wasm_externtype_as_functype_const(extern_type);
-      WasmFunctypePtr actual_type = wasmtime_wasm_func_type(it->second->callback_.get());
-      if (!equalValTypes(wasmtime_wasm_functype_params(exp_type),
-                         wasmtime_wasm_functype_params(actual_type.get())) ||
-          !equalValTypes(wasmtime_wasm_functype_results(exp_type),
-                         wasmtime_wasm_functype_results(actual_type.get()))) {
+      const wasm_functype_t *exp_type = wasm_externtype_as_functype_const(extern_type);
+      WasmFunctypePtr actual_type = wasm_func_type(it->second->callback_.get());
+      if (!equalValTypes(wasm_functype_params(exp_type), wasm_functype_params(actual_type.get())) ||
+          !equalValTypes(wasm_functype_results(exp_type),
+                         wasm_functype_results(actual_type.get()))) {
         fail(
             FailState::UnableToInitializeCode,
             std::string("Failed to load Wasm module due to an import type mismatch for function ") +
                 std::string(module_name) + "." + std::string(name) +
-                ", want: " + printValTypes(wasmtime_wasm_functype_params(exp_type)) + " -> " +
-                printValTypes(wasmtime_wasm_functype_results(exp_type)) + ", but host exports: " +
-                printValTypes(wasmtime_wasm_functype_params(actual_type.get())) + " -> " +
-                printValTypes(wasmtime_wasm_functype_results(actual_type.get())));
+                ", want: " + printValTypes(wasm_functype_params(exp_type)) + " -> " +
+                printValTypes(wasm_functype_results(exp_type)) +
+                ", but host exports: " + printValTypes(wasm_functype_params(actual_type.get())) +
+                " -> " + printValTypes(wasm_functype_results(actual_type.get())));
         return false;
       }
-      imports.push_back(wasmtime_wasm_func_as_extern(func));
+      imports.push_back(wasm_func_as_extern(func));
     } break;
     case WASM_EXTERN_GLOBAL: {
       // TODO(mathetake): add support when/if needed.
@@ -296,29 +289,29 @@ bool Wasmtime::link(std::string_view debug_name) {
     } break;
     case WASM_EXTERN_MEMORY: {
       assert(memory_ == nullptr);
-      const wasmtime_wasm_memorytype_t *memory_type =
-          wasmtime_wasm_externtype_as_memorytype_const(extern_type); // owned by `extern_type`
+      const wasm_memorytype_t *memory_type =
+          wasm_externtype_as_memorytype_const(extern_type); // owned by `extern_type`
       if (memory_type == nullptr) {
         return false;
       }
-      memory_ = wasmtime_wasm_memory_new(store_.get(), memory_type);
+      memory_ = wasm_memory_new(store_.get(), memory_type);
       if (memory_ == nullptr) {
         return false;
       }
-      imports.push_back(wasmtime_wasm_memory_as_extern(memory_.get()));
+      imports.push_back(wasm_memory_as_extern(memory_.get()));
     } break;
     case WASM_EXTERN_TABLE: {
       assert(table_ == nullptr);
-      const wasmtime_wasm_tabletype_t *table_type =
-          wasmtime_wasm_externtype_as_tabletype_const(extern_type); // owned by `extern_type`
+      const wasm_tabletype_t *table_type =
+          wasm_externtype_as_tabletype_const(extern_type); // owned by `extern_type`
       if (table_type == nullptr) {
         return false;
       }
-      table_ = wasmtime_wasm_table_new(store_.get(), table_type, nullptr);
+      table_ = wasm_table_new(store_.get(), table_type, nullptr);
       if (table_ == nullptr) {
         return false;
       }
-      imports.push_back(wasmtime_wasm_table_as_extern(table_.get()));
+      imports.push_back(wasm_table_as_extern(table_.get()));
     } break;
     }
   }
@@ -327,31 +320,29 @@ bool Wasmtime::link(std::string_view debug_name) {
     return false;
   }
 
-  wasmtime_wasm_extern_vec_t imports_vec = {imports.size(), imports.data()};
-  instance_ = wasmtime_wasm_instance_new(store_.get(), module_.get(), &imports_vec, nullptr);
+  wasm_extern_vec_t imports_vec = {imports.size(), imports.data()};
+  instance_ = wasm_instance_new(store_.get(), module_.get(), &imports_vec, nullptr);
   if (instance_ == nullptr) {
     fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
     return false;
   }
 
   WasmExportTypeVec export_types;
-  wasmtime_wasm_module_exports(module_.get(), export_types.get());
+  wasm_module_exports(module_.get(), export_types.get());
 
   WasmExternVec exports;
-  wasmtime_wasm_instance_exports(instance_.get(), exports.get());
+  wasm_instance_exports(instance_.get(), exports.get());
 
   for (size_t i = 0; i < export_types.get()->size; i++) {
-    const wasmtime_wasm_externtype_t *exp_extern_type =
-        wasmtime_wasm_exporttype_type(export_types.get()->data[i]);
-    wasmtime_wasm_extern_t *actual_extern = exports.get()->data[i];
+    const wasm_externtype_t *exp_extern_type = wasm_exporttype_type(export_types.get()->data[i]);
+    wasm_extern_t *actual_extern = exports.get()->data[i];
 
-    wasmtime_wasm_externkind_t kind = wasmtime_wasm_extern_kind(actual_extern);
-    assert(kind == wasmtime_wasm_externtype_kind(exp_extern_type));
+    wasm_externkind_t kind = wasm_extern_kind(actual_extern);
+    assert(kind == wasm_externtype_kind(exp_extern_type));
     switch (kind) {
     case WASM_EXTERN_FUNC: {
-      WasmFuncPtr func = wasmtime_wasm_func_copy(wasmtime_wasm_extern_as_func(actual_extern));
-      const wasmtime_wasm_name_t *name_ptr =
-          wasmtime_wasm_exporttype_name(export_types.get()->data[i]);
+      WasmFuncPtr func = wasm_func_copy(wasm_extern_as_func(actual_extern));
+      const wasm_name_t *name_ptr = wasm_exporttype_name(export_types.get()->data[i]);
       module_functions_.insert_or_assign(std::string(name_ptr->data, name_ptr->size),
                                          std::move(func));
     } break;
@@ -360,7 +351,7 @@ bool Wasmtime::link(std::string_view debug_name) {
     } break;
     case WASM_EXTERN_MEMORY: {
       assert(memory_ == nullptr);
-      memory_ = wasmtime_wasm_memory_copy(wasmtime_wasm_extern_as_memory(actual_extern));
+      memory_ = wasm_memory_copy(wasm_extern_as_memory(actual_extern));
       if (memory_ == nullptr) {
         return false;
       }
@@ -373,68 +364,68 @@ bool Wasmtime::link(std::string_view debug_name) {
   return true;
 }
 
-uint64_t Wasmtime::getMemorySize() { return wasmtime_wasm_memory_data_size(memory_.get()); }
+uint64_t Wasmtime::getMemorySize() { return wasm_memory_data_size(memory_.get()); }
 
 std::optional<std::string_view> Wasmtime::getMemory(uint64_t pointer, uint64_t size) {
   assert(memory_ != nullptr);
-  if (pointer + size > wasmtime_wasm_memory_data_size(memory_.get())) {
+  if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return std::nullopt;
   }
-  return std::string_view(wasmtime_wasm_memory_data(memory_.get()) + pointer, size);
+  return std::string_view(wasm_memory_data(memory_.get()) + pointer, size);
 }
 
 bool Wasmtime::setMemory(uint64_t pointer, uint64_t size, const void *data) {
   assert(memory_ != nullptr);
-  if (pointer + size > wasmtime_wasm_memory_data_size(memory_.get())) {
+  if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return false;
   }
-  ::memcpy(wasmtime_wasm_memory_data(memory_.get()) + pointer, data, size);
+  ::memcpy(wasm_memory_data(memory_.get()) + pointer, data, size);
   return true;
 }
 
 bool Wasmtime::getWord(uint64_t pointer, Word *word) {
   assert(memory_ != nullptr);
   constexpr auto size = sizeof(uint32_t);
-  if (pointer + size > wasmtime_wasm_memory_data_size(memory_.get())) {
+  if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return false;
   }
 
   uint32_t word32;
-  ::memcpy(&word32, wasmtime_wasm_memory_data(memory_.get()) + pointer, size);
+  ::memcpy(&word32, wasm_memory_data(memory_.get()) + pointer, size);
   word->u64_ = le32toh(word32);
   return true;
 }
 
 bool Wasmtime::setWord(uint64_t pointer, Word word) {
   constexpr auto size = sizeof(uint32_t);
-  if (pointer + size > wasmtime_wasm_memory_data_size(memory_.get())) {
+  if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return false;
   }
   uint32_t word32 = htole32(word.u32());
-  ::memcpy(wasmtime_wasm_memory_data(memory_.get()) + pointer, &word32, size);
+  ::memcpy(wasm_memory_data(memory_.get()) + pointer, &word32, size);
   return true;
 }
 
-template <typename T> void assignVal(T t, wasmtime_wasm_val_t &val);
-template <> void assignVal<Word>(Word t, wasmtime_wasm_val_t &val) {
+template <typename T> void assignVal(T t, wasm_val_t &val);
+template <> void assignVal<Word>(Word t, wasm_val_t &val) {
   val.kind = WASM_I32;
   val.of.i32 = static_cast<int32_t>(t.u64_);
 }
-template <> void assignVal(uint32_t t, wasmtime_wasm_val_t &val) {
+template <> void assignVal(uint32_t t, wasm_val_t &val) {
   val.kind = WASM_I32;
   val.of.i32 = static_cast<int32_t>(t);
 }
-template <> void assignVal(uint64_t t, wasmtime_wasm_val_t &val) {
+template <> void assignVal(uint64_t t, wasm_val_t &val) {
   val.kind = WASM_I64;
   val.of.i64 = static_cast<int64_t>(t);
 }
-template <> void assignVal(double t, wasmtime_wasm_val_t &val) {
+template <> void assignVal(double t, wasm_val_t &val) {
   val.kind = WASM_F64;
   val.of.f64 = t;
 }
 
-template <typename T> wasmtime_wasm_val_t makeVal(T t) {
-  wasmtime_wasm_val_t val{};
+template <typename T> wasm_val_t makeVal(T t) {
+  wasm_val_t val{};
   assignVal(t, val);
   return val;
 }
@@ -447,22 +438,22 @@ template <> struct ConvertWordType<Word> {
 };
 
 template <typename T> auto convertArgToValTypePtr();
-template <> auto convertArgToValTypePtr<Word>() { return wasmtime_wasm_valtype_new_i32(); };
-template <> auto convertArgToValTypePtr<uint32_t>() { return wasmtime_wasm_valtype_new_i32(); };
-template <> auto convertArgToValTypePtr<int64_t>() { return wasmtime_wasm_valtype_new_i64(); };
-template <> auto convertArgToValTypePtr<uint64_t>() { return wasmtime_wasm_valtype_new_i64(); };
-template <> auto convertArgToValTypePtr<double>() { return wasmtime_wasm_valtype_new_f64(); };
+template <> auto convertArgToValTypePtr<Word>() { return wasm_valtype_new_i32(); };
+template <> auto convertArgToValTypePtr<uint32_t>() { return wasm_valtype_new_i32(); };
+template <> auto convertArgToValTypePtr<int64_t>() { return wasm_valtype_new_i64(); };
+template <> auto convertArgToValTypePtr<uint64_t>() { return wasm_valtype_new_i64(); };
+template <> auto convertArgToValTypePtr<double>() { return wasm_valtype_new_f64(); };
 
-template <typename T> T convertValueTypeToArg(wasmtime_wasm_val_t val);
-template <> uint32_t convertValueTypeToArg<uint32_t>(wasmtime_wasm_val_t val) {
+template <typename T> T convertValueTypeToArg(wasm_val_t val);
+template <> uint32_t convertValueTypeToArg<uint32_t>(wasm_val_t val) {
   return static_cast<uint32_t>(val.of.i32);
 }
-template <> Word convertValueTypeToArg<Word>(wasmtime_wasm_val_t val) { return val.of.i32; }
-template <> int64_t convertValueTypeToArg<int64_t>(wasmtime_wasm_val_t val) { return val.of.i64; }
-template <> uint64_t convertValueTypeToArg<uint64_t>(wasmtime_wasm_val_t val) {
+template <> Word convertValueTypeToArg<Word>(wasm_val_t val) { return val.of.i32; }
+template <> int64_t convertValueTypeToArg<int64_t>(wasm_val_t val) { return val.of.i64; }
+template <> uint64_t convertValueTypeToArg<uint64_t>(wasm_val_t val) {
   return static_cast<uint64_t>(val.of.i64);
 }
-template <> double convertValueTypeToArg<double>(wasmtime_wasm_val_t val) { return val.of.f64; }
+template <> double convertValueTypeToArg<double>(wasm_val_t val) { return val.of.f64; }
 
 template <typename T, typename U, std::size_t... I>
 constexpr T convertValTypesToArgsTuple(const U &vec, std::index_sequence<I...>) {
@@ -472,15 +463,15 @@ constexpr T convertValTypesToArgsTuple(const U &vec, std::index_sequence<I...>) 
 }
 
 template <typename T, std::size_t... I>
-void convertArgsTupleToValTypesImpl(wasmtime_wasm_valtype_vec_t *types, std::index_sequence<I...>) {
+void convertArgsTupleToValTypesImpl(wasm_valtype_vec_t *types, std::index_sequence<I...>) {
   auto size = std::tuple_size<T>::value;
-  auto ps = std::array<wasmtime_wasm_valtype_t *, std::tuple_size<T>::value>{
+  auto ps = std::array<wasm_valtype_t *, std::tuple_size<T>::value>{
       convertArgToValTypePtr<typename std::tuple_element<I, T>::type>()...};
-  wasmtime_wasm_valtype_vec_new(types, size, ps.data());
+  wasm_valtype_vec_new(types, size, ps.data());
 }
 
 template <typename T, typename Is = std::make_index_sequence<std::tuple_size<T>::value>>
-void convertArgsTupleToValTypes(wasmtime_wasm_valtype_vec_t *types) {
+void convertArgsTupleToValTypes(wasm_valtype_vec_t *types) {
   convertArgsTupleToValTypesImpl<T>(types, Is());
 }
 
@@ -488,14 +479,14 @@ template <typename R, typename T> WasmFunctypePtr newWasmNewFuncType() {
   WasmValtypeVec params, results;
   convertArgsTupleToValTypes<T>(params.get());
   convertArgsTupleToValTypes<std::tuple<R>>(results.get());
-  return wasmtime_wasm_functype_new(params.get(), results.get());
+  return wasm_functype_new(params.get(), results.get());
 }
 
 template <typename T> WasmFunctypePtr newWasmNewFuncType() {
   WasmValtypeVec params, results;
   convertArgsTupleToValTypes<T>(params.get());
   convertArgsTupleToValTypes<std::tuple<>>(results.get());
-  return wasmtime_wasm_functype_new(params.get(), results.get());
+  return wasm_functype_new(params.get(), results.get());
 }
 
 template <typename... Args>
@@ -505,10 +496,9 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
       std::make_unique<HostFuncData>(std::string(module_name) + "." + std::string(function_name));
 
   WasmFunctypePtr type = newWasmNewFuncType<std::tuple<Args...>>();
-  WasmFuncPtr func = wasmtime_wasm_func_new_with_env(
+  WasmFuncPtr func = wasm_func_new_with_env(
       store_.get(), type.get(),
-      [](void *data, const wasmtime_wasm_val_vec_t *params,
-         wasmtime_wasm_val_vec_t *results) -> wasmtime_wasm_trap_t * {
+      [](void *data, const wasm_val_vec_t *params, wasm_val_vec_t *results) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<HostFuncData *>(data);
         const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
         if (log) {
@@ -539,10 +529,9 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
   auto data =
       std::make_unique<HostFuncData>(std::string(module_name) + "." + std::string(function_name));
   WasmFunctypePtr type = newWasmNewFuncType<R, std::tuple<Args...>>();
-  WasmFuncPtr func = wasmtime_wasm_func_new_with_env(
+  WasmFuncPtr func = wasm_func_new_with_env(
       store_.get(), type.get(),
-      [](void *data, const wasmtime_wasm_val_vec_t *params,
-         wasmtime_wasm_val_vec_t *results) -> wasmtime_wasm_trap_t * {
+      [](void *data, const wasm_val_vec_t *params, wasm_val_vec_t *results) -> wasm_trap_t * {
         auto func_data = reinterpret_cast<HostFuncData *>(data);
         const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
         if (log) {
@@ -582,34 +571,33 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   WasmValtypeVec exp_args, exp_returns;
   convertArgsTupleToValTypes<std::tuple<Args...>>(exp_args.get());
   convertArgsTupleToValTypes<std::tuple<>>(exp_returns.get());
-  wasmtime_wasm_func_t *func = it->second.get();
-  WasmFunctypePtr func_type = wasmtime_wasm_func_type(func);
+  wasm_func_t *func = it->second.get();
+  WasmFunctypePtr func_type = wasm_func_type(func);
 
-  if (!equalValTypes(wasmtime_wasm_functype_params(func_type.get()), exp_args.get()) ||
-      !equalValTypes(wasmtime_wasm_functype_results(func_type.get()), exp_returns.get())) {
+  if (!equalValTypes(wasm_functype_params(func_type.get()), exp_args.get()) ||
+      !equalValTypes(wasm_functype_results(func_type.get()), exp_returns.get())) {
     fail(FailState::UnableToInitializeCode,
-         "Bad function signature for: " + std::string(function_name) +
-             ", want: " + printValTypes(exp_args.get()) + " -> " +
-             printValTypes(exp_returns.get()) + ", but the module exports: " +
-             printValTypes(wasmtime_wasm_functype_params(func_type.get())) + " -> " +
-             printValTypes(wasmtime_wasm_functype_results(func_type.get())));
+         "Bad function signature for: " + std::string(function_name) + ", want: " +
+             printValTypes(exp_args.get()) + " -> " + printValTypes(exp_returns.get()) +
+             ", but the module exports: " + printValTypes(wasm_functype_params(func_type.get())) +
+             " -> " + printValTypes(wasm_functype_results(func_type.get())));
     return;
   }
 
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
-    wasmtime_wasm_val_t params_arr[] = {makeVal(args)...};
-    const wasmtime_wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
-    wasmtime_wasm_val_vec_t results = WASM_EMPTY_VEC;
+    wasm_val_t params_arr[] = {makeVal(args)...};
+    const wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
+    wasm_val_vec_t results = WASM_EMPTY_VEC;
     const bool log = cmpLogLevel(LogLevel::trace);
     if (log) {
       integration()->trace("[host->vm] " + std::string(function_name) + "(" + printValues(&params) +
                            ")");
     }
     SaveRestoreContext saved_context(context);
-    WasmTrapPtr trap{wasmtime_wasm_func_call(func, &params, &results)};
+    WasmTrapPtr trap{wasm_func_call(func, &params, &results)};
     if (trap) {
       WasmByteVec error_message;
-      wasmtime_wasm_trap_message(trap.get(), error_message.get());
+      wasm_trap_message(trap.get(), error_message.get());
       fail(FailState::RuntimeError,
            "Function: " + std::string(function_name) + " failed:\n" +
                std::string(error_message.get()->data, error_message.get()->size));
@@ -632,34 +620,33 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   WasmValtypeVec exp_args, exp_returns;
   convertArgsTupleToValTypes<std::tuple<Args...>>(exp_args.get());
   convertArgsTupleToValTypes<std::tuple<R>>(exp_returns.get());
-  wasmtime_wasm_func_t *func = it->second.get();
-  WasmFunctypePtr func_type = wasmtime_wasm_func_type(func);
-  if (!equalValTypes(wasmtime_wasm_functype_params(func_type.get()), exp_args.get()) ||
-      !equalValTypes(wasmtime_wasm_functype_results(func_type.get()), exp_returns.get())) {
+  wasm_func_t *func = it->second.get();
+  WasmFunctypePtr func_type = wasm_func_type(func);
+  if (!equalValTypes(wasm_functype_params(func_type.get()), exp_args.get()) ||
+      !equalValTypes(wasm_functype_results(func_type.get()), exp_returns.get())) {
     fail(FailState::UnableToInitializeCode,
-         "Bad function signature for: " + std::string(function_name) +
-             ", want: " + printValTypes(exp_args.get()) + " -> " +
-             printValTypes(exp_returns.get()) + ", but the module exports: " +
-             printValTypes(wasmtime_wasm_functype_params(func_type.get())) + " -> " +
-             printValTypes(wasmtime_wasm_functype_results(func_type.get())));
+         "Bad function signature for: " + std::string(function_name) + ", want: " +
+             printValTypes(exp_args.get()) + " -> " + printValTypes(exp_returns.get()) +
+             ", but the module exports: " + printValTypes(wasm_functype_params(func_type.get())) +
+             " -> " + printValTypes(wasm_functype_results(func_type.get())));
     return;
   }
 
   *function = [func, function_name, this](ContextBase *context, Args... args) -> R {
-    wasmtime_wasm_val_t params_arr[] = {makeVal(args)...};
-    const wasmtime_wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
-    wasmtime_wasm_val_t results_arr[1];
-    wasmtime_wasm_val_vec_t results = WASM_ARRAY_VEC(results_arr);
+    wasm_val_t params_arr[] = {makeVal(args)...};
+    const wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
+    wasm_val_t results_arr[1];
+    wasm_val_vec_t results = WASM_ARRAY_VEC(results_arr);
     const bool log = cmpLogLevel(LogLevel::trace);
     if (log) {
       integration()->trace("[host->vm] " + std::string(function_name) + "(" + printValues(&params) +
                            ")");
     }
     SaveRestoreContext saved_context(context);
-    WasmTrapPtr trap{wasmtime_wasm_func_call(func, &params, &results)};
+    WasmTrapPtr trap{wasm_func_call(func, &params, &results)};
     if (trap) {
       WasmByteVec error_message;
-      wasmtime_wasm_trap_message(trap.get(), error_message.get());
+      wasm_trap_message(trap.get(), error_message.get());
       fail(FailState::RuntimeError,
            "Function: " + std::string(function_name) + " failed:\n" +
                std::string(error_message.get()->data, error_message.get()->size));
