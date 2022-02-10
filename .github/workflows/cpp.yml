@@ -177,6 +177,7 @@ jobs:
           os: macos-11
           arch: x86_64
           action: test
+          deps: binutils
         - name: 'WAVM on Linux/x86_64'
           runtime: 'wavm'
           repo: 'com_github_wavm_wavm'
@@ -191,6 +192,10 @@ jobs:
     - name: Install dependencies (Linux)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
       run: sudo apt-get install -y ${{ matrix.deps }}
+
+    - name: Install dependencies (macOS)
+      if: ${{ matrix.deps != '' && startsWith(matrix.os, 'macos') }}
+      run: brew install ${{ matrix.deps }}
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')

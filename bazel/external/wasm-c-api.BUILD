@@ -32,7 +32,13 @@ genrule(
         for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
             echo $$symbol | sed -r 's/^(_?)(wasm_[a-z_]+)$$/\\1\\2 \\1wasmtime_\\2/' >>prefixed
         done
-        $(OBJCOPY) --redefine-syms=prefixed $(<) $@
+        if command -v $(OBJCOPY); then
+            $(OBJCOPY) --redefine-syms=prefixed $(<) $@
+        elif command -v gobjcopy; then
+            gobjcopy --redefine-syms=prefixed $(<) $@
+        else
+            echo \"Couldn't find objcopy tool.\"
+        fi
         """,
     toolchains = ["@bazel_tools//tools/cpp:current_cc_toolchain"],
 )
