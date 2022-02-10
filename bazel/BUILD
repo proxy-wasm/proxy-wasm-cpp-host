@@ -17,6 +17,7 @@ selects.config_setting_group(
         ":requested_runtime_v8",
     ],
 )
+
 config_setting(
     name = "requested_engine_wamr",
     values = {"define": "engine=wamr"},
