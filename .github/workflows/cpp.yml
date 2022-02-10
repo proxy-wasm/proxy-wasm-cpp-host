@@ -195,7 +195,7 @@ jobs:
 
     - name: Install dependencies (macOS)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'macos') }}
-      run: echo '$(brew --prefix llvm)/bin/' >> $GITHUB_PATH
+      run: echo '/usr/local/opt/llvm/bin/' >> $GITHUB_PATH
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
