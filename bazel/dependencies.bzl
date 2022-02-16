@@ -25,6 +25,7 @@ def proxy_wasm_cpp_host_dependencies():
 
     rules_foreign_cc_dependencies()
 
+    rust_repositories()
     rust_repository_set(
         name = "rust_linux_x86_64",
         exec_triple = "x86_64-unknown-linux-gnu",
@@ -35,7 +36,6 @@ def proxy_wasm_cpp_host_dependencies():
         ],
         version = "1.58.1",
     )
-
     rust_repository_set(
         name = "rust_linux_s390x",
         exec_triple = "s390x-unknown-linux-gnu",
@@ -45,8 +45,6 @@ def proxy_wasm_cpp_host_dependencies():
         ],
         version = "1.58.1",
     )
-
-    rust_repositories()
 
     zig_register_toolchains(
         version = "0.10.0-dev.654+44b5fdf32",
