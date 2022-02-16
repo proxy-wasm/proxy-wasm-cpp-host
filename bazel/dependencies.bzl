@@ -47,13 +47,13 @@ def proxy_wasm_cpp_host_dependencies():
     )
 
     zig_register_toolchains(
-        version = "0.10.0-dev.654+44b5fdf32",
-        url_format = "https://ziglang.org/builds/zig-{host_platform}-{version}.tar.xz",
+        version = "0.9.1",
+        url_format = "https://ziglang.org/download/{version}/zig-{host_platform}-{version}.tar.xz",
         host_platform_sha256 = {
-            "linux-aarch64": "a881dfc72671191ed01e50c9fa622c5ec73855b2aa9c99473c273a4f38585712",
-            "linux-x86_64": "e20e1887c3236f59c3f783e471ec0ccbcd699fcbb08f25f50cbe2968a221fffa",
-            "macos-aarch64": "17b6ab7c12cb7f5c8dd62540945f2bea56f332d1efe289ce72c9a7e0b186e550",
-            "macos-x86_64": "b038d63ad620e48dac146b2e4e0b848864d124e7e19e1cde57db20ec2dda3081",
+            "linux-aarch64": "5d99a39cded1870a3fa95d4de4ce68ac2610cca440336cfd252ffdddc2b90e66",
+            "linux-x86_64": "be8da632c1d3273f766b69244d80669fe4f5e27798654681d77c992f17c237d7",
+            "macos-aarch64": "8c473082b4f0f819f1da05de2dbd0c1e891dff7d85d2c12b6ee876887d438287",
+            "macos-x86_64": "2d94984972d67292b55c1eb1c00de46580e9916575d083003546e9a01166754c",
         },
     )
 
