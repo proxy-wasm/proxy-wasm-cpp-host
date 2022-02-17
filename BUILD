@@ -137,8 +137,7 @@ genrule(
         "src/wasmtime/prefixed_types.h",
         "src/wasmtime/prefixed_wasmtime.cc",
     ],
-    cmd =
-        """
+    cmd = """
         for file in $(SRCS); do
            sed -e 's/wasm_/wasmtime_wasm_/g' \
                -e 's/wasmtime\\/types.h/wasmtime\\/prefixed_types.h/g' \
