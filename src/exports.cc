@@ -64,16 +64,16 @@ Pairs toPairs(std::string_view buffer) {
   if (buffer.size() < sizeof(uint32_t)) {
     return {};
   }
-  auto size = le32toh(*reinterpret_cast<const uint32_t *>(b));
+  auto size = wasmtoh(*reinterpret_cast<const uint32_t *>(b));
   b += sizeof(uint32_t);
   if (sizeof(uint32_t) + size * 2 * sizeof(uint32_t) > buffer.size()) {
     return {};
   }
   result.resize(size);
   for (uint32_t i = 0; i < size; i++) {
-    result[i].first = std::string_view(nullptr, le32toh(*reinterpret_cast<const uint32_t *>(b)));
+    result[i].first = std::string_view(nullptr, wasmtoh(*reinterpret_cast<const uint32_t *>(b)));
     b += sizeof(uint32_t);
-    result[i].second = std::string_view(nullptr, le32toh(*reinterpret_cast<const uint32_t *>(b)));
+    result[i].second = std::string_view(nullptr, wasmtoh(*reinterpret_cast<const uint32_t *>(b)));
     b += sizeof(uint32_t);
   }
   for (auto &p : result) {

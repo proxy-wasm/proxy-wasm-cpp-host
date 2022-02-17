@@ -20,18 +20,11 @@
 // Use byteswap functions only when compiling for big-endian platforms.
 #if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
     __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-
-#if defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__)
-#include <sys/endian.h>
-#elif defined(__linux__) || defined(__OpenBSD__)
-#include <endian.h>
-#endif
-
+#define htowasm(x) __builtin_bswap32(x)
+#define wasmtoh(x) __builtin_bswap32(x)
 #else
-
-#define htole32(x) (x)
-#define le32toh(x) (x)
-
+#define htowasm(x) (x)
+#define wasmtoh(x) (x)
 #endif
 
 namespace proxy_wasm {
