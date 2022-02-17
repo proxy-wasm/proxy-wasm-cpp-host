@@ -38,3 +38,7 @@ build:macos --cxxopt=-std=c++17
 build:windows --cxxopt="/std:c++17"
 # See https://bytecodealliance.github.io/wasmtime/c-api/
 # build:windows --linkopt="ws2_32.lib advapi32.lib userenv.lib ntdll.lib shell32.lib ole32.lib"
+
+# Hacks to allow reading files on Windows.
+build:windows --enable_runfiles
+startup --windows_enable_symlinks
