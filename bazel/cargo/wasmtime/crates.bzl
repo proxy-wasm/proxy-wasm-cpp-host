@@ -498,6 +498,12 @@ def wasmtime_fetch_remote_crates():
         type = "tar.gz",
         sha256 = "cd136ff4382c4753fc061cb9e4712ab2af263376b95bbd5bd8cd50c020b78e69",
         strip_prefix = "psm-0.1.16",
+        patches = [
+            "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:psm.patch",
+        ],
+        patch_args = [
+            "-p2",
+        ],
         build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.psm-0.1.16.bazel"),
     )
 
