@@ -32,9 +32,10 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "wasmtime_environ",
+    name = "regalloc",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -44,23 +45,14 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=wasmtime-environ",
+        "crate-name=regalloc",
         "manual",
     ],
-    version = "0.33.0",
+    version = "0.0.34",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__anyhow__1_0_53//:anyhow",
-        "@wasmtime__cranelift_entity__0_80_0//:cranelift_entity",
-        "@wasmtime__gimli__0_26_1//:gimli",
-        "@wasmtime__indexmap__1_8_0//:indexmap",
         "@wasmtime__log__0_4_14//:log",
-        "@wasmtime__more_asserts__0_2_2//:more_asserts",
-        "@wasmtime__object__0_27_1//:object",
-        "@wasmtime__serde__1_0_136//:serde",
-        "@wasmtime__target_lexicon__0_12_2//:target_lexicon",
-        "@wasmtime__thiserror__1_0_30//:thiserror",
-        "@wasmtime__wasmparser__0_81_0//:wasmparser",
-        "@wasmtime__wasmtime_types__0_33_0//:wasmtime_types",
+        "@wasmtime__rustc_hash__1_1_0//:rustc_hash",
+        "@wasmtime__smallvec__1_8_0//:smallvec",
     ],
 )

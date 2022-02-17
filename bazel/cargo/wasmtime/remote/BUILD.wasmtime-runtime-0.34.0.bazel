@@ -55,7 +55,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.33.0",
+    version = "0.34.0",
     visibility = ["//visibility:private"],
     deps = [
         "@wasmtime__cc__1_0_72//:cc",
@@ -120,23 +120,23 @@ rust_library(
         "crate-name=wasmtime-runtime",
         "manual",
     ],
-    version = "0.33.0",
+    version = "0.34.0",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
         "@wasmtime__anyhow__1_0_53//:anyhow",
-        "@wasmtime__backtrace__0_3_63//:backtrace",
+        "@wasmtime__backtrace__0_3_64//:backtrace",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_8_0//:indexmap",
         "@wasmtime__lazy_static__1_4_0//:lazy_static",
-        "@wasmtime__libc__0_2_114//:libc",
+        "@wasmtime__libc__0_2_117//:libc",
         "@wasmtime__log__0_4_14//:log",
         "@wasmtime__memoffset__0_6_5//:memoffset",
         "@wasmtime__more_asserts__0_2_2//:more_asserts",
         "@wasmtime__rand__0_8_4//:rand",
         "@wasmtime__region__2_2_0//:region",
         "@wasmtime__thiserror__1_0_30//:thiserror",
-        "@wasmtime__wasmtime_environ__0_33_0//:wasmtime_environ",
+        "@wasmtime__wasmtime_environ__0_34_0//:wasmtime_environ",
     ] + selects.with_or({
         # cfg(target_os = "macos")
         (
@@ -176,7 +176,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__rustix__0_31_3//:rustix",
+            "@wasmtime__rustix__0_33_1//:rustix",
         ],
         "//conditions:default": [],
     }),

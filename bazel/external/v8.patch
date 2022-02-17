@@ -1,0 +1,35 @@
+# 1. Disable pointer compression (limits the maximum number of WasmVMs).
+# 2. Don't expose Wasm C API (only Wasm C++ API).
+
+diff --git a/BUILD.bazel b/BUILD.bazel
+index 5fb10d3940..a19930d36e 100644
+--- a/BUILD.bazel
++++ b/BUILD.bazel
+@@ -161,7 +161,7 @@ v8_int(
+ # If no explicit value for v8_enable_pointer_compression, we set it to 'none'.
+ v8_string(
+     name = "v8_enable_pointer_compression",
+-    default = "none",
++    default = "False",
+ )
+ 
+ # Default setting for v8_enable_pointer_compression.
+diff --git a/src/wasm/c-api.cc b/src/wasm/c-api.cc
+index ce3f569fd5..dc8a4c4f6a 100644
+--- a/src/wasm/c-api.cc
++++ b/src/wasm/c-api.cc
+@@ -2238,6 +2238,8 @@ auto Instance::exports() const -> ownvec<Extern> {
+ 
+ }  // namespace wasm
+ 
++#if 0
++
+ // BEGIN FILE wasm-c.cc
+ 
+ extern "C" {
+@@ -3257,3 +3259,5 @@ wasm_instance_t* wasm_frame_instance(const wasm_frame_t* frame) {
+ #undef WASM_DEFINE_SHARABLE_REF
+ 
+ }  // extern "C"
++
++#endif

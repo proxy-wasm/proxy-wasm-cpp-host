@@ -30,14 +30,14 @@
 #include "wasm-api/wasm.hh"
 
 namespace proxy_wasm {
-namespace {
+namespace v8 {
 
 wasm::Engine *engine() {
   static std::once_flag init;
   static wasm::own<wasm::Engine> engine;
 
   std::call_once(init, []() {
-    v8::V8::EnableWebAssemblyTrapHandler(true);
+    ::v8::V8::EnableWebAssemblyTrapHandler(true);
     engine = wasm::Engine::make();
   });
 
@@ -60,7 +60,7 @@ public:
   V8() {}
 
   // WasmVm
-  std::string_view runtime() override { return "v8"; }
+  std::string_view getEngineName() override { return "v8"; }
 
   bool load(std::string_view bytecode, std::string_view precompiled,
             const std::unordered_map<uint32_t, std::string> function_names) override;
@@ -250,24 +250,31 @@ template <typename T, typename U> constexpr T convertValTypesToArgsTuple(const U
 bool V8::load(std::string_view bytecode, std::string_view precompiled,
               const std::unordered_map<uint32_t, std::string> function_names) {
   store_ = wasm::Store::make(engine());
+  if (store_ == nullptr) {
+    return false;
+  }
 
   if (!precompiled.empty()) {
     auto vec = wasm::vec<byte_t>::make_uninitialized(precompiled.size());
     ::memcpy(vec.get(), precompiled.data(), precompiled.size());
     module_ = wasm::Module::deserialize(store_.get(), vec);
+    if (module_ == nullptr) {
+      return false;
+    }
 
   } else {
     auto vec = wasm::vec<byte_t>::make_uninitialized(bytecode.size());
     ::memcpy(vec.get(), bytecode.data(), bytecode.size());
     module_ = wasm::Module::make(store_.get(), vec);
-  }
-
-  if (!module_) {
-    return false;
+    if (module_ == nullptr) {
+      return false;
+    }
   }
 
   shared_module_ = module_->share();
-  assert(shared_module_ != nullptr);
+  if (shared_module_ == nullptr) {
+    return false;
+  }
 
   function_names_index_ = function_names;
 
@@ -278,10 +285,26 @@ std::unique_ptr<WasmVm> V8::clone() {
   assert(shared_module_ != nullptr);
 
   auto clone = std::make_unique<V8>();
-  clone->integration().reset(integration()->clone());
+  if (clone == nullptr) {
+    return nullptr;
+  }
+
   clone->store_ = wasm::Store::make(engine());
+  if (clone->store_ == nullptr) {
+    return nullptr;
+  }
 
   clone->module_ = wasm::Module::obtain(clone->store_.get(), shared_module_.get());
+  if (clone->module_ == nullptr) {
+    return nullptr;
+  }
+
+  auto integration_clone = integration()->clone();
+  if (integration_clone == nullptr) {
+    return nullptr;
+  }
+  clone->integration().reset(integration_clone);
+
   clone->function_names_index_ = function_names_index_;
 
   return clone;
@@ -322,7 +345,7 @@ bool V8::link(std::string_view debug_name) {
         fail(FailState::UnableToInitializeCode,
              std::string("Failed to load Wasm module due to a missing import: ") +
                  std::string(module) + "." + std::string(name));
-        break;
+        return false;
       }
       auto func = it->second.get()->callback_.get();
       if (!equalValTypes(import_type->func()->params(), func->type()->params()) ||
@@ -334,7 +357,7 @@ bool V8::link(std::string_view debug_name) {
                  printValTypes(import_type->func()->results()) +
                  ", but host exports: " + printValTypes(func->type()->params()) + " -> " +
                  printValTypes(func->type()->results()));
-        break;
+        return false;
       }
       imports.push_back(func);
     } break;
@@ -344,12 +367,19 @@ bool V8::link(std::string_view debug_name) {
       fail(FailState::UnableToInitializeCode,
            "Failed to load Wasm module due to a missing import: " + std::string(module) + "." +
                std::string(name));
+      return false;
     } break;
 
     case wasm::EXTERN_MEMORY: {
       assert(memory_ == nullptr);
       auto type = wasm::MemoryType::make(import_type->memory()->limits());
+      if (type == nullptr) {
+        return false;
+      }
       memory_ = wasm::Memory::make(store_.get(), type.get());
+      if (memory_ == nullptr) {
+        return false;
+      }
       imports.push_back(memory_.get());
     } break;
 
@@ -358,7 +388,13 @@ bool V8::link(std::string_view debug_name) {
       auto type =
           wasm::TableType::make(wasm::ValType::make(import_type->table()->element()->kind()),
                                 import_type->table()->limits());
+      if (type == nullptr) {
+        return false;
+      }
       table_ = wasm::Table::make(store_.get(), type.get());
+      if (table_ == nullptr) {
+        return false;
+      }
       imports.push_back(table_.get());
     } break;
     }
@@ -369,6 +405,10 @@ bool V8::link(std::string_view debug_name) {
   }
 
   instance_ = wasm::Instance::make(store_.get(), module_.get(), imports.data());
+  if (instance_ == nullptr) {
+    fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
+    return false;
+  }
 
   const auto export_types = module_.get()->exports();
   const auto exports = instance_.get()->exports();
@@ -395,6 +435,9 @@ bool V8::link(std::string_view debug_name) {
       assert(export_item->memory() != nullptr);
       assert(memory_ == nullptr);
       memory_ = exports[i]->memory()->copy();
+      if (memory_ == nullptr) {
+        return false;
+      }
     } break;
 
     case wasm::EXTERN_TABLE: {
@@ -403,7 +446,7 @@ bool V8::link(std::string_view debug_name) {
     }
   }
 
-  return !isFailed();
+  return true;
 }
 
 uint64_t V8::getMemorySize() { return memory_->data_size(); }
@@ -432,7 +475,7 @@ bool V8::getWord(uint64_t pointer, Word *word) {
   }
   uint32_t word32;
   ::memcpy(&word32, memory_->data() + pointer, size);
-  word->u64_ = word32;
+  word->u64_ = le32toh(word32);
   return true;
 }
 
@@ -441,7 +484,7 @@ bool V8::setWord(uint64_t pointer, Word word) {
   if (pointer + size > memory_->data_size()) {
     return false;
   }
-  uint32_t word32 = word.u32();
+  uint32_t word32 = htole32(word.u32());
   ::memcpy(memory_->data() + pointer, &word32, size);
   return true;
 }
@@ -645,8 +688,8 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
   return message;
 }
 
-} // namespace
+} // namespace v8
 
-std::unique_ptr<WasmVm> createV8Vm() { return std::make_unique<V8>(); }
+std::unique_ptr<WasmVm> createV8Vm() { return std::make_unique<v8::V8>(); }
 
 } // namespace proxy_wasm

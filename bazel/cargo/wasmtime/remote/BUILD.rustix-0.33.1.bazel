@@ -58,7 +58,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.31.3",
+    version = "0.33.1",
     visibility = ["//visibility:private"],
     deps = [
         "@wasmtime__cc__1_0_72//:cc",
@@ -70,7 +70,7 @@ cargo_build_script(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
         ): [
-            "@wasmtime__linux_raw_sys__0_0_36//:linux_raw_sys",
+            "@wasmtime__linux_raw_sys__0_0_40//:linux_raw_sys",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -108,6 +108,8 @@ cargo_build_script(
 
 # Unsupported target "mod" with type "bench" omitted
 
+# Unsupported target "dup2_to_replace_stdio" with type "example" omitted
+
 # Unsupported target "hello" with type "example" omitted
 
 # Unsupported target "process" with type "example" omitted
@@ -138,12 +140,12 @@ rust_library(
         "crate-name=rustix",
         "manual",
     ],
-    version = "0.31.3",
+    version = "0.33.1",
     # buildifier: leave-alone
     deps = [
         ":rustix_build_script",
         "@wasmtime__bitflags__1_3_2//:bitflags",
-        "@wasmtime__io_lifetimes__0_4_4//:io_lifetimes",
+        "@wasmtime__io_lifetimes__0_5_1//:io_lifetimes",
     ] + selects.with_or({
         # cfg(all(not(rustix_use_libc), any(target_os = "linux"), any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "riscv64")))
         (
@@ -152,7 +154,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
         ): [
-            "@wasmtime__linux_raw_sys__0_0_36//:linux_raw_sys",
+            "@wasmtime__linux_raw_sys__0_0_40//:linux_raw_sys",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -176,7 +178,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
             "@wasmtime__errno__0_2_8//:errno",
-            "@wasmtime__libc__0_2_114//:libc",
+            "@wasmtime__libc__0_2_117//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

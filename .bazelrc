@@ -1,5 +1,29 @@
-build --action_env=CC=clang
-build --action_env=CXX=clang++
+# Pass CC, CXX and PATH from the environment.
+build --action_env=CC
+build --action_env=CXX
+build --action_env=PATH
+
+# Use Clang compiler.
+build:clang --action_env=BAZEL_COMPILER=clang
+build:clang --action_env=CC=clang
+build:clang --action_env=CXX=clang++
+
+# Use GCC compiler.
+build:gcc --action_env=BAZEL_COMPILER=gcc
+build:gcc --action_env=CC=gcc
+build:gcc --action_env=CXX=g++
+
+# Use Zig C/C++ compiler.
+build:zig-cc --incompatible_enable_cc_toolchain_resolution
+build:zig-cc --extra_toolchains @zig_sdk//:aarch64-linux-gnu.2.28_toolchain
+build:zig-cc --extra_toolchains @zig_sdk//:x86_64-linux-gnu.2.28_toolchain
+build:zig-cc --host_copt=-fno-sanitize=undefined
+
+# Use Zig C/C++ compiler (cross-compile to Linux/aarch64).
+build:zig-cc-linux-aarch64 --config=zig-cc
+build:zig-cc-linux-aarch64 --platforms @zig_sdk//:linux_aarch64_platform
+build:zig-cc-linux-aarch64 --run_under=qemu-aarch64-static
+build:zig-cc-linux-aarch64 --test_env=QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
 
 build --enable_platform_specific_config
 
