@@ -84,7 +84,7 @@ cc_library(
     ],
     defines = [
         "PROXY_WASM_HAS_RUNTIME_NULL",
-        "PROXY_WASM_HOST_ENGINE_NULLVM",
+        "PROXY_WASM_HOST_ENGINE_NULL",
     ],
     deps = [
         ":headers",
