@@ -8,6 +8,11 @@ build:clang --action_env=BAZEL_COMPILER=clang
 build:clang --action_env=CC=clang
 build:clang --action_env=CXX=clang++
 
+# Use GCC compiler.
+build:gcc --action_env=BAZEL_COMPILER=gcc
+build:gcc --action_env=CC=gcc
+build:gcc --action_env=CXX=g++
+
 # Use Zig C/C++ compiler.
 build:zig-cc --incompatible_enable_cc_toolchain_resolution
 build:zig-cc --extra_toolchains @zig_sdk//:aarch64-linux-gnu.2.28_toolchain
