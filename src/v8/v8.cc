@@ -60,7 +60,7 @@ public:
   V8() {}
 
   // WasmVm
-  std::string_view runtime() override { return "v8"; }
+  std::string_view getEngineName() override { return "v8"; }
 
   bool load(std::string_view bytecode, std::string_view precompiled,
             const std::unordered_map<uint32_t, std::string> function_names) override;

@@ -16,8 +16,8 @@
 
 namespace proxy_wasm {
 
-std::vector<std::string> getRuntimes() {
-  std::vector<std::string> runtimes = {
+std::vector<std::string> getWasmEngines() {
+  std::vector<std::string> engines = {
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
     "v8",
 #endif
@@ -32,8 +32,8 @@ std::vector<std::string> getRuntimes() {
 #endif
     ""
   };
-  runtimes.pop_back();
-  return runtimes;
+  engines.pop_back();
+  return engines;
 }
 
 std::string readTestWasmFile(std::string filename) {

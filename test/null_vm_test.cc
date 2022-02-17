@@ -64,7 +64,7 @@ public:
 TEST_F(BaseVmTest, NullVmStartup) {
   auto wasm_vm = createNullVm();
   EXPECT_TRUE(wasm_vm != nullptr);
-  EXPECT_TRUE(wasm_vm->runtime() == "null");
+  EXPECT_TRUE(wasm_vm->getEngineName() == "null");
   EXPECT_TRUE(wasm_vm->cloneable() == Cloneable::InstantiatedModule);
   auto wasm_vm_clone = wasm_vm->clone();
   EXPECT_TRUE(wasm_vm_clone != nullptr);

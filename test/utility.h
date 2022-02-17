@@ -38,7 +38,7 @@
 
 namespace proxy_wasm {
 
-std::vector<std::string> getRuntimes();
+std::vector<std::string> getWasmEngines();
 std::string readTestWasmFile(std::string filename);
 
 struct DummyIntegration : public WasmVmIntegration {
@@ -68,38 +68,39 @@ public:
   std::unique_ptr<proxy_wasm::WasmVm> vm_;
 
   TestVM() {
-    runtime_ = GetParam();
+    engine_ = GetParam();
     vm_ = newVm();
   }
 
   std::unique_ptr<proxy_wasm::WasmVm> newVm() {
     std::unique_ptr<proxy_wasm::WasmVm> vm;
-    if (runtime_ == "") {
-      EXPECT_TRUE(false) << "runtime must not be empty";
+    if (engine_ == "") {
+      EXPECT_TRUE(false) << "engine must not be empty";
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
-    } else if (runtime_ == "v8") {
+    } else if (engine_ == "v8") {
       vm = proxy_wasm::createV8Vm();
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WAVM)
-    } else if (runtime_ == "wavm") {
+    } else if (engine_ == "wavm") {
       vm = proxy_wasm::createWavmVm();
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
-    } else if (runtime_ == "wasmtime") {
+    } else if (engine_ == "wasmtime") {
       vm = proxy_wasm::createWasmtimeVm();
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
-    } else if (runtime_ == "wamr") {
+    } else if (engine_ == "wamr") {
       vm = proxy_wasm::createWamrVm();
 #endif
     } else {
-      EXPECT_TRUE(false) << "compiled without support for the requested \"" << runtime_
-                         << "\" runtime";
+      EXPECT_TRUE(false) << "compiled without support for the requested \"" << engine_
+                         << "\" engine";
     }
     vm->integration().reset(new DummyIntegration{});
     return vm;
   };
 
-  std::string runtime_;
+  std::string engine_;
 };
+
 } // namespace proxy_wasm
