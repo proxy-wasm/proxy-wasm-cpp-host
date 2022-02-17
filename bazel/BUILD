@@ -21,6 +21,11 @@ config_setting(
 )
 
 config_setting(
+    name = "multiengine",
+    values = {"define": "engine=multi"},
+)
+
+config_setting(
     name = "requested_crypto_system",
     values = {"define": "crypto=system"},
 )

@@ -127,13 +127,39 @@ cc_library(
     ],
 )
 
+genrule(
+    name = "prefixed_wasmtime_sources",
+    srcs = [
+        "src/wasmtime/types.h",
+        "src/wasmtime/wasmtime.cc",
+    ],
+    outs = [
+        "src/wasmtime/prefixed_types.h",
+        "src/wasmtime/prefixed_wasmtime.cc",
+    ],
+    cmd = """
+        for file in $(SRCS); do
+           sed -e 's/wasm_/wasmtime_wasm_/g' \
+               -e 's/wasmtime\\/types.h/wasmtime\\/prefixed_types.h/g' \
+           $$file >$(@D)/$$(dirname $$file)/prefixed_$$(basename $$file)
+        done
+        """,
+)
+
 cc_library(
     name = "wasmtime_lib",
     srcs = [
         "src/common/types.h",
-        "src/wasmtime/types.h",
-        "src/wasmtime/wasmtime.cc",
-    ],
+    ] + select({
+        "@proxy_wasm_cpp_host//bazel:multiengine": [
+            "src/wasmtime/prefixed_types.h",
+            "src/wasmtime/prefixed_wasmtime.cc",
+        ],
+        "//conditions:default": [
+            "src/wasmtime/types.h",
+            "src/wasmtime/wasmtime.cc",
+        ],
+    }),
     hdrs = ["include/proxy-wasm/wasmtime.h"],
     defines = [
         "PROXY_WASM_HAS_RUNTIME_WASMTIME",
@@ -141,8 +167,14 @@ cc_library(
     ],
     deps = [
         ":wasm_vm_headers",
-        "//external:wasmtime",
-    ],
+    ] + select({
+        "@proxy_wasm_cpp_host//bazel:multiengine": [
+            "//external:prefixed_wasmtime",
+        ],
+        "//conditions:default": [
+            "//external:wasmtime",
+        ],
+    }),
 )
 
 cc_library(
