@@ -712,8 +712,8 @@ Word writevImpl(Word fd, Word iovs, Word iovs_len, Word *nwritten_ptr) {
     }
     const uint32_t *iovec = reinterpret_cast<const uint32_t *>(memslice.value().data());
     if (iovec[1] /* buf_len */) {
-      memslice = context->wasmVm()->getMemory(le32toh(iovec[0]) /* buf */,
-                                              le32toh(iovec[1]) /* buf_len */);
+      memslice = context->wasmVm()->getMemory(wasmtoh(iovec[0]) /* buf */,
+                                              wasmtoh(iovec[1]) /* buf_len */);
       if (!memslice) {
         return 21; // __WASI_EFAULT
       }
