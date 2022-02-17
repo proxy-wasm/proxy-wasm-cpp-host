@@ -166,7 +166,6 @@ jobs:
           action: build
           flags: --config=zig-cc-linux-aarch64
           deps: qemu-user-static libc6-arm64-cross
-          cache: true
         - name: 'Wasmtime on Linux/s390x'
           runtime: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
