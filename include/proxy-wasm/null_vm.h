@@ -32,7 +32,7 @@ struct NullVm : public WasmVm {
   NullVm(const NullVm &other) : plugin_name_(other.plugin_name_) {}
 
   // WasmVm
-  std::string_view runtime() override { return "null"; }
+  std::string_view getEngineName() override { return "null"; }
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
   std::unique_ptr<WasmVm> clone() override;
   bool load(std::string_view bytecode, std::string_view precompiled,

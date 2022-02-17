@@ -1,4 +1,4 @@
-load("@proxy_wasm_cpp_host//bazel:select.bzl", "proxy_wasm_select_runtime_nullvm")
+load("@proxy_wasm_cpp_host//bazel:select.bzl", "proxy_wasm_select_engine_null")
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 licenses(["notice"])  # Apache 2
@@ -7,7 +7,7 @@ package(default_visibility = ["//visibility:public"])
 
 cc_test(
     name = "null_vm_test",
-    srcs = proxy_wasm_select_runtime_nullvm(["null_vm_test.cc"]),
+    srcs = proxy_wasm_select_engine_null(["null_vm_test.cc"]),
     linkstatic = 1,
     deps = [
         "//:lib",

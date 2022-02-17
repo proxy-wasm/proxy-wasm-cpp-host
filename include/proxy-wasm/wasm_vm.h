@@ -180,10 +180,10 @@ class WasmVm {
 public:
   virtual ~WasmVm() = default;
   /**
-   * Identify the Wasm runtime.
-   * @return the name of the underlying Wasm runtime.
+   * Identify the Wasm engine.
+   * @return the name of the underlying Wasm engine.
    */
-  virtual std::string_view runtime() = 0;
+  virtual std::string_view getEngineName() = 0;
 
   /**
    * Whether or not the VM implementation supports cloning. Cloning is VM system dependent.

@@ -203,7 +203,7 @@ struct Wavm : public WasmVm {
   ~Wavm() override;
 
   // WasmVm
-  std::string_view runtime() override { return "wavm"; }
+  std::string_view getEngineName() override { return "wavm"; }
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
   std::unique_ptr<WasmVm> clone() override;
   bool load(std::string_view bytecode, std::string_view precompiled,

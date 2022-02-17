@@ -55,7 +55,7 @@ class Wamr : public WasmVm {
 public:
   Wamr() {}
 
-  std::string_view runtime() override { return "wamr"; }
+  std::string_view getEngineName() override { return "wamr"; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 
   Cloneable cloneable() override { return Cloneable::NotCloneable; }

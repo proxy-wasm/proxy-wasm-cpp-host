@@ -1,28 +1,28 @@
 load("@bazel_skylib//lib:selects.bzl", "selects")
 
 config_setting(
-    name = "runtime_nullvm",
-    values = {"define": "runtime=nullvm"},
+    name = "engine_null",
+    values = {"define": "engine=null"},
 )
 
 config_setting(
-    name = "runtime_v8",
-    values = {"define": "runtime=v8"},
+    name = "engine_v8",
+    values = {"define": "engine=v8"},
 )
 
 config_setting(
-    name = "runtime_wamr",
-    values = {"define": "runtime=wamr"},
+    name = "engine_wamr",
+    values = {"define": "engine=wamr"},
 )
 
 config_setting(
-    name = "runtime_wasmtime",
-    values = {"define": "runtime=wasmtime"},
+    name = "engine_wasmtime",
+    values = {"define": "engine=wasmtime"},
 )
 
 config_setting(
-    name = "runtime_wavm",
-    values = {"define": "runtime=wavm"},
+    name = "engine_wavm",
+    values = {"define": "engine=wavm"},
 )
 
 config_setting(
