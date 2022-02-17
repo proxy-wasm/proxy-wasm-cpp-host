@@ -196,6 +196,11 @@ def proxy_wasm_cpp_host_repositories():
         actual = "@com_github_webassembly_wasm_c_api//:wasmtime_lib",
     )
 
+    native.bind(
+        name = "prefixed_wasmtime",
+        actual = "@com_github_webassembly_wasm_c_api//:prefixed_wasmtime_lib",
+    )
+
     # WAVM with dependencies.
 
     maybe(

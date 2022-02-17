@@ -21,14 +21,14 @@ std::vector<std::string> getWasmEngines() {
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
     "v8",
 #endif
-#if defined(PROXY_WASM_HOST_ENGINE_WAVM)
-    "wavm",
+#if defined(PROXY_WASM_HOST_ENGINE_WAMR)
+    "wamr",
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
     "wasmtime",
 #endif
-#if defined(PROXY_WASM_HOST_ENGINE_WAMR)
-    "wamr",
+#if defined(PROXY_WASM_HOST_ENGINE_WAVM)
+    "wavm",
 #endif
     ""
   };

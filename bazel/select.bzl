@@ -15,29 +15,34 @@
 def proxy_wasm_select_engine_null(xs):
     return select({
         "@proxy_wasm_cpp_host//bazel:engine_null": xs,
+        "@proxy_wasm_cpp_host//bazel:multiengine": xs,
         "//conditions:default": [],
     })
 
 def proxy_wasm_select_engine_v8(xs):
     return select({
         "@proxy_wasm_cpp_host//bazel:engine_v8": xs,
+        "@proxy_wasm_cpp_host//bazel:multiengine": xs,
         "//conditions:default": [],
     })
 
 def proxy_wasm_select_engine_wamr(xs):
     return select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr": xs,
+        "@proxy_wasm_cpp_host//bazel:multiengine": xs,
         "//conditions:default": [],
     })
 
 def proxy_wasm_select_engine_wasmtime(xs):
     return select({
         "@proxy_wasm_cpp_host//bazel:engine_wasmtime": xs,
+        "@proxy_wasm_cpp_host//bazel:multiengine": xs,
         "//conditions:default": [],
     })
 
 def proxy_wasm_select_engine_wavm(xs):
     return select({
         "@proxy_wasm_cpp_host//bazel:engine_wavm": xs,
+        "@proxy_wasm_cpp_host//bazel:multiengine": xs,
         "//conditions:default": [],
     })

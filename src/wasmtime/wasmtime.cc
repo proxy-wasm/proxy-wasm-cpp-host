@@ -24,7 +24,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "include/proxy-wasm/wasm_vm.h"
 #include "src/wasmtime/types.h"
 
 #include "wasmtime/include/wasm.h"
