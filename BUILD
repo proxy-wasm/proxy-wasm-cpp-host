@@ -1,10 +1,10 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load(
     "@proxy_wasm_cpp_host//bazel:select.bzl",
-    "proxy_wasm_select_runtime_v8",
-    "proxy_wasm_select_runtime_wamr",
-    "proxy_wasm_select_runtime_wasmtime",
-    "proxy_wasm_select_runtime_wavm",
+    "proxy_wasm_select_engine_v8",
+    "proxy_wasm_select_engine_wamr",
+    "proxy_wasm_select_engine_wasmtime",
+    "proxy_wasm_select_engine_wavm",
 )
 
 licenses(["notice"])  # Apache 2
@@ -82,7 +82,10 @@ cc_library(
         "include/proxy-wasm/null_vm_plugin.h",
         "include/proxy-wasm/wasm_api_impl.h",
     ],
-    defines = ["PROXY_WASM_HAS_RUNTIME_NULL"],
+    defines = [
+        "PROXY_WASM_HAS_RUNTIME_NULL",
+        "PROXY_WASM_HOST_ENGINE_NULL",
+    ],
     deps = [
         ":headers",
         "@com_google_protobuf//:protobuf_lite",
@@ -96,7 +99,10 @@ cc_library(
         "src/v8/v8.cc",
     ],
     hdrs = ["include/proxy-wasm/v8.h"],
-    defines = ["PROXY_WASM_HAS_RUNTIME_V8"],
+    defines = [
+        "PROXY_WASM_HAS_RUNTIME_V8",
+        "PROXY_WASM_HOST_ENGINE_V8",
+    ],
     deps = [
         ":wasm_vm_headers",
         "//external:wee8",
@@ -111,7 +117,10 @@ cc_library(
         "src/wamr/wamr.cc",
     ],
     hdrs = ["include/proxy-wasm/wamr.h"],
-    defines = ["PROXY_WASM_HAS_RUNTIME_WAMR"],
+    defines = [
+        "PROXY_WASM_HAS_RUNTIME_WAMR",
+        "PROXY_WASM_HOST_ENGINE_WARM",
+    ],
     deps = [
         ":wasm_vm_headers",
         "//external:wamr",
@@ -143,7 +152,7 @@ cc_library(
     srcs = [
         "src/common/types.h",
     ] + select({
-        "//bazel:runtime_multi": [
+        "//bazel:multiengine": [
             "src/wasmtime/prefixed_types.h",
             "src/wasmtime/prefixed_wasmtime.cc",
         ],
@@ -153,11 +162,14 @@ cc_library(
         ],
     }),
     hdrs = ["include/proxy-wasm/wasmtime.h"],
-    defines = ["PROXY_WASM_HAS_RUNTIME_WASMTIME"],
+    defines = [
+        "PROXY_WASM_HAS_RUNTIME_WASMTIME",
+        "PROXY_WASM_HOST_ENGINE_WASMTIME",
+    ],
     deps = [
         ":wasm_vm_headers",
     ] + select({
-        "//bazel:runtime_multi": [
+        "//bazel:multiengine": [
             "//external:prefixed_wasmtime",
         ],
         "//conditions:default": [
@@ -177,7 +189,10 @@ cc_library(
         "-Wno-non-virtual-dtor",
         "-Wno-old-style-cast",
     ],
-    defines = ["PROXY_WASM_HAS_RUNTIME_WAVM"],
+    defines = [
+        "PROXY_WASM_HAS_RUNTIME_WAVM",
+        "PROXY_WASM_HOST_ENGINE_WAVM",
+    ],
     deps = [
         ":wasm_vm_headers",
         "//external:wavm",
@@ -189,13 +204,13 @@ cc_library(
     deps = [
         ":base_lib",
         ":null_lib",
-    ] + proxy_wasm_select_runtime_v8(
+    ] + proxy_wasm_select_engine_v8(
         [":v8_lib"],
-    ) + proxy_wasm_select_runtime_wamr(
+    ) + proxy_wasm_select_engine_wamr(
         [":wamr_lib"],
-    ) + proxy_wasm_select_runtime_wasmtime(
+    ) + proxy_wasm_select_engine_wasmtime(
         [":wasmtime_lib"],
-    ) + proxy_wasm_select_runtime_wavm(
+    ) + proxy_wasm_select_engine_wavm(
         [":wavm_lib"],
     ),
 )
