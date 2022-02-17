@@ -247,14 +247,14 @@ TEST_P(TestVM, Trap) {
   auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
   EXPECT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 
-  if (runtime_ == "wamr" || runtime_ == "wasmtime") {
+  if (engine_ == "wamr" || engine_ == "wasmtime") {
     // TODO(PiotrSikora): Stacktrace not supported in WAMR and Wasmtime.
     return;
   }
   exp_message = "Proxy-Wasm plugin in-VM backtrace:";
   EXPECT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 
-  if (runtime_ == "wavm") {
+  if (engine_ == "wavm") {
     // WAVM uses custom format for stacktraces.
     return;
   }
