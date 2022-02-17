@@ -30,9 +30,9 @@
 namespace proxy_wasm {
 namespace {
 
-auto test_values = testing::ValuesIn(getRuntimes());
+auto test_values = testing::ValuesIn(getWasmEngines());
 
-INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, test_values);
+INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVM, test_values);
 
 class TestContext : public ContextBase {
 public:
