@@ -49,10 +49,10 @@ class WasmVm;
  */
 struct PluginBase {
   PluginBase(std::string_view name, std::string_view root_id, std::string_view vm_id,
-             std::string_view runtime, std::string_view plugin_configuration, bool fail_open,
+             std::string_view engine, std::string_view plugin_configuration, bool fail_open,
              std::string_view key)
       : name_(std::string(name)), root_id_(std::string(root_id)), vm_id_(std::string(vm_id)),
-        runtime_(std::string(runtime)), plugin_configuration_(plugin_configuration),
+        engine_(std::string(engine)), plugin_configuration_(plugin_configuration),
         fail_open_(fail_open),
         key_(root_id_ + "||" + plugin_configuration_ + "||" + std::string(key)),
         log_prefix_(makeLogPrefix()) {}
@@ -60,7 +60,7 @@ struct PluginBase {
   const std::string name_;
   const std::string root_id_;
   const std::string vm_id_;
-  const std::string runtime_;
+  const std::string engine_;
   const std::string plugin_configuration_;
   const bool fail_open_;
 

@@ -30,7 +30,7 @@
 namespace proxy_wasm {
 namespace {
 
-INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, testing::ValuesIn(getRuntimes()),
+INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVM, testing::ValuesIn(getWasmEngines()),
                          [](const testing::TestParamInfo<std::string> &info) {
                            return info.param;
                          });
