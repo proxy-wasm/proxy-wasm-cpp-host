@@ -117,6 +117,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
+        - name: 'NullVM on Linux/x86_64'
+          engine: 'null'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=gcc
         - name: 'V8 on Linux/x86_64'
           engine: 'v8'
           repo: 'v8'
@@ -245,6 +251,7 @@ jobs:
         //test/...
 
     - name: Bazel build/test (signed Wasm module)
+      if: ${{ matrix.engine != 'null' }}
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}

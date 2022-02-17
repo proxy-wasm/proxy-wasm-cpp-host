@@ -57,11 +57,13 @@ def proxy_wasm_cpp_host_dependencies():
         },
     )
 
-    # Core dependencies.
-
-    protobuf_deps()
+    # Test dependencies.
 
     wasmsign_fetch_remote_crates()
+
+    # NullVM dependencies.
+
+    protobuf_deps()
 
     # V8 dependencies.
 

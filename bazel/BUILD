@@ -1,6 +1,11 @@
 load("@bazel_skylib//lib:selects.bzl", "selects")
 
 config_setting(
+    name = "engine_null",
+    values = {"define": "engine=null"},
+)
+
+config_setting(
     name = "engine_v8",
     values = {"define": "engine=v8"},
 )
