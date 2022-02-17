@@ -28,6 +28,9 @@ on:
     - 'envoy-release/**'
     - 'istio-release/**'
 
+  schedule:
+    - cron: '0 0 * * *'
+
 jobs:
 
   format:
@@ -121,6 +124,7 @@ jobs:
           arch: x86_64
           action: test
           flags: --config=clang --define=crypto=system
+          cache: true
         - name: 'V8 on Linux/aarch64'
           runtime: 'v8'
           repo: 'v8'
@@ -129,12 +133,14 @@ jobs:
           action: test
           flags: --config=zig-cc-linux-aarch64 --@v8//bazel/config:v8_target_cpu=arm64
           deps: qemu-user-static libc6-arm64-cross
+          cache: true
         - name: 'V8 on macOS/x86_64'
           runtime: 'v8'
           repo: 'v8'
           os: macos-11
           arch: x86_64
           action: test
+          cache: true
         - name: 'WAMR on Linux/x86_64'
           runtime: 'wamr'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
@@ -161,8 +167,8 @@ jobs:
           os: ubuntu-20.04
           arch: aarch64
           action: build
-          flags: --config=clang
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/arm64 piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
+          flags: --config=zig-cc-linux-aarch64
+          deps: qemu-user-static libc6-arm64-cross
         - name: 'Wasmtime on Linux/s390x'
           runtime: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -171,6 +177,7 @@ jobs:
           action: test
           flags: --config=clang
           run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
+          cache: true
         - name: 'Wasmtime on macOS/x86_64'
           runtime: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -184,6 +191,7 @@ jobs:
           arch: x86_64
           action: test
           flags: --config=clang
+          cache: true
 
     steps:
     - uses: actions/checkout@v2
@@ -197,11 +205,12 @@ jobs:
       run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
     - name: Set cache key
-      id: cache-key
+      if: ${{ matrix.cache }}
       run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
+      id: cache-key
 
     - name: Bazel cache
-      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
+      if: ${{ matrix.cache }}
       uses: PiotrSikora/cache@v2.1.7-with-skip-cache
       with:
         path: |
@@ -247,13 +256,15 @@ jobs:
         //test:signature_util_test
 
     - name: Skip Bazel cache update
-      if: ${{ github.ref != 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
+      if: ${{ matrix.cache && github.ref != 'refs/heads/master' }}
       run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
 
     - name: Cleanup Bazel cache
-      if: ${{ github.ref == 'refs/heads/master' && (matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker')) }}
+      if: ${{ matrix.cache && github.ref == 'refs/heads/master' }}
       run: |
-        export OUTPUT=$(bazel info output_base)
+        export OUTPUT=$(${{ matrix.run_under }} bazel info output_base)
+        echo "===== BEFORE ====="
+        du -s ${OUTPUT}/external/* $(dirname ${OUTPUT})/* | sort -rn | head -20
         # BoringSSL's test data (90 MiB).
         rm -rf ${OUTPUT}/external/boringssl/crypto_test_data.cc
         rm -rf ${OUTPUT}/external/boringssl/src/crypto/*/test/
@@ -271,5 +282,7 @@ jobs:
         # Distfiles for Rust toolchains (350 MiB).
         rm -rf ${OUTPUT}/external/rust_*/*.tar.gz
         # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
-        rm -rf $(bazel info repository_cache)
-        rm -rf $(bazel info install_base)
+        rm -rf ${OUTPUT}/../cache
+        rm -rf ${OUTPUT}/../install
+        echo "===== AFTER ====="
+        du -s ${OUTPUT}/external/* $(dirname ${OUTPUT})/* | sort -rn | head -20
