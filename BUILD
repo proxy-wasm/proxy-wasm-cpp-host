@@ -120,7 +120,7 @@ cc_library(
     hdrs = ["include/proxy-wasm/wamr.h"],
     defines = [
         "PROXY_WASM_HAS_RUNTIME_WAMR",
-        "PROXY_WASM_HOST_ENGINE_WARM",
+        "PROXY_WASM_HOST_ENGINE_WAMR",
     ],
     deps = [
         ":wasm_vm_headers",
