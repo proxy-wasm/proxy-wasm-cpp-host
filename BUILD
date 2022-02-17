@@ -152,7 +152,7 @@ cc_library(
     srcs = [
         "src/common/types.h",
     ] + select({
-        "//bazel:multiengine": [
+        "@proxy_wasm_cpp_host//bazel:multiengine": [
             "src/wasmtime/prefixed_types.h",
             "src/wasmtime/prefixed_wasmtime.cc",
         ],
@@ -169,7 +169,7 @@ cc_library(
     deps = [
         ":wasm_vm_headers",
     ] + select({
-        "//bazel:multiengine": [
+        "@proxy_wasm_cpp_host//bazel:multiengine": [
             "//external:prefixed_wasmtime",
         ],
         "//conditions:default": [
