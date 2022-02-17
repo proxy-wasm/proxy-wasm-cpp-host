@@ -41,4 +41,3 @@ build:windows --cxxopt="/std:c++17"
 
 # Hacks to allow reading files on Windows.
 build:windows --enable_runfiles
-startup --windows_enable_symlinks
