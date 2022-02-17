@@ -30,14 +30,14 @@
 #include "wasm-api/wasm.hh"
 
 namespace proxy_wasm {
-namespace {
+namespace v8 {
 
 wasm::Engine *engine() {
   static std::once_flag init;
   static wasm::own<wasm::Engine> engine;
 
   std::call_once(init, []() {
-    v8::V8::EnableWebAssemblyTrapHandler(true);
+    ::v8::V8::EnableWebAssemblyTrapHandler(true);
     engine = wasm::Engine::make();
   });
 
@@ -60,7 +60,7 @@ public:
   V8() {}
 
   // WasmVm
-  std::string_view runtime() override { return "v8"; }
+  std::string_view getEngineName() override { return "v8"; }
 
   bool load(std::string_view bytecode, std::string_view precompiled,
             const std::unordered_map<uint32_t, std::string> function_names) override;
@@ -688,8 +688,8 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
   return message;
 }
 
-} // namespace
+} // namespace v8
 
-std::unique_ptr<WasmVm> createV8Vm() { return std::make_unique<V8>(); }
+std::unique_ptr<WasmVm> createV8Vm() { return std::make_unique<v8::V8>(); }
 
 } // namespace proxy_wasm

@@ -30,21 +30,22 @@
 namespace proxy_wasm {
 namespace {
 
-auto test_values = testing::ValuesIn(getRuntimes());
-
-INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, test_values);
+INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVM, testing::ValuesIn(getWasmEngines()),
+                         [](const testing::TestParamInfo<std::string> &info) {
+                           return info.param;
+                         });
 
 TEST_P(TestVM, Basic) {
-  if (runtime_ == "wamr") {
+  if (engine_ == "wamr") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::NotCloneable);
-  } else if (runtime_ == "wasmtime" || runtime_ == "v8") {
+  } else if (engine_ == "wasmtime" || engine_ == "v8") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
-  } else if (runtime_ == "wavm") {
+  } else if (engine_ == "wavm") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::InstantiatedModule);
   } else {
     FAIL();
   }
-  EXPECT_EQ(vm_->runtime(), runtime_);
+  EXPECT_EQ(vm_->getEngineName(), engine_);
 }
 
 TEST_P(TestVM, Memory) {
@@ -98,7 +99,7 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
   if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
     return;
   }
-  if (runtime_ == "wavm") {
+  if (engine_ == "wavm") {
     // TODO(PiotrSikora): Figure out why this fails on the CI.
     return;
   }
@@ -143,7 +144,7 @@ void callback() {
 Word callback2(Word val) { return val + 100; }
 
 TEST_P(TestVM, StraceLogLevel) {
-  if (runtime_ == "wavm") {
+  if (engine_ == "wavm") {
     // TODO(mathetake): strace is yet to be implemented for WAVM.
     // See https://github.com/proxy-wasm/proxy-wasm-cpp-host/issues/120.
     return;
@@ -262,7 +263,7 @@ TEST_P(TestVM, Trap) {
 }
 
 TEST_P(TestVM, Trap2) {
-  if (runtime_ == "wavm") {
+  if (engine_ == "wavm") {
     // TODO(mathetake): Somehow WAVM exits with 'munmap_chunk(): invalid pointer' on unidentified
     // build condition in 'libstdc++ abi::__cxa_demangle' originally from
     // WAVM::Runtime::describeCallStack. Needs further investigation.

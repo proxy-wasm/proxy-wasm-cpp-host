@@ -58,8 +58,10 @@ def proxy_wasm_cpp_host_repositories():
         name = "rules_rust",
         sha256 = "6c26af1bb98276917fcf29ea942615ab375cf9d3c52f15c27fdd176ced3ee906",
         strip_prefix = "rules_rust-b3ddf6f096887b757ab1a661662a95d6b2699fa7",
-        # NOTE: Update Rust version for Linux/s390x in bazel/dependencies.bzl.
+        # NOTE: Update Rust version in bazel/dependencies.bzl.
         url = "https://github.com/bazelbuild/rules_rust/archive/b3ddf6f096887b757ab1a661662a95d6b2699fa7.tar.gz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
+        patch_args = ["-p1"],
     )
 
     # Core.
@@ -75,11 +77,23 @@ def proxy_wasm_cpp_host_repositories():
 
     maybe(
         http_archive,
+        name = "proxy_wasm_cpp_sdk",
+        sha256 = "c57de2425b5c61d7f630c5061e319b4557ae1f1c7526e5a51c33dc1299471b08",
+        strip_prefix = "proxy-wasm-cpp-sdk-fd0be8405db25de0264bdb78fae3a82668c03782",
+        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/fd0be8405db25de0264bdb78fae3a82668c03782.tar.gz"],
+    )
+
+    # Test dependencies.
+
+    maybe(
+        http_archive,
         name = "com_google_googletest",
         sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
         strip_prefix = "googletest-release-1.10.0",
         urls = ["https://github.com/google/googletest/archive/release-1.10.0.tar.gz"],
     )
+
+    # NullVM dependencies.
 
     maybe(
         http_archive,
@@ -87,14 +101,6 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "77ad26d3f65222fd96ccc18b055632b0bfedf295cb748b712a98ba1ac0b704b2",
         strip_prefix = "protobuf-3.17.3",
         url = "https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protobuf-all-3.17.3.tar.gz",
-    )
-
-    maybe(
-        http_archive,
-        name = "proxy_wasm_cpp_sdk",
-        sha256 = "c57de2425b5c61d7f630c5061e319b4557ae1f1c7526e5a51c33dc1299471b08",
-        strip_prefix = "proxy-wasm-cpp-sdk-fd0be8405db25de0264bdb78fae3a82668c03782",
-        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/fd0be8405db25de0264bdb78fae3a82668c03782.tar.gz"],
     )
 
     # V8 with dependencies.
@@ -188,6 +194,11 @@ def proxy_wasm_cpp_host_repositories():
     native.bind(
         name = "wasmtime",
         actual = "@com_github_webassembly_wasm_c_api//:wasmtime_lib",
+    )
+
+    native.bind(
+        name = "prefixed_wasmtime",
+        actual = "@com_github_webassembly_wasm_c_api//:prefixed_wasmtime_lib",
     )
 
     # WAVM with dependencies.

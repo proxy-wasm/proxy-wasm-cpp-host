@@ -27,3 +27,9 @@ additional_flags = [
 buildrs_additional_deps = [
     "@wasmtime__cc__1_0_72//:cc",
 ]
+
+[package.metadata.raze.crates.psm.'*']
+patches = [
+    "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:psm.patch",
+]
+patch_args = ["-p2"]

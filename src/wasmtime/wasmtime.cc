@@ -24,7 +24,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "include/proxy-wasm/wasm_vm.h"
 #include "src/wasmtime/types.h"
 
 #include "wasmtime/include/wasm.h"
@@ -52,7 +51,7 @@ class Wasmtime : public WasmVm {
 public:
   Wasmtime() {}
 
-  std::string_view runtime() override { return "wasmtime"; }
+  std::string_view getEngineName() override { return "wasmtime"; }
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 

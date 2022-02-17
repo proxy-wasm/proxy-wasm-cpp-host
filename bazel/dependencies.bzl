@@ -27,19 +27,43 @@ def proxy_wasm_cpp_host_dependencies():
 
     rust_repositories()
     rust_repository_set(
+        name = "rust_linux_x86_64",
+        exec_triple = "x86_64-unknown-linux-gnu",
+        extra_target_triples = [
+            "aarch64-unknown-linux-gnu",
+            "wasm32-unknown-unknown",
+            "wasm32-wasi",
+        ],
+        version = "1.58.1",
+    )
+    rust_repository_set(
         name = "rust_linux_s390x",
         exec_triple = "s390x-unknown-linux-gnu",
-        extra_target_triples = ["wasm32-unknown-unknown", "wasm32-wasi"],
+        extra_target_triples = [
+            "wasm32-unknown-unknown",
+            "wasm32-wasi",
+        ],
         version = "1.58.1",
     )
 
-    zig_register_toolchains()
+    zig_register_toolchains(
+        version = "0.9.1",
+        url_format = "https://ziglang.org/download/{version}/zig-{host_platform}-{version}.tar.xz",
+        host_platform_sha256 = {
+            "linux-aarch64": "5d99a39cded1870a3fa95d4de4ce68ac2610cca440336cfd252ffdddc2b90e66",
+            "linux-x86_64": "be8da632c1d3273f766b69244d80669fe4f5e27798654681d77c992f17c237d7",
+            "macos-aarch64": "8c473082b4f0f819f1da05de2dbd0c1e891dff7d85d2c12b6ee876887d438287",
+            "macos-x86_64": "2d94984972d67292b55c1eb1c00de46580e9916575d083003546e9a01166754c",
+        },
+    )
 
-    # Core dependencies.
-
-    protobuf_deps()
+    # Test dependencies.
 
     wasmsign_fetch_remote_crates()
+
+    # NullVM dependencies.
+
+    protobuf_deps()
 
     # V8 dependencies.
 
