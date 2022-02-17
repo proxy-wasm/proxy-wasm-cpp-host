@@ -239,12 +239,15 @@ jobs:
 
     - name: Mangle build rules to use existing test data
       shell: bash
-      run: >
-        sed 's/\.wasm//g' test/BUILD > test/BUILD.tmp && mv test/BUILD.tmp test/BUILD;
-        echo "package(default_visibility = [\"//visibility:public\"])" > test/test_data/BUILD;
-        for i in $(cd test/test_data && ls -1 *.wasm | sed 's/\.wasm$//g');
-          do echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD;
+      run: |
+        sed 's/\.wasm//g' test/BUILD > test/BUILD.tmp && mv test/BUILD.tmp test/BUILD
+        echo "package(default_visibility = [\"//visibility:public\"])" > test/test_data/BUILD
+        for i in $(cd test/test_data && ls -1 *.wasm | sed 's/\.wasm$//g'); do \
+          echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD; \
         done
+        echo "===== AFTER ====="
+        git status test/
+        git diff test/
 
     - name: Bazel build/test
       run: >
