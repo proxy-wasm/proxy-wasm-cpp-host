@@ -195,6 +195,12 @@ jobs:
           os: macos-11
           arch: x86_64
           action: test
+        - name: 'Wasmtime on Windows/x86_64'
+          engine: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: windows-2019
+          arch: x86_64
+          action: test
         - name: 'WAVM on Linux/x86_64'
           engine: 'wavm'
           repo: 'com_github_wavm_wavm'
@@ -257,7 +263,7 @@ jobs:
         //test/...
 
     - name: Bazel build/test (signed Wasm module)
-      if: ${{ matrix.engine != 'null' }}
+      if: ${{ matrix.engine != 'null' && !startsWith(matrix.os, 'windows') }}
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
