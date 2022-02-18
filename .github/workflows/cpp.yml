@@ -123,6 +123,11 @@ jobs:
           arch: x86_64
           action: test
           flags: --config=gcc
+        - name: 'NullVM on Windows/x86_64'
+          engine: 'null'
+          os: windows-2019
+          arch: x86_64
+          action: test
         - name: 'V8 on Linux/x86_64'
           engine: 'v8'
           repo: 'v8'
@@ -233,11 +238,12 @@ jobs:
         path: test/test_data/
 
     - name: Mangle build rules to use existing test data
-      run: >
-        sed 's/\.wasm//g' test/BUILD > test/BUILD.tmp && mv test/BUILD.tmp test/BUILD;
-        echo "package(default_visibility = [\"//visibility:public\"])" > test/test_data/BUILD;
-        for i in $(cd test/test_data && ls -1 *.wasm | sed 's/\.wasm$//g');
-          do echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD;
+      shell: bash
+      run: |
+        sed 's/\.wasm//g' test/BUILD > test/BUILD.tmp && mv test/BUILD.tmp test/BUILD
+        echo "package(default_visibility = [\"//visibility:public\"])" > test/test_data/BUILD
+        for i in $(cd test/test_data && ls -1 *.wasm | sed 's/\.wasm$//g'); do \
+          echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD; \
         done
 
     - name: Bazel build/test

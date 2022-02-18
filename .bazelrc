@@ -35,7 +35,7 @@ build:linux --linkopt=-ldl
 
 build:macos --cxxopt=-std=c++17
 
-# TODO(mathetake): Windows build is not verified yet.
-# build:windows --cxxopt="/std:c++17"
+build:windows --enable_runfiles
+build:windows --cxxopt="/std:c++17"
 # See https://bytecodealliance.github.io/wasmtime/c-api/
 # build:windows --linkopt="ws2_32.lib advapi32.lib userenv.lib ntdll.lib shell32.lib ole32.lib"
