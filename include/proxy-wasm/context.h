@@ -239,30 +239,10 @@ public:
   }
   uint32_t getLogLevel() override { return static_cast<uint32_t>(LogLevel::info); }
   uint64_t getCurrentTimeNanoseconds() override {
-#if !defined(_MSC_VER)
-    struct timespec tpe;
-    clock_gettime(CLOCK_REALTIME, &tpe);
-    uint64_t t = tpe.tv_sec;
-    t *= 1000000000;
-    t += tpe.tv_nsec;
-    return t;
-#else
-    unimplemented();
-    return 0;
-#endif
+    return std::chrono::system_clock::now().time_since_epoch().count();
   }
   uint64_t getMonotonicTimeNanoseconds() override {
-#if !defined(_MSC_VER)
-    struct timespec tpe;
-    clock_gettime(CLOCK_MONOTONIC, &tpe);
-    uint64_t t = tpe.tv_sec;
-    t *= 1000000000;
-    t += tpe.tv_nsec;
-    return t;
-#else
-    unimplemented();
-    return 0;
-#endif
+    return std::chrono::steady_clock::now().time_since_epoch().count();
   }
   std::string_view getConfiguration() override {
     unimplemented();
