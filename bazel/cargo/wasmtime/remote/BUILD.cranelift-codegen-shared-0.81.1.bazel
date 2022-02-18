@@ -26,13 +26,13 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "rand_hc",
+    name = "cranelift_codegen_shared",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -44,12 +44,11 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=rand_hc",
+        "crate-name=cranelift-codegen-shared",
         "manual",
     ],
-    version = "0.3.1",
+    version = "0.81.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__rand_core__0_6_3//:rand_core",
     ],
 )

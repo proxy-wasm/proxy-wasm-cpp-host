@@ -54,7 +54,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.5.1",
+    version = "0.5.3",
     visibility = ["//visibility:private"],
     deps = [
     ],
@@ -86,7 +86,7 @@ rust_library(
         "crate-name=io-lifetimes",
         "manual",
     ],
-    version = "0.5.1",
+    version = "0.5.3",
     # buildifier: leave-alone
     deps = [
         ":io_lifetimes_build_script",
