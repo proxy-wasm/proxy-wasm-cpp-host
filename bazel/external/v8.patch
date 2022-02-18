@@ -23,7 +23,7 @@ index 0e9559a65f..c289f3e866 100644
              ],
              "@v8//bazel/config:is_windows": [
                  "/std:c++17",
-+                "/bigobj",
++                "/Os",
              ],
              "//conditions:default": [],
          }) + select({
