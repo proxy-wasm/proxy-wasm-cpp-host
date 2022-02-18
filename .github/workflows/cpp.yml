@@ -170,7 +170,6 @@ jobs:
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
-        --subcommands
         --verbose_failures
         --test_output=errors
         --define engine=${{ matrix.engine }}
@@ -183,7 +182,6 @@ jobs:
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
-        --subcommands
         --verbose_failures
         --test_output=errors
         --define engine=${{ matrix.engine }}
