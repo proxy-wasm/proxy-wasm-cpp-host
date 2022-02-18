@@ -56,7 +56,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.34.0",
+    version = "0.34.1",
     visibility = ["//visibility:private"],
     deps = [
     ] + selects.with_or({
@@ -93,7 +93,7 @@ rust_library(
         "crate-name=wasmtime",
         "manual",
     ],
-    version = "0.34.0",
+    version = "0.34.1",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_build_script",
@@ -103,19 +103,19 @@ rust_library(
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_8_0//:indexmap",
         "@wasmtime__lazy_static__1_4_0//:lazy_static",
-        "@wasmtime__libc__0_2_117//:libc",
+        "@wasmtime__libc__0_2_118//:libc",
         "@wasmtime__log__0_4_14//:log",
         "@wasmtime__object__0_27_1//:object",
         "@wasmtime__once_cell__1_9_0//:once_cell",
-        "@wasmtime__psm__0_1_16//:psm",
+        "@wasmtime__psm__0_1_17//:psm",
         "@wasmtime__region__2_2_0//:region",
         "@wasmtime__serde__1_0_136//:serde",
         "@wasmtime__target_lexicon__0_12_3//:target_lexicon",
         "@wasmtime__wasmparser__0_82_0//:wasmparser",
-        "@wasmtime__wasmtime_cranelift__0_34_0//:wasmtime_cranelift",
-        "@wasmtime__wasmtime_environ__0_34_0//:wasmtime_environ",
-        "@wasmtime__wasmtime_jit__0_34_0//:wasmtime_jit",
-        "@wasmtime__wasmtime_runtime__0_34_0//:wasmtime_runtime",
+        "@wasmtime__wasmtime_cranelift__0_34_1//:wasmtime_cranelift",
+        "@wasmtime__wasmtime_environ__0_34_1//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit__0_34_1//:wasmtime_jit",
+        "@wasmtime__wasmtime_runtime__0_34_1//:wasmtime_runtime",
     ] + selects.with_or({
         # cfg(target_os = "windows")
         (

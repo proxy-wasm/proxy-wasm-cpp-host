@@ -32,11 +32,11 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_entity",
+    name = "cranelift_frontend",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "enable-serde",
-        "serde",
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -46,12 +46,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-entity",
+        "crate-name=cranelift-frontend",
         "manual",
     ],
-    version = "0.81.0",
+    version = "0.81.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__serde__1_0_136//:serde",
+        "@wasmtime__cranelift_codegen__0_81_1//:cranelift_codegen",
+        "@wasmtime__log__0_4_14//:log",
+        "@wasmtime__smallvec__1_8_0//:smallvec",
+        "@wasmtime__target_lexicon__0_12_3//:target_lexicon",
     ],
 )
