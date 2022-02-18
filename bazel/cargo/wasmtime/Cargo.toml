@@ -3,9 +3,6 @@ edition = "2018"
 name = "wasmtime-c-api-bazel"
 version = "0.34.1"
 
-[net]
-git-fetch-with-cli = true
-
 [lib]
 path = "fake_lib.rs"
 
