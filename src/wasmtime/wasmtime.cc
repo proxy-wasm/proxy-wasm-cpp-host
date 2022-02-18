@@ -585,8 +585,13 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   }
 
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
-    wasm_val_t params_arr[] = {makeVal(args)...};
-    const wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
+    wasm_val_vec_t params;
+    if constexpr (sizeof...(args) > 0) {
+      wasm_val_t params_arr[] = {makeVal(args)...};
+      params = WASM_ARRAY_VEC(params_arr);
+    } else {
+      params = WASM_EMPTY_VEC;
+    }
     wasm_val_vec_t results = WASM_EMPTY_VEC;
     const bool log = cmpLogLevel(LogLevel::trace);
     if (log) {
@@ -633,8 +638,13 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   }
 
   *function = [func, function_name, this](ContextBase *context, Args... args) -> R {
-    wasm_val_t params_arr[] = {makeVal(args)...};
-    const wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
+    wasm_val_vec_t params;
+    if constexpr (sizeof...(args) > 0) {
+      wasm_val_t params_arr[] = {makeVal(args)...};
+      params = WASM_ARRAY_VEC(params_arr);
+    } else {
+      params = WASM_EMPTY_VEC;
+    }
     wasm_val_t results_arr[1];
     wasm_val_vec_t results = WASM_ARRAY_VEC(results_arr);
     const bool log = cmpLogLevel(LogLevel::trace);
