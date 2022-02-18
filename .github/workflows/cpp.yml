@@ -179,6 +179,7 @@ jobs:
 
     - name: Bazel build/test (signed Wasm module)
       if: ${{ matrix.engine != 'null' }}
+      shell: bash
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
