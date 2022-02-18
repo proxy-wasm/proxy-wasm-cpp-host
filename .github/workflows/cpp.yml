@@ -117,12 +117,98 @@ jobs:
       fail-fast: false
       matrix:
         include:
+        - name: 'NullVM on Linux/x86_64'
+          engine: 'null'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=gcc
+        - name: 'NullVM on Windows/x86_64'
+          engine: 'null'
+          os: windows-2019
+          arch: x86_64
+          action: test
+        - name: 'V8 on Linux/x86_64'
+          engine: 'v8'
+          repo: 'v8'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=clang --define=crypto=system
+          cache: true
+        - name: 'V8 on Linux/aarch64'
+          engine: 'v8'
+          repo: 'v8'
+          os: ubuntu-20.04
+          arch: aarch64
+          action: test
+          flags: --config=zig-cc-linux-aarch64 --@v8//bazel/config:v8_target_cpu=arm64
+          deps: qemu-user-static libc6-arm64-cross
+          cache: true
+        - name: 'V8 on macOS/x86_64'
+          engine: 'v8'
+          repo: 'v8'
+          os: macos-11
+          arch: x86_64
+          action: test
+          cache: true
+        - name: 'WAMR on Linux/x86_64'
+          engine: 'wamr'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=clang
+        - name: 'WAMR on macOS/x86_64'
+          engine: 'wamr'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
+          os: macos-11
+          arch: x86_64
+          action: test
+        - name: 'Wasmtime on Linux/x86_64'
+          engine: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=clang
+        - name: 'Wasmtime on Linux/aarch64'
+          engine: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: ubuntu-20.04
+          arch: aarch64
+          action: build
+          flags: --config=zig-cc-linux-aarch64
+          deps: qemu-user-static libc6-arm64-cross
+        - name: 'Wasmtime on Linux/s390x'
+          engine: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: ubuntu-20.04
+          arch: s390x
+          action: test
+          flags: --config=clang
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
+          cache: true
+        - name: 'Wasmtime on macOS/x86_64'
+          engine: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: macos-11
+          arch: x86_64
+          action: test
         - name: 'Wasmtime on Windows/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
           os: windows-2019
           arch: x86_64
           action: test
+        - name: 'WAVM on Linux/x86_64'
+          engine: 'wavm'
+          repo: 'com_github_wavm_wavm'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=clang
+          cache: true
 
     steps:
     - uses: actions/checkout@v2
