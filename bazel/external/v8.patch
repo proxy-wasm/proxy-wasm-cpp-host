@@ -23,18 +23,10 @@ index 0e9559a65f..c289f3e866 100644
              ],
              "@v8//bazel/config:is_windows": [
                  "/std:c++17",
-+                "/Os",
++                "/O1",
              ],
              "//conditions:default": [],
          }) + select({
-@@ -155,6 +156,7 @@ def _default_args():
-         includes = ["include"],
-         linkopts = select({
-             "@v8//bazel/config:is_windows": [
-+                "/DEBUG:FULL",
-                 "Winmm.lib",
-                 "DbgHelp.lib",
-                 "Advapi32.lib",
 diff --git a/src/wasm/c-api.cc b/src/wasm/c-api.cc
 index ce3f569fd5..dc8a4c4f6a 100644
 --- a/src/wasm/c-api.cc
