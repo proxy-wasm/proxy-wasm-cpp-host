@@ -28,6 +28,6 @@ additional_flags = [
     "--cfg=feature=\\\"cc\\\"",
 ]
 buildrs_additional_deps = [
-    "@wasmtime__cc__1_0_72//:cc",
+    "@wasmtime__cc__1_0_73//:cc",
 ]
 
