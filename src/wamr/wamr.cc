@@ -55,7 +55,7 @@ class Wamr : public WasmVm {
 public:
   Wamr() {}
 
-  std::string_view runtime() override { return "wamr"; }
+  std::string_view getEngineName() override { return "wamr"; }
   std::string_view getPrecompiledSectionName() override { return ""; }
 
   Cloneable cloneable() override { return Cloneable::NotCloneable; }
@@ -116,12 +116,19 @@ private:
 bool Wamr::load(std::string_view bytecode, std::string_view,
                 const std::unordered_map<uint32_t, std::string>) {
   store_ = wasm_store_new(engine());
+  if (store_ == nullptr) {
+    return false;
+  }
 
   WasmByteVec vec;
   wasm_byte_vec_new(vec.get(), bytecode.size(), bytecode.data());
-  module_ = wasm_module_new(store_.get(), vec.get());
 
-  return module_ != nullptr;
+  module_ = wasm_module_new(store_.get(), vec.get());
+  if (module_ == nullptr) {
+    return false;
+  }
+
+  return true;
 }
 
 static bool equalValTypes(const wasm_valtype_vec_t *left, const wasm_valtype_vec_t *right) {
@@ -225,7 +232,7 @@ bool Wamr::link(std::string_view debug_name) {
         fail(FailState::UnableToInitializeCode,
              std::string("Failed to load Wasm module due to a missing import: ") +
                  std::string(module_name) + "." + std::string(name));
-        break;
+        return false;
       }
 
       auto func = it->second->callback_.get();
@@ -242,7 +249,7 @@ bool Wamr::link(std::string_view debug_name) {
                 printValTypes(wasm_functype_results(exp_type)) +
                 ", but host exports: " + printValTypes(wasm_functype_params(actual_type.get())) +
                 " -> " + printValTypes(wasm_functype_results(actual_type.get())));
-        break;
+        return false;
       }
       imports.push_back(wasm_func_as_extern(func));
     } break;
@@ -251,19 +258,32 @@ bool Wamr::link(std::string_view debug_name) {
       fail(FailState::UnableToInitializeCode,
            "Failed to load Wasm module due to a missing import: " + std::string(module_name) + "." +
                std::string(name));
+      return false;
     } break;
     case WASM_EXTERN_MEMORY: {
       assert(memory_ == nullptr);
       const wasm_memorytype_t *memory_type =
           wasm_externtype_as_memorytype_const(extern_type); // owned by `extern_type`
+      if (memory_type == nullptr) {
+        return false;
+      }
       memory_ = wasm_memory_new(store_.get(), memory_type);
+      if (memory_ == nullptr) {
+        return false;
+      }
       imports.push_back(wasm_memory_as_extern(memory_.get()));
     } break;
     case WASM_EXTERN_TABLE: {
       assert(table_ == nullptr);
       const wasm_tabletype_t *table_type =
           wasm_externtype_as_tabletype_const(extern_type); // owned by `extern_type`
+      if (table_type == nullptr) {
+        return false;
+      }
       table_ = wasm_table_new(store_.get(), table_type, nullptr);
+      if (table_ == nullptr) {
+        return false;
+      }
       imports.push_back(wasm_table_as_extern(table_.get()));
     } break;
     }
@@ -275,7 +295,10 @@ bool Wamr::link(std::string_view debug_name) {
 
   wasm_extern_vec_t imports_vec = {imports.size(), imports.data()};
   instance_ = wasm_instance_new(store_.get(), module_.get(), &imports_vec, nullptr);
-  assert(instance_ != nullptr);
+  if (instance_ == nullptr) {
+    fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
+    return false;
+  }
 
   WasmExportTypeVec export_types;
   wasm_module_exports(module_.get(), export_types.get());
@@ -302,7 +325,9 @@ bool Wamr::link(std::string_view debug_name) {
     case WASM_EXTERN_MEMORY: {
       assert(memory_ == nullptr);
       memory_ = wasm_memory_copy(wasm_extern_as_memory(actual_extern));
-      assert(memory_ != nullptr);
+      if (memory_ == nullptr) {
+        return false;
+      }
     } break;
     case WASM_EXTERN_TABLE: {
       // TODO(mathetake): add support when/if needed.
@@ -340,7 +365,7 @@ bool Wamr::getWord(uint64_t pointer, Word *word) {
 
   uint32_t word32;
   ::memcpy(&word32, wasm_memory_data(memory_.get()) + pointer, size);
-  word->u64_ = word32;
+  word->u64_ = wasmtoh(word32);
   return true;
 }
 
@@ -349,7 +374,7 @@ bool Wamr::setWord(uint64_t pointer, Word word) {
   if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return false;
   }
-  uint32_t word32 = word.u32();
+  uint32_t word32 = htowasm(word.u32());
   ::memcpy(wasm_memory_data(memory_.get()) + pointer, &word32, size);
   return true;
 }

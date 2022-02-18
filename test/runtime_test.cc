@@ -29,21 +29,22 @@
 namespace proxy_wasm {
 namespace {
 
-auto test_values = testing::ValuesIn(getRuntimes());
-
-INSTANTIATE_TEST_SUITE_P(Runtimes, TestVM, test_values);
+INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVM, testing::ValuesIn(getWasmEngines()),
+                         [](const testing::TestParamInfo<std::string> &info) {
+                           return info.param;
+                         });
 
 TEST_P(TestVM, Basic) {
-  if (runtime_ == "wamr") {
+  if (engine_ == "wamr") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::NotCloneable);
-  } else if (runtime_ == "wasmtime" || runtime_ == "v8") {
+  } else if (engine_ == "wasmtime" || engine_ == "v8") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
-  } else if (runtime_ == "wavm") {
+  } else if (engine_ == "wavm") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::InstantiatedModule);
   } else {
     FAIL();
   }
-  EXPECT_EQ(vm_->runtime(), runtime_);
+  EXPECT_EQ(vm_->getEngineName(), engine_);
 }
 
 TEST_P(TestVM, Memory) {
@@ -56,7 +57,7 @@ TEST_P(TestVM, Memory) {
   ASSERT_TRUE(vm_->getWord(0x2000, &word));
   ASSERT_EQ(100, word.u64_);
 
-  int32_t data[2] = {-1, 200};
+  uint32_t data[2] = {htowasm(static_cast<uint32_t>(-1)), htowasm(200)};
   ASSERT_TRUE(vm_->setMemory(0x200, sizeof(int32_t) * 2, static_cast<void *>(data)));
   ASSERT_TRUE(vm_->getWord(0x200, &word));
   ASSERT_EQ(-1, static_cast<int32_t>(word.u64_));
@@ -91,6 +92,40 @@ TEST_P(TestVM, Clone) {
   ASSERT_NE(100, word.u64_);
 }
 
+#if defined(__linux__) && defined(__x86_64__)
+
+TEST_P(TestVM, CloneUntilOutOfMemory) {
+  if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
+    return;
+  }
+  if (engine_ == "wavm") {
+    // TODO(PiotrSikora): Figure out why this fails on the CI.
+    return;
+  }
+
+  auto source = readTestWasmFile("abi_export.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
+  ASSERT_TRUE(vm_->link(""));
+
+  std::vector<std::unique_ptr<WasmVm>> clones;
+  for (;;) {
+    auto clone = vm_->clone();
+    if (clone == nullptr) {
+      break;
+    }
+    if (clone->cloneable() != proxy_wasm::Cloneable::InstantiatedModule) {
+      if (clone->link("") == false) {
+        break;
+      }
+    }
+    // Prevent clone from droping out of scope and freeing memory.
+    clones.push_back(std::move(clone));
+  }
+  EXPECT_GE(clones.size(), 1000);
+}
+
+#endif
+
 class TestContext : public ContextBase {
 public:
   TestContext(){};
@@ -108,7 +143,7 @@ void callback() {
 Word callback2(Word val) { return val + 100; }
 
 TEST_P(TestVM, StraceLogLevel) {
-  if (runtime_ == "wavm") {
+  if (engine_ == "wavm") {
     // TODO(mathetake): strace is yet to be implemented for WAVM.
     // See https://github.com/proxy-wasm/proxy-wasm-cpp-host/issues/120.
     return;
@@ -135,6 +170,35 @@ TEST_P(TestVM, StraceLogLevel) {
   integration->log_level_ = LogLevel::trace;
   run(nullptr);
   EXPECT_NE(integration->trace_message_, "");
+}
+
+TEST_P(TestVM, BadExportFunction) {
+  auto source = readTestWasmFile("callback.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
+
+  TestContext context;
+  vm_->registerCallback(
+      "env", "callback", &callback,
+      &ConvertFunctionWordToUint32<decltype(callback), callback>::convertFunctionWordToUint32);
+  vm_->registerCallback(
+      "env", "callback2", &callback2,
+      &ConvertFunctionWordToUint32<decltype(callback2), callback2>::convertFunctionWordToUint32);
+  ASSERT_TRUE(vm_->link(""));
+
+  WasmCallVoid<0> run;
+  vm_->getFunction("non-existent", &run);
+  EXPECT_TRUE(run == nullptr);
+
+  WasmCallWord<2> bad_signature_run;
+  vm_->getFunction("run", &bad_signature_run);
+  EXPECT_TRUE(bad_signature_run == nullptr);
+
+  vm_->getFunction("run", &run);
+  EXPECT_TRUE(run != nullptr);
+  for (auto i = 0; i < 100; i++) {
+    run(&context);
+  }
+  ASSERT_EQ(context.counter, 100);
 }
 
 TEST_P(TestVM, Callback) {
@@ -182,7 +246,7 @@ TEST_P(TestVM, Trap) {
 }
 
 TEST_P(TestVM, Trap2) {
-  if (runtime_ == "wavm") {
+  if (engine_ == "wavm") {
     // TODO(mathetake): Somehow WAVM exits with 'munmap_chunk(): invalid pointer' on unidentified
     // build condition in 'libstdc++ abi::__cxa_demangle' originally from
     // WAVM::Runtime::describeCallStack. Needs further investigation.

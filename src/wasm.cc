@@ -231,7 +231,7 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     return false;
   }
 
-  if (wasm_vm_->runtime() == "null") {
+  if (wasm_vm_->getEngineName() == "null") {
     auto ok = wasm_vm_->load(code, {}, {});
     if (!ok) {
       fail(FailState::UnableToInitializeCode, "Failed to load NullVM plugin");
@@ -292,7 +292,7 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     return false;
   }
 
-  // Store for future use in non-cloneable runtimes.
+  // Store for future use in non-cloneable Wasm engines.
   if (wasm_vm_->cloneable() == Cloneable::NotCloneable) {
     module_bytecode_ = stripped;
     module_precompiled_ = precompiled;

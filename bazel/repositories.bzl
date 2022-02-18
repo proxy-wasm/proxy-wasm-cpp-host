@@ -31,6 +31,14 @@ def proxy_wasm_cpp_host_repositories():
 
     maybe(
         http_archive,
+        name = "bazel-zig-cc",
+        sha256 = "ad6384b4d16ebb3e5047df6548a195e598346da84e5f320250beb9198705ac81",
+        strip_prefix = "bazel-zig-cc-v0.4.4",
+        url = "https://git.sr.ht/~motiejus/bazel-zig-cc/archive/v0.4.4.tar.gz",
+    )
+
+    maybe(
+        http_archive,
         name = "rules_foreign_cc",
         sha256 = "bcd0c5f46a49b85b384906daae41d277b3dc0ff27c7c752cc51e43048a58ec83",
         strip_prefix = "rules_foreign_cc-0.7.1",
@@ -50,8 +58,10 @@ def proxy_wasm_cpp_host_repositories():
         name = "rules_rust",
         sha256 = "6c26af1bb98276917fcf29ea942615ab375cf9d3c52f15c27fdd176ced3ee906",
         strip_prefix = "rules_rust-b3ddf6f096887b757ab1a661662a95d6b2699fa7",
-        # NOTE: Update Rust version for Linux/s390x in bazel/dependencies.bzl.
+        # NOTE: Update Rust version in bazel/dependencies.bzl.
         url = "https://github.com/bazelbuild/rules_rust/archive/b3ddf6f096887b757ab1a661662a95d6b2699fa7.tar.gz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
+        patch_args = ["-p1"],
     )
 
     # Core.
@@ -59,26 +69,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "boringssl",
-        # 2022-01-10 (master-with-bazel)
-        sha256 = "a530919e3141d00d593a0d74cd0f9f88707e35ec58bb62245968fec16cb9257f",
-        strip_prefix = "boringssl-9420fb54116466923afa1f34a23dd8a4a7ddb69d",
-        urls = ["https://github.com/google/boringssl/archive/9420fb54116466923afa1f34a23dd8a4a7ddb69d.tar.gz"],
-    )
-
-    maybe(
-        http_archive,
-        name = "com_google_googletest",
-        sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
-        strip_prefix = "googletest-release-1.10.0",
-        urls = ["https://github.com/google/googletest/archive/release-1.10.0.tar.gz"],
-    )
-
-    maybe(
-        http_archive,
-        name = "com_google_protobuf",
-        sha256 = "77ad26d3f65222fd96ccc18b055632b0bfedf295cb748b712a98ba1ac0b704b2",
-        strip_prefix = "protobuf-3.17.3",
-        url = "https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protobuf-all-3.17.3.tar.gz",
+        # 2022-02-07 (master-with-bazel)
+        sha256 = "7dec97795a7ac7e3832228e4440ee06cceb18d3663f4580b0840e685281e28a0",
+        strip_prefix = "boringssl-eaa29f431f71b8121e1da76bcd3ddc2248238ade",
+        urls = ["https://github.com/google/boringssl/archive/eaa29f431f71b8121e1da76bcd3ddc2248238ade.tar.gz"],
     )
 
     maybe(
@@ -89,15 +83,35 @@ def proxy_wasm_cpp_host_repositories():
         urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/fd0be8405db25de0264bdb78fae3a82668c03782.tar.gz"],
     )
 
+    # Test dependencies.
+
+    maybe(
+        http_archive,
+        name = "com_google_googletest",
+        sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
+        strip_prefix = "googletest-release-1.10.0",
+        urls = ["https://github.com/google/googletest/archive/release-1.10.0.tar.gz"],
+    )
+
+    # NullVM dependencies.
+
+    maybe(
+        http_archive,
+        name = "com_google_protobuf",
+        sha256 = "77ad26d3f65222fd96ccc18b055632b0bfedf295cb748b712a98ba1ac0b704b2",
+        strip_prefix = "protobuf-3.17.3",
+        url = "https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protobuf-all-3.17.3.tar.gz",
+    )
+
     # V8 with dependencies.
 
     maybe(
         git_repository,
         name = "v8",
-        # 9.9.115.3
-        commit = "90f089d97b6e4146ad106eee1829d86ad6392027",
+        # 10.0.101
+        commit = "a3377e2234a32e1a67a620a180415b40f3dadb80",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1643043727 +0000",
+        shallow_since = "1644336206 +0000",
         patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
         patch_args = ["-p1"],
     )
@@ -111,9 +125,9 @@ def proxy_wasm_cpp_host_repositories():
         new_git_repository,
         name = "com_googlesource_chromium_base_trace_event_common",
         build_file = "@v8//:bazel/BUILD.trace_event_common",
-        commit = "7f36dbc19d31e2aad895c60261ca8f726442bfbb",
+        commit = "d115b033c4e53666b535cbd1985ffe60badad082",
         remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
-        shallow_since = "1635355186 -0700",
+        shallow_since = "1642576054 -0800",
     )
 
     native.bind(
@@ -125,9 +139,9 @@ def proxy_wasm_cpp_host_repositories():
         new_git_repository,
         name = "com_googlesource_chromium_zlib",
         build_file = "@v8//:bazel/BUILD.zlib",
-        commit = "fc5cfd78a357d5bb7735a58f383634faaafe706a",
+        commit = "3fc79233fe8ff5cf39fec4c8b8a46272d4f11cec",
         remote = "https://chromium.googlesource.com/chromium/src/third_party/zlib.git",
-        shallow_since = "1642005087 -0800",
+        shallow_since = "1644209500 -0800",
     )
 
     native.bind(
@@ -157,26 +171,15 @@ def proxy_wasm_cpp_host_repositories():
         actual = "@com_github_bytecodealliance_wasm_micro_runtime//:wamr_lib",
     )
 
-    maybe(
-        http_archive,
-        name = "llvm13",
-        build_file = "@proxy_wasm_cpp_host//bazel/external:llvm13.BUILD",
-        sha256 = "408d11708643ea826f519ff79761fcdfc12d641a2510229eec459e72f8163020",
-        strip_prefix = "llvm-13.0.0.src",
-        url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/llvm-13.0.0.src.tar.xz",
-        patches = ["@proxy_wasm_cpp_host//bazel/external:llvm13.patch"],
-        patch_args = ["-p1"],
-    )
-
     # Wasmtime with dependencies.
 
     maybe(
         http_archive,
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "c59a2aa110b25921d370944287cd97205c73cf3dc76776c5b3551135c1e42ddc",
-        strip_prefix = "wasmtime-0.33.0",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.33.0.tar.gz",
+        sha256 = "bf643b1863b19ab49aa1e8cc7aec52c81e5aff12daeb4eca4c31a437046957be",
+        strip_prefix = "wasmtime-0.34.0",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.34.0.tar.gz",
     )
 
     maybe(
@@ -191,6 +194,11 @@ def proxy_wasm_cpp_host_repositories():
     native.bind(
         name = "wasmtime",
         actual = "@com_github_webassembly_wasm_c_api//:wasmtime_lib",
+    )
+
+    native.bind(
+        name = "prefixed_wasmtime",
+        actual = "@com_github_webassembly_wasm_c_api//:prefixed_wasmtime_lib",
     )
 
     # WAVM with dependencies.

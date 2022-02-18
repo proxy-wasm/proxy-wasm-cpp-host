@@ -32,9 +32,13 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_codegen_shared",
+    name = "cranelift_native",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -44,11 +48,21 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-codegen-shared",
+        "crate-name=cranelift-native",
         "manual",
     ],
-    version = "0.80.0",
+    version = "0.81.0",
     # buildifier: leave-alone
     deps = [
-    ],
+        "@wasmtime__cranelift_codegen__0_81_0//:cranelift_codegen",
+        "@wasmtime__target_lexicon__0_12_3//:target_lexicon",
+    ] + selects.with_or({
+        # cfg(target_arch = "s390x")
+        (
+            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
+        ): [
+            "@wasmtime__libc__0_2_117//:libc",
+        ],
+        "//conditions:default": [],
+    }),
 )

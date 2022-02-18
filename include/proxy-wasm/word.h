@@ -21,6 +21,16 @@ namespace proxy_wasm {
 
 #include "proxy_wasm_common.h"
 
+// Use byteswap functions only when compiling for big-endian platforms.
+#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
+    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define htowasm(x) __builtin_bswap32(x)
+#define wasmtoh(x) __builtin_bswap32(x)
+#else
+#define htowasm(x) (x)
+#define wasmtoh(x) (x)
+#endif
+
 // Represents a Wasm-native word-sized datum. On 32-bit VMs, the high bits are always zero.
 // The Wasm/VM API treats all bits as significant.
 struct Word {

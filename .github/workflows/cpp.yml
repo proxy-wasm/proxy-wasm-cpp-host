@@ -28,6 +28,9 @@ on:
     - 'envoy-release/**'
     - 'istio-release/**'
 
+  schedule:
+    - cron: '0 0 * * *'
+
 jobs:
 
   format:
@@ -49,7 +52,7 @@ jobs:
       run: |
         go install github.com/bazelbuild/buildtools/buildifier@latest
         export PATH=$PATH:$(go env GOPATH)/bin
-        find . -name "BUILD" | xargs -n1 buildifier -mode=check
+        find . -name "WORKSPACE" -o -name "*BUILD*" -o -name "*.bzl" | xargs -n1 buildifier -mode=check
 
     - name: Format (addlicense)
       run: |
@@ -57,8 +60,56 @@ jobs:
         export PATH=$PATH:$(go env GOPATH)/bin
         addlicense -check .
 
+  test_data:
+    name: build test data
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Bazel cache
+      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
+      with:
+        path: |
+          ~/.cache/bazel
+        key: test_data-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl', 'bazel/cargo/wasmsign/crates.bzl') }}
+
+    - name: Bazel build
+      run: >
+        bazel build
+        --verbose_failures
+        --test_output=errors
+        --config=clang
+        -c opt
+        $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
+
+    - name: Upload test data
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_data
+        path: bazel-bin/test/test_data/*.wasm
+        if-no-files-found: error
+        retention-days: 3
+
+    - name: Skip Bazel cache update
+      if: ${{ github.ref != 'refs/heads/master' }}
+      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
+
+    - name: Cleanup Bazel cache
+      if: ${{ github.ref == 'refs/heads/master' }}
+      run: |
+        export OUTPUT=$(bazel info output_base)
+        # Distfiles for Rust toolchains (350 MiB).
+        rm -rf ${OUTPUT}/external/rust_*/*.tar.gz
+        # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
+        rm -rf $(bazel info repository_cache)
+        rm -rf $(bazel info install_base)
+
   build:
     name: ${{ matrix.action }} with ${{ matrix.name }}
+
+    needs: test_data
 
     runs-on: ${{ matrix.os }}
 
@@ -67,38 +118,74 @@ jobs:
       matrix:
         include:
         - name: 'V8 on Windows/x86_64'
-          runtime: 'v8'
+          engine: 'v8'
           repo: 'v8'
           os: windows-2019
           arch: x86_64
           action: test
+          cache: true
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Install dependencies (Linux)
+      if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
+      run: sudo apt-get install -y ${{ matrix.deps }}
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
       run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
+    - name: Set cache key
+      if: ${{ matrix.cache }}
+      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
+      id: cache-key
+
+    - name: Bazel cache
+      if: ${{ matrix.cache }}
+      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
+      with:
+        path: |
+          ~/.cache/bazel
+          /private/var/tmp/_bazel_runner/
+        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.engine }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        restore-keys: |
+          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.engine }}-${{ steps.cache-key.outputs.uniq }}-
+
+    - name: Download test data
+      uses: actions/download-artifact@v2
+      with:
+        name: test_data
+        path: test/test_data/
+
+    - name: Mangle build rules to use existing test data
+      shell: bash
+      run: |
+        sed 's/\.wasm//g' test/BUILD > test/BUILD.tmp && mv test/BUILD.tmp test/BUILD
+        echo "package(default_visibility = [\"//visibility:public\"])" > test/test_data/BUILD
+        for i in $(cd test/test_data && ls -1 *.wasm | sed 's/\.wasm$//g'); do \
+          echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD; \
+        done
+
     - name: Generate V8 inspector files
-      if: matrix.runtime == 'v8'
+      if: ${{ matrix.engine == 'v8' }}
       run: >
         ${{ matrix.run_under }}
         bazel build
         --verbose_failures
         --test_output=errors
-        --define runtime=${{ matrix.runtime }}
+        --define engine=${{ matrix.engine }}
         ${{ matrix.flags }}
         @v8//:generated_inspector_files
 
     - name: Generate V8 torque files
-      if: matrix.runtime == 'v8'
+      if: ${{ matrix.engine == 'v8' }}
       run: >
         ${{ matrix.run_under }}
         bazel build
         --verbose_failures
         --test_output=errors
-        --define runtime=${{ matrix.runtime }}
+        --define engine=${{ matrix.engine }}
         ${{ matrix.flags }}
         @v8//:noicu/generated_torque_files
 
@@ -108,25 +195,32 @@ jobs:
         bazel ${{ matrix.action }}
         --verbose_failures
         --test_output=errors
-        --define runtime=${{ matrix.runtime }}
+        --define engine=${{ matrix.engine }}
         ${{ matrix.flags }}
         //test/...
 
     - name: Bazel build/test (signed Wasm module)
+      if: ${{ matrix.engine != 'null' }}
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
         --verbose_failures
         --test_output=errors
-        --define runtime=${{ matrix.runtime }}
+        --define engine=${{ matrix.engine }}
         ${{ matrix.flags }}
         --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
         //test:signature_util_test
 
+    - name: Skip Bazel cache update
+      if: ${{ matrix.cache && github.ref != 'refs/heads/master' }}
+      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
+
     - name: Cleanup Bazel cache
-      if: ${{ matrix.runtime != 'wasmtime' || startsWith(matrix.run_under, 'docker') }}
+      if: ${{ matrix.cache && github.ref == 'refs/heads/master' }}
       run: |
-        export OUTPUT=$(bazel info output_base)
+        export OUTPUT=$(${{ matrix.run_under }} bazel info output_base)
+        echo "===== BEFORE ====="
+        du -s ${OUTPUT}/external/* $(dirname ${OUTPUT})/* | sort -rn | head -20
         # BoringSSL's test data (90 MiB).
         rm -rf ${OUTPUT}/external/boringssl/crypto_test_data.cc
         rm -rf ${OUTPUT}/external/boringssl/src/crypto/*/test/
@@ -144,5 +238,7 @@ jobs:
         # Distfiles for Rust toolchains (350 MiB).
         rm -rf ${OUTPUT}/external/rust_*/*.tar.gz
         # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
-        rm -rf $(bazel info repository_cache)
-        rm -rf $(bazel info install_base)
+        rm -rf ${OUTPUT}/../cache
+        rm -rf ${OUTPUT}/../install
+        echo "===== AFTER ====="
+        du -s ${OUTPUT}/external/* $(dirname ${OUTPUT})/* | sort -rn | head -20

@@ -1,4 +1,3 @@
-load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_rust//rust:defs.bzl", "rust_static_library")
 
 licenses(["notice"])  # Apache 2
@@ -18,6 +17,7 @@ rust_static_library(
         "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:anyhow",
         "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:env_logger",
         "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:once_cell",
+        # buildifier: leave-alone
         "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:wasmtime",
     ],
 )
