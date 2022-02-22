@@ -63,7 +63,7 @@ jobs:
     - name: Format (clang-tidy)
       run: |
         sudo apt-get install -y clang-tidy-12
-        sudo ln -s /usr/bin/clang-tidy-12 /usr/bin/clang-tidy
+        sudo ln -sf /usr/bin/clang-tidy-12 /usr/bin/clang-tidy
         bazel build \
         --config clang-tidy \
         --define engine=multi \
