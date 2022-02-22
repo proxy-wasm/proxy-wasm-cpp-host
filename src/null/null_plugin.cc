@@ -144,7 +144,7 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<5> *f)
 void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<1> *f) {
   auto *plugin = this;
   if (function_name == "malloc") {
-    *f = [](ContextBase *, Word size) -> Word {
+    *f = [](ContextBase * /*context*/, Word size) -> Word {
       return Word(reinterpret_cast<uint64_t>(::malloc(size)));
     };
   } else if (function_name == "proxy_on_new_connection") {
