@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "src/common/types.h"
-#include "wasmtime/include/wasm.h"
+#include "include/wasm.h"
 
 namespace proxy_wasm {
 namespace wasmtime {
