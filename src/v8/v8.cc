@@ -25,8 +25,8 @@
 #include <utility>
 #include <vector>
 
-#include "include/v8.h"
 #include "include/v8-version.h"
+#include "include/v8.h"
 #include "wasm-api/wasm.hh"
 
 namespace proxy_wasm {
@@ -49,21 +49,21 @@ struct FuncData {
 
   std::string name_;
   wasm::own<wasm::Func> callback_;
-  void *raw_func_;
-  WasmVm *vm_;
+  void *raw_func_{};
+  WasmVm *vm_{};
 };
 
 using FuncDataPtr = std::unique_ptr<FuncData>;
 
 class V8 : public WasmVm {
 public:
-  V8() {}
+  V8() = default;
 
   // WasmVm
   std::string_view getEngineName() override { return "v8"; }
 
   bool load(std::string_view bytecode, std::string_view precompiled,
-            const std::unordered_map<uint32_t, std::string> function_names) override;
+            const std::unordered_map<uint32_t, std::string> &function_names) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
 
@@ -147,7 +147,7 @@ static std::string printValues(const wasm::Val values[], size_t size) {
 
   std::string s;
   for (size_t i = 0; i < size; i++) {
-    if (i) {
+    if (i != 0U) {
       s.append(", ");
     }
     s.append(printValue(values[i]));
@@ -182,7 +182,7 @@ static std::string printValTypes(const wasm::ownvec<wasm::ValType> &types) {
   std::string s;
   s.reserve(types.size() * 8 /* max size + " " */ - 1);
   for (size_t i = 0; i < types.size(); i++) {
-    if (i) {
+    if (i != 0U) {
       s.append(" ");
     }
     s.append(printValKind(types[i]->kind()));
@@ -223,7 +223,7 @@ template <> constexpr auto convertArgToValKind<uint64_t>() { return wasm::I64; }
 template <> constexpr auto convertArgToValKind<double>() { return wasm::F64; };
 
 template <typename T, std::size_t... I>
-constexpr auto convertArgsTupleToValTypesImpl(std::index_sequence<I...>) {
+constexpr auto convertArgsTupleToValTypesImpl(std::index_sequence<I...> /*comptime*/) {
   return wasm::ownvec<wasm::ValType>::make(
       wasm::ValType::make(convertArgToValKind<typename std::tuple_element<I, T>::type>())...);
 }
@@ -233,7 +233,7 @@ template <typename T> constexpr auto convertArgsTupleToValTypes() {
 }
 
 template <typename T, typename U, std::size_t... I>
-constexpr T convertValTypesToArgsTupleImpl(const U &arr, std::index_sequence<I...>) {
+constexpr T convertValTypesToArgsTupleImpl(const U &arr, std::index_sequence<I...> /*comptime*/) {
   return std::make_tuple(
       (arr[I]
            .template get<
@@ -248,7 +248,7 @@ template <typename T, typename U> constexpr T convertValTypesToArgsTuple(const U
 // V8 implementation.
 
 bool V8::load(std::string_view bytecode, std::string_view precompiled,
-              const std::unordered_map<uint32_t, std::string> function_names) {
+              const std::unordered_map<uint32_t, std::string> &function_names) {
   store_ = wasm::Store::make(engine());
   if (store_ == nullptr) {
     return false;
@@ -299,7 +299,7 @@ std::unique_ptr<WasmVm> V8::clone() {
     return nullptr;
   }
 
-  auto integration_clone = integration()->clone();
+  auto *integration_clone = integration()->clone();
   if (integration_clone == nullptr) {
     return nullptr;
   }
@@ -326,7 +326,7 @@ std::string_view V8::getPrecompiledSectionName() {
   return name;
 }
 
-bool V8::link(std::string_view debug_name) {
+bool V8::link(std::string_view /*debug_name*/) {
   assert(module_ != nullptr);
 
   const auto import_types = module_.get()->imports();
@@ -335,7 +335,7 @@ bool V8::link(std::string_view debug_name) {
   for (size_t i = 0; i < import_types.size(); i++) {
     std::string_view module(import_types[i]->module().get(), import_types[i]->module().size());
     std::string_view name(import_types[i]->name().get(), import_types[i]->name().size());
-    auto import_type = import_types[i]->type();
+    const auto *import_type = import_types[i]->type();
 
     switch (import_type->kind()) {
 
@@ -347,7 +347,7 @@ bool V8::link(std::string_view debug_name) {
                  std::string(module) + "." + std::string(name));
         return false;
       }
-      auto func = it->second.get()->callback_.get();
+      auto *func = it->second->callback_.get();
       if (!equalValTypes(import_type->func()->params(), func->type()->params()) ||
           !equalValTypes(import_type->func()->results(), func->type()->results())) {
         fail(FailState::UnableToInitializeCode,
@@ -416,8 +416,8 @@ bool V8::link(std::string_view debug_name) {
 
   for (size_t i = 0; i < export_types.size(); i++) {
     std::string_view name(export_types[i]->name().get(), export_types[i]->name().size());
-    auto export_type = export_types[i]->type();
-    auto export_item = exports[i].get();
+    const auto *export_type = export_types[i]->type();
+    auto *export_item = exports[i].get();
     assert(export_type->kind() == export_item->kind());
 
     switch (export_type->kind()) {
@@ -499,7 +499,7 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
   auto func = wasm::Func::make(
       store_.get(), type.get(),
       [](void *data, const wasm::Val params[], wasm::Val[]) -> wasm::own<wasm::Trap> {
-        auto func_data = reinterpret_cast<FuncData *>(data);
+        auto *func_data = reinterpret_cast<FuncData *>(data);
         const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
         if (log) {
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
@@ -532,7 +532,7 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
   auto func = wasm::Func::make(
       store_.get(), type.get(),
       [](void *data, const wasm::Val params[], wasm::Val results[]) -> wasm::own<wasm::Trap> {
-        auto func_data = reinterpret_cast<FuncData *>(data);
+        auto *func_data = reinterpret_cast<FuncData *>(data);
         const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
         if (log) {
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
@@ -668,7 +668,7 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
   auto trace = trap->trace();
   message += "\nProxy-Wasm plugin in-VM backtrace:";
   for (size_t i = 0; i < trace.size(); ++i) {
-    auto frame = trace[i].get();
+    auto *frame = trace[i].get();
     std::ostringstream oss;
     oss << std::setw(3) << std::setfill(' ') << std::to_string(i);
     message += "\n" + oss.str() + ": ";

@@ -57,7 +57,7 @@ struct RegisterForeignFunction {
    * @param function_name is the key for this foreign function.
    * @param f is the function instance.
    */
-  RegisterForeignFunction(std::string function_name, WasmForeignFunction f);
+  RegisterForeignFunction(const std::string &function_name, WasmForeignFunction f);
 };
 
 namespace exports {

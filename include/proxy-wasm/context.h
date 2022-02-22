@@ -143,11 +143,11 @@ class ContextBase : public RootInterface,
                     public SharedQueueInterface,
                     public GeneralInterface {
 public:
-  ContextBase();                                                   // Testing.
-  ContextBase(WasmBase *wasm);                                     // Vm Context.
-  ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin); // Root Context.
+  ContextBase();                                                          // Testing.
+  ContextBase(WasmBase *wasm);                                            // Vm Context.
+  ContextBase(WasmBase *wasm, const std::shared_ptr<PluginBase> &plugin); // Root Context.
   ContextBase(WasmBase *wasm, uint32_t parent_context_id,
-              std::shared_ptr<PluginHandleBase> plugin_handle); // Stream context.
+              const std::shared_ptr<PluginHandleBase> &plugin_handle); // Stream context.
   virtual ~ContextBase();
 
   WasmBase *wasm() const { return wasm_; }

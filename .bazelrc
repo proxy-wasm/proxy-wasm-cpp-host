@@ -8,6 +8,11 @@ build:clang --action_env=BAZEL_COMPILER=clang
 build:clang --action_env=CC=clang
 build:clang --action_env=CXX=clang++
 
+# Use Clang-Tidy tool.
+build:clang-tidy --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect
+build:clang-tidy --@bazel_clang_tidy//:clang_tidy_config=@proxy_wasm_cpp_host//:clang_tidy_config
+build:clang-tidy --output_groups=report
+
 # Use GCC compiler.
 build:gcc --action_env=BAZEL_COMPILER=gcc
 build:gcc --action_env=CC=gcc

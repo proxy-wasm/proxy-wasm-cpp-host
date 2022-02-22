@@ -14,9 +14,10 @@
 
 #include "include/proxy-wasm/wasm_vm.h"
 
-#include "gtest/gtest.h"
 #include "include/proxy-wasm/null.h"
 #include "include/proxy-wasm/null_vm_plugin.h"
+
+#include "gtest/gtest.h"
 
 namespace proxy_wasm {
 
@@ -58,7 +59,7 @@ TEST(WasmVm, Word) {
 
 class BaseVmTest : public testing::Test {
 public:
-  BaseVmTest() {}
+  BaseVmTest() = default;
 };
 
 TEST_F(BaseVmTest, NullVmStartup) {

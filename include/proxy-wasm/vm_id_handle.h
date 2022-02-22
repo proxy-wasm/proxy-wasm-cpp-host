@@ -31,6 +31,6 @@ private:
 };
 
 std::shared_ptr<VmIdHandle> getVmIdHandle(std::string_view vm_id);
-void registerVmIdHandleCallback(std::function<void(std::string_view vm_id)> f);
+void registerVmIdHandleCallback(const std::function<void(std::string_view vm_id)> &f);
 
 } // namespace proxy_wasm

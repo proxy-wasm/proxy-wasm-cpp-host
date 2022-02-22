@@ -1,0 +1,13 @@
+# Treat .h files as C++ headers.
+--- a/clang_tidy/clang_tidy.bzl
++++ b/clang_tidy/clang_tidy.bzl
+@@ -16,6 +16,9 @@
+     # add source to check
+     args.add(infile.path)
+ 
++    # treat .h files as C++ headers
++    args.add("--extra-arg-before=-xc++")
++
+     # start args passed to the compiler
+     args.add("--")
+ 

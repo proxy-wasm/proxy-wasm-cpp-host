@@ -42,11 +42,11 @@ jobs:
       with:
         go-version: '^1.16'
 
-    - name: Format (clang-format)
+    - name: Format (addlicense)
       run: |
-        sudo apt-get install clang-format-9
-        find . -name "*.h" -o -name "*.cc" -o -name "*.proto" | grep -v ".pb." | xargs -n1 clang-format-9 -i
-        git diff --exit-code
+        go install github.com/google/addlicense@latest
+        export PATH=$PATH:$(go env GOPATH)/bin
+        addlicense -check .
 
     - name: Format (buildifier)
       run: |
@@ -54,11 +54,21 @@ jobs:
         export PATH=$PATH:$(go env GOPATH)/bin
         find . -name "WORKSPACE" -o -name "*BUILD*" -o -name "*.bzl" | xargs -n1 buildifier -mode=check
 
-    - name: Format (addlicense)
+    - name: Format (clang-format)
       run: |
-        go install github.com/google/addlicense@latest
-        export PATH=$PATH:$(go env GOPATH)/bin
-        addlicense -check .
+        sudo apt-get install -y clang-format-12
+        find . -name "*.h" -o -name "*.cc" -o -name "*.proto" | grep -v ".pb." | xargs -n1 clang-format-12 -i
+        git diff --exit-code
+
+    - name: Format (clang-tidy)
+      run: |
+        sudo apt-get install -y clang-tidy-12
+        sudo ln -s /usr/bin/clang-tidy-12 /usr/bin/clang-tidy
+        bazel build \
+        --config clang-tidy \
+        --define engine=multi \
+        --copt=-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\" \
+        -- //... -//:wavm_lib
 
   test_data:
     name: build test data

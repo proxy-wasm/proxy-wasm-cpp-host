@@ -39,10 +39,10 @@
 namespace proxy_wasm {
 
 std::vector<std::string> getWasmEngines();
-std::string readTestWasmFile(std::string filename);
+std::string readTestWasmFile(const std::string &filename);
 
 struct DummyIntegration : public WasmVmIntegration {
-  ~DummyIntegration() override{};
+  ~DummyIntegration() override = default;
   WasmVmIntegration *clone() override { return new DummyIntegration{}; }
   void error(std::string_view message) override {
     std::cout << "ERROR from integration: " << message << std::endl;
@@ -52,8 +52,9 @@ struct DummyIntegration : public WasmVmIntegration {
     std::cout << "TRACE from integration: " << message << std::endl;
     trace_message_ = message;
   }
-  bool getNullVmFunction(std::string_view function_name, bool returns_word, int number_of_arguments,
-                         NullPlugin *plugin, void *ptr_to_function_return) override {
+  bool getNullVmFunction(std::string_view /*function_name*/, bool /*returns_word*/,
+                         int /*number_of_arguments*/, NullPlugin * /*plugin*/,
+                         void * /*ptr_to_function_return*/) override {
     return false;
   };
 
@@ -74,7 +75,7 @@ public:
 
   std::unique_ptr<proxy_wasm::WasmVm> newVm() {
     std::unique_ptr<proxy_wasm::WasmVm> vm;
-    if (engine_ == "") {
+    if (engine_.empty()) {
       EXPECT_TRUE(false) << "engine must not be empty";
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
     } else if (engine_ == "v8") {
@@ -96,7 +97,7 @@ public:
       EXPECT_TRUE(false) << "compiled without support for the requested \"" << engine_
                          << "\" engine";
     }
-    vm->integration().reset(new DummyIntegration{});
+    vm->integration() = std::make_unique<DummyIntegration>();
     return vm;
   };
 
