@@ -128,6 +128,24 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "wasmtime_lib",
+    srcs = [
+        "src/common/types.h",
+        "src/wasmtime/types.h",
+        "src/wasmtime/wasmtime.cc",
+    ],
+    hdrs = ["include/proxy-wasm/wasmtime.h"],
+    defines = [
+        "PROXY_WASM_HAS_RUNTIME_WASMTIME",
+        "PROXY_WASM_HOST_ENGINE_WASMTIME",
+    ],
+    deps = [
+        ":wasm_vm_headers",
+        "//external:wasmtime",
+    ],
+)
+
 genrule(
     name = "prefixed_wasmtime_sources",
     srcs = [
@@ -141,6 +159,7 @@ genrule(
     cmd = """
         for file in $(SRCS); do
            sed -e 's/wasm_/wasmtime_wasm_/g' \
+               -e 's/include\\/wasm.h/include\\/prefixed_wasm.h/g' \
                -e 's/wasmtime\\/types.h/wasmtime\\/prefixed_types.h/g' \
            $$file >$(@D)/$$(dirname $$file)/prefixed_$$(basename $$file)
         done
@@ -148,19 +167,12 @@ genrule(
 )
 
 cc_library(
-    name = "wasmtime_lib",
+    name = "prefixed_wasmtime_lib",
     srcs = [
         "src/common/types.h",
-    ] + select({
-        "@proxy_wasm_cpp_host//bazel:multiengine": [
-            "src/wasmtime/prefixed_types.h",
-            "src/wasmtime/prefixed_wasmtime.cc",
-        ],
-        "//conditions:default": [
-            "src/wasmtime/types.h",
-            "src/wasmtime/wasmtime.cc",
-        ],
-    }),
+        "src/wasmtime/prefixed_types.h",
+        "src/wasmtime/prefixed_wasmtime.cc",
+    ],
     hdrs = ["include/proxy-wasm/wasmtime.h"],
     defines = [
         "PROXY_WASM_HAS_RUNTIME_WASMTIME",
@@ -168,14 +180,8 @@ cc_library(
     ],
     deps = [
         ":wasm_vm_headers",
-    ] + select({
-        "@proxy_wasm_cpp_host//bazel:multiengine": [
-            "//external:prefixed_wasmtime",
-        ],
-        "//conditions:default": [
-            "//external:wasmtime",
-        ],
-    }),
+        "//external:prefixed_wasmtime",
+    ],
 )
 
 cc_library(
@@ -211,6 +217,7 @@ cc_library(
         [":wamr_lib"],
     ) + proxy_wasm_select_engine_wasmtime(
         [":wasmtime_lib"],
+        [":prefixed_wasmtime_lib"],
     ) + proxy_wasm_select_engine_wavm(
         [":wavm_lib"],
     ),

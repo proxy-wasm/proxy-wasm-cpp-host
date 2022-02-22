@@ -26,7 +26,7 @@
 
 #include "src/wasmtime/types.h"
 
-#include "wasmtime/include/wasm.h"
+#include "include/wasm.h"
 
 namespace proxy_wasm {
 namespace wasmtime {

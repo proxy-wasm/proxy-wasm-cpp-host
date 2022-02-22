@@ -9,7 +9,6 @@ cc_library(
     hdrs = [
         "include/wasm.h",
     ],
-    include_prefix = "wasmtime",
     deps = [
         "@com_github_bytecodealliance_wasmtime//:rust_c_api",
     ],
@@ -21,7 +20,7 @@ genrule(
         "include/wasm.h",
     ],
     outs = [
-        "wasmtime/include/wasm.h",
+        "include/prefixed_wasm.h",
     ],
     cmd = """
         sed -e 's/\\ wasm_/\\ wasmtime_wasm_/g' \
