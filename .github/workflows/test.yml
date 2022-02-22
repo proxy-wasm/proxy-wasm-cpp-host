@@ -109,6 +109,14 @@ jobs:
           action: test
           flags: --config=clang --define=crypto=system
           cache: true
+        - name: 'V8 on Linux/x86_64 with ASan'
+          engine: 'v8'
+          repo: 'v8'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=clang-asan
+          cache: true
         - name: 'V8 on Linux/aarch64'
           engine: 'v8'
           repo: 'v8'
@@ -145,6 +153,13 @@ jobs:
           arch: x86_64
           action: test
           flags: --config=clang
+        - name: 'Wasmtime on Linux/x86_64 with ASan'
+          engine: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=clang-asan
         - name: 'Wasmtime on Linux/aarch64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
