@@ -101,7 +101,7 @@ jobs:
           os: ubuntu-20.04
           arch: x86_64
           action: test
-          flags: --config=clang-asan
+          flags: --config=clang-asan-strict
         - name: 'NullVM on Windows/x86_64'
           engine: 'null'
           os: windows-2019
@@ -165,7 +165,7 @@ jobs:
           os: ubuntu-20.04
           arch: x86_64
           action: test
-          flags: --config=clang-asan
+          flags: --config=clang-asan-strict
         - name: 'Wasmtime on Linux/aarch64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
