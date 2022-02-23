@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: C++
+name: Test
 
 on:
 
@@ -32,33 +32,6 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-
-  format:
-    runs-on: ubuntu-20.04
-
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
-      with:
-        go-version: '^1.16'
-
-    - name: Format (clang-format)
-      run: |
-        sudo apt-get install clang-format-9
-        find . -name "*.h" -o -name "*.cc" -o -name "*.proto" | grep -v ".pb." | xargs -n1 clang-format-9 -i
-        git diff --exit-code
-
-    - name: Format (buildifier)
-      run: |
-        go install github.com/bazelbuild/buildtools/buildifier@latest
-        export PATH=$PATH:$(go env GOPATH)/bin
-        find . -name "WORKSPACE" -o -name "*BUILD*" -o -name "*.bzl" | xargs -n1 buildifier -mode=check
-
-    - name: Format (addlicense)
-      run: |
-        go install github.com/google/addlicense@latest
-        export PATH=$PATH:$(go env GOPATH)/bin
-        addlicense -check .
 
   test_data:
     name: build test data
