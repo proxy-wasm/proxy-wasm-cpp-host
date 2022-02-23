@@ -135,12 +135,12 @@ jobs:
         --copt=-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
         //...
 
-#    - name: Skip Bazel cache update
-#      if: ${{ github.ref != 'refs/heads/master' }}
-#      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
+    - name: Skip Bazel cache update
+      if: ${{ github.ref != 'refs/heads/master' }}
+      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
 
     - name: Cleanup Bazel cache
-#      if: ${{ github.ref == 'refs/heads/master' }}
+      if: ${{ github.ref == 'refs/heads/master' }}
       run: |
         export OUTPUT=$(${{ matrix.run_under }} bazel info output_base)
         echo "===== BEFORE ====="
