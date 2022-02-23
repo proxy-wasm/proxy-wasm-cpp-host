@@ -1,0 +1,107 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Format
+
+on:
+
+  pull_request:
+    branches:
+    - master
+    - 'envoy-release/**'
+    - 'istio-release/**'
+
+  push:
+    branches:
+    - master
+    - 'envoy-release/**'
+    - 'istio-release/**'
+
+jobs:
+
+  addlicense:
+    name: verify licenses
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.16'
+
+    - name: Install dependencies
+      run: |
+        go install github.com/google/addlicense@latest
+        echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+    - name: Format (addlicense)
+      run: addlicense -check .
+
+  buildifier:
+    name: check format with buildifier
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-go@v2
+      with:
+        go-version: '^1.16'
+
+    - name: Install dependencies
+      run: |
+        go install github.com/bazelbuild/buildtools/buildifier@latest
+        echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+    - name: Format (buildifier)
+      run: find . -name "WORKSPACE" -o -name "*BUILD*" -o -name "*.bzl" | xargs -n1 buildifier -mode=check
+
+  cargo_raze:
+    name: check format with cargo-raze
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: cargo install cargo-raze --version 0.14.1
+
+    - name: Format (cargo raze)
+      working-directory: bazel/cargo
+      run: |
+        cd wasmsign && cargo raze && cd ..
+        cd wasmtime && cargo raze && cd ..
+        # Ignore manual changes in "errno" crate until fixed in cargo-raze.
+        # See: https://github.com/google/cargo-raze/issues/451
+        git diff --exit-code -- ':!wasmtime/remote/BUILD.errno-0.2.8.bazel'
+
+  clang_format:
+    name: check format with clang-format
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies (Linux)
+      run: sudo apt-get install -y clang-format-12
+
+    - name: Format (clang-format)
+      run: |
+        find . -name "*.h" -o -name "*.cc" -o -name "*.proto" | grep -v ".pb." | xargs -n1 clang-format-12 -i
+        git diff --exit-code
