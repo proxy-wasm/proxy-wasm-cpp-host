@@ -121,11 +121,13 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
     // Prevent clone from droping out of scope and freeing memory.
     clones.push_back(std::move(clone));
   }
-#if defined(__has_feature) && __has_feature(thread_sanitizer)
-  EXPECT_GE(clones.size(), 100);
-#else
-  EXPECT_GE(clones.size(), 1000);
+  int min_clones = 1000;
+#if defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+  min_clones = 100;
 #endif
+#endif
+  EXPECT_GE(clones.size(), min_clones);
 }
 
 #endif
