@@ -498,7 +498,7 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
                                    convertArgsTupleToValTypes<std::tuple<>>());
   auto func = wasm::Func::make(
       store_.get(), type.get(),
-      [](void *data, const wasm::Val params[], wasm::Val[] /*results*/) -> wasm::own<wasm::Trap> {
+      [](void *data, const wasm::Val params[], wasm::Val /*results*/[]) -> wasm::own<wasm::Trap> {
         auto *func_data = reinterpret_cast<FuncData *>(data);
         const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
         if (log) {
