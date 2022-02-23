@@ -52,6 +52,7 @@ cc_test(
 
 cc_test(
     name = "runtime_test",
+    timeout = "long",
     srcs = ["runtime_test.cc"],
     data = [
         "//test/test_data:abi_export.wasm",
