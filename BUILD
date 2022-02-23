@@ -196,7 +196,7 @@ cc_library(
     ],
     hdrs = ["include/proxy-wasm/wavm.h"],
     copts = [
-        '-DWAVM_API=""',
+        "-DWAVM_API=",
         "-Wno-non-virtual-dtor",
         "-Wno-old-style-cast",
     ],

@@ -137,12 +137,12 @@ class RootResolver : public WAVM::Runtime::Resolver {
 public:
   RootResolver(WAVM::Runtime::Compartment * /*compartment*/, WasmVm *vm) : vm_(vm) {}
 
-  virtual ~RootResolver() { module_name_to_instance_map_.clear(); }
+  ~RootResolver() override { module_name_to_instance_map_.clear(); }
 
   bool resolve(const std::string &module_name, const std::string &export_name, ExternType type,
                WAVM::Runtime::Object *&out_object) override {
-    auto named_instance = module_name_to_instance_map_.get(module_name);
-    if (named_instance) {
+    auto *named_instance = module_name_to_instance_map_.get(module_name);
+    if (named_instance != nullptr) {
       out_object = getInstanceExport(*named_instance, export_name);
       if (out_object != nullptr) {
         if (!isA(out_object, type)) {
@@ -156,7 +156,7 @@ public:
         return true;
       }
     }
-    for (auto r : resolvers_) {
+    for (auto *r : resolvers_) {
       if (r->resolve(module_name, export_name, type, out_object)) {
         return true;
       }
@@ -248,7 +248,7 @@ Wavm::~Wavm() {
   intrinsic_module_instances_.clear();
   intrinsic_modules_.clear();
   host_functions_.clear();
-  if (compartment_) {
+  if (compartment_ != nullptr) {
     ASSERT(tryCollectCompartment(std::move(compartment_)));
   }
 }
@@ -279,7 +279,7 @@ std::unique_ptr<WasmVm> Wavm::clone() {
         p.first, WAVM::Runtime::remapToClonedCompartment(p.second, wavm->compartment_));
   }
 
-  auto integration_clone = integration()->clone();
+  auto *integration_clone = integration()->clone();
   if (integration_clone == nullptr) {
     return nullptr;
   }
@@ -325,8 +325,8 @@ bool Wavm::load(std::string_view bytecode, std::string_view precompiled,
 bool Wavm::link(std::string_view debug_name) {
   RootResolver rootResolver(compartment_, this);
   for (auto &p : intrinsic_modules_) {
-    auto instance = Intrinsics::instantiateModule(compartment_, {&intrinsic_modules_[p.first]},
-                                                  std::string(p.first));
+    auto *instance = Intrinsics::instantiateModule(compartment_, {&intrinsic_modules_[p.first]},
+                                                   std::string(p.first));
     if (instance == nullptr) {
       return false;
     }
@@ -432,10 +432,11 @@ template <typename R, typename... Args>
 void getFunctionWavm(WasmVm *vm, std::string_view function_name,
                      std::function<R(ContextBase *, Args...)> *function) {
   auto *wavm = dynamic_cast<proxy_wasm::Wavm::Wavm *>(vm);
-  auto f =
+  auto *f =
       asFunctionNullable(getInstanceExport(wavm->module_instance_, std::string(function_name)));
-  if (!f)
+  if (!f) {
     f = asFunctionNullable(getInstanceExport(wavm->module_instance_, std::string(function_name)));
+  }
   if (!f) {
     *function = nullptr;
     return;
@@ -463,10 +464,11 @@ template <typename... Args>
 void getFunctionWavm(WasmVm *vm, std::string_view function_name,
                      std::function<void(ContextBase *, Args...)> *function) {
   auto *wavm = dynamic_cast<proxy_wasm::Wavm::Wavm *>(vm);
-  auto f =
+  auto *f =
       asFunctionNullable(getInstanceExport(wavm->module_instance_, std::string(function_name)));
-  if (!f)
+  if (!f) {
     f = asFunctionNullable(getInstanceExport(wavm->module_instance_, std::string(function_name)));
+  }
   if (!f) {
     *function = nullptr;
     return;
