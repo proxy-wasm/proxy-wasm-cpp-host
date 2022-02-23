@@ -159,13 +159,6 @@ jobs:
           arch: x86_64
           action: test
           flags: --config=clang
-        - name: 'Wasmtime on Linux/x86_64'
-          engine: 'wasmtime'
-          repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-20.04
-          arch: x86_64
-          action: test
-          flags: --config=clang-tsan
         - name: 'Wasmtime on Linux/aarch64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
