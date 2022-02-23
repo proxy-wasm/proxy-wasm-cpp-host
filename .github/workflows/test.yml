@@ -96,6 +96,12 @@ jobs:
           arch: x86_64
           action: test
           flags: --config=gcc
+        - name: 'NullVM on Linux/x86_64 with ASan'
+          engine: 'null'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=clang-asan
         - name: 'NullVM on Windows/x86_64'
           engine: 'null'
           os: windows-2019
