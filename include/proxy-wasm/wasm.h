@@ -85,7 +85,6 @@ public:
 
   void timerReady(uint32_t root_context_id);
   void queueReady(uint32_t root_context_id, uint32_t token);
-
   void startShutdown(std::string_view plugin_key);
   void startShutdown();
   WasmResult done(ContextBase *root_context);

@@ -14,12 +14,14 @@
 
 #include "gtest/gtest.h"
 
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <thread>
 
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
@@ -229,6 +231,40 @@ TEST_P(TestVM, Callback) {
   vm_->getFunction("run2", &run2);
   Word res = run2(&context, Word{0});
   ASSERT_EQ(res.u32(), 100100); // 10000 (global) + 100(in callback)
+}
+
+TEST_P(TestVM, TerminateExecution) {
+  if (engine_ != "v8") {
+    return;
+  }
+  auto source = readTestWasmFile("callback.wasm");
+  ASSERT_TRUE(vm_->load(source, {}, {}));
+
+  TestContext context;
+  vm_->registerCallback(
+      "env", "callback", &callback,
+      &ConvertFunctionWordToUint32<decltype(callback), callback>::convertFunctionWordToUint32);
+
+  vm_->registerCallback(
+      "env", "callback2", &callback2,
+      &ConvertFunctionWordToUint32<decltype(callback2), callback2>::convertFunctionWordToUint32);
+
+  std::thread terminate([&]() {
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    vm_->terminateExecution();
+  });
+
+  ASSERT_TRUE(vm_->link(""));
+  WasmCallWord<1> run2;
+  vm_->getFunction("infinite_loop", &run2);
+  EXPECT_TRUE(run2 != nullptr);
+
+  run2(&context, Word{0});
+  terminate.join();
+
+  std::string exp_message = "Function: infinite_loop failed: Uncaught Error: termination_exception";
+  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 
 TEST_P(TestVM, Trap) {

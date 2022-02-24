@@ -24,8 +24,10 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <thread>
 
 #include "include/v8.h"
+#include "src/wasm/c-api.h"
 #include "include/v8-version.h"
 #include "wasm-api/wasm.hh"
 
@@ -66,6 +68,16 @@ public:
             const std::unordered_map<uint32_t, std::string> function_names) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
+  void terminateExecution() override {
+    wasm::StoreImpl *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
+    auto isolate = store_impl->isolate();
+    isolate->TerminateExecution();
+    /*
+    while (isolate->IsExecutionTerminating()) {
+      std::this_thread::yield();
+    }
+    */
+  }
 
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::unique_ptr<WasmVm> clone() override;

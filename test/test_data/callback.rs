@@ -28,6 +28,23 @@ pub extern "C" fn run2(val: i32) -> i32 {
     }
 }
 
+#[no_mangle]
+pub extern "C" fn infinite_loop(val: i32) -> i32 {
+    let mut count = val;
+    loop {
+        count += 1;
+        if count >= 10 {
+            count -= 2;
+        }
+        if count >= 100 {
+            break;
+        }
+    }
+    unsafe {
+        callback2(val) + A
+    }
+}
+
 extern "C" {
     fn callback();
     fn callback2(val: i32) -> i32;

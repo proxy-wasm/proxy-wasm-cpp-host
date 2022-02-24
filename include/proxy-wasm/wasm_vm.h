@@ -311,6 +311,7 @@ public:
 
   // Integrator operations.
   std::unique_ptr<WasmVmIntegration> &integration() { return integration_; }
+  virtual void terminateExecution() {}
   bool cmpLogLevel(proxy_wasm::LogLevel level) { return integration_->getLogLevel() <= level; }
 
 protected:
