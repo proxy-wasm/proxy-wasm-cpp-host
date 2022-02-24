@@ -31,6 +31,16 @@ def proxy_wasm_cpp_host_repositories():
 
     maybe(
         http_archive,
+        name = "bazel_clang_tidy",
+        sha256 = "6ed23cbff9423a30ef10becf57210a26d54fe198a211f4037d931c06f843c023",
+        strip_prefix = "bazel_clang_tidy-c2fe98cfec0430e78bff4169e9ca0a43123e4c99",
+        url = "https://github.com/erenon/bazel_clang_tidy/archive/c2fe98cfec0430e78bff4169e9ca0a43123e4c99.tar.gz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:bazel_clang_tidy.patch"],
+        patch_args = ["-p1"],
+    )
+
+    maybe(
+        http_archive,
         name = "bazel-zig-cc",
         sha256 = "ad6384b4d16ebb3e5047df6548a195e598346da84e5f320250beb9198705ac81",
         strip_prefix = "bazel-zig-cc-v0.4.4",

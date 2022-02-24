@@ -29,7 +29,8 @@
   if (isFailed()) {                                                                                \
     if (plugin_->fail_open_) {                                                                     \
       return _return_open;                                                                         \
-    } else if (!stream_failed_) {                                                                  \
+    }                                                                                              \
+    if (!stream_failed_) {                                                                         \
       failStream(_stream_type);                                                                    \
       failStream(_stream_type2);                                                                   \
       stream_failed_ = true;                                                                       \
@@ -90,7 +91,7 @@ ContextBase::ContextBase(WasmBase *wasm) : wasm_(wasm), parent_context_(this) {
   wasm_->contexts_[id_] = this;
 }
 
-ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin)
+ContextBase::ContextBase(WasmBase *wasm, const std::shared_ptr<PluginBase> &plugin)
     : wasm_(wasm), id_(wasm->allocContextId()), parent_context_(this), root_id_(plugin->root_id_),
       root_log_prefix_(makeRootLogPrefix(plugin->vm_id_)), plugin_(plugin) {
   wasm_->contexts_[id_] = this;
@@ -98,10 +99,11 @@ ContextBase::ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin)
 
 // NB: wasm can be nullptr if it failed to be created successfully.
 ContextBase::ContextBase(WasmBase *wasm, uint32_t parent_context_id,
-                         std::shared_ptr<PluginHandleBase> plugin_handle)
-    : wasm_(wasm), id_(wasm ? wasm->allocContextId() : 0), parent_context_id_(parent_context_id),
-      plugin_(plugin_handle->plugin()), plugin_handle_(plugin_handle) {
-  if (wasm_) {
+                         const std::shared_ptr<PluginHandleBase> &plugin_handle)
+    : wasm_(wasm), id_(wasm != nullptr ? wasm->allocContextId() : 0),
+      parent_context_id_(parent_context_id), plugin_(plugin_handle->plugin()),
+      plugin_handle_(plugin_handle) {
+  if (wasm_ != nullptr) {
     wasm_->contexts_[id_] = this;
     parent_context_ = wasm_->contexts_[parent_context_id_];
   }
@@ -109,7 +111,7 @@ ContextBase::ContextBase(WasmBase *wasm, uint32_t parent_context_id,
 
 WasmVm *ContextBase::wasmVm() const { return wasm_->wasm_vm(); }
 
-bool ContextBase::isFailed() { return !wasm_ || wasm_->isFailed(); }
+bool ContextBase::isFailed() { return (wasm_ == nullptr || wasm_->isFailed()); }
 
 std::string ContextBase::makeRootLogPrefix(std::string_view vm_id) const {
   std::string prefix;
@@ -175,7 +177,7 @@ bool ContextBase::onConfigure(std::shared_ptr<PluginBase> plugin) {
 void ContextBase::onCreate() {
   if (!isFailed() && !in_vm_context_created_ && wasm_->on_context_create_) {
     DeferAfterCallActions actions(this);
-    wasm_->on_context_create_(this, id_, parent_context_ ? parent_context()->id() : 0);
+    wasm_->on_context_create_(this, id_, parent_context_ != nullptr ? parent_context()->id() : 0);
   }
   // NB: If no on_context_create function is registered the in-VM SDK is responsible for
   // managing any required in-VM state.
@@ -204,20 +206,20 @@ WasmResult ContextBase::removeSharedDataKey(std::string_view key, uint32_t cas,
 // Shared Queue
 
 WasmResult ContextBase::registerSharedQueue(std::string_view queue_name,
-                                            SharedQueueDequeueToken *result) {
+                                            SharedQueueDequeueToken *token_ptr) {
   // Get the id of the root context if this is a stream context because onQueueReady is on the
   // root.
-  *result = getGlobalSharedQueue().registerQueue(wasm_->vm_id(), queue_name,
-                                                 isRootContext() ? id_ : parent_context_id_,
-                                                 wasm_->callOnThreadFunction(), wasm_->vm_key());
+  *token_ptr = getGlobalSharedQueue().registerQueue(wasm_->vm_id(), queue_name,
+                                                    isRootContext() ? id_ : parent_context_id_,
+                                                    wasm_->callOnThreadFunction(), wasm_->vm_key());
   return WasmResult::Ok;
 }
 
 WasmResult ContextBase::lookupSharedQueue(std::string_view vm_id, std::string_view queue_name,
-                                          uint32_t *token_ptr) {
-  uint32_t token =
+                                          SharedQueueDequeueToken *token_ptr) {
+  SharedQueueDequeueToken token =
       getGlobalSharedQueue().resolveQueue(vm_id.empty() ? wasm_->vm_id() : vm_id, queue_name);
-  if (isFailed() || !token) {
+  if (isFailed() || token == 0U) {
     return WasmResult::NotFound;
   }
   *token_ptr = token;
@@ -239,7 +241,7 @@ void ContextBase::destroy() {
   onDone();
 }
 
-void ContextBase::onTick(uint32_t) {
+void ContextBase::onTick(uint32_t /*token*/) {
   if (!isFailed() && wasm_->on_tick_) {
     DeferAfterCallActions actions(this);
     wasm_->on_tick_(this, id_);
@@ -321,14 +323,14 @@ FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_
   return convertVmCallResultToFilterHeadersStatus(result);
 }
 
-FilterDataStatus ContextBase::onRequestBody(uint32_t data_length, bool end_of_stream) {
+FilterDataStatus ContextBase::onRequestBody(uint32_t body_length, bool end_of_stream) {
   CHECK_FAIL_HTTP(FilterDataStatus::Continue, FilterDataStatus::StopIterationNoBuffer);
   if (!wasm_->on_request_body_) {
     return FilterDataStatus::Continue;
   }
   DeferAfterCallActions actions(this);
   const auto result =
-      wasm_->on_request_body_(this, id_, data_length, static_cast<uint32_t>(end_of_stream));
+      wasm_->on_request_body_(this, id_, body_length, static_cast<uint32_t>(end_of_stream));
   CHECK_FAIL_HTTP(FilterDataStatus::Continue, FilterDataStatus::StopIterationNoBuffer);
   return convertVmCallResultToFilterDataStatus(result);
 }
@@ -519,7 +521,7 @@ FilterMetadataStatus ContextBase::convertVmCallResultToFilterMetadataStatus(uint
 
 ContextBase::~ContextBase() {
   // Do not remove vm context which has the same lifetime as wasm_.
-  if (id_) {
+  if (id_ != 0U) {
     wasm_->contexts_.erase(id_);
   }
 }

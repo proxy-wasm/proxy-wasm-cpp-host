@@ -69,7 +69,7 @@ public:
   static bool getStrippedSource(std::string_view bytecode, std::string &ret);
 
 private:
-  static bool parseVarint(const char *&begin, const char *end, uint32_t &ret);
+  static bool parseVarint(const char *&pos, const char *end, uint32_t &ret);
 };
 
 } // namespace proxy_wasm

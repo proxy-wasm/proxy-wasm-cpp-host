@@ -65,7 +65,7 @@ WasmResult SharedData::keys(std::string_view vm_id, std::vector<std::string> *re
     return WasmResult::Ok;
   }
 
-  for (auto kv : map->second) {
+  for (const auto &kv : map->second) {
     result->push_back(kv.first);
   }
 
@@ -84,7 +84,7 @@ WasmResult SharedData::set(std::string_view vm_id, std::string_view key, std::st
   }
   auto it = map->find(std::string(key));
   if (it != map->end()) {
-    if (cas && cas != it->second.second) {
+    if (cas != 0U && cas != it->second.second) {
       return WasmResult::CasMismatch;
     }
     it->second = std::make_pair(std::string(value), nextCas());
@@ -101,13 +101,11 @@ WasmResult SharedData::remove(std::string_view vm_id, std::string_view key, uint
   auto map_it = data_.find(std::string(vm_id));
   if (map_it == data_.end()) {
     return WasmResult::NotFound;
-  } else {
-    map = &map_it->second;
   }
-
+  map = &map_it->second;
   auto it = map->find(std::string(key));
   if (it != map->end()) {
-    if (cas && cas != it->second.second) {
+    if (cas != 0U && cas != it->second.second) {
       return WasmResult::CasMismatch;
     }
     if (result != nullptr) {

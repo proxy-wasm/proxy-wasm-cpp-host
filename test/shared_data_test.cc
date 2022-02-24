@@ -98,7 +98,6 @@ void incrementData(SharedData *shared_data, std::string_view vm_id, std::string_
       break;
     }
   }
-  return;
 }
 
 TEST(SharedData, Concurrent) {

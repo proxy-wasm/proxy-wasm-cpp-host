@@ -143,11 +143,11 @@ class ContextBase : public RootInterface,
                     public SharedQueueInterface,
                     public GeneralInterface {
 public:
-  ContextBase();                                                   // Testing.
-  ContextBase(WasmBase *wasm);                                     // Vm Context.
-  ContextBase(WasmBase *wasm, std::shared_ptr<PluginBase> plugin); // Root Context.
+  ContextBase();                                                          // Testing.
+  ContextBase(WasmBase *wasm);                                            // Vm Context.
+  ContextBase(WasmBase *wasm, const std::shared_ptr<PluginBase> &plugin); // Root Context.
   ContextBase(WasmBase *wasm, uint32_t parent_context_id,
-              std::shared_ptr<PluginHandleBase> plugin_handle); // Stream context.
+              const std::shared_ptr<PluginHandleBase> &plugin_handle); // Stream context.
   virtual ~ContextBase();
 
   WasmBase *wasm() const { return wasm_; }
@@ -196,11 +196,11 @@ public:
 
   // HTTP
   FilterHeadersStatus onRequestHeaders(uint32_t headers, bool end_of_stream) override;
-  FilterDataStatus onRequestBody(uint32_t body_buffer_length, bool end_of_stream) override;
+  FilterDataStatus onRequestBody(uint32_t body_length, bool end_of_stream) override;
   FilterTrailersStatus onRequestTrailers(uint32_t trailers) override;
   FilterMetadataStatus onRequestMetadata(uint32_t elements) override;
   FilterHeadersStatus onResponseHeaders(uint32_t headers, bool end_of_stream) override;
-  FilterDataStatus onResponseBody(uint32_t body_buffer_length, bool end_of_stream) override;
+  FilterDataStatus onResponseBody(uint32_t body_length, bool end_of_stream) override;
   FilterTrailersStatus onResponseTrailers(uint32_t trailers) override;
   FilterMetadataStatus onResponseMetadata(uint32_t elements) override;
 
@@ -341,7 +341,7 @@ public:
   WasmResult registerSharedQueue(std::string_view queue_name,
                                  SharedQueueDequeueToken *token_ptr) override;
   WasmResult lookupSharedQueue(std::string_view vm_id, std::string_view queue_name,
-                               SharedQueueEnqueueToken *token) override;
+                               SharedQueueEnqueueToken *token_ptr) override;
   WasmResult dequeueSharedQueue(uint32_t token, std::string *data) override;
   WasmResult enqueueSharedQueue(uint32_t token, std::string_view value) override;
 

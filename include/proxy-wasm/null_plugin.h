@@ -71,7 +71,7 @@ public:
   void onForeignFunction(uint64_t root_context_id, uint64_t foreign_function_id,
                          uint64_t data_size);
 
-  void onCreate(uint64_t context_id, uint64_t root_context_id);
+  void onCreate(uint64_t context_id, uint64_t parent_context_id);
 
   uint64_t onNewConnection(uint64_t context_id);
   uint64_t onDownstreamData(uint64_t context_id, uint64_t data_length, uint64_t end_of_stream);

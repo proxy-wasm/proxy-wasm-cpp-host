@@ -14,6 +14,11 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(["LICENSE"])
 
+filegroup(
+    name = "clang_tidy_config",
+    data = [".clang-tidy"],
+)
+
 cc_library(
     name = "wasm_vm_headers",
     hdrs = [
@@ -191,7 +196,7 @@ cc_library(
     ],
     hdrs = ["include/proxy-wasm/wavm.h"],
     copts = [
-        '-DWAVM_API=""',
+        "-DWAVM_API=",
         "-Wno-non-virtual-dtor",
         "-Wno-old-style-cast",
     ],

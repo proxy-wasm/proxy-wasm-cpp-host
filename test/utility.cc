@@ -36,7 +36,7 @@ std::vector<std::string> getWasmEngines() {
   return engines;
 }
 
-std::string readTestWasmFile(std::string filename) {
+std::string readTestWasmFile(const std::string &filename) {
   auto path = "test/test_data/" + filename;
   std::ifstream file(path, std::ios::binary);
   EXPECT_FALSE(file.fail()) << "failed to open: " << path;

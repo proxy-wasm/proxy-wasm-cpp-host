@@ -61,11 +61,9 @@
 using namespace WAVM;
 using namespace WAVM::IR;
 
-namespace WAVM {
-namespace IR {
+namespace WAVM::IR {
 template <> constexpr ValueType inferValueType<proxy_wasm::Word>() { return ValueType::i32; }
-} // namespace IR
-} // namespace WAVM
+} // namespace WAVM::IR
 
 namespace proxy_wasm {
 
@@ -137,19 +135,17 @@ struct WasmUntaggedValue : public WAVM::IR::UntaggedValue {
 
 class RootResolver : public WAVM::Runtime::Resolver {
 public:
-  RootResolver(WAVM::Runtime::Compartment *, WasmVm *vm) : vm_(vm) {}
+  RootResolver(WAVM::Runtime::Compartment * /*compartment*/, WasmVm *vm) : vm_(vm) {}
 
-  virtual ~RootResolver() { module_name_to_instance_map_.clear(); }
+  ~RootResolver() override { module_name_to_instance_map_.clear(); }
 
   bool resolve(const std::string &module_name, const std::string &export_name, ExternType type,
                WAVM::Runtime::Object *&out_object) override {
-    auto named_instance = module_name_to_instance_map_.get(module_name);
-    if (named_instance) {
+    auto *named_instance = module_name_to_instance_map_.get(module_name);
+    if (named_instance != nullptr) {
       out_object = getInstanceExport(*named_instance, export_name);
-      if (out_object) {
-        if (isA(out_object, type)) {
-          return true;
-        } else {
+      if (out_object != nullptr) {
+        if (!isA(out_object, type)) {
           vm_->fail(FailState::UnableToInitializeCode,
                     "Failed to load WASM module due to a type mismatch in an import: " +
                         std::string(module_name) + "." + export_name + " " +
@@ -157,9 +153,10 @@ public:
                         " but was expecting type: " + asString(type));
           return false;
         }
+        return true;
       }
     }
-    for (auto r : resolvers_) {
+    for (auto *r : resolvers_) {
       if (r->resolve(module_name, export_name, type, out_object)) {
         return true;
       }
@@ -178,8 +175,8 @@ public:
 
 private:
   WasmVm *vm_;
-  HashMap<std::string, WAVM::Runtime::Instance *> module_name_to_instance_map_;
-  std::vector<WAVM::Runtime::Resolver *> resolvers_;
+  HashMap<std::string, WAVM::Runtime::Instance *> module_name_to_instance_map_{};
+  std::vector<WAVM::Runtime::Resolver *> resolvers_{};
 };
 
 const uint64_t WasmPageSize = 1 << 16;
@@ -199,7 +196,7 @@ struct PairHash {
 };
 
 struct Wavm : public WasmVm {
-  Wavm() : WasmVm() {}
+  Wavm() = default;
   ~Wavm() override;
 
   // WasmVm
@@ -207,7 +204,7 @@ struct Wavm : public WasmVm {
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
   std::unique_ptr<WasmVm> clone() override;
   bool load(std::string_view bytecode, std::string_view precompiled,
-            const std::unordered_map<uint32_t, std::string> function_names) override;
+            const std::unordered_map<uint32_t, std::string> &function_names) override;
   bool link(std::string_view debug_name) override;
   uint64_t getMemorySize() override;
   std::optional<std::string_view> getMemory(uint64_t pointer, uint64_t size) override;
@@ -235,13 +232,13 @@ struct Wavm : public WasmVm {
   IR::Module ir_module_;
   WAVM::Runtime::ModuleRef module_ = nullptr;
   WAVM::Runtime::GCPointer<WAVM::Runtime::Instance> module_instance_;
-  WAVM::Runtime::Memory *memory_;
+  WAVM::Runtime::Memory *memory_{};
   WAVM::Runtime::GCPointer<WAVM::Runtime::Compartment> compartment_;
   WAVM::Runtime::GCPointer<WAVM::Runtime::Context> context_;
-  std::map<std::string, Intrinsics::Module> intrinsic_modules_;
+  std::map<std::string, Intrinsics::Module> intrinsic_modules_{};
   std::map<std::string, WAVM::Runtime::GCPointer<WAVM::Runtime::Instance>>
-      intrinsic_module_instances_;
-  std::vector<std::unique_ptr<Intrinsics::Function>> host_functions_;
+      intrinsic_module_instances_{};
+  std::vector<std::unique_ptr<Intrinsics::Function>> host_functions_{};
   uint8_t *memory_base_ = nullptr;
 };
 
@@ -251,7 +248,7 @@ Wavm::~Wavm() {
   intrinsic_module_instances_.clear();
   intrinsic_modules_.clear();
   host_functions_.clear();
-  if (compartment_) {
+  if (compartment_ != nullptr) {
     ASSERT(tryCollectCompartment(std::move(compartment_)));
   }
 }
@@ -282,7 +279,7 @@ std::unique_ptr<WasmVm> Wavm::clone() {
         p.first, WAVM::Runtime::remapToClonedCompartment(p.second, wavm->compartment_));
   }
 
-  auto integration_clone = integration()->clone();
+  auto *integration_clone = integration()->clone();
   if (integration_clone == nullptr) {
     return nullptr;
   }
@@ -292,7 +289,7 @@ std::unique_ptr<WasmVm> Wavm::clone() {
 }
 
 bool Wavm::load(std::string_view bytecode, std::string_view precompiled,
-                const std::unordered_map<uint32_t, std::string>) {
+                const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
   compartment_ = WAVM::Runtime::createCompartment();
   if (compartment_ == nullptr) {
     return false;
@@ -328,8 +325,8 @@ bool Wavm::load(std::string_view bytecode, std::string_view precompiled,
 bool Wavm::link(std::string_view debug_name) {
   RootResolver rootResolver(compartment_, this);
   for (auto &p : intrinsic_modules_) {
-    auto instance = Intrinsics::instantiateModule(compartment_, {&intrinsic_modules_[p.first]},
-                                                  std::string(p.first));
+    auto *instance = Intrinsics::instantiateModule(compartment_, {&intrinsic_modules_[p.first]},
+                                                   std::string(p.first));
     if (instance == nullptr) {
       return false;
     }
@@ -377,7 +374,7 @@ bool Wavm::setMemory(uint64_t pointer, uint64_t size, const void *data) {
   if (pointer + size > memory_num_bytes) {
     return false;
   }
-  auto p = reinterpret_cast<char *>(memory_base_ + pointer);
+  auto *p = reinterpret_cast<char *>(memory_base_ + pointer);
   memcpy(p, data, size);
   return true;
 }
@@ -387,7 +384,7 @@ bool Wavm::getWord(uint64_t pointer, Word *data) {
   if (pointer + sizeof(uint32_t) > memory_num_bytes) {
     return false;
   }
-  auto p = reinterpret_cast<char *>(memory_base_ + pointer);
+  auto *p = reinterpret_cast<char *>(memory_base_ + pointer);
   uint32_t data32;
   memcpy(&data32, p, sizeof(uint32_t));
   data->u64_ = wasmtoh(data32);
@@ -405,7 +402,8 @@ std::string_view Wavm::getPrecompiledSectionName() { return "wavm.precompiled_ob
 
 std::unique_ptr<WasmVm> createWavmVm() { return std::make_unique<proxy_wasm::Wavm::Wavm>(); }
 
-template <typename R, typename... Args> IR::FunctionType inferHostFunctionType(R (*)(Args...)) {
+template <typename R, typename... Args>
+IR::FunctionType inferHostFunctionType(R (*/*func*/)(Args...)) {
   return IR::FunctionType(IR::inferResultType<R>(), IR::TypeTuple({IR::inferValueType<Args>()...}),
                           IR::CallingConvention::c);
 }
@@ -415,14 +413,14 @@ using namespace Wavm;
 template <typename R, typename... Args>
 void registerCallbackWavm(WasmVm *vm, std::string_view module_name, std::string_view function_name,
                           R (*f)(Args...)) {
-  auto wavm = static_cast<proxy_wasm::Wavm::Wavm *>(vm);
+  auto *wavm = dynamic_cast<proxy_wasm::Wavm::Wavm *>(vm);
   wavm->host_functions_.emplace_back(new Intrinsics::Function(
       &wavm->intrinsic_modules_[std::string(module_name)], function_name.data(),
       reinterpret_cast<void *>(f), inferHostFunctionType(f)));
 }
 
 template <typename R, typename... Args>
-IR::FunctionType inferStdFunctionType(std::function<R(ContextBase *, Args...)> *) {
+IR::FunctionType inferStdFunctionType(std::function<R(ContextBase *, Args...)> * /*func*/) {
   return IR::FunctionType(IR::inferResultType<R>(), IR::TypeTuple({IR::inferValueType<Args>()...}));
 }
 
@@ -433,11 +431,12 @@ static bool checkFunctionType(WAVM::Runtime::Function *f, IR::FunctionType t) {
 template <typename R, typename... Args>
 void getFunctionWavm(WasmVm *vm, std::string_view function_name,
                      std::function<R(ContextBase *, Args...)> *function) {
-  auto wavm = static_cast<proxy_wasm::Wavm::Wavm *>(vm);
-  auto f =
+  auto *wavm = dynamic_cast<proxy_wasm::Wavm::Wavm *>(vm);
+  auto *f =
       asFunctionNullable(getInstanceExport(wavm->module_instance_, std::string(function_name)));
-  if (!f)
+  if (!f) {
     f = asFunctionNullable(getInstanceExport(wavm->module_instance_, std::string(function_name)));
+  }
   if (!f) {
     *function = nullptr;
     return;
@@ -454,22 +453,22 @@ void getFunctionWavm(WasmVm *vm, std::string_view function_name,
     CALL_WITH_CONTEXT(
         invokeFunction(wavm->context_, f, getFunctionType(f), &values[0], &return_value), context,
         wavm);
-    if (!wavm->isFailed()) {
-      return static_cast<uint32_t>(return_value.i32);
-    } else {
+    if (wavm->isFailed()) {
       return 0;
     }
+    return static_cast<uint32_t>(return_value.i32);
   };
 }
 
 template <typename... Args>
 void getFunctionWavm(WasmVm *vm, std::string_view function_name,
                      std::function<void(ContextBase *, Args...)> *function) {
-  auto wavm = static_cast<proxy_wasm::Wavm::Wavm *>(vm);
-  auto f =
+  auto *wavm = dynamic_cast<proxy_wasm::Wavm::Wavm *>(vm);
+  auto *f =
       asFunctionNullable(getInstanceExport(wavm->module_instance_, std::string(function_name)));
-  if (!f)
+  if (!f) {
     f = asFunctionNullable(getInstanceExport(wavm->module_instance_, std::string(function_name)));
+  }
   if (!f) {
     *function = nullptr;
     return;

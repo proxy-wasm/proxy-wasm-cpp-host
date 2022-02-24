@@ -40,7 +40,7 @@ void SharedQueue::deleteByVmId(std::string_view vm_id) {
   std::lock_guard<std::mutex> lock(mutex_);
   auto queue_keys = vm_queue_keys_.find(std::string(vm_id));
   if (queue_keys != vm_queue_keys_.end()) {
-    for (auto queue_key : queue_keys->second) {
+    for (const auto &queue_key : queue_keys->second) {
       auto token = queue_tokens_.find(queue_key);
       if (token != queue_tokens_.end()) {
         queues_.erase(token->second);
@@ -134,7 +134,7 @@ WasmResult SharedQueue::enqueue(uint32_t token, std::string_view value) {
     vm_key = target_queue->vm_key;
     context_id = target_queue->context_id;
     call_on_thread = target_queue->call_on_thread;
-    target_queue->queue.push_back(std::string(value));
+    target_queue->queue.emplace_back(value);
   }
 
   call_on_thread([vm_key, context_id, token] {
@@ -142,8 +142,8 @@ WasmResult SharedQueue::enqueue(uint32_t token, std::string_view value) {
     // Make sure that the lock is no longer held here.
     auto wasm = getThreadLocalWasm(vm_key);
     if (wasm) {
-      auto context = wasm->wasm()->getContext(context_id);
-      if (context) {
+      auto *context = wasm->wasm()->getContext(context_id);
+      if (context != nullptr) {
         context->onQueueReady(token);
       }
     }

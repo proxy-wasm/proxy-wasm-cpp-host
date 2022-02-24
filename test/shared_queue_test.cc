@@ -105,7 +105,8 @@ TEST(SharedQueue, Concurrent) {
   enqueue_second.join();
   EXPECT_EQ(queued_count, 200);
 
-  size_t first_cnt = 0, second_cnt = 0;
+  size_t first_cnt = 0;
+  size_t second_cnt = 0;
   std::thread dequeue_first(dequeueData, &shared_queue, token, &first_cnt);
   std::thread dequeue_second(dequeueData, &shared_queue, token, &second_cnt);
   dequeue_first.join();
@@ -115,8 +116,8 @@ TEST(SharedQueue, Concurrent) {
 
 TEST(SharedQueue, DeleteByVmId) {
   SharedQueue shared_queue(false);
-  auto vm_id_1 = "id_1";
-  auto vm_id_2 = "id_2";
+  const auto *vm_id_1 = "id_1";
+  const auto *vm_id_2 = "id_2";
   std::string_view vm_key = "vm_key";
   uint32_t context_id = 1;
   auto queue_num_per_vm = 3;

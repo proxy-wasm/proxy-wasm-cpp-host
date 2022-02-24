@@ -52,7 +52,7 @@ public:
            std::string_view vm_configuration, std::string_view vm_key,
            std::unordered_map<std::string, std::string> envs,
            AllowedCapabilitiesMap allowed_capabilities);
-  WasmBase(const std::shared_ptr<WasmHandleBase> &other, WasmVmFactory factory);
+  WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory);
   virtual ~WasmBase();
 
   bool load(const std::string &code, bool allow_precompiled = false);
@@ -60,7 +60,7 @@ public:
   void startVm(ContextBase *root_context);
   bool configure(ContextBase *root_context, std::shared_ptr<PluginBase> plugin);
   // Returns the root ContextBase or nullptr if onStart returns false.
-  ContextBase *start(std::shared_ptr<PluginBase> plugin);
+  ContextBase *start(const std::shared_ptr<PluginBase> &plugin);
 
   std::string_view vm_id() const { return vm_id_; }
   std::string_view vm_key() const { return vm_key_; }
@@ -340,11 +340,13 @@ using WasmHandleCloneFactory =
     std::function<std::shared_ptr<WasmHandleBase>(std::shared_ptr<WasmHandleBase> wasm)>;
 
 // Returns nullptr on failure (i.e. initialization of the VM fails).
-std::shared_ptr<WasmHandleBase>
-createWasm(std::string vm_key, std::string code, std::shared_ptr<PluginBase> plugin,
-           WasmHandleFactory factory, WasmHandleCloneFactory clone_factory, bool allow_precompiled);
-// Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
-std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_id);
+std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std::string &code,
+                                           const std::shared_ptr<PluginBase> &plugin,
+                                           const WasmHandleFactory &factory,
+                                           const WasmHandleCloneFactory &clone_factory,
+                                           bool allow_precompiled);
+// Get an existing ThreadLocal VM matching 'vm_key' or nullptr if there isn't one.
+std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_key);
 
 class PluginHandleBase : public std::enable_shared_from_this<PluginHandleBase> {
 public:
@@ -371,8 +373,8 @@ using PluginHandleFactory = std::function<std::shared_ptr<PluginHandleBase>(
 // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
 // using it it as a template.
 std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
-    std::shared_ptr<WasmHandleBase> base_wasm, std::shared_ptr<PluginBase> plugin,
-    WasmHandleCloneFactory clone_factory, PluginHandleFactory plugin_factory);
+    const std::shared_ptr<WasmHandleBase> &base_handle, const std::shared_ptr<PluginBase> &plugin,
+    const WasmHandleCloneFactory &clone_factory, const PluginHandleFactory &plugin_factory);
 
 // Clear Base Wasm cache and the thread-local Wasm sandbox cache for the calling thread.
 void clearWasmCachesForTesting();
@@ -403,7 +405,7 @@ inline uint64_t WasmBase::copyString(std::string_view s) {
   if (s.empty()) {
     return 0; // nullptr
   }
-  uint64_t pointer;
+  uint64_t pointer = 0;
   uint8_t *m = static_cast<uint8_t *>(allocMemory((s.size() + 1), &pointer));
   memcpy(m, s.data(), s.size());
   m[s.size()] = 0;

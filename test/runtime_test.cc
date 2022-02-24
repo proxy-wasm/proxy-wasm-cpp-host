@@ -121,7 +121,7 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
       break;
     }
     if (clone->cloneable() != proxy_wasm::Cloneable::InstantiatedModule) {
-      if (clone->link("") == false) {
+      if (!clone->link("")) {
         break;
       }
     }
@@ -142,7 +142,7 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
 
 class TestContext : public ContextBase {
 public:
-  TestContext(){};
+  TestContext() = default;
   void increment() { counter++; }
   int64_t counter = 0;
 };
@@ -150,7 +150,7 @@ public:
 void nopCallback() {}
 
 void callback() {
-  TestContext *context = static_cast<TestContext *>(contextOrEffectiveContext());
+  auto *context = dynamic_cast<TestContext *>(contextOrEffectiveContext());
   context->increment();
 }
 
@@ -163,7 +163,7 @@ TEST_P(TestVM, StraceLogLevel) {
     return;
   }
 
-  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  auto *integration = dynamic_cast<DummyIntegration *>(vm_->integration().get());
   auto source = readTestWasmFile("callback.wasm");
   ASSERT_TRUE(vm_->load(source, {}, {}));
   vm_->registerCallback("env", "callback", &nopCallback,
@@ -255,7 +255,7 @@ TEST_P(TestVM, Trap) {
   EXPECT_TRUE(trigger != nullptr);
   trigger(&context);
   std::string exp_message = "Function: trigger failed";
-  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  auto *integration = dynamic_cast<DummyIntegration *>(vm_->integration().get());
   ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 
@@ -275,7 +275,7 @@ TEST_P(TestVM, Trap2) {
   EXPECT_TRUE(trigger2 != nullptr);
   trigger2(&context, 0);
   std::string exp_message = "Function: trigger2 failed";
-  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  auto *integration = dynamic_cast<DummyIntegration *>(vm_->integration().get());
   ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 
