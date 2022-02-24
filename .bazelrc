@@ -8,6 +8,38 @@ build:clang --action_env=BAZEL_COMPILER=clang
 build:clang --action_env=CC=clang
 build:clang --action_env=CXX=clang++
 
+# Use Clang compiler with Address and Undefined Behavior Sanitizers.
+build:clang-asan --config=clang
+build:clang-asan --copt -DADDRESS_SANITIZER=1
+build:clang-asan --copt -DUNDEFINED_SANITIZER=1
+build:clang-asan --copt -O1
+build:clang-asan --copt -fno-omit-frame-pointer
+build:clang-asan --copt -fno-optimize-sibling-calls
+build:clang-asan --copt -fsanitize=address,undefined
+build:clang-asan --copt -fsanitize-address-use-after-scope
+build:clang-asan --linkopt -fsanitize=address,undefined
+build:clang-asan --linkopt -fsanitize-address-use-after-scope
+build:clang-asan --linkopt -fsanitize-link-c++-runtime
+build:clang-asan --linkopt -fuse-ld=lld
+build:clang-asan --test_env=ASAN_OPTIONS=check_initialization_order=1:detect_stack_use_after_return=1:strict_init_order=1:strict_string_checks=1
+build:clang-asan --test_env=UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+build:clang-asan --test_env=ASAN_SYMBOLIZER_PATH
+
+# Use Clang compiler with Address and Undefined Behavior Sanitizers (strict version).
+build:clang-asan-strict --config=clang-asan
+build:clang-asan-strict --copt -fsanitize=integer
+build:clang-asan-strict --linkopt -fsanitize=integer
+
+# Use Clang compiler with Thread Sanitizer.
+build:clang-tsan --config=clang
+build:clang-tsan --copt -DTHREAD_SANITIZER=1
+build:clang-tsan --copt -O1
+build:clang-tsan --copt -fno-omit-frame-pointer
+build:clang-tsan --copt -fno-optimize-sibling-calls
+build:clang-tsan --copt -fsanitize=thread
+build:clang-tsan --linkopt -fsanitize=thread
+build:clang-tsan --linkopt -fuse-ld=lld
+
 # Use Clang-Tidy tool.
 build:clang-tidy --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect
 build:clang-tidy --@bazel_clang_tidy//:clang_tidy_config=@proxy_wasm_cpp_host//:clang_tidy_config

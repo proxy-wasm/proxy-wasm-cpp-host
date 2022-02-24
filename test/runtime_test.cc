@@ -107,8 +107,15 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
   ASSERT_TRUE(vm_->load(source, {}, {}));
   ASSERT_TRUE(vm_->link(""));
 
+  size_t max_clones = 100000;
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+  max_clones = 1000;
+#endif
+#endif
+
   std::vector<std::unique_ptr<WasmVm>> clones;
-  for (;;) {
+  for (size_t i = 0; i < max_clones; i++) {
     auto clone = vm_->clone();
     if (clone == nullptr) {
       break;
@@ -121,7 +128,14 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
     // Prevent clone from droping out of scope and freeing memory.
     clones.push_back(std::move(clone));
   }
-  EXPECT_GE(clones.size(), 1000);
+
+  size_t min_clones = 1000;
+#if defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+  min_clones = 100;
+#endif
+#endif
+  EXPECT_GE(clones.size(), min_clones);
 }
 
 #endif
