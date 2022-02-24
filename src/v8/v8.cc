@@ -21,15 +21,15 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
+#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <thread>
 
 #include "include/v8-version.h"
 #include "include/v8.h"
-#include "wasm-api/wasm.hh"
 #include "src/wasm/c-api.h"
+#include "wasm-api/wasm.hh"
 
 namespace proxy_wasm {
 namespace v8 {
@@ -69,14 +69,12 @@ public:
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
   void terminateExecution() override {
-    wasm::StoreImpl *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
-    auto isolate = store_impl->isolate();
+    auto *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
+    auto *isolate = store_impl->isolate();
     isolate->TerminateExecution();
-    /*
     while (isolate->IsExecutionTerminating()) {
       std::this_thread::yield();
     }
-    */
   }
 
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
