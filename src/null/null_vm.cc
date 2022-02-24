@@ -48,16 +48,16 @@ std::unique_ptr<WasmVm> NullVm::clone() {
 }
 
 // "Load" the plugin by obtaining a pointer to it from the factory.
-bool NullVm::load(std::string_view name, std::string_view /*precompiled*/,
+bool NullVm::load(std::string_view plugin_name, std::string_view /*precompiled*/,
                   const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
   if (null_vm_plugin_factories_ == nullptr) {
     return false;
   }
-  auto factory = (*null_vm_plugin_factories_)[std::string(name)];
+  auto factory = (*null_vm_plugin_factories_)[std::string(plugin_name)];
   if (!factory) {
     return false;
   }
-  plugin_name_ = name;
+  plugin_name_ = plugin_name;
   plugin_ = factory();
   plugin_->wasm_vm_ = this;
   return true;

@@ -186,7 +186,7 @@ Word close_stream(Word type) {
 Word send_local_response(Word response_code, Word response_code_details_ptr,
                          Word response_code_details_size, Word body_ptr, Word body_size,
                          Word additional_response_header_pairs_ptr,
-                         Word additional_response_header_pairs_size, Word grpc_code) {
+                         Word additional_response_header_pairs_size, Word grpc_status) {
   auto *context = contextOrEffectiveContext();
   auto details =
       context->wasmVm()->getMemory(response_code_details_ptr, response_code_details_size);
@@ -197,8 +197,8 @@ Word send_local_response(Word response_code, Word response_code_details_ptr,
     return WasmResult::InvalidMemoryAccess;
   }
   auto additional_headers = toPairs(additional_response_header_pairs.value());
-  context->sendLocalResponse(response_code, body.value(), std::move(additional_headers), grpc_code,
-                             details.value());
+  context->sendLocalResponse(response_code, body.value(), std::move(additional_headers),
+                             grpc_status, details.value());
   context->wasm()->stopNextIteration(true);
   return WasmResult::Ok;
 }

@@ -52,7 +52,7 @@ public:
            std::string_view vm_configuration, std::string_view vm_key,
            std::unordered_map<std::string, std::string> envs,
            AllowedCapabilitiesMap allowed_capabilities);
-  WasmBase(const std::shared_ptr<WasmHandleBase> &other, const WasmVmFactory &factory);
+  WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory);
   virtual ~WasmBase();
 
   bool load(const std::string &code, bool allow_precompiled = false);
@@ -345,8 +345,8 @@ std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std:
                                            const WasmHandleFactory &factory,
                                            const WasmHandleCloneFactory &clone_factory,
                                            bool allow_precompiled);
-// Get an existing ThreadLocal VM matching 'vm_id' or nullptr if there isn't one.
-std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_id);
+// Get an existing ThreadLocal VM matching 'vm_key' or nullptr if there isn't one.
+std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_key);
 
 class PluginHandleBase : public std::enable_shared_from_this<PluginHandleBase> {
 public:
@@ -373,7 +373,7 @@ using PluginHandleFactory = std::function<std::shared_ptr<PluginHandleBase>(
 // Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
 // using it it as a template.
 std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
-    const std::shared_ptr<WasmHandleBase> &base_wasm, const std::shared_ptr<PluginBase> &plugin,
+    const std::shared_ptr<WasmHandleBase> &base_handle, const std::shared_ptr<PluginBase> &plugin,
     const WasmHandleCloneFactory &clone_factory, const PluginHandleFactory &plugin_factory);
 
 // Clear Base Wasm cache and the thread-local Wasm sandbox cache for the calling thread.

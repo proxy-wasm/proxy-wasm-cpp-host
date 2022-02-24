@@ -206,18 +206,18 @@ WasmResult ContextBase::removeSharedDataKey(std::string_view key, uint32_t cas,
 // Shared Queue
 
 WasmResult ContextBase::registerSharedQueue(std::string_view queue_name,
-                                            SharedQueueDequeueToken *result) {
+                                            SharedQueueDequeueToken *token_ptr) {
   // Get the id of the root context if this is a stream context because onQueueReady is on the
   // root.
-  *result = getGlobalSharedQueue().registerQueue(wasm_->vm_id(), queue_name,
-                                                 isRootContext() ? id_ : parent_context_id_,
-                                                 wasm_->callOnThreadFunction(), wasm_->vm_key());
+  *token_ptr = getGlobalSharedQueue().registerQueue(wasm_->vm_id(), queue_name,
+                                                    isRootContext() ? id_ : parent_context_id_,
+                                                    wasm_->callOnThreadFunction(), wasm_->vm_key());
   return WasmResult::Ok;
 }
 
 WasmResult ContextBase::lookupSharedQueue(std::string_view vm_id, std::string_view queue_name,
-                                          uint32_t *token_ptr) {
-  uint32_t token =
+                                          SharedQueueDequeueToken *token_ptr) {
+  SharedQueueDequeueToken token =
       getGlobalSharedQueue().resolveQueue(vm_id.empty() ? wasm_->vm_id() : vm_id, queue_name);
   if (isFailed() || token == 0U) {
     return WasmResult::NotFound;
@@ -323,14 +323,14 @@ FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_
   return convertVmCallResultToFilterHeadersStatus(result);
 }
 
-FilterDataStatus ContextBase::onRequestBody(uint32_t data_length, bool end_of_stream) {
+FilterDataStatus ContextBase::onRequestBody(uint32_t body_length, bool end_of_stream) {
   CHECK_FAIL_HTTP(FilterDataStatus::Continue, FilterDataStatus::StopIterationNoBuffer);
   if (!wasm_->on_request_body_) {
     return FilterDataStatus::Continue;
   }
   DeferAfterCallActions actions(this);
   const auto result =
-      wasm_->on_request_body_(this, id_, data_length, static_cast<uint32_t>(end_of_stream));
+      wasm_->on_request_body_(this, id_, body_length, static_cast<uint32_t>(end_of_stream));
   CHECK_FAIL_HTTP(FilterDataStatus::Continue, FilterDataStatus::StopIterationNoBuffer);
   return convertVmCallResultToFilterDataStatus(result);
 }
