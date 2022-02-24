@@ -30,6 +30,16 @@ build:clang-asan-strict --config=clang-asan
 build:clang-asan-strict --copt -fsanitize=integer
 build:clang-asan-strict --linkopt -fsanitize=integer
 
+# Use Clang compiler with Thread Sanitizer.
+build:clang-tsan --config=clang
+build:clang-tsan --copt -DTHREAD_SANITIZER=1
+build:clang-tsan --copt -O1
+build:clang-tsan --copt -fno-omit-frame-pointer
+build:clang-tsan --copt -fno-optimize-sibling-calls
+build:clang-tsan --copt -fsanitize=thread
+build:clang-tsan --linkopt -fsanitize=thread
+build:clang-tsan --linkopt -fuse-ld=lld
+
 # Use GCC compiler.
 build:gcc --action_env=BAZEL_COMPILER=gcc
 build:gcc --action_env=CC=gcc
