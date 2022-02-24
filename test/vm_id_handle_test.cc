@@ -19,12 +19,12 @@
 namespace proxy_wasm {
 
 TEST(VmIdHandle, Basic) {
-  auto vm_id = "vm_id";
+  const auto *vm_id = "vm_id";
   auto handle = getVmIdHandle(vm_id);
   EXPECT_TRUE(handle);
 
   bool called = false;
-  registerVmIdHandleCallback([&called](std::string_view vm_id) { called = true; });
+  registerVmIdHandleCallback([&called](std::string_view /*vm_id*/) { called = true; });
 
   handle.reset();
   EXPECT_TRUE(called);

@@ -16,8 +16,7 @@
 
 #include <memory>
 
-namespace proxy_wasm {
-namespace common {
+namespace proxy_wasm::common {
 
 template <typename T, void (*deleter)(T *)>
 class CSmartPtr : public std::unique_ptr<T, void (*)(T *)> {
@@ -36,5 +35,4 @@ private:
   T item;
 };
 
-} // namespace common
-} // namespace proxy_wasm
+} // namespace proxy_wasm::common

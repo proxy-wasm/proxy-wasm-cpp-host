@@ -33,10 +33,10 @@ def proxy_wasm_select_engine_wamr(xs):
         "//conditions:default": [],
     })
 
-def proxy_wasm_select_engine_wasmtime(xs):
+def proxy_wasm_select_engine_wasmtime(xs, xp):
     return select({
         "@proxy_wasm_cpp_host//bazel:engine_wasmtime": xs,
-        "@proxy_wasm_cpp_host//bazel:multiengine": xs,
+        "@proxy_wasm_cpp_host//bazel:multiengine": xp,
         "//conditions:default": [],
     })
 

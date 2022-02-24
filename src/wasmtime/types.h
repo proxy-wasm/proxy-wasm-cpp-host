@@ -13,10 +13,9 @@
 // limitations under the License.
 
 #include "src/common/types.h"
-#include "wasmtime/include/wasm.h"
+#include "include/wasm.h"
 
-namespace proxy_wasm {
-namespace wasmtime {
+namespace proxy_wasm::wasmtime {
 
 using WasmEnginePtr = common::CSmartPtr<wasm_engine_t, wasm_engine_delete>;
 using WasmFuncPtr = common::CSmartPtr<wasm_func_t, wasm_func_delete>;
@@ -41,6 +40,4 @@ using WasmExternVec =
 using WasmValtypeVec =
     common::CSmartType<wasm_valtype_vec_t, wasm_valtype_vec_new_empty, wasm_valtype_vec_delete>;
 
-} // namespace wasmtime
-
-} // namespace proxy_wasm
+} // namespace proxy_wasm::wasmtime

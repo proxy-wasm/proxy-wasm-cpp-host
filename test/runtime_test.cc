@@ -109,28 +109,42 @@ TEST_P(TestVM, CloneUntilOutOfMemory) {
   ASSERT_TRUE(vm_->load(source, {}, {}));
   ASSERT_TRUE(vm_->link(""));
 
+  size_t max_clones = 100000;
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+  max_clones = 1000;
+#endif
+#endif
+
   std::vector<std::unique_ptr<WasmVm>> clones;
-  for (;;) {
+  for (size_t i = 0; i < max_clones; i++) {
     auto clone = vm_->clone();
     if (clone == nullptr) {
       break;
     }
     if (clone->cloneable() != proxy_wasm::Cloneable::InstantiatedModule) {
-      if (clone->link("") == false) {
+      if (!clone->link("")) {
         break;
       }
     }
     // Prevent clone from droping out of scope and freeing memory.
     clones.push_back(std::move(clone));
   }
-  EXPECT_GE(clones.size(), 1000);
+
+  size_t min_clones = 1000;
+#if defined(__has_feature)
+#if __has_feature(thread_sanitizer)
+  min_clones = 100;
+#endif
+#endif
+  EXPECT_GE(clones.size(), min_clones);
 }
 
 #endif
 
 class TestContext : public ContextBase {
 public:
-  TestContext(){};
+  TestContext() = default;
   void increment() { counter++; }
   int64_t counter = 0;
 };
@@ -138,7 +152,7 @@ public:
 void nopCallback() {}
 
 void callback() {
-  TestContext *context = static_cast<TestContext *>(contextOrEffectiveContext());
+  auto *context = dynamic_cast<TestContext *>(contextOrEffectiveContext());
   context->increment();
 }
 
@@ -151,7 +165,7 @@ TEST_P(TestVM, StraceLogLevel) {
     return;
   }
 
-  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  auto *integration = dynamic_cast<DummyIntegration *>(vm_->integration().get());
   auto source = readTestWasmFile("callback.wasm");
   ASSERT_TRUE(vm_->load(source, {}, {}));
   vm_->registerCallback("env", "callback", &nopCallback,
@@ -277,7 +291,7 @@ TEST_P(TestVM, Trap) {
   EXPECT_TRUE(trigger != nullptr);
   trigger(&context);
   std::string exp_message = "Function: trigger failed";
-  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  auto *integration = dynamic_cast<DummyIntegration *>(vm_->integration().get());
   ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 
@@ -297,7 +311,7 @@ TEST_P(TestVM, Trap2) {
   EXPECT_TRUE(trigger2 != nullptr);
   trigger2(&context, 0);
   std::string exp_message = "Function: trigger2 failed";
-  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  auto *integration = dynamic_cast<DummyIntegration *>(vm_->integration().get());
   ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 

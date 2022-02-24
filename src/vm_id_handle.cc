@@ -16,8 +16,8 @@
 
 #include <deque>
 #include <functional>
-#include <mutex>
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 #include <vector>
 
@@ -57,14 +57,14 @@ std::shared_ptr<VmIdHandle> getVmIdHandle(std::string_view vm_id) {
   return handle;
 };
 
-void registerVmIdHandleCallback(std::function<void(std::string_view vm_id)> f) {
+void registerVmIdHandleCallback(const std::function<void(std::string_view vm_id)> &f) {
   std::lock_guard<std::mutex> lock(getGlobalIdHandleMutex());
   getVmIdHandlesCallbacks().push_back(f);
 }
 
 VmIdHandle::~VmIdHandle() {
   std::lock_guard<std::mutex> lock(getGlobalIdHandleMutex());
-  for (auto f : getVmIdHandlesCallbacks()) {
+  for (const auto &f : getVmIdHandlesCallbacks()) {
     f(vm_id_);
   }
   getVmIdHandles().erase(vm_id_);

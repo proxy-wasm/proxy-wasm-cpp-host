@@ -38,7 +38,7 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVM, testing::ValuesIn(getWasmEngines()
 class TestContext : public ContextBase {
 public:
   TestContext(WasmBase *base) : ContextBase(base){};
-  WasmResult log(uint32_t, std::string_view msg) override {
+  WasmResult log(uint32_t /*log_level*/, std::string_view msg) override {
     log_ += std::string(msg) + "\n";
     return WasmResult::Ok;
   }

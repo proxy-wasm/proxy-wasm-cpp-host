@@ -57,7 +57,7 @@ struct RegisterForeignFunction {
    * @param function_name is the key for this foreign function.
    * @param f is the function instance.
    */
-  RegisterForeignFunction(std::string function_name, WasmForeignFunction f);
+  RegisterForeignFunction(const std::string &function_name, WasmForeignFunction f);
 };
 
 namespace exports {
@@ -94,8 +94,8 @@ template <typename Pairs> void marshalPairs(const Pairs &result, char *buffer) {
 
 // ABI functions exported from host to wasm.
 
-Word get_configuration(Word address, Word size);
-Word get_status(Word status_code, Word address, Word size);
+Word get_configuration(Word value_ptr_ptr, Word value_size_ptr);
+Word get_status(Word code_ptr, Word value_ptr_ptr, Word value_size_ptr);
 Word log(Word level, Word address, Word size);
 Word get_log_level(Word result_level_uint32_ptr);
 Word get_property(Word path_ptr, Word path_size, Word value_ptr_ptr, Word value_size_ptr);
@@ -134,7 +134,7 @@ Word get_response_body_buffer_bytes(Word start, Word length, Word ptr_ptr, Word 
 Word http_call(Word uri_ptr, Word uri_size, Word header_pairs_ptr, Word header_pairs_size,
                Word body_ptr, Word body_size, Word trailer_pairs_ptr, Word trailer_pairs_size,
                Word timeout_milliseconds, Word token_ptr);
-Word define_metric(Word metric_type, Word name_ptr, Word name_size, Word result_ptr);
+Word define_metric(Word metric_type, Word name_ptr, Word name_size, Word metric_id_ptr);
 Word increment_metric(Word metric_id, int64_t offset);
 Word record_metric(Word metric_id, uint64_t value);
 Word get_metric(Word metric_id, Word result_uint64_ptr);

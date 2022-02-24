@@ -60,7 +60,7 @@ TEST(TestBytecodeUtil, getFunctionNameIndex) {
   EXPECT_TRUE(BytecodeUtil::getFunctionNameIndex(source, actual));
   EXPECT_FALSE(actual.empty());
   bool abi_version_found = false;
-  for (auto it : actual) {
+  for (const auto &it : actual) {
     if (it.second == "proxy_abi_version_0_2_0") {
       abi_version_found = true;
       break;

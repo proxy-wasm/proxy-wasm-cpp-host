@@ -15,9 +15,9 @@
 
 #include "include/proxy-wasm/null_plugin.h"
 
+#include <cstdint>
+#include <cstdio>
 #include <cstdlib>
-#include <stdint.h>
-#include <stdio.h>
 
 #include <atomic>
 #include <fstream>
@@ -44,7 +44,7 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<0> *f)
 }
 
 void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<1> *f) {
-  auto plugin = this;
+  auto *plugin = this;
   if (function_name == "proxy_on_tick") {
     *f = [plugin](ContextBase *context, Word context_id) {
       SaveRestoreContext saved_context(context);
@@ -67,7 +67,7 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<1> *f)
 }
 
 void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<2> *f) {
-  auto plugin = this;
+  auto *plugin = this;
   if (function_name == "proxy_on_context_create") {
     *f = [plugin](ContextBase *context, Word context_id, Word parent_context_id) {
       SaveRestoreContext saved_context(context);
@@ -95,7 +95,7 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<2> *f)
 }
 
 void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<3> *f) {
-  auto plugin = this;
+  auto *plugin = this;
   if (function_name == "proxy_on_grpc_close") {
     *f = [plugin](ContextBase *context, Word context_id, Word token, Word status_code) {
       SaveRestoreContext saved_context(context);
@@ -128,7 +128,7 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<3> *f)
 }
 
 void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<5> *f) {
-  auto plugin = this;
+  auto *plugin = this;
   if (function_name == "proxy_on_http_call_response") {
     *f = [plugin](ContextBase *context, Word context_id, Word token, Word headers, Word body_size,
                   Word trailers) {
@@ -142,9 +142,9 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<5> *f)
 }
 
 void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<1> *f) {
-  auto plugin = this;
+  auto *plugin = this;
   if (function_name == "malloc") {
-    *f = [](ContextBase *, Word size) -> Word {
+    *f = [](ContextBase * /*context*/, Word size) -> Word {
       return Word(reinterpret_cast<uint64_t>(::malloc(size)));
     };
   } else if (function_name == "proxy_on_new_connection") {
@@ -164,23 +164,24 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<1> *f)
 }
 
 void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<2> *f) {
-  auto plugin = this;
+  auto *plugin = this;
   if (function_name == "main") {
     *f = nullptr;
   } else if (function_name == "proxy_on_vm_start") {
     *f = [plugin](ContextBase *context, Word context_id, Word configuration_size) {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onStart(context_id, configuration_size));
+      return Word(static_cast<uint64_t>(plugin->onStart(context_id, configuration_size)));
     };
   } else if (function_name == "proxy_on_configure") {
     *f = [plugin](ContextBase *context, Word context_id, Word configuration_size) {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->onConfigure(context_id, configuration_size));
+      return Word(static_cast<uint64_t>(plugin->onConfigure(context_id, configuration_size)));
     };
   } else if (function_name == "proxy_validate_configuration") {
     *f = [plugin](ContextBase *context, Word context_id, Word configuration_size) {
       SaveRestoreContext saved_context(context);
-      return Word(plugin->validateConfiguration(context_id, configuration_size));
+      return Word(
+          static_cast<uint64_t>(plugin->validateConfiguration(context_id, configuration_size)));
     };
   } else if (function_name == "proxy_on_request_trailers") {
     *f = [plugin](ContextBase *context, Word context_id, Word trailers) -> Word {
@@ -209,7 +210,7 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<2> *f)
 }
 
 void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<3> *f) {
-  auto plugin = this;
+  auto *plugin = this;
   if (function_name == "proxy_on_downstream_data") {
     *f = [plugin](ContextBase *context, Word context_id, Word body_buffer_length,
                   Word end_of_stream) -> Word {
@@ -253,9 +254,9 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<3> *f)
 null_plugin::Context *NullPlugin::ensureContext(uint64_t context_id, uint64_t root_context_id) {
   auto e = context_map_.insert(std::make_pair(context_id, nullptr));
   if (e.second) {
-    auto root_base = context_map_[root_context_id].get();
-    null_plugin::RootContext *root = root_base ? root_base->asRoot() : nullptr;
-    std::string root_id = root ? std::string(root->root_id()) : "";
+    auto *root_base = context_map_[root_context_id].get();
+    null_plugin::RootContext *root = (root_base != nullptr) ? root_base->asRoot() : nullptr;
+    std::string root_id = (root != nullptr) ? std::string(root->root_id()) : "";
     auto factory = registry_->context_factories[root_id];
     if (!factory) {
       error("no context factory for root_id: " + root_id);
@@ -297,7 +298,8 @@ null_plugin::RootContext *NullPlugin::ensureRootContext(uint64_t context_id) {
 
 null_plugin::ContextBase *NullPlugin::getContextBase(uint64_t context_id) {
   auto it = context_map_.find(context_id);
-  if (it == context_map_.end() || !(it->second->asContext() || it->second->asRoot())) {
+  if (it == context_map_.end() ||
+      !(it->second->asContext() != nullptr || it->second->asRoot() != nullptr)) {
     error("no base context context_id: " + std::to_string(context_id));
     return nullptr;
   }
@@ -306,7 +308,7 @@ null_plugin::ContextBase *NullPlugin::getContextBase(uint64_t context_id) {
 
 null_plugin::Context *NullPlugin::getContext(uint64_t context_id) {
   auto it = context_map_.find(context_id);
-  if (it == context_map_.end() || !it->second->asContext()) {
+  if (it == context_map_.end() || (it->second->asContext() == nullptr)) {
     error("no context context_id: " + std::to_string(context_id));
     return nullptr;
   }
@@ -315,7 +317,7 @@ null_plugin::Context *NullPlugin::getContext(uint64_t context_id) {
 
 null_plugin::RootContext *NullPlugin::getRootContext(uint64_t context_id) {
   auto it = context_map_.find(context_id);
-  if (it == context_map_.end() || !it->second->asRoot()) {
+  if (it == context_map_.end() || (it->second->asRoot() == nullptr)) {
     error("no root context_id: " + std::to_string(context_id));
     return nullptr;
   }
@@ -335,32 +337,32 @@ bool NullPlugin::validateConfiguration(uint64_t root_context_id, uint64_t config
 }
 
 bool NullPlugin::onStart(uint64_t root_context_id, uint64_t vm_configuration_size) {
-  if (registry_->proxy_on_vm_start_) {
-    return registry_->proxy_on_vm_start_(root_context_id, vm_configuration_size);
+  if (registry_->proxy_on_vm_start_ != nullptr) {
+    return registry_->proxy_on_vm_start_(root_context_id, vm_configuration_size) != 0U;
   }
-  return getRootContext(root_context_id)->onStart(vm_configuration_size) != 0;
+  return getRootContext(root_context_id)->onStart(vm_configuration_size);
 }
 
 bool NullPlugin::onConfigure(uint64_t root_context_id, uint64_t plugin_configuration_size) {
-  if (registry_->proxy_on_configure_) {
-    return registry_->proxy_on_configure_(root_context_id, plugin_configuration_size);
+  if (registry_->proxy_on_configure_ != nullptr) {
+    return registry_->proxy_on_configure_(root_context_id, plugin_configuration_size) != 0U;
   }
   return getRootContext(root_context_id)->onConfigure(plugin_configuration_size);
 }
 
 void NullPlugin::onTick(uint64_t root_context_id) {
-  if (registry_->proxy_on_tick_) {
+  if (registry_->proxy_on_tick_ != nullptr) {
     return registry_->proxy_on_tick_(root_context_id);
   }
   getRootContext(root_context_id)->onTick();
 }
 
 void NullPlugin::onCreate(uint64_t context_id, uint64_t parent_context_id) {
-  if (registry_->proxy_on_context_create_) {
+  if (registry_->proxy_on_context_create_ != nullptr) {
     registry_->proxy_on_context_create_(context_id, parent_context_id);
     return;
   }
-  if (parent_context_id) {
+  if (parent_context_id != 0U) {
     ensureContext(context_id, parent_context_id)->onCreate();
   } else {
     ensureRootContext(context_id)->onCreate();
@@ -463,14 +465,14 @@ void NullPlugin::onQueueReady(uint64_t context_id, uint64_t token) {
 
 void NullPlugin::onForeignFunction(uint64_t context_id, uint64_t foreign_function_id,
                                    uint64_t data_size) {
-  if (registry_->proxy_on_foreign_function_) {
+  if (registry_->proxy_on_foreign_function_ != nullptr) {
     return registry_->proxy_on_foreign_function_(context_id, foreign_function_id, data_size);
   }
   getContextBase(context_id)->onForeignFunction(foreign_function_id, data_size);
 }
 
 void NullPlugin::onLog(uint64_t context_id) {
-  if (registry_->proxy_on_log_) {
+  if (registry_->proxy_on_log_ != nullptr) {
     registry_->proxy_on_log_(context_id);
     return;
   }
@@ -478,14 +480,14 @@ void NullPlugin::onLog(uint64_t context_id) {
 }
 
 uint64_t NullPlugin::onDone(uint64_t context_id) {
-  if (registry_->proxy_on_done_) {
+  if (registry_->proxy_on_done_ != nullptr) {
     return registry_->proxy_on_done_(context_id);
   }
   return getContextBase(context_id)->onDoneBase() ? 1 : 0;
 }
 
 void NullPlugin::onDelete(uint64_t context_id) {
-  if (registry_->proxy_on_delete_) {
+  if (registry_->proxy_on_delete_ != nullptr) {
     registry_->proxy_on_delete_(context_id);
     return;
   }
@@ -496,13 +498,13 @@ void NullPlugin::onDelete(uint64_t context_id) {
 namespace null_plugin {
 
 RootContext *nullVmGetRoot(std::string_view root_id) {
-  auto null_vm = static_cast<NullVm *>(current_context_->wasmVm());
-  return static_cast<NullPlugin *>(null_vm->plugin_.get())->getRoot(root_id);
+  auto *null_vm = dynamic_cast<NullVm *>(current_context_->wasmVm());
+  return dynamic_cast<NullPlugin *>(null_vm->plugin_.get())->getRoot(root_id);
 }
 
 Context *nullVmGetContext(uint32_t context_id) {
-  auto null_vm = static_cast<NullVm *>(current_context_->wasmVm());
-  return static_cast<NullPlugin *>(null_vm->plugin_.get())->getContext(context_id);
+  auto *null_vm = dynamic_cast<NullVm *>(current_context_->wasmVm());
+  return dynamic_cast<NullPlugin *>(null_vm->plugin_.get())->getContext(context_id);
 }
 
 RootContext *getRoot(std::string_view root_id) { return nullVmGetRoot(root_id); }
