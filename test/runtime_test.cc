@@ -20,8 +20,8 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <thread>
+#include <vector>
 
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
@@ -277,7 +277,7 @@ TEST_P(TestVM, TerminateExecution) {
   terminate.join();
 
   std::string exp_message = "Function: infinite_loop failed: Uncaught Error: termination_exception";
-  auto integration = static_cast<DummyIntegration *>(vm_->integration().get());
+  auto *integration = dynamic_cast<DummyIntegration *>(vm_->integration().get());
   ASSERT_TRUE(integration->error_message_.find(exp_message) != std::string::npos);
 }
 
