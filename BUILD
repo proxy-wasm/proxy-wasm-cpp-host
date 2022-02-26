@@ -141,10 +141,31 @@ cc_library(
         "src/wasmtime/wasmtime.cc",
     ],
     hdrs = ["include/proxy-wasm/wasmtime.h"],
+    copts = [
+        "-DWASM_API_EXTERN=",
+    ],
     defines = [
         "PROXY_WASM_HAS_RUNTIME_WASMTIME",
         "PROXY_WASM_HOST_ENGINE_WASMTIME",
     ],
+    # See: https://bytecodealliance.github.io/wasmtime/c-api/
+    linkopts = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:windows": [
+            "ws2_32.lib",
+            "advapi32.lib",
+            "userenv.lib",
+            "ntdll.lib",
+            "shell32.lib",
+            "ole32.lib",
+            "bcrypt.lib",
+        ],
+        "//conditions:default": [
+            "-ldl",
+            "-lm",
+            "-lpthread",
+        ],
+    }),
     deps = [
         ":wasm_vm_headers",
         "//external:wasmtime",
@@ -179,10 +200,31 @@ cc_library(
         "src/wasmtime/prefixed_wasmtime.cc",
     ],
     hdrs = ["include/proxy-wasm/wasmtime.h"],
+    copts = [
+        "-DWASM_API_EXTERN=",
+    ],
     defines = [
         "PROXY_WASM_HAS_RUNTIME_WASMTIME",
         "PROXY_WASM_HOST_ENGINE_WASMTIME",
     ],
+    # See: https://bytecodealliance.github.io/wasmtime/c-api/
+    linkopts = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:windows": [
+            "ws2_32.lib",
+            "advapi32.lib",
+            "userenv.lib",
+            "ntdll.lib",
+            "shell32.lib",
+            "ole32.lib",
+            "bcrypt.lib",
+        ],
+        "//conditions:default": [
+            "-ldl",
+            "-lm",
+            "-lpthread",
+        ],
+    }),
     deps = [
         ":wasm_vm_headers",
         "//external:prefixed_wasmtime",
@@ -204,6 +246,13 @@ cc_library(
         "PROXY_WASM_HAS_RUNTIME_WAVM",
         "PROXY_WASM_HOST_ENGINE_WAVM",
     ],
+    linkopts = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:windows": [],
+        "//conditions:default": [
+            "-ldl",
+        ],
+    }),
     deps = [
         ":wasm_vm_headers",
         "//external:wavm",
