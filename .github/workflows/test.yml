@@ -231,7 +231,7 @@ jobs:
 
     - name: Set cache key
       if: ${{ matrix.cache }}
-      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
+      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)-$(echo ${{ matrix.flags }} | sha256sum)"
       id: cache-key
 
     - name: Bazel cache
