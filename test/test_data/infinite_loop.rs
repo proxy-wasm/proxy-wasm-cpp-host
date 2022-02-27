@@ -13,23 +13,9 @@
 // limitations under the License.
 
 #[no_mangle]
-pub extern "C" fn run() {
-    unsafe {
-        callback();
+pub extern "C" fn infinite_loop() {
+    let mut _count: u64 = 0;
+    loop {
+        _count += 1;
     }
 }
-
-static A : i32 = 100000;
-
-#[no_mangle]
-pub extern "C" fn run2(val: i32) -> i32 {
-    unsafe {
-        callback2(val) + A
-    }
-}
-
-extern "C" {
-    fn callback();
-    fn callback2(val: i32) -> i32;
-}
-

@@ -68,14 +68,6 @@ public:
             const std::unordered_map<uint32_t, std::string> &function_names) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
-  void terminateExecution() override {
-    auto *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
-    auto *isolate = store_impl->isolate();
-    isolate->TerminateExecution();
-    while (isolate->IsExecutionTerminating()) {
-      std::this_thread::yield();
-    }
-  }
 
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::unique_ptr<WasmVm> clone() override;
@@ -101,6 +93,17 @@ public:
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
 #undef _GET_MODULE_FUNCTION
+
+  void terminate() override {
+    auto *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
+    auto *isolate = store_impl->isolate();
+    isolate->TerminateExecution();
+    while (isolate->IsExecutionTerminating()) {
+      std::this_thread::yield();
+    }
+    fail(FailState::RuntimeError, "vm has been terminated by the user.");
+    integration()->trace("[host->vm] Terminated");
+  }
 
 private:
   std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);

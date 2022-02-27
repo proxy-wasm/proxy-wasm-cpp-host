@@ -14,7 +14,6 @@
 
 #include "gtest/gtest.h"
 
-#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -248,32 +247,26 @@ TEST_P(TestVM, Callback) {
 }
 
 TEST_P(TestVM, TerminateExecution) {
+  // TODO(chaoqin-li1123): implement execution termination for other runtime.
   if (engine_ != "v8") {
     return;
   }
-  auto source = readTestWasmFile("callback.wasm");
+  auto source = readTestWasmFile("infinite_loop.wasm");
   ASSERT_TRUE(vm_->load(source, {}, {}));
 
   TestContext context;
-  vm_->registerCallback(
-      "env", "callback", &callback,
-      &ConvertFunctionWordToUint32<decltype(callback), callback>::convertFunctionWordToUint32);
-
-  vm_->registerCallback(
-      "env", "callback2", &callback2,
-      &ConvertFunctionWordToUint32<decltype(callback2), callback2>::convertFunctionWordToUint32);
 
   std::thread terminate([&]() {
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    vm_->terminateExecution();
+    vm_->terminate();
   });
 
   ASSERT_TRUE(vm_->link(""));
-  WasmCallWord<1> run2;
-  vm_->getFunction("infinite_loop", &run2);
-  EXPECT_TRUE(run2 != nullptr);
+  WasmCallVoid<0> infinite_loop;
+  vm_->getFunction("infinite_loop", &infinite_loop);
+  EXPECT_TRUE(infinite_loop != nullptr);
+  infinite_loop(&context);
 
-  run2(&context, Word{0});
   terminate.join();
 
   std::string exp_message = "Function: infinite_loop failed: Uncaught Error: termination_exception";

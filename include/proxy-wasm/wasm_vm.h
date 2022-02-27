@@ -297,6 +297,7 @@ public:
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
+  virtual void terminate() = 0;
   bool isFailed() { return failed_ != FailState::Ok; }
   void fail(FailState fail_state, std::string_view message) {
     integration()->error(message);
@@ -311,7 +312,6 @@ public:
 
   // Integrator operations.
   std::unique_ptr<WasmVmIntegration> &integration() { return integration_; }
-  virtual void terminateExecution() {}
   bool cmpLogLevel(proxy_wasm::LogLevel level) { return integration_->getLogLevel() <= level; }
 
 protected:
