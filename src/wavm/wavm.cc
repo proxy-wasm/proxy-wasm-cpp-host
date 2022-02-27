@@ -229,6 +229,8 @@ struct Wavm : public WasmVm {
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
+  void terminate() override {}
+
   IR::Module ir_module_;
   WAVM::Runtime::ModuleRef module_ = nullptr;
   WAVM::Runtime::GCPointer<WAVM::Runtime::Instance> module_instance_;
@@ -403,7 +405,7 @@ std::string_view Wavm::getPrecompiledSectionName() { return "wavm.precompiled_ob
 std::unique_ptr<WasmVm> createWavmVm() { return std::make_unique<proxy_wasm::Wavm::Wavm>(); }
 
 template <typename R, typename... Args>
-IR::FunctionType inferHostFunctionType(R (*/*func*/)(Args...)) {
+IR::FunctionType inferHostFunctionType(R (* /*func*/)(Args...)) {
   return IR::FunctionType(IR::inferResultType<R>(), IR::TypeTuple({IR::inferValueType<Args>()...}),
                           IR::CallingConvention::c);
 }

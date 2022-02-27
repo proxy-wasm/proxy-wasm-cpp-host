@@ -97,6 +97,8 @@ private:
   void getModuleFunctionImpl(std::string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
 
+  void terminate() override {}
+
   WasmStorePtr store_;
   WasmModulePtr module_;
   WasmSharedModulePtr shared_module_;
