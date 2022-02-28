@@ -101,7 +101,6 @@ public:
     while (isolate->IsExecutionTerminating()) {
       std::this_thread::yield();
     }
-    fail(FailState::RuntimeError, "vm has been terminated by the user.");
     integration()->trace("[host->vm] Terminated");
   }
 
