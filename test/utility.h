@@ -18,6 +18,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "include/proxy-wasm/context.h"
@@ -41,34 +42,77 @@ namespace proxy_wasm {
 std::vector<std::string> getWasmEngines();
 std::string readTestWasmFile(const std::string &filename);
 
-struct DummyIntegration : public WasmVmIntegration {
-  ~DummyIntegration() override = default;
-  WasmVmIntegration *clone() override { return new DummyIntegration{}; }
+class TestIntegration : public WasmVmIntegration {
+public:
+  ~TestIntegration() override = default;
+  WasmVmIntegration *clone() override { return new TestIntegration{}; }
+
+  void setLogLevel(LogLevel level) { log_level_ = level; }
+
+  LogLevel getLogLevel() override { return log_level_; }
+
   void error(std::string_view message) override {
     std::cout << "ERROR from integration: " << message << std::endl;
-    error_message_ = message;
+    error_log_ += std::string(message) + "\n";
   }
+
+  bool isErrorLogEmpty() { return error_log_.empty(); }
+
+  bool isErrorLogged(std::string_view message) {
+    return error_log_.find(message) != std::string::npos;
+  }
+
   void trace(std::string_view message) override {
     std::cout << "TRACE from integration: " << message << std::endl;
-    trace_message_ = message;
+    trace_log_ += std::string(message) + "\n";
   }
+
+  bool isTraceLogEmpty() { return trace_log_.empty(); }
+
+  bool isTraceLogged(std::string_view message) {
+    return trace_log_.find(message) != std::string::npos;
+  }
+
   bool getNullVmFunction(std::string_view /*function_name*/, bool /*returns_word*/,
                          int /*number_of_arguments*/, NullPlugin * /*plugin*/,
                          void * /*ptr_to_function_return*/) override {
     return false;
   };
 
-  LogLevel getLogLevel() override { return log_level_; }
-  std::string error_message_;
-  std::string trace_message_;
-  LogLevel log_level_ = LogLevel::info;
+private:
+  std::string error_log_;
+  std::string trace_log_;
+  LogLevel log_level_ = LogLevel::trace;
 };
 
-class TestVM : public testing::TestWithParam<std::string> {
+class TestContext : public ContextBase {
 public:
-  std::unique_ptr<proxy_wasm::WasmVm> vm_;
+  TestContext(WasmBase *wasm) : ContextBase(wasm) {}
 
-  TestVM() {
+  WasmResult log(uint32_t /*log_level*/, std::string_view message) override {
+    log_ += std::string(message) + "\n";
+    return WasmResult::Ok;
+  }
+
+  bool isLogEmpty() { return log_.empty(); }
+
+  bool isLogged(std::string_view message) { return log_.find(message) != std::string::npos; }
+
+private:
+  std::string log_;
+};
+
+class TestWasm : public WasmBase {
+public:
+  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::unordered_map<std::string, std::string> envs = {})
+      : WasmBase(std::move(wasm_vm), "", "", "", std::move(envs), {}) {}
+
+  ContextBase *createVmContext() override { return new TestContext(this); };
+};
+
+class TestVm : public testing::TestWithParam<std::string> {
+public:
+  TestVm() {
     engine_ = GetParam();
     vm_ = newVm();
   }
@@ -76,7 +120,7 @@ public:
   std::unique_ptr<proxy_wasm::WasmVm> newVm() {
     std::unique_ptr<proxy_wasm::WasmVm> vm;
     if (engine_.empty()) {
-      EXPECT_TRUE(false) << "engine must not be empty";
+      ADD_FAILURE() << "engine must not be empty";
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
     } else if (engine_ == "v8") {
       vm = proxy_wasm::createV8Vm();
@@ -94,13 +138,13 @@ public:
       vm = proxy_wasm::createWamrVm();
 #endif
     } else {
-      EXPECT_TRUE(false) << "compiled without support for the requested \"" << engine_
-                         << "\" engine";
+      ADD_FAILURE() << "compiled without support for the requested \"" << engine_ << "\" engine";
     }
-    vm->integration() = std::make_unique<DummyIntegration>();
+    vm->integration() = std::make_unique<TestIntegration>();
     return vm;
   };
 
+  std::unique_ptr<proxy_wasm::WasmVm> vm_;
   std::string engine_;
 };
 

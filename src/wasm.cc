@@ -249,7 +249,9 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     fail(FailState::UnableToInitializeCode, message);
     return false;
   }
-  wasm_vm_->integration()->trace(message);
+  if (!message.empty()) {
+    wasm_vm_->integration()->trace(message);
+  }
 
   // Get ABI version from the module.
   if (!BytecodeUtil::getAbiVersion(code, abi_version_)) {

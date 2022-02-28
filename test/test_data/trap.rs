@@ -13,6 +13,14 @@
 // limitations under the License.
 
 #[no_mangle]
+pub extern "C" fn proxy_abi_version_0_2_0() {}
+
+#[no_mangle]
+pub extern "C" fn proxy_on_memory_allocate(_: usize) -> *mut u8 {
+    std::ptr::null_mut()
+}
+
+#[no_mangle]
 pub extern "C" fn trigger() {
     one();
 }
