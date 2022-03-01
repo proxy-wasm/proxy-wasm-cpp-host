@@ -585,6 +585,8 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
     const bool log = cmpLogLevel(LogLevel::trace);
     SaveRestoreContext saved_context(context);
+
+    // Workaround for MSVC++ not supporting zero-sized arrays.
     wasm::own<wasm::Trap> trap = nullptr;
     if constexpr (sizeof...(args) > 0) {
       wasm::Val params[] = {makeVal(args)...};
@@ -599,6 +601,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
       }
       trap = func->call(nullptr, nullptr);
     }
+
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return;
@@ -634,6 +637,8 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     const bool log = cmpLogLevel(LogLevel::trace);
     SaveRestoreContext saved_context(context);
     wasm::Val results[1];
+
+    // Workaround for MSVC++ not supporting zero-sized arrays.
     wasm::own<wasm::Trap> trap = nullptr;
     if constexpr (sizeof...(args) > 0) {
       wasm::Val params[] = {makeVal(args)...};
@@ -648,6 +653,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
       }
       trap = func->call(nullptr, results);
     }
+
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return R{};
