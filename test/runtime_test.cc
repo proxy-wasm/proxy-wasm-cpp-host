@@ -235,17 +235,17 @@ TEST_P(TestVm, Callback) {
   WasmCallVoid<0> run;
   wasm.wasm_vm()->getFunction("run", &run);
   ASSERT_TRUE(run != nullptr);
-  for (auto i = 0; i < 100; i++) {
+  for (auto i = 0; i < 5; i++) {
     run(wasm.vm_context());
   }
   auto *context = dynamic_cast<TestCounterContext *>(wasm.vm_context());
-  EXPECT_EQ(context->getCount(), 100);
+  EXPECT_EQ(context->getCount(), 5);
 
   WasmCallWord<1> run2;
   wasm.wasm_vm()->getFunction("run2", &run2);
   ASSERT_TRUE(run2 != nullptr);
   Word res = run2(wasm.vm_context(), Word{0});
-  EXPECT_EQ(res.u32(), 100100); // 10000 (global) + 100(in callback)
+  EXPECT_EQ(res.u32(), 100100); // 10000 (global) + 100 (in callback)
 }
 
 TEST_P(TestVm, TerminateExecution) {
