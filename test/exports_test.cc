@@ -107,12 +107,7 @@ TEST_P(TestVM, Clock) {
   WasmCallVoid<0> run;
   wasm_base.wasm_vm()->getFunction("run", &run);
   ASSERT_TRUE(run);
-  run(current_context_);
-
-  // Check logs.
-  auto msg = context.log_msg();
-  EXPECT_NE(std::string::npos, msg.find("monotonic: ")) << msg;
-  EXPECT_NE(std::string::npos, msg.find("realtime: ")) << msg;
+  EXPECT_DEATH(run(current_context_), "unimplemented proxy-wasm API");
 }
 
 } // namespace
