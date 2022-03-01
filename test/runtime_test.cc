@@ -152,10 +152,10 @@ private:
   size_t counter = 0;
 };
 
-class TestCounterWasm : public TestWasm {                                              
-public:                                                                         
+class TestCounterWasm : public TestWasm {
+public:
   TestCounterWasm(std::unique_ptr<WasmVm> wasm_vm) : TestWasm(std::move(wasm_vm)) {}
-                                                                                
+
   ContextBase *createVmContext() override { return new TestCounterContext(this); };
 };
 
