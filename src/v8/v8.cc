@@ -21,12 +21,14 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
+#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "include/v8-version.h"
 #include "include/v8.h"
+#include "src/wasm/c-api.h"
 #include "wasm-api/wasm.hh"
 
 namespace proxy_wasm {
@@ -91,6 +93,8 @@ public:
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
 #undef _GET_MODULE_FUNCTION
+
+  void terminate() override;
 
 private:
   std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);
@@ -655,6 +659,16 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     }
     return rvalue;
   };
+}
+
+void V8::terminate() {
+  auto *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
+  auto *isolate = store_impl->isolate();
+  isolate->TerminateExecution();
+  while (isolate->IsExecutionTerminating()) {
+    std::this_thread::yield();
+  }
+  integration()->trace("[host->vm] Terminated");
 }
 
 std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {

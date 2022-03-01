@@ -38,6 +38,11 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
+    name = "infinite_loop.wasm",
+    srcs = ["infinite_loop.rs"],
+)
+
+wasm_rust_binary(
     name = "env.wasm",
     srcs = ["env.rs"],
     wasi = True,

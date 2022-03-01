@@ -85,6 +85,9 @@ public:
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
 #undef _GET_MODULE_FUNCTION
+
+  void terminate() override {}
+
 private:
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
