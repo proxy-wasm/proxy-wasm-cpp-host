@@ -594,9 +594,9 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     const bool log = cmpLogLevel(LogLevel::trace);
     SaveRestoreContext saved_context(context);
     wasm_val_vec_t results = WASM_EMPTY_VEC;
+    WasmTrapPtr trap;
 
     // Workaround for MSVC++ not supporting zero-sized arrays.
-    WasmTrapPtr trap;
     if constexpr (sizeof...(args) > 0) {
       wasm_val_t params_arr[] = {makeVal(args)...};
       wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
@@ -656,9 +656,9 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     wasm_val_t results_arr[1];
     wasm_val_vec_t results = WASM_ARRAY_VEC(results_arr);
+    WasmTrapPtr trap;
 
     // Workaround for MSVC++ not supporting zero-sized arrays.
-    WasmTrapPtr trap;
     if constexpr (sizeof...(args) > 0) {
       wasm_val_t params_arr[] = {makeVal(args)...};
       wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
