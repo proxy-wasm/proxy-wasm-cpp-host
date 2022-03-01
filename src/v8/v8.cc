@@ -668,7 +668,6 @@ void V8::terminate() {
   while (isolate->IsExecutionTerminating()) {
     std::this_thread::yield();
   }
-  integration()->trace("[host->vm] Terminated");
 }
 
 std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {
