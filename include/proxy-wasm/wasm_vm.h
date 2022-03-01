@@ -298,10 +298,10 @@ public:
 #undef _REGISTER_CALLBACK
 
   /**
-   * Terminate the current execution of wasm vm, the vm fails and shouldn't run after calling
-   * terminate.
+   * Terminate execution of this WasmVM. It shouldn't be used after being terminated.
    */
   virtual void terminate() = 0;
+
   bool isFailed() { return failed_ != FailState::Ok; }
   void fail(FailState fail_state, std::string_view message) {
     integration()->error(message);

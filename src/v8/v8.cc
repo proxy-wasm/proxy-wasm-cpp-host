@@ -94,15 +94,7 @@ public:
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
 #undef _GET_MODULE_FUNCTION
 
-  void terminate() override {
-    auto *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
-    auto *isolate = store_impl->isolate();
-    isolate->TerminateExecution();
-    while (isolate->IsExecutionTerminating()) {
-      std::this_thread::yield();
-    }
-    integration()->trace("[host->vm] Terminated");
-  }
+  void terminate() override;
 
 private:
   std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);
@@ -667,6 +659,16 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     }
     return rvalue;
   };
+}
+
+void V8::terminate() {
+  auto *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
+  auto *isolate = store_impl->isolate();
+  isolate->TerminateExecution();
+  while (isolate->IsExecutionTerminating()) {
+    std::this_thread::yield();
+  }
+  integration()->trace("[host->vm] Terminated");
 }
 
 std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {

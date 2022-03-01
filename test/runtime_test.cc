@@ -264,7 +264,7 @@ TEST_P(TestVM, TerminateExecution) {
   ASSERT_TRUE(vm_->link(""));
   WasmCallVoid<0> infinite_loop;
   vm_->getFunction("infinite_loop", &infinite_loop);
-  EXPECT_TRUE(infinite_loop != nullptr);
+  ASSERT_TRUE(infinite_loop != nullptr);
   infinite_loop(&context);
 
   terminate.join();
