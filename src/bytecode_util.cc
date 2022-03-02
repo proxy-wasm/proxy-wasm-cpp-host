@@ -14,6 +14,10 @@
 
 #include "include/proxy-wasm/bytecode_util.h"
 
+#if !defined(_MSC_VER)
+#include <cxxabi.h>
+#endif
+
 #include <cstring>
 
 namespace proxy_wasm {
@@ -165,7 +169,15 @@ bool BytecodeUtil::getFunctionNameIndex(std::string_view bytecode,
           if (!parseVarint(pos, end, func_name_size) || pos + func_name_size > end) {
             return false;
           }
-          ret.insert({func_index, std::string(pos, func_name_size)});
+          auto func_name = std::string(pos, func_name_size);
+#if !defined(_MSC_VER)
+          int status;
+          char *data = abi::__cxa_demangle(func_name.c_str(), nullptr, nullptr, &status);
+          if (data != nullptr) {
+            func_name = std::string(data);
+          }
+#endif
+          ret.insert({func_index, func_name});
           pos += func_name_size;
         }
         if (start + subsection_size != pos) {
