@@ -237,7 +237,10 @@ public:
   WasmResult log(uint32_t /* level */, std::string_view /* message */) override {
     return unimplemented();
   }
-  uint32_t getLogLevel() override { return static_cast<uint32_t>(LogLevel::info); }
+  uint32_t getLogLevel() override {
+    unimplemented();
+    return 0;
+  }
   uint64_t getCurrentTimeNanoseconds() override {
     unimplemented();
     return 0;

@@ -38,6 +38,12 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVM, testing::ValuesIn(getWasmEngines()
 class TestContext : public ContextBase {
 public:
   TestContext(WasmBase *base) : ContextBase(base){};
+  uint64_t getCurrentTimeNanoseconds() override {
+    return std::chrono::system_clock::now().time_since_epoch().count();
+  }
+  uint64_t getMonotonicTimeNanoseconds() override {
+    return std::chrono::steady_clock::now().time_since_epoch().count();
+  }
   WasmResult log(uint32_t /*log_level*/, std::string_view msg) override {
     log_ += std::string(msg) + "\n";
     return WasmResult::Ok;
@@ -107,7 +113,12 @@ TEST_P(TestVM, Clock) {
   WasmCallVoid<0> run;
   wasm_base.wasm_vm()->getFunction("run", &run);
   ASSERT_TRUE(run);
-  EXPECT_DEATH(run(current_context_), "unimplemented proxy-wasm API");
+  run(current_context_);
+
+  // Check logs.
+  auto msg = context.log_msg();
+  EXPECT_NE(std::string::npos, msg.find("monotonic: ")) << msg;
+  EXPECT_NE(std::string::npos, msg.find("realtime: ")) << msg;
 }
 
 } // namespace
