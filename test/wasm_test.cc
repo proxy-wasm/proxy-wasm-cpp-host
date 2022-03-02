@@ -20,13 +20,13 @@
 
 namespace proxy_wasm {
 
-INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVM, testing::ValuesIn(getWasmEngines()),
+INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()),
                          [](const testing::TestParamInfo<std::string> &info) {
                            return info.param;
                          });
 
 // Fail callbacks only used for WasmVMs - not available for NullVM.
-TEST_P(TestVM, GetOrCreateThreadLocalWasmFailCallbacks) {
+TEST_P(TestVm, GetOrCreateThreadLocalWasmFailCallbacks) {
   const auto *const plugin_name = "plugin_name";
   const auto *const root_id = "root_id";
   const auto *const vm_id = "vm_id";
