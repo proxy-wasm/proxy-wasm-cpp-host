@@ -223,7 +223,7 @@ jobs:
 
     - name: Install dependencies (Linux)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
-      run: sudo apt-get install -y ${{ matrix.deps }}
+      run: sudo apt update -y && sudo apt install -y ${{ matrix.deps }}
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
