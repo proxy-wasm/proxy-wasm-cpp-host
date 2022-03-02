@@ -54,7 +54,6 @@ cc_test(
     name = "runtime_test",
     srcs = ["runtime_test.cc"],
     data = [
-        "//test/test_data:abi_export.wasm",
         "//test/test_data:callback.wasm",
         "//test/test_data:clock.wasm",
         "//test/test_data:infinite_loop.wasm",
@@ -127,6 +126,21 @@ cc_test(
     srcs = ["vm_id_handle_test.cc"],
     linkstatic = 1,
     deps = [
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "wasm_vm_test",
+    srcs = ["wasm_vm_test.cc"],
+    data = [
+        "//test/test_data:abi_export.wasm",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":utility_lib",
         "//:lib",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
