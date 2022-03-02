@@ -591,21 +591,28 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   }
 
   *function = [func, function_name, this](ContextBase *context, Args... args) -> void {
-    wasm_val_vec_t params;
+    const bool log = cmpLogLevel(LogLevel::trace);
+    SaveRestoreContext saved_context(context);
+    wasm_val_vec_t results = WASM_EMPTY_VEC;
+    WasmTrapPtr trap;
+
+    // Workaround for MSVC++ not supporting zero-sized arrays.
     if constexpr (sizeof...(args) > 0) {
       wasm_val_t params_arr[] = {makeVal(args)...};
-      params = WASM_ARRAY_VEC(params_arr);
+      wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
+      if (log) {
+        integration()->trace("[host->vm] " + std::string(function_name) + "(" +
+                             printValues(&params) + ")");
+      }
+      trap.reset(wasm_func_call(func, &params, &results));
     } else {
-      params = WASM_EMPTY_VEC;
+      wasm_val_vec_t params = WASM_EMPTY_VEC;
+      if (log) {
+        integration()->trace("[host->vm] " + std::string(function_name) + "()");
+      }
+      trap.reset(wasm_func_call(func, &params, &results));
     }
-    wasm_val_vec_t results = WASM_EMPTY_VEC;
-    const bool log = cmpLogLevel(LogLevel::trace);
-    if (log) {
-      integration()->trace("[host->vm] " + std::string(function_name) + "(" + printValues(&params) +
-                           ")");
-    }
-    SaveRestoreContext saved_context(context);
-    WasmTrapPtr trap{wasm_func_call(func, &params, &results)};
+
     if (trap) {
       WasmByteVec error_message;
       wasm_trap_message(trap.get(), error_message.get());
@@ -645,22 +652,29 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   }
 
   *function = [func, function_name, this](ContextBase *context, Args... args) -> R {
-    wasm_val_vec_t params;
-    if constexpr (sizeof...(args) > 0) {
-      wasm_val_t params_arr[] = {makeVal(args)...};
-      params = WASM_ARRAY_VEC(params_arr);
-    } else {
-      params = WASM_EMPTY_VEC;
-    }
+    const bool log = cmpLogLevel(LogLevel::trace);
+    SaveRestoreContext saved_context(context);
     wasm_val_t results_arr[1];
     wasm_val_vec_t results = WASM_ARRAY_VEC(results_arr);
-    const bool log = cmpLogLevel(LogLevel::trace);
-    if (log) {
-      integration()->trace("[host->vm] " + std::string(function_name) + "(" + printValues(&params) +
-                           ")");
+    WasmTrapPtr trap;
+
+    // Workaround for MSVC++ not supporting zero-sized arrays.
+    if constexpr (sizeof...(args) > 0) {
+      wasm_val_t params_arr[] = {makeVal(args)...};
+      wasm_val_vec_t params = WASM_ARRAY_VEC(params_arr);
+      if (log) {
+        integration()->trace("[host->vm] " + std::string(function_name) + "(" +
+                             printValues(&params) + ")");
+      }
+      trap.reset(wasm_func_call(func, &params, &results));
+    } else {
+      wasm_val_vec_t params = WASM_EMPTY_VEC;
+      if (log) {
+        integration()->trace("[host->vm] " + std::string(function_name) + "()");
+      }
+      trap.reset(wasm_func_call(func, &params, &results));
     }
-    SaveRestoreContext saved_context(context);
-    WasmTrapPtr trap{wasm_func_call(func, &params, &results)};
+
     if (trap) {
       WasmByteVec error_message;
       wasm_trap_message(trap.get(), error_message.get());

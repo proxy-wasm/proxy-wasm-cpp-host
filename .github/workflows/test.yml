@@ -172,7 +172,7 @@ jobs:
           os: ubuntu-20.04
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=clang -c opt
         - name: 'Wasmtime on Linux/x86_64 with ASan'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -223,7 +223,7 @@ jobs:
 
     - name: Install dependencies (Linux)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
-      run: sudo apt-get install -y ${{ matrix.deps }}
+      run: sudo apt update -y && sudo apt install -y ${{ matrix.deps }}
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')

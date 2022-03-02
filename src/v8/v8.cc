@@ -586,6 +586,8 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     const bool log = cmpLogLevel(LogLevel::trace);
     SaveRestoreContext saved_context(context);
     wasm::own<wasm::Trap> trap = nullptr;
+
+    // Workaround for MSVC++ not supporting zero-sized arrays.
     if constexpr (sizeof...(args) > 0) {
       wasm::Val params[] = {makeVal(args)...};
       if (log) {
@@ -599,6 +601,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
       }
       trap = func->call(nullptr, nullptr);
     }
+
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return;
@@ -635,6 +638,8 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     wasm::Val results[1];
     wasm::own<wasm::Trap> trap = nullptr;
+
+    // Workaround for MSVC++ not supporting zero-sized arrays.
     if constexpr (sizeof...(args) > 0) {
       wasm::Val params[] = {makeVal(args)...};
       if (log) {
@@ -648,6 +653,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
       }
       trap = func->call(nullptr, results);
     }
+
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return R{};
@@ -668,7 +674,6 @@ void V8::terminate() {
   while (isolate->IsExecutionTerminating()) {
     std::this_thread::yield();
   }
-  integration()->trace("[host->vm] Terminated");
 }
 
 std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {
