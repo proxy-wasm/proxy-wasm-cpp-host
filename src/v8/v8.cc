@@ -21,12 +21,14 @@
 #include <mutex>
 #include <optional>
 #include <sstream>
+#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "include/v8-version.h"
 #include "include/v8.h"
+#include "src/wasm/c-api.h"
 #include "wasm-api/wasm.hh"
 
 namespace proxy_wasm {
@@ -91,6 +93,8 @@ public:
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
 #undef _GET_MODULE_FUNCTION
+
+  void terminate() override;
 
 private:
   std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);
@@ -582,6 +586,8 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     const bool log = cmpLogLevel(LogLevel::trace);
     SaveRestoreContext saved_context(context);
     wasm::own<wasm::Trap> trap = nullptr;
+
+    // Workaround for MSVC++ not supporting zero-sized arrays.
     if constexpr (sizeof...(args) > 0) {
       wasm::Val params[] = {makeVal(args)...};
       if (log) {
@@ -595,6 +601,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
       }
       trap = func->call(nullptr, nullptr);
     }
+
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return;
@@ -631,6 +638,8 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     SaveRestoreContext saved_context(context);
     wasm::Val results[1];
     wasm::own<wasm::Trap> trap = nullptr;
+
+    // Workaround for MSVC++ not supporting zero-sized arrays.
     if constexpr (sizeof...(args) > 0) {
       wasm::Val params[] = {makeVal(args)...};
       if (log) {
@@ -644,6 +653,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
       }
       trap = func->call(nullptr, results);
     }
+
     if (trap) {
       fail(FailState::RuntimeError, getFailMessage(std::string(function_name), std::move(trap)));
       return R{};
@@ -655,6 +665,15 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     }
     return rvalue;
   };
+}
+
+void V8::terminate() {
+  auto *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
+  auto *isolate = store_impl->isolate();
+  isolate->TerminateExecution();
+  while (isolate->IsExecutionTerminating()) {
+    std::this_thread::yield();
+  }
 }
 
 std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {

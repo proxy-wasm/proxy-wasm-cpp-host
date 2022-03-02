@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,24 +21,9 @@ pub extern "C" fn proxy_on_memory_allocate(_: usize) -> *mut u8 {
 }
 
 #[no_mangle]
-pub extern "C" fn trigger() {
-    one();
-}
-
-#[no_mangle]
-pub extern "C" fn trigger2(_val: i32) -> i32 {
-    three();
-    0
-}
-
-fn one() {
-    two();
-}
-
-fn two() {
-    three();
-}
-
-fn three(){
-    panic!("trap!");
+pub extern "C" fn infinite_loop() {
+    let mut _count: u64 = 0;
+    loop {
+        _count += 1;
+    }
 }

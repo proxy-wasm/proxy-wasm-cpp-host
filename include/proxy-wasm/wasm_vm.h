@@ -297,6 +297,11 @@ public:
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
+  /**
+   * Terminate execution of this WasmVM. It shouldn't be used after being terminated.
+   */
+  virtual void terminate() = 0;
+
   bool isFailed() { return failed_ != FailState::Ok; }
   void fail(FailState fail_state, std::string_view message) {
     integration()->error(message);

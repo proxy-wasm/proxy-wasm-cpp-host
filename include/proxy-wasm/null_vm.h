@@ -60,6 +60,8 @@ struct NullVm : public WasmVm {
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
+  void terminate() override {}
+
   std::string plugin_name_;
   std::unique_ptr<NullVmPlugin> plugin_;
 };

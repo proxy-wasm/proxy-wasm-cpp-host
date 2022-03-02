@@ -229,6 +229,8 @@ struct Wavm : public WasmVm {
   FOR_ALL_WASM_VM_IMPORTS(_REGISTER_CALLBACK)
 #undef _REGISTER_CALLBACK
 
+  void terminate() override {}
+
   IR::Module ir_module_;
   WAVM::Runtime::ModuleRef module_ = nullptr;
   WAVM::Runtime::GCPointer<WAVM::Runtime::Instance> module_instance_;

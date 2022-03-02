@@ -56,6 +56,8 @@ cc_test(
     data = [
         "//test/test_data:abi_export.wasm",
         "//test/test_data:callback.wasm",
+        "//test/test_data:clock.wasm",
+        "//test/test_data:infinite_loop.wasm",
         "//test/test_data:trap.wasm",
     ],
     linkstatic = 1,

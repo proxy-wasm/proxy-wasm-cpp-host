@@ -172,7 +172,7 @@ jobs:
           os: ubuntu-20.04
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=clang -c opt
         - name: 'Wasmtime on Linux/x86_64 with ASan'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -223,7 +223,7 @@ jobs:
 
     - name: Install dependencies (Linux)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
-      run: sudo apt-get install -y ${{ matrix.deps }}
+      run: sudo apt update -y && sudo apt install -y ${{ matrix.deps }}
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
@@ -231,7 +231,7 @@ jobs:
 
     - name: Set cache key
       if: ${{ matrix.cache }}
-      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)"
+      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)-$(echo ${{ matrix.flags }} | sha256sum)"
       id: cache-key
 
     - name: Bazel cache

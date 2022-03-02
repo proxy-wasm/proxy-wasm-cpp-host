@@ -64,16 +64,10 @@ build:zig-cc-linux-aarch64 --test_env=QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
 
 build --enable_platform_specific_config
 
+# Use C++17.
 build:linux --cxxopt=-std=c++17
-# See https://bytecodealliance.github.io/wasmtime/c-api/
-build:linux --linkopt=-lm
-build:linux --linkopt=-lpthread
-build:linux --linkopt=-ldl
-
 build:macos --cxxopt=-std=c++17
-
-build:windows --enable_runfiles
 build:windows --cxxopt="/std:c++17"
-# See https://bytecodealliance.github.io/wasmtime/c-api/
-build:windows --copt="/DWASM_API_EXTERN="
-build:windows --linkopt="ws2_32.lib advapi32.lib userenv.lib ntdll.lib shell32.lib ole32.lib bcrypt.lib"
+
+# Enable runfiles on Windows (enabled by default on other platforms).
+build:windows --enable_runfiles

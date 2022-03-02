@@ -13,14 +13,26 @@
 // limitations under the License.
 
 extern "C" {
-    fn __wasilibc_initialize_environ();
+    fn __wasm_call_ctors();
+}
+
+#[no_mangle]
+pub extern "C" fn _initialize() {
+    unsafe {
+        __wasm_call_ctors();
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn proxy_abi_version_0_2_0() {}
+
+#[no_mangle]
+pub extern "C" fn proxy_on_memory_allocate(_: usize) -> *mut u8 {
+    std::ptr::null_mut()
 }
 
 #[no_mangle]
 pub extern "C" fn run() {
-    unsafe {
-        __wasilibc_initialize_environ();
-    }
     for (key, value) in std::env::vars() {
         println!("{}: {}\n", key, value);
     }
