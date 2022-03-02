@@ -296,6 +296,8 @@ TEST_P(TestVm, Trap) {
   EXPECT_TRUE(host->isErrorLogged("Function: trigger failed"));
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Uncaught RuntimeError: unreachable"));
+    EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
+    EXPECT_TRUE(host->isErrorLogged(" - trigger"));
   }
 }
 
@@ -322,6 +324,8 @@ TEST_P(TestVm, Trap2) {
   EXPECT_TRUE(host->isErrorLogged("Function: trigger2 failed"));
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Uncaught RuntimeError: unreachable"));
+    EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
+    EXPECT_TRUE(host->isErrorLogged(" - trigger2"));
   }
 }
 
