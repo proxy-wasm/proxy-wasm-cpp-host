@@ -35,9 +35,6 @@
 
 namespace proxy_wasm {
 
-thread_local ContextBase *current_context_;
-thread_local uint32_t effective_context_id_ = 0;
-
 namespace {
 
 // Map from Wasm Key to the local Wasm instance.
