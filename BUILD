@@ -72,6 +72,7 @@ cc_library(
         "//bazel:crypto_system": [],
         "//conditions:default": ["@boringssl//:crypto"],
     }),
+    alwayslink = 1,
 )
 
 cc_library(
