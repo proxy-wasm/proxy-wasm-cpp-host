@@ -98,6 +98,17 @@ public:
 
   bool isLogged(std::string_view message) { return log_.find(message) != std::string::npos; }
 
+  uint64_t getCurrentTimeNanoseconds() override {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+               std::chrono::system_clock::now().time_since_epoch())
+        .count();
+  }
+  uint64_t getMonotonicTimeNanoseconds() override {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+               std::chrono::steady_clock::now().time_since_epoch())
+        .count();
+  }
+
 private:
   std::string log_;
 };
