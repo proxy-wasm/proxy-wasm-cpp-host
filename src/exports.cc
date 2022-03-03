@@ -21,6 +21,9 @@
 
 namespace proxy_wasm {
 
+thread_local ContextBase *current_context_;
+thread_local uint32_t effective_context_id_ = 0;
+
 // Any currently executing Wasm call context.
 ContextBase *contextOrEffectiveContext() {
   if (effective_context_id_ == 0) {
