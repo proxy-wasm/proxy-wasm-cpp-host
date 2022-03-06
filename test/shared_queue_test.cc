@@ -22,12 +22,22 @@
 
 namespace proxy_wasm {
 
+TEST(SharedQueue, RegistrationFailure) {
+  SharedQueue shared_queue(false);
+  auto token = shared_queue.registerQueue("vm_id", "queue_name", 1 /*context_id*/,
+                                          nullptr /*call on thread*/, "vm_key");
+  EXPECT_EQ(token, 0);
+}
+
 TEST(SharedQueue, NextQueueToken) {
   SharedQueue shared_queue(false);
+  std::function<void(std::function<void()>)> call_on_thread = [](const std::function<void()> &f) {
+    f();
+  };
   for (auto i = 1; i < 5; i++) {
     EXPECT_EQ(i, shared_queue.nextQueueToken());
   }
-  EXPECT_EQ(5, shared_queue.registerQueue("a", "b", 1, nullptr, "c"));
+  EXPECT_EQ(5, shared_queue.registerQueue("a", "b", 1, call_on_thread, "c"));
 }
 
 TEST(SharedQueue, SingleThread) {
@@ -36,21 +46,23 @@ TEST(SharedQueue, SingleThread) {
   std::string_view vm_key = "vm_key";
   std::string_view queue_name = "name";
   uint32_t context_id = 1;
+  std::function<void(std::function<void()>)> call_on_thread = [](const std::function<void()> &f) {
+    f();
+  };
 
   for (auto i = 0; i < 3; i++) {
     // same token
-    EXPECT_EQ(1, shared_queue.registerQueue(vm_id, queue_name, context_id, nullptr, vm_key));
+    EXPECT_EQ(1, shared_queue.registerQueue(vm_id, queue_name, context_id, call_on_thread, vm_key));
   }
   EXPECT_EQ(1, shared_queue.resolveQueue(vm_id, queue_name));
   EXPECT_EQ(0, shared_queue.resolveQueue(vm_id, "non-exist"));
   EXPECT_EQ(0, shared_queue.resolveQueue("non-exist", queue_name));
 
   bool called = false;
-  std::function<void(std::function<void()>)> call_on_thread =
-      [&called](const std::function<void()> &f) {
-        called = true;
-        f(); // TODO(mathetake): test whether onQueueReady is called with mock WasmHandle
-      };
+  call_on_thread = [&called](const std::function<void()> &f) {
+    called = true;
+    f(); // TODO(mathetake): test whether onQueueReady is called with mock WasmHandle
+  };
   queue_name = "name2";
   auto token = shared_queue.registerQueue(vm_id, queue_name, context_id, call_on_thread, vm_key);
   EXPECT_EQ(2, token);
@@ -120,17 +132,20 @@ TEST(SharedQueue, DeleteByVmId) {
   const auto *vm_id_2 = "id_2";
   std::string_view vm_key = "vm_key";
   uint32_t context_id = 1;
+  std::function<void(std::function<void()>)> call_on_thread = [](const std::function<void()> &f) {
+    f();
+  };
   auto queue_num_per_vm = 3;
 
   for (auto i = 1; i < queue_num_per_vm; i++) {
-    EXPECT_EQ(i,
-              shared_queue.registerQueue(vm_id_1, std::to_string(i), context_id, nullptr, vm_key));
+    EXPECT_EQ(i, shared_queue.registerQueue(vm_id_1, std::to_string(i), context_id, call_on_thread,
+                                            vm_key));
     EXPECT_EQ(i, shared_queue.resolveQueue(vm_id_1, std::to_string(i)));
   }
 
   for (auto i = queue_num_per_vm; i < 2 * queue_num_per_vm; i++) {
-    EXPECT_EQ(i,
-              shared_queue.registerQueue(vm_id_2, std::to_string(i), context_id, nullptr, vm_key));
+    EXPECT_EQ(i, shared_queue.registerQueue(vm_id_2, std::to_string(i), context_id, call_on_thread,
+                                            vm_key));
     EXPECT_EQ(i, shared_queue.resolveQueue(vm_id_2, std::to_string(i)));
   }
 
@@ -148,9 +163,12 @@ TEST(SharedQueue, VmIdHandleCleanup) {
   SharedQueue shared_queue;
   std::string_view vm_id = "proxy_wasm_shared_queue_test";
   std::string_view queue_name = "name";
+  std::function<void(std::function<void()>)> call_on_thread = [](const std::function<void()> &f) {
+    f();
+  };
 
   auto handle = getVmIdHandle(vm_id);
-  EXPECT_EQ(1, shared_queue.registerQueue(vm_id, queue_name, 1, nullptr, "vm_key"));
+  EXPECT_EQ(1, shared_queue.registerQueue(vm_id, queue_name, 1, call_on_thread, "vm_key"));
   EXPECT_EQ(1, shared_queue.resolveQueue(vm_id, queue_name));
 
   handle.reset();

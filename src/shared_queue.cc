@@ -69,6 +69,10 @@ uint32_t SharedQueue::nextQueueToken() {
 uint32_t SharedQueue::registerQueue(std::string_view vm_id, std::string_view queue_name,
                                     uint32_t context_id, CallOnThreadFunction call_on_thread,
                                     std::string_view vm_key) {
+  if (call_on_thread == nullptr) {
+    // return 0 token to indicate that registration fails.
+    return 0;
+  }
   std::lock_guard<std::mutex> lock(mutex_);
   auto key = std::make_pair(std::string(vm_id), std::string(queue_name));
   auto it = queue_tokens_.insert(std::make_pair(key, static_cast<uint32_t>(0)));
