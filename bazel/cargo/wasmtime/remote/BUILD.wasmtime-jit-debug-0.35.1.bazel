@@ -32,9 +32,11 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_codegen_meta",
+    name = "wasmtime_jit_debug",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "gdb_jit_int",
+        "lazy_static",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -44,12 +46,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-codegen-meta",
+        "crate-name=wasmtime-jit-debug",
         "manual",
     ],
-    version = "0.81.1",
+    version = "0.35.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_codegen_shared__0_81_1//:cranelift_codegen_shared",
+        "@wasmtime__lazy_static__1_4_0//:lazy_static",
     ],
 )

@@ -26,20 +26,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR (Apache-2.0 OR MIT)"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "linux_raw_sys",
+    name = "cranelift_entity",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "errno",
-        "general",
-        "ioctl",
-        "no_std",
-        "std",
+        "enable-serde",
+        "serde",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -49,11 +46,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=linux-raw-sys",
+        "crate-name=cranelift-entity",
         "manual",
     ],
-    version = "0.0.40",
+    version = "0.82.1",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__serde__1_0_136//:serde",
     ],
 )
