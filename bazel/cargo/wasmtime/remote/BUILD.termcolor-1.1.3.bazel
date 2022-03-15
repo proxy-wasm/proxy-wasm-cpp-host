@@ -26,17 +26,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "cranelift_wasm",
+    name = "termcolor",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -46,21 +46,20 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-wasm",
+        "crate-name=termcolor",
         "manual",
     ],
-    version = "0.81.1",
+    version = "1.1.3",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_codegen__0_81_1//:cranelift_codegen",
-        "@wasmtime__cranelift_entity__0_81_1//:cranelift_entity",
-        "@wasmtime__cranelift_frontend__0_81_1//:cranelift_frontend",
-        "@wasmtime__itertools__0_10_3//:itertools",
-        "@wasmtime__log__0_4_14//:log",
-        "@wasmtime__smallvec__1_8_0//:smallvec",
-        "@wasmtime__wasmparser__0_82_0//:wasmparser",
-        "@wasmtime__wasmtime_types__0_34_1//:wasmtime_types",
-    ],
+    ] + selects.with_or({
+        # cfg(windows)
+        (
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@wasmtime__winapi_util__0_1_5//:winapi_util",
+        ],
+        "//conditions:default": [],
+    }),
 )
-
-# Unsupported target "wasm_testsuite" with type "test" omitted

@@ -52,6 +52,6 @@ rust_proc_macro(
     deps = [
         "@wasmtime__proc_macro2__1_0_36//:proc_macro2",
         "@wasmtime__quote__1_0_15//:quote",
-        "@wasmtime__syn__1_0_86//:syn",
+        "@wasmtime__syn__1_0_87//:syn",
     ],
 )
