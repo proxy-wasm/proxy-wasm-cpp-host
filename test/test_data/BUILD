@@ -38,8 +38,8 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
-    name = "infinite_loop.wasm",
-    srcs = ["infinite_loop.rs"],
+    name = "resource_limits.wasm",
+    srcs = ["resource_limits.rs"],
 )
 
 wasm_rust_binary(

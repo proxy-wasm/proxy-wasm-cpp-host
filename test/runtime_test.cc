@@ -86,7 +86,7 @@ TEST_P(TestVm, TerminateExecution) {
   if (engine_ != "v8") {
     return;
   }
-  auto source = readTestWasmFile("infinite_loop.wasm");
+  auto source = readTestWasmFile("resource_limits.wasm");
   ASSERT_FALSE(source.empty());
   auto wasm = TestWasm(std::move(vm_));
   ASSERT_TRUE(wasm.load(source, false));
@@ -109,6 +109,34 @@ TEST_P(TestVm, TerminateExecution) {
   EXPECT_TRUE(host->isErrorLogged("Function: infinite_loop failed"));
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Uncaught Error: termination_exception"));
+  }
+}
+
+TEST_P(TestVm, WasmMemoryLimit) {
+  // TODO(PiotrSikora): enforce memory limits in other engines.
+  if (engine_ != "v8") {
+    return;
+  }
+  auto source = readTestWasmFile("resource_limits.wasm");
+  ASSERT_FALSE(source.empty());
+  auto wasm = TestWasm(std::move(vm_));
+  ASSERT_TRUE(wasm.load(source, false));
+  ASSERT_TRUE(wasm.initialize());
+
+  WasmCallVoid<0> infinite_memory;
+  wasm.wasm_vm()->getFunction("infinite_memory", &infinite_memory);
+  ASSERT_TRUE(infinite_memory != nullptr);
+  infinite_memory(wasm.vm_context());
+
+  EXPECT_TRUE(wasm.wasm_vm()->getMemorySize() == 1024 * 1024 * 1024);
+
+  // Check integration logs.
+  auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
+  EXPECT_TRUE(host->isErrorLogged("Function: infinite_memory failed"));
+  if (engine_ == "v8") {
+    EXPECT_TRUE(host->isErrorLogged("Uncaught RuntimeError: unreachable"));
+    EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
+    EXPECT_TRUE(host->isErrorLogged(" - rust_oom"));
   }
 }
 

@@ -31,6 +31,10 @@
 #include "src/wasm/c-api.h"
 #include "wasm-api/wasm.hh"
 
+namespace v8::internal {
+extern unsigned int FLAG_wasm_max_mem_pages;
+} // namespace v8
+
 namespace proxy_wasm {
 namespace v8 {
 
@@ -39,6 +43,8 @@ wasm::Engine *engine() {
   static wasm::own<wasm::Engine> engine;
 
   std::call_once(init, []() {
+    // TODO(PiotrSikora): make this configurable and default to 64/128 MiB.
+    ::v8::internal::FLAG_wasm_max_mem_pages = 16384; // 1 GiB
     ::v8::V8::EnableWebAssemblyTrapHandler(true);
     engine = wasm::Engine::make();
   });
