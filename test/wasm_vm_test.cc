@@ -30,6 +30,48 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()
                            return info.param;
                          });
 
+TEST_P(TestVm, Init) {
+  std::chrono::time_point<std::chrono::steady_clock> time2;
+
+  auto time1 = std::chrono::steady_clock::now();
+  if (engine_ == "v8") {
+#if defined(PROXY_WASM_HOST_ENGINE_V8)
+    EXPECT_TRUE(proxy_wasm::initV8Engine());
+    time2 = std::chrono::steady_clock::now();
+    EXPECT_TRUE(proxy_wasm::initV8Engine());
+#endif
+  } else if (engine_ == "wamr") {
+#if defined(PROXY_WASM_HOST_ENGINE_WAMR)
+    EXPECT_TRUE(proxy_wasm::initWamrEngine());
+    time2 = std::chrono::steady_clock::now();
+    EXPECT_TRUE(proxy_wasm::initWamrEngine());
+#endif
+  } else if (engine_ == "wasmtime") {
+#if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
+    EXPECT_TRUE(proxy_wasm::initWasmtimeEngine());
+    time2 = std::chrono::steady_clock::now();
+    EXPECT_TRUE(proxy_wasm::initWasmtimeEngine());
+#endif
+  } else {
+    return;
+  }
+  auto time3 = std::chrono::steady_clock::now();
+
+  std::cout << "\"cold\" engine time: "
+            << std::chrono::duration_cast<std::chrono::nanoseconds>(time2 - time1).count()
+            << "ns" << std::endl;
+  std::cout << "\"warm\" engine time: "
+            << std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count()
+            << "ns" << std::endl;
+
+  // Verify that getting a "warm" engine takes less than 10us.
+  EXPECT_LE(std::chrono::duration_cast<std::chrono::microseconds>(time3 - time2).count(), 10);
+
+  // Verify that getting a "warm" engine takes at least 50x less time than getting a "cold" one.
+  EXPECT_LE(std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count() * 50,
+            std::chrono::duration_cast<std::chrono::nanoseconds>(time2 - time1).count());
+}
+
 TEST_P(TestVm, Basic) {
   if (engine_ == "wamr") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::NotCloneable);

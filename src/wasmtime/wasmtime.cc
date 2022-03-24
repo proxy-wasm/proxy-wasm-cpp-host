@@ -694,6 +694,8 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
 
 } // namespace wasmtime
 
+bool initWasmtimeEngine() { return wasmtime::engine() != nullptr; }
+
 std::unique_ptr<WasmVm> createWasmtimeVm() { return std::make_unique<wasmtime::Wasmtime>(); }
 
 } // namespace proxy_wasm
