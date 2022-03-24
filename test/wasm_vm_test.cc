@@ -57,19 +57,17 @@ TEST_P(TestVm, Init) {
   }
   auto time3 = std::chrono::steady_clock::now();
 
-  std::cout << "\"cold\" engine time: "
-            << std::chrono::duration_cast<std::chrono::nanoseconds>(time2 - time1).count()
-            << "ns" << std::endl;
-  std::cout << "\"warm\" engine time: "
-            << std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count()
-            << "ns" << std::endl;
+  auto cold = std::chrono::duration_cast<std::chrono::nanoseconds>(time2 - time1).count();
+  auto warm = std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count();
+
+  std::cout << "\"cold\" engine time: " << cold << "ns" << std::endl;
+  std::cout << "\"warm\" engine time: " << warm << "ns" << std::endl;
 
   // Verify that getting a "warm" engine takes less than 10us.
-  EXPECT_LE(std::chrono::duration_cast<std::chrono::microseconds>(time3 - time2).count(), 10);
+  EXPECT_LE(warm, 10000);
 
   // Verify that getting a "warm" engine takes at least 50x less time than getting a "cold" one.
-  EXPECT_LE(std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count() * 50,
-            std::chrono::duration_cast<std::chrono::nanoseconds>(time2 - time1).count());
+  EXPECT_LE(warm * 50, cold);
 }
 
 TEST_P(TestVm, Basic) {
