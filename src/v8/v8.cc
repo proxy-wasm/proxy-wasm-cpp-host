@@ -33,7 +33,7 @@
 
 namespace v8::internal {
 extern unsigned int FLAG_wasm_max_mem_pages;
-} // namespace v8
+} // namespace v8::internal
 
 namespace proxy_wasm {
 namespace v8 {
