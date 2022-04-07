@@ -32,9 +32,11 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "wasmtime_cranelift",
+    name = "cranelift_frontend",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -44,25 +46,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=wasmtime-cranelift",
+        "crate-name=cranelift-frontend",
         "manual",
     ],
-    version = "0.35.1",
+    version = "0.82.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__anyhow__1_0_56//:anyhow",
-        "@wasmtime__cranelift_codegen__0_82_1//:cranelift_codegen",
-        "@wasmtime__cranelift_entity__0_82_1//:cranelift_entity",
-        "@wasmtime__cranelift_frontend__0_82_1//:cranelift_frontend",
-        "@wasmtime__cranelift_native__0_82_1//:cranelift_native",
-        "@wasmtime__cranelift_wasm__0_82_1//:cranelift_wasm",
-        "@wasmtime__gimli__0_26_1//:gimli",
-        "@wasmtime__log__0_4_14//:log",
-        "@wasmtime__more_asserts__0_2_2//:more_asserts",
-        "@wasmtime__object__0_27_1//:object",
+        "@wasmtime__cranelift_codegen__0_82_2//:cranelift_codegen",
+        "@wasmtime__log__0_4_16//:log",
+        "@wasmtime__smallvec__1_8_0//:smallvec",
         "@wasmtime__target_lexicon__0_12_3//:target_lexicon",
-        "@wasmtime__thiserror__1_0_30//:thiserror",
-        "@wasmtime__wasmparser__0_83_0//:wasmparser",
-        "@wasmtime__wasmtime_environ__0_35_1//:wasmtime_environ",
     ],
 )
