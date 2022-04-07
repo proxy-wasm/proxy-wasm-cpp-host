@@ -58,7 +58,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.33.4",
+    version = "0.33.5",
     visibility = ["//visibility:private"],
     deps = [
         "@wasmtime__cc__1_0_73//:cc",
@@ -140,7 +140,7 @@ rust_library(
         "crate-name=rustix",
         "manual",
     ],
-    version = "0.33.4",
+    version = "0.33.5",
     # buildifier: leave-alone
     deps = [
         ":rustix_build_script",
@@ -178,7 +178,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
             "@wasmtime__errno__0_2_8//:errno",
-            "@wasmtime__libc__0_2_119//:libc",
+            "@wasmtime__libc__0_2_122//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

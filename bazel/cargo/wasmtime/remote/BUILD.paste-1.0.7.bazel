@@ -26,17 +26,15 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
-rust_library(
-    name = "cranelift_wasm",
+rust_proc_macro(
+    name = "paste",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -46,21 +44,21 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-wasm",
+        "crate-name=paste",
         "manual",
     ],
-    version = "0.82.1",
+    version = "1.0.7",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_codegen__0_82_1//:cranelift_codegen",
-        "@wasmtime__cranelift_entity__0_82_1//:cranelift_entity",
-        "@wasmtime__cranelift_frontend__0_82_1//:cranelift_frontend",
-        "@wasmtime__itertools__0_10_3//:itertools",
-        "@wasmtime__log__0_4_14//:log",
-        "@wasmtime__smallvec__1_8_0//:smallvec",
-        "@wasmtime__wasmparser__0_83_0//:wasmparser",
-        "@wasmtime__wasmtime_types__0_35_1//:wasmtime_types",
     ],
 )
 
-# Unsupported target "wasm_testsuite" with type "test" omitted
+# Unsupported target "compiletest" with type "test" omitted
+
+# Unsupported target "test_attr" with type "test" omitted
+
+# Unsupported target "test_doc" with type "test" omitted
+
+# Unsupported target "test_expr" with type "test" omitted
+
+# Unsupported target "test_item" with type "test" omitted

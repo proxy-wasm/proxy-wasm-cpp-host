@@ -56,7 +56,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.35.1",
+    version = "0.35.2",
     visibility = ["//visibility:private"],
     deps = [
     ] + selects.with_or({
@@ -83,7 +83,7 @@ rust_library(
     data = [],
     edition = "2018",
     proc_macro_deps = [
-        "@wasmtime__paste__1_0_6//:paste",
+        "@wasmtime__paste__1_0_7//:paste",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -93,7 +93,7 @@ rust_library(
         "crate-name=wasmtime",
         "manual",
     ],
-    version = "0.35.1",
+    version = "0.35.2",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_build_script",
@@ -101,21 +101,21 @@ rust_library(
         "@wasmtime__backtrace__0_3_64//:backtrace",
         "@wasmtime__bincode__1_3_3//:bincode",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
-        "@wasmtime__indexmap__1_8_0//:indexmap",
+        "@wasmtime__indexmap__1_8_1//:indexmap",
         "@wasmtime__lazy_static__1_4_0//:lazy_static",
-        "@wasmtime__libc__0_2_119//:libc",
-        "@wasmtime__log__0_4_14//:log",
+        "@wasmtime__libc__0_2_122//:libc",
+        "@wasmtime__log__0_4_16//:log",
         "@wasmtime__object__0_27_1//:object",
         "@wasmtime__once_cell__1_10_0//:once_cell",
-        "@wasmtime__psm__0_1_17//:psm",
+        "@wasmtime__psm__0_1_18//:psm",
         "@wasmtime__region__2_2_0//:region",
         "@wasmtime__serde__1_0_136//:serde",
         "@wasmtime__target_lexicon__0_12_3//:target_lexicon",
         "@wasmtime__wasmparser__0_83_0//:wasmparser",
-        "@wasmtime__wasmtime_cranelift__0_35_1//:wasmtime_cranelift",
-        "@wasmtime__wasmtime_environ__0_35_1//:wasmtime_environ",
-        "@wasmtime__wasmtime_jit__0_35_1//:wasmtime_jit",
-        "@wasmtime__wasmtime_runtime__0_35_1//:wasmtime_runtime",
+        "@wasmtime__wasmtime_cranelift__0_35_2//:wasmtime_cranelift",
+        "@wasmtime__wasmtime_environ__0_35_2//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit__0_35_2//:wasmtime_jit",
+        "@wasmtime__wasmtime_runtime__0_35_2//:wasmtime_runtime",
     ] + selects.with_or({
         # cfg(target_os = "windows")
         (

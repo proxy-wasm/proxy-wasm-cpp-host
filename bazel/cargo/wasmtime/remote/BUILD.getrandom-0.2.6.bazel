@@ -52,7 +52,7 @@ rust_library(
         "crate-name=getrandom",
         "manual",
     ],
-    version = "0.2.5",
+    version = "0.2.6",
     # buildifier: leave-alone
     deps = [
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
@@ -84,7 +84,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__libc__0_2_119//:libc",
+            "@wasmtime__libc__0_2_122//:libc",
         ],
         "//conditions:default": [],
     }),

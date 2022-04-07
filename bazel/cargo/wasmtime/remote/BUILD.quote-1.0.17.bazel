@@ -49,10 +49,10 @@ rust_library(
         "crate-name=quote",
         "manual",
     ],
-    version = "1.0.15",
+    version = "1.0.17",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__proc_macro2__1_0_36//:proc_macro2",
+        "@wasmtime__proc_macro2__1_0_37//:proc_macro2",
     ],
 )
 

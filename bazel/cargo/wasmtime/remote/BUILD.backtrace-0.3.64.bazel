@@ -93,7 +93,7 @@ rust_library(
         ":backtrace_build_script",
         "@wasmtime__addr2line__0_17_0//:addr2line",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
-        "@wasmtime__libc__0_2_119//:libc",
+        "@wasmtime__libc__0_2_122//:libc",
         "@wasmtime__miniz_oxide__0_4_4//:miniz_oxide",
         "@wasmtime__object__0_27_1//:object",
         "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
