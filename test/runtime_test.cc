@@ -18,6 +18,7 @@
 #include <string>
 #include <thread>
 
+#include "include/proxy-wasm/limits.h"
 #include "include/proxy-wasm/context.h"
 #include "include/proxy-wasm/wasm.h"
 
@@ -128,7 +129,8 @@ TEST_P(TestVm, WasmMemoryLimit) {
   ASSERT_TRUE(infinite_memory != nullptr);
   infinite_memory(wasm.vm_context());
 
-  EXPECT_TRUE(wasm.wasm_vm()->getMemorySize() == 1024 * 1024 * 1024);
+  EXPECT_GE(wasm.wasm_vm()->getMemorySize(), PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES * 0.95);
+  EXPECT_LE(wasm.wasm_vm()->getMemorySize(), PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES);
 
   // Check integration logs.
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());

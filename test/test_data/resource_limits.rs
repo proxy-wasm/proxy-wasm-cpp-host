@@ -32,6 +32,6 @@ pub extern "C" fn infinite_loop() {
 pub extern "C" fn infinite_memory() {
     let mut vec = Vec::new();
     loop {
-       vec.push(Vec::<u32>::with_capacity(8192));
+       vec.push(Vec::<u32>::with_capacity(16384));
     }
 }
