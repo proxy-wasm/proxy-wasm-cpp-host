@@ -18,8 +18,8 @@
 #include <string>
 #include <thread>
 
-#include "include/proxy-wasm/limits.h"
 #include "include/proxy-wasm/context.h"
+#include "include/proxy-wasm/limits.h"
 #include "include/proxy-wasm/wasm.h"
 
 #include "test/utility.h"
