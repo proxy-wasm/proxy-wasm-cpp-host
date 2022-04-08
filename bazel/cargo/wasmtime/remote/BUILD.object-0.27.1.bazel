@@ -63,7 +63,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@wasmtime__crc32fast__1_3_2//:crc32fast",
-        "@wasmtime__indexmap__1_8_0//:indexmap",
+        "@wasmtime__indexmap__1_8_1//:indexmap",
         "@wasmtime__memchr__2_4_1//:memchr",
     ],
 )

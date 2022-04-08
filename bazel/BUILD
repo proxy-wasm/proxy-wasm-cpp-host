@@ -16,6 +16,11 @@ config_setting(
 )
 
 config_setting(
+    name = "engine_wasmedge",
+    values = {"define": "engine=wasmedge"},
+)
+
+config_setting(
     name = "engine_wasmtime",
     values = {"define": "engine=wasmtime"},
 )

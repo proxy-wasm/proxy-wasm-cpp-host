@@ -58,10 +58,10 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.82.1",
+    version = "0.82.2",
     visibility = ["//visibility:private"],
     deps = [
-        "@wasmtime__cranelift_codegen_meta__0_82_1//:cranelift_codegen_meta",
+        "@wasmtime__cranelift_codegen_meta__0_82_2//:cranelift_codegen_meta",
     ],
 )
 
@@ -87,15 +87,15 @@ rust_library(
         "crate-name=cranelift-codegen",
         "manual",
     ],
-    version = "0.82.1",
+    version = "0.82.2",
     # buildifier: leave-alone
     deps = [
         ":cranelift_codegen_build_script",
-        "@wasmtime__cranelift_bforest__0_82_1//:cranelift_bforest",
-        "@wasmtime__cranelift_codegen_shared__0_82_1//:cranelift_codegen_shared",
-        "@wasmtime__cranelift_entity__0_82_1//:cranelift_entity",
+        "@wasmtime__cranelift_bforest__0_82_2//:cranelift_bforest",
+        "@wasmtime__cranelift_codegen_shared__0_82_2//:cranelift_codegen_shared",
+        "@wasmtime__cranelift_entity__0_82_2//:cranelift_entity",
         "@wasmtime__gimli__0_26_1//:gimli",
-        "@wasmtime__log__0_4_14//:log",
+        "@wasmtime__log__0_4_16//:log",
         "@wasmtime__regalloc__0_0_34//:regalloc",
         "@wasmtime__smallvec__1_8_0//:smallvec",
         "@wasmtime__target_lexicon__0_12_3//:target_lexicon",

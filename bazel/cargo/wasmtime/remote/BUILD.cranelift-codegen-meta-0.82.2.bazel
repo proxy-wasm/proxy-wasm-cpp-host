@@ -26,13 +26,13 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
-rust_proc_macro(
-    name = "thiserror_impl",
+rust_library(
+    name = "cranelift_codegen_meta",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -44,14 +44,12 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=thiserror-impl",
+        "crate-name=cranelift-codegen-meta",
         "manual",
     ],
-    version = "1.0.30",
+    version = "0.82.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__proc_macro2__1_0_37//:proc_macro2",
-        "@wasmtime__quote__1_0_17//:quote",
-        "@wasmtime__syn__1_0_91//:syn",
+        "@wasmtime__cranelift_codegen_shared__0_82_2//:cranelift_codegen_shared",
     ],
 )
