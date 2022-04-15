@@ -77,6 +77,7 @@ cc_test(
         "//test/test_data:random.wasm",
     ],
     linkstatic = 1,
+    shard_count = 8,
     deps = [
         ":utility_lib",
         "//:lib",
