@@ -888,6 +888,9 @@ Word wasi_unstable_random_get(Word result_buf_ptr, Word buf_len) {
   if (buf_len > PROXY_WASM_HOST_WASI_RANDOM_GET_MAX_SIZE_BYTES) {
     return 28; // __WASI_EINVAL
   }
+  if (buf_len == 0) {
+    return 0; // __WASI_ESUCCESS
+  }
   auto *context = contextOrEffectiveContext();
   std::vector<uint8_t> random(buf_len);
   RAND_bytes(random.data(), random.size());
