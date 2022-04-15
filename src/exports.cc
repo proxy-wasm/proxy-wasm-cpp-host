@@ -886,7 +886,7 @@ Word wasi_unstable_clock_time_get(Word clock_id, uint64_t /*precision*/,
 // __wasi_errno_t __wasi_random_get(uint8_t *buf, size_t buf_len);
 Word wasi_unstable_random_get(Word result_buf_ptr, Word buf_len) {
   if (buf_len > PROXY_WASM_HOST_WASI_RANDOM_GET_MAX_SIZE_BYTES) {
-    return 28;  // __WASI_EINVAL
+    return 28; // __WASI_EINVAL
   }
   auto *context = contextOrEffectiveContext();
   std::vector<uint8_t> random(buf_len);
