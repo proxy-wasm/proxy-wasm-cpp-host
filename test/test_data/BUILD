@@ -53,3 +53,9 @@ wasm_rust_binary(
     srcs = ["clock.rs"],
     wasi = True,
 )
+
+wasm_rust_binary(
+    name = "random.wasm",
+    srcs = ["random.rs"],
+    wasi = True,
+)
