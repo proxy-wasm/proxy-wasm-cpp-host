@@ -25,7 +25,8 @@
 #endif
 
 // Maximum allowed random_get buffer size. This value is consistent with
-// the JavaScript Crypto.getRandomValues() maximum buffer size.
+// the JavaScript Crypto.getRandomValues() maximum buffer size. See
+// https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues#exceptions
 #ifndef PROXY_WASM_HOST_WASI_RANDOM_GET_MAX_SIZE_BYTES
 #define PROXY_WASM_HOST_WASI_RANDOM_GET_MAX_SIZE_BYTES (64 * 1024)
 #endif
