@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#include "include/proxy-wasm/limits.h"
 #include "include/proxy-wasm/wasm.h"
 
 #include <openssl/rand.h>
@@ -884,6 +885,12 @@ Word wasi_unstable_clock_time_get(Word clock_id, uint64_t /*precision*/,
 
 // __wasi_errno_t __wasi_random_get(uint8_t *buf, size_t buf_len);
 Word wasi_unstable_random_get(Word result_buf_ptr, Word buf_len) {
+  if (buf_len > PROXY_WASM_HOST_WASI_RANDOM_GET_MAX_SIZE_BYTES) {
+    return 28; // __WASI_EINVAL
+  }
+  if (buf_len == 0) {
+    return 0; // __WASI_ESUCCESS
+  }
   auto *context = contextOrEffectiveContext();
   std::vector<uint8_t> random(buf_len);
   RAND_bytes(random.data(), random.size());
