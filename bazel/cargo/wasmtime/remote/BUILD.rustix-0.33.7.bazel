@@ -166,15 +166,6 @@ rust_library(
         ],
         "//conditions:default": [],
     }) + selects.with_or({
-        # cfg(all(windows, not(target_vendor = "uwp")))
-        (
-            "@rules_rust//rust/platform:i686-pc-windows-msvc",
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
-        ): [
-            "@wasmtime__winapi__0_3_9//:winapi",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
         # cfg(any(rustix_use_libc, miri, not(all(target_os = "linux", any(target_arch = "x86", all(target_arch = "x86_64", not(target_pointer_width = "32")), target_arch = "arm", target_arch = "aarch64", target_arch = "powerpc64", target_arch = "riscv64", target_arch = "mips", target_arch = "mips64")))))
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
