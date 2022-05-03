@@ -32,26 +32,37 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "wasmtime_jit_debug",
+    name = "wasmtime_cranelift",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "gdb_jit_int",
-        "lazy_static",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=wasmtime-jit-debug",
+        "crate-name=wasmtime-cranelift",
         "manual",
     ],
-    version = "0.35.2",
+    version = "0.36.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__lazy_static__1_4_0//:lazy_static",
+        "@wasmtime__anyhow__1_0_57//:anyhow",
+        "@wasmtime__cranelift_codegen__0_83_0//:cranelift_codegen",
+        "@wasmtime__cranelift_entity__0_83_0//:cranelift_entity",
+        "@wasmtime__cranelift_frontend__0_83_0//:cranelift_frontend",
+        "@wasmtime__cranelift_native__0_83_0//:cranelift_native",
+        "@wasmtime__cranelift_wasm__0_83_0//:cranelift_wasm",
+        "@wasmtime__gimli__0_26_1//:gimli",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__more_asserts__0_2_2//:more_asserts",
+        "@wasmtime__object__0_27_1//:object",
+        "@wasmtime__target_lexicon__0_12_3//:target_lexicon",
+        "@wasmtime__thiserror__1_0_31//:thiserror",
+        "@wasmtime__wasmparser__0_83_0//:wasmparser",
+        "@wasmtime__wasmtime_environ__0_36_0//:wasmtime_environ",
     ],
 )

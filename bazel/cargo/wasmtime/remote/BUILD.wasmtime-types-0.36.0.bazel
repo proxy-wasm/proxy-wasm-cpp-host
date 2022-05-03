@@ -38,7 +38,7 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -47,12 +47,12 @@ rust_library(
         "crate-name=wasmtime-types",
         "manual",
     ],
-    version = "0.35.2",
+    version = "0.36.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_entity__0_82_2//:cranelift_entity",
-        "@wasmtime__serde__1_0_136//:serde",
-        "@wasmtime__thiserror__1_0_30//:thiserror",
+        "@wasmtime__cranelift_entity__0_83_0//:cranelift_entity",
+        "@wasmtime__serde__1_0_137//:serde",
+        "@wasmtime__thiserror__1_0_31//:thiserror",
         "@wasmtime__wasmparser__0_83_0//:wasmparser",
     ],
 )

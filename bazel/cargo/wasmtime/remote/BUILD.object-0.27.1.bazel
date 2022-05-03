@@ -35,7 +35,6 @@ rust_library(
     name = "object",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "archive",
         "coff",
         "crc32fast",
         "elf",
@@ -44,7 +43,6 @@ rust_library(
         "pe",
         "read_core",
         "std",
-        "unaligned",
         "write",
         "write_core",
     ],
@@ -64,7 +62,7 @@ rust_library(
     deps = [
         "@wasmtime__crc32fast__1_3_2//:crc32fast",
         "@wasmtime__indexmap__1_8_1//:indexmap",
-        "@wasmtime__memchr__2_4_1//:memchr",
+        "@wasmtime__memchr__2_5_0//:memchr",
     ],
 )
 
