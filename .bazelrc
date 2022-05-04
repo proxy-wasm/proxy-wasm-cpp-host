@@ -69,5 +69,6 @@ build:linux --cxxopt=-std=c++17
 build:macos --cxxopt=-std=c++17
 build:windows --cxxopt="/std:c++17"
 
-# Enable runfiles on Windows (enabled by default on other platforms).
+# Enable symlinks and runfiles on Windows (enabled by default on other platforms).
+startup --windows_enable_symlinks
 build:windows --enable_runfiles
