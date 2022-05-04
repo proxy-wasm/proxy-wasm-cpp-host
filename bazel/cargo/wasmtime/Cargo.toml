@@ -10,7 +10,7 @@ path = "fake_lib.rs"
 env_logger = "0.8"
 anyhow = "1.0"
 once_cell = "1.3"
-wasmtime = {version = "0.36.0", default-features = false, features = ['cranelift']}
+wasmtime = {version = "0.36.0", default-features = false, features = ['cranelift', 'wasm-backtrace']}
 wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v0.36.0"}
 
 [package.metadata.raze]
