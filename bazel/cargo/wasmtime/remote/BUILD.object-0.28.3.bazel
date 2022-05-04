@@ -26,15 +26,22 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "cranelift_codegen_meta",
+    name = "object",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "archive",
+        "coff",
+        "elf",
+        "macho",
+        "pe",
+        "read_core",
+        "unaligned",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -44,12 +51,16 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-codegen-meta",
+        "crate-name=object",
         "manual",
     ],
-    version = "0.82.2",
+    version = "0.28.3",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_codegen_shared__0_82_2//:cranelift_codegen_shared",
+        "@wasmtime__memchr__2_5_0//:memchr",
     ],
 )
+
+# Unsupported target "integration" with type "test" omitted
+
+# Unsupported target "parse_self" with type "test" omitted

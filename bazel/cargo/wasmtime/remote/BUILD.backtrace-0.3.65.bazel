@@ -26,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
@@ -38,7 +38,7 @@ load(
 )
 
 cargo_build_script(
-    name = "memchr_build_script",
+    name = "backtrace_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
@@ -56,14 +56,21 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "2.4.1",
+    version = "0.3.65",
     visibility = ["//visibility:private"],
     deps = [
+        "@wasmtime__cc__1_0_73//:cc",
     ],
 )
 
+# Unsupported target "benchmarks" with type "bench" omitted
+
+# Unsupported target "backtrace" with type "example" omitted
+
+# Unsupported target "raw" with type "example" omitted
+
 rust_library(
-    name = "memchr",
+    name = "backtrace",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
@@ -77,12 +84,28 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=memchr",
+        "crate-name=backtrace",
         "manual",
     ],
-    version = "2.4.1",
+    version = "0.3.65",
     # buildifier: leave-alone
     deps = [
-        ":memchr_build_script",
+        ":backtrace_build_script",
+        "@wasmtime__addr2line__0_17_0//:addr2line",
+        "@wasmtime__cfg_if__1_0_0//:cfg_if",
+        "@wasmtime__libc__0_2_125//:libc",
+        "@wasmtime__miniz_oxide__0_5_1//:miniz_oxide",
+        "@wasmtime__object__0_28_3//:object",
+        "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
     ],
 )
+
+# Unsupported target "accuracy" with type "test" omitted
+
+# Unsupported target "concurrent-panics" with type "test" omitted
+
+# Unsupported target "long_fn_name" with type "test" omitted
+
+# Unsupported target "skip_inner_frames" with type "test" omitted
+
+# Unsupported target "smoke" with type "test" omitted

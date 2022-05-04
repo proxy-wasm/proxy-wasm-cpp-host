@@ -32,50 +32,30 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "thiserror",
+    name = "quote",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "proc-macro",
     ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
-    proc_macro_deps = [
-        "@wasmtime__thiserror_impl__1_0_30//:thiserror_impl",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=thiserror",
+        "crate-name=quote",
         "manual",
     ],
-    version = "1.0.30",
+    version = "1.0.18",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__proc_macro2__1_0_37//:proc_macro2",
     ],
 )
 
 # Unsupported target "compiletest" with type "test" omitted
 
-# Unsupported target "test_backtrace" with type "test" omitted
-
-# Unsupported target "test_display" with type "test" omitted
-
-# Unsupported target "test_error" with type "test" omitted
-
-# Unsupported target "test_expr" with type "test" omitted
-
-# Unsupported target "test_from" with type "test" omitted
-
-# Unsupported target "test_generics" with type "test" omitted
-
-# Unsupported target "test_lints" with type "test" omitted
-
-# Unsupported target "test_option" with type "test" omitted
-
-# Unsupported target "test_path" with type "test" omitted
-
-# Unsupported target "test_source" with type "test" omitted
-
-# Unsupported target "test_transparent" with type "test" omitted
+# Unsupported target "test" with type "test" omitted

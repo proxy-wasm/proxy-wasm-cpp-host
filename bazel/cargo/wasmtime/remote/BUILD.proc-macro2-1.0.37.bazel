@@ -84,7 +84,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":proc_macro2_build_script",
-        "@wasmtime__unicode_xid__0_2_2//:unicode_xid",
+        "@wasmtime__unicode_xid__0_2_3//:unicode_xid",
     ],
 )
 
