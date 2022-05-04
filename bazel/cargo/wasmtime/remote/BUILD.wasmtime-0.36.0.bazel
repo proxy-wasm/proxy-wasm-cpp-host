@@ -43,7 +43,9 @@ cargo_build_script(
     build_script_env = {
     },
     crate_features = [
+        "backtrace",
         "cranelift",
+        "wasm-backtrace",
         "wasmtime-cranelift",
     ],
     crate_root = "build.rs",
@@ -76,7 +78,9 @@ rust_library(
     aliases = {
     },
     crate_features = [
+        "backtrace",
         "cranelift",
+        "wasm-backtrace",
         "wasmtime-cranelift",
     ],
     crate_root = "src/lib.rs",
@@ -98,6 +102,7 @@ rust_library(
     deps = [
         ":wasmtime_build_script",
         "@wasmtime__anyhow__1_0_57//:anyhow",
+        "@wasmtime__backtrace__0_3_65//:backtrace",
         "@wasmtime__bincode__1_3_3//:bincode",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_8_1//:indexmap",

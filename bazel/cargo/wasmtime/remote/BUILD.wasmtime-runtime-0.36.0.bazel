@@ -43,6 +43,8 @@ cargo_build_script(
     build_script_env = {
     },
     crate_features = [
+        "backtrace",
+        "wasm-backtrace",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -106,6 +108,8 @@ rust_library(
     aliases = {
     },
     crate_features = [
+        "backtrace",
+        "wasm-backtrace",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -123,6 +127,7 @@ rust_library(
     deps = [
         ":wasmtime_runtime_build_script",
         "@wasmtime__anyhow__1_0_57//:anyhow",
+        "@wasmtime__backtrace__0_3_65//:backtrace",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_8_1//:indexmap",
         "@wasmtime__libc__0_2_125//:libc",
