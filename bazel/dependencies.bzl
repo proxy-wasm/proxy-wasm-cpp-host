@@ -34,8 +34,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasi",
         ],
-        version = "1.59.0",
-        rustfmt_version = "1.59.0",
+        version = "1.60.0",
     )
     rust_repository_set(
         name = "rust_linux_s390x",
@@ -44,8 +43,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasi",
         ],
-        version = "1.59.0",
-        rustfmt_version = "1.59.0",
+        version = "1.60.0",
     )
 
     zig_register_toolchains(
