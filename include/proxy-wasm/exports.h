@@ -156,6 +156,7 @@ Word set_effective_context(Word context_id);
 Word done();
 Word call_foreign_function(Word function_name, Word function_name_size, Word arguments,
                            Word warguments_size, Word results, Word results_size);
+void emscripten_notify_memory_growth(int64_t);
 
 // Runtime environment functions exported from envoy to wasm.
 
@@ -196,7 +197,7 @@ Word pthread_equal(Word left, Word right);
 
 #define FOR_ALL_HOST_FUNCTIONS_ABI_SPECIFIC(_f)                                                    \
   _f(get_configuration) _f(continue_request) _f(continue_response) _f(clear_route_cache)           \
-      _f(continue_stream) _f(close_stream) _f(get_log_level)
+      _f(continue_stream) _f(close_stream) _f(get_log_level) _f(emscripten_notify_memory_growth)
 
 #define FOR_ALL_WASI_FUNCTIONS(_f)                                                                 \
   _f(fd_write) _f(fd_read) _f(fd_seek) _f(fd_close) _f(fd_fdstat_get) _f(environ_get)              \
