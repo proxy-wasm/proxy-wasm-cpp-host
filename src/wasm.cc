@@ -91,6 +91,14 @@ void WasmBase::registerCallbacks() {
   _REGISTER(pthread_equal);
 #undef _REGISTER
 
+#define _REGISTER(_fn)                                                                             \
+  wasm_vm_->registerCallback(                                                                      \
+      "env", #_fn, &exports::_fn,                                                                  \
+      &ConvertFunctionWordToUint32<decltype(exports::_fn),                                         \
+                                   exports::_fn>::convertFunctionWordToUint32)
+  _REGISTER(emscripten_notify_memory_growth);
+#undef _REGISTER
+
   // Register the capability with the VM if it has been allowed, otherwise register a stub.
 #define _REGISTER(module_name, name_prefix, export_prefix, _fn)                                    \
   if (capabilityAllowed(name_prefix #_fn)) {                                                       \

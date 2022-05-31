@@ -667,8 +667,6 @@ Word grpc_send(Word token, Word message_ptr, Word message_size, Word end_stream)
   return context->grpcSend(token, message.value(), end_stream != 0U);
 }
 
-void emscripten_notify_memory_growth(int64_t) {}
-
 // __wasi_errno_t path_open(__wasi_fd_t fd, __wasi_lookupflags_t dirflags, const char *path,
 // size_t path_len, __wasi_oflags_t oflags, __wasi_rights_t fs_rights_base, __wasi_rights_t
 // fs_rights_inheriting, __wasi_fdflags_t fdflags, __wasi_fd_t *retptr0)
@@ -902,6 +900,8 @@ void wasi_unstable_proc_exit(Word /*exit_code*/) {
 }
 
 Word pthread_equal(Word left, Word right) { return static_cast<uint64_t>(left == right); }
+
+void emscripten_notify_memory_growth(int64_t) {}
 
 Word set_tick_period_milliseconds(Word period_milliseconds) {
   TimerToken token = 0;

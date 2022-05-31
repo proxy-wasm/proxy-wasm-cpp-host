@@ -106,6 +106,7 @@ template <size_t N> using WasmCallbackWord = WasmCallbackFuncType<N, Word, Word>
 // https://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling-builtin
 // Extended with W = Word
 // Z = void, j = uint32_t, l = int64_t, m = uint64_t
+using WasmCallback_Zl = void (*)(int64_t);
 using WasmCallback_WWl = Word (*)(Word, int64_t);
 using WasmCallback_WWlWW = Word (*)(Word, int64_t, Word, Word);
 using WasmCallback_WWm = Word (*)(Word, uint64_t);
@@ -130,7 +131,8 @@ using WasmCallback_dd = double (*)(double);
                                                   _f(proxy_wasm::WasmCallback_WWm)                 \
                                                       _f(proxy_wasm::WasmCallback_WWmW)            \
                                                           _f(proxy_wasm::WasmCallback_WWWWWWllWW)  \
-                                                              _f(proxy_wasm::WasmCallback_dd)
+                                                              _f(proxy_wasm::WasmCallback_dd)      \
+                                                                  _f(proxy_wasm::WasmCallback_Zl)
 
 enum class Cloneable {
   NotCloneable,      // VMs can not be cloned and should be created from scratch.
