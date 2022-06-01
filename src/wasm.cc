@@ -89,13 +89,6 @@ void WasmBase::registerCallbacks() {
       &ConvertFunctionWordToUint32<decltype(exports::_fn),                                         \
                                    exports::_fn>::convertFunctionWordToUint32)
   _REGISTER(pthread_equal);
-#undef _REGISTER
-
-#define _REGISTER(_fn)                                                                             \
-  wasm_vm_->registerCallback(                                                                      \
-      "env", #_fn, &exports::_fn,                                                                  \
-      &ConvertFunctionWordToUint32<decltype(exports::_fn),                                         \
-                                   exports::_fn>::convertFunctionWordToUint32)
   _REGISTER(emscripten_notify_memory_growth);
 #undef _REGISTER
 
