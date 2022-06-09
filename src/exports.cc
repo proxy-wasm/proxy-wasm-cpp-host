@@ -901,7 +901,7 @@ void wasi_unstable_proc_exit(Word /*exit_code*/) {
 
 Word pthread_equal(Word left, Word right) { return static_cast<uint64_t>(left == right); }
 
-void emscripten_notify_memory_growth(int64_t /*memory_index*/) {}
+void emscripten_notify_memory_growth(Word /*memory_index*/) {}
 
 Word set_tick_period_milliseconds(Word period_milliseconds) {
   TimerToken token = 0;
