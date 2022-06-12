@@ -447,12 +447,38 @@ void WasmBase::finishShutdown() {
   }
 }
 
+bool canary(std::shared_ptr<WasmHandleBase> &wasm_handle, const std::shared_ptr<PluginBase> &plugin, 
+            const WasmHandleCloneFactory &clone_factory) {
+  auto configuration_canary_handle = clone_factory(wasm_handle);
+  if (!configuration_canary_handle) {
+    wasm_handle->wasm()->fail(FailState::UnableToCloneVm, "Failed to clone Base Wasm");
+    return false;
+  }
+  if (!configuration_canary_handle->wasm()->initialize()) {
+    configuration_canary_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
+    return false;
+  }
+  auto *root_context = configuration_canary_handle->wasm()->start(plugin);
+  if (root_context == nullptr) {
+    configuration_canary_handle->wasm()->fail(FailState::StartFailed, "Failed to start base Wasm");
+    return false;
+  }
+  if (!configuration_canary_handle->wasm()->configure(root_context, plugin)) {
+    configuration_canary_handle->wasm()->fail(FailState::ConfigureFailed,
+                                              "Failed to configure base Wasm plugin");
+    return false;
+  }
+  configuration_canary_handle->kill();
+  return true;
+}
+
 std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std::string &code,
                                            const std::shared_ptr<PluginBase> &plugin,
                                            const WasmHandleFactory &factory,
                                            const WasmHandleCloneFactory &clone_factory,
                                            bool allow_precompiled) {
   std::shared_ptr<WasmHandleBase> wasm_handle;
+  bool is_new_wasm = false;
   {
     std::lock_guard<std::mutex> guard(base_wasms_mutex);
     if (base_wasms == nullptr) {
@@ -465,44 +491,31 @@ std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std:
         base_wasms->erase(it);
       }
     }
-    if (wasm_handle) {
-      return wasm_handle;
+    if (!wasm_handle) {   
+      wasm_handle = factory(vm_key);
+      if (!wasm_handle) {
+        return nullptr;
+      }
+      is_new_wasm = true;
+      (*base_wasms)[vm_key] = wasm_handle;
     }
-    wasm_handle = factory(vm_key);
-    if (!wasm_handle) {
-      return nullptr;
-    }
-    (*base_wasms)[vm_key] = wasm_handle;
   }
 
-  if (!wasm_handle->wasm()->load(code, allow_precompiled)) {
-    wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to load Wasm code");
+  if (is_new_wasm) {
+    if (!wasm_handle->wasm()->load(code, allow_precompiled)) {
+      wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to load Wasm code");
+      return nullptr;
+    }
+    if (!wasm_handle->wasm()->initialize()) {
+      wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
+      return nullptr;
+    }
+  }
+  
+  if (!canary(wasm_handle, plugin, clone_factory)) {
     return nullptr;
   }
-  if (!wasm_handle->wasm()->initialize()) {
-    wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
-    return nullptr;
-  }
-  auto configuration_canary_handle = clone_factory(wasm_handle);
-  if (!configuration_canary_handle) {
-    wasm_handle->wasm()->fail(FailState::UnableToCloneVm, "Failed to clone Base Wasm");
-    return nullptr;
-  }
-  if (!configuration_canary_handle->wasm()->initialize()) {
-    wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
-    return nullptr;
-  }
-  auto *root_context = configuration_canary_handle->wasm()->start(plugin);
-  if (root_context == nullptr) {
-    configuration_canary_handle->wasm()->fail(FailState::StartFailed, "Failed to start base Wasm");
-    return nullptr;
-  }
-  if (!configuration_canary_handle->wasm()->configure(root_context, plugin)) {
-    configuration_canary_handle->wasm()->fail(FailState::ConfigureFailed,
-                                              "Failed to configure base Wasm plugin");
-    return nullptr;
-  }
-  configuration_canary_handle->kill();
+  
   return wasm_handle;
 };
 
