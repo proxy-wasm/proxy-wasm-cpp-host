@@ -24,6 +24,9 @@ std::vector<std::string> getWasmEngines() {
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
     "wamr",
 #endif
+#if defined(PROXY_WASM_HOST_ENGINE_WASMEDGE)
+    "wasmedge",
+#endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
     "wasmtime",
 #endif

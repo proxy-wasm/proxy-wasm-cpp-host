@@ -89,5 +89,73 @@ TEST_P(TestVm, Clock) {
   EXPECT_TRUE(context->isLogged("realtime: "));
 }
 
+TEST_P(TestVm, RandomZero) {
+  auto source = readTestWasmFile("random.wasm");
+  ASSERT_FALSE(source.empty());
+  auto wasm = TestWasm(std::move(vm_));
+  ASSERT_TRUE(wasm.load(source, false));
+  ASSERT_TRUE(wasm.initialize());
+
+  WasmCallVoid<1> run;
+  wasm.wasm_vm()->getFunction("run", &run);
+  ASSERT_TRUE(run != nullptr);
+  run(wasm.vm_context(), Word{0});
+
+  // Check application logs.
+  auto *context = dynamic_cast<TestContext *>(wasm.vm_context());
+  EXPECT_TRUE(context->isLogged("random_get(0) succeeded."));
+}
+
+TEST_P(TestVm, RandomSmall) {
+  auto source = readTestWasmFile("random.wasm");
+  ASSERT_FALSE(source.empty());
+  auto wasm = TestWasm(std::move(vm_));
+  ASSERT_TRUE(wasm.load(source, false));
+  ASSERT_TRUE(wasm.initialize());
+
+  WasmCallVoid<1> run;
+  wasm.wasm_vm()->getFunction("run", &run);
+  ASSERT_TRUE(run != nullptr);
+  run(wasm.vm_context(), Word{32});
+
+  // Check application logs.
+  auto *context = dynamic_cast<TestContext *>(wasm.vm_context());
+  EXPECT_TRUE(context->isLogged("random_get(32) succeeded."));
+}
+
+TEST_P(TestVm, RandomLarge) {
+  auto source = readTestWasmFile("random.wasm");
+  ASSERT_FALSE(source.empty());
+  auto wasm = TestWasm(std::move(vm_));
+  ASSERT_TRUE(wasm.load(source, false));
+  ASSERT_TRUE(wasm.initialize());
+
+  WasmCallVoid<1> run;
+  wasm.wasm_vm()->getFunction("run", &run);
+  ASSERT_TRUE(run != nullptr);
+  run(wasm.vm_context(), Word{64 * 1024});
+
+  // Check application logs.
+  auto *context = dynamic_cast<TestContext *>(wasm.vm_context());
+  EXPECT_TRUE(context->isLogged("random_get(65536) succeeded."));
+}
+
+TEST_P(TestVm, RandomTooLarge) {
+  auto source = readTestWasmFile("random.wasm");
+  ASSERT_FALSE(source.empty());
+  auto wasm = TestWasm(std::move(vm_));
+  ASSERT_TRUE(wasm.load(source, false));
+  ASSERT_TRUE(wasm.initialize());
+
+  WasmCallVoid<1> run;
+  wasm.wasm_vm()->getFunction("run", &run);
+  ASSERT_TRUE(run != nullptr);
+  run(wasm.vm_context(), Word{65 * 1024});
+
+  // Check application logs.
+  auto *context = dynamic_cast<TestContext *>(wasm.vm_context());
+  EXPECT_TRUE(context->isLogged("random_get(66560) failed."));
+}
+
 } // namespace
 } // namespace proxy_wasm

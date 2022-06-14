@@ -26,10 +26,16 @@
 #include <utility>
 #include <vector>
 
+#include "include/proxy-wasm/limits.h"
+
 #include "include/v8-version.h"
 #include "include/v8.h"
 #include "src/wasm/c-api.h"
 #include "wasm-api/wasm.hh"
+
+namespace v8::internal {
+extern unsigned int FLAG_wasm_max_mem_pages;
+} // namespace v8::internal
 
 namespace proxy_wasm {
 namespace v8 {
@@ -39,6 +45,8 @@ wasm::Engine *engine() {
   static wasm::own<wasm::Engine> engine;
 
   std::call_once(init, []() {
+    ::v8::internal::FLAG_wasm_max_mem_pages =
+        PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES / PROXY_WASM_HOST_WASM_MEMORY_PAGE_SIZE_BYTES;
     ::v8::V8::EnableWebAssemblyTrapHandler(true);
     engine = wasm::Engine::make();
   });

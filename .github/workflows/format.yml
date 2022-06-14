@@ -89,9 +89,9 @@ jobs:
       run: |
         cd wasmsign && cargo raze && cd ..
         cd wasmtime && cargo raze && cd ..
-        # Ignore manual changes in "errno" crate until fixed in cargo-raze.
+        # Ignore manual changes in "errno" and "rustix" crates until fixed in cargo-raze.
         # See: https://github.com/google/cargo-raze/issues/451
-        git diff --exit-code -- ':!wasmtime/remote/BUILD.errno-0.2.8.bazel'
+        git diff --exit-code -- ':!wasmtime/remote/BUILD.errno-0.*.bazel' ':!wasmtime/remote/BUILD.rustix-0.*.bazel'
 
   clang_format:
     name: check format with clang-format

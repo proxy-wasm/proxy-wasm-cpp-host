@@ -56,7 +56,7 @@ cc_test(
     data = [
         "//test/test_data:callback.wasm",
         "//test/test_data:clock.wasm",
-        "//test/test_data:infinite_loop.wasm",
+        "//test/test_data:resource_limits.wasm",
         "//test/test_data:trap.wasm",
     ],
     linkstatic = 1,
@@ -74,8 +74,10 @@ cc_test(
     data = [
         "//test/test_data:clock.wasm",
         "//test/test_data:env.wasm",
+        "//test/test_data:random.wasm",
     ],
     linkstatic = 1,
+    shard_count = 8,
     deps = [
         ":utility_lib",
         "//:lib",

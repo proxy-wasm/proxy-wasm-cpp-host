@@ -51,7 +51,7 @@ rust_library(
     version = "0.0.34",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__log__0_4_14//:log",
+        "@wasmtime__log__0_4_17//:log",
         "@wasmtime__rustc_hash__1_1_0//:rustc_hash",
         "@wasmtime__smallvec__1_8_0//:smallvec",
     ],
