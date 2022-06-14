@@ -447,7 +447,7 @@ void WasmBase::finishShutdown() {
   }
 }
 
-bool canary(std::shared_ptr<WasmHandleBase> &wasm_handle, const std::shared_ptr<PluginBase> &plugin, 
+bool canary(std::shared_ptr<WasmHandleBase> &wasm_handle, const std::shared_ptr<PluginBase> &plugin,
             const WasmHandleCloneFactory &clone_factory) {
   auto configuration_canary_handle = clone_factory(wasm_handle);
   if (!configuration_canary_handle) {
@@ -455,7 +455,8 @@ bool canary(std::shared_ptr<WasmHandleBase> &wasm_handle, const std::shared_ptr<
     return false;
   }
   if (!configuration_canary_handle->wasm()->initialize()) {
-    configuration_canary_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
+    configuration_canary_handle->wasm()->fail(FailState::UnableToInitializeCode,
+                                              "Failed to initialize Wasm code");
     return false;
   }
   auto *root_context = configuration_canary_handle->wasm()->start(plugin);
@@ -491,7 +492,7 @@ std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std:
         base_wasms->erase(it);
       }
     }
-    if (!wasm_handle) {   
+    if (!wasm_handle) {
       wasm_handle = factory(vm_key);
       if (!wasm_handle) {
         return nullptr;
@@ -500,22 +501,20 @@ std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std:
       (*base_wasms)[vm_key] = wasm_handle;
     }
   }
-
   if (is_new_wasm) {
     if (!wasm_handle->wasm()->load(code, allow_precompiled)) {
       wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to load Wasm code");
       return nullptr;
     }
     if (!wasm_handle->wasm()->initialize()) {
-      wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to initialize Wasm code");
+      wasm_handle->wasm()->fail(FailState::UnableToInitializeCode,
+                                "Failed to initialize Wasm code");
       return nullptr;
     }
   }
-  
   if (!canary(wasm_handle, plugin, clone_factory)) {
     return nullptr;
   }
-  
   return wasm_handle;
 };
 
