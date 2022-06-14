@@ -212,11 +212,11 @@ using HostFuncDataPtr = std::unique_ptr<HostFuncData>;
 
 struct HostModuleData {
   HostModuleData(const std::string_view modname) {
-    cxt_ = WasmEdge_ImportObjectCreate(WasmEdge_StringWrap(modname.data(), modname.length()));
+    cxt_ = WasmEdge_ModuleInstanceCreate(WasmEdge_StringWrap(modname.data(), modname.length()));
   }
-  ~HostModuleData() { WasmEdge_ImportObjectDelete(cxt_); }
+  ~HostModuleData() { WasmEdge_ModuleInstanceDelete(cxt_); }
 
-  WasmEdge_ImportObjectContext *cxt_;
+  WasmEdge_ModuleInstanceContext *cxt_;
 };
 
 using HostModuleDataPtr = std::unique_ptr<HostModuleData>;
@@ -228,6 +228,7 @@ public:
     validator_ = WasmEdge_ValidatorCreate(nullptr);
     executor_ = WasmEdge_ExecutorCreate(nullptr, nullptr);
     store_ = nullptr;
+    ast_module_ = nullptr;
     module_ = nullptr;
     memory_ = nullptr;
   }
@@ -285,11 +286,12 @@ private:
   WasmEdgeValidatorPtr validator_;
   WasmEdgeExecutorPtr executor_;
   WasmEdgeStorePtr store_;
-  WasmEdgeASTModulePtr module_;
+  WasmEdgeASTModulePtr ast_module_;
+  WasmEdgeModulePtr module_;
   WasmEdge_MemoryInstanceContext *memory_;
 
   std::unordered_map<std::string, HostFuncDataPtr> host_functions_;
-  std::unordered_map<std::string, HostModuleDataPtr> import_objects_;
+  std::unordered_map<std::string, HostModuleDataPtr> host_modules_;
   std::unordered_set<std::string> module_functions_;
 };
 
@@ -303,22 +305,25 @@ bool WasmEdge::load(std::string_view bytecode, std::string_view /*precompiled*/,
   }
   res = WasmEdge_ValidatorValidate(validator_.get(), mod);
   if (!WasmEdge_ResultOK(res)) {
+    WasmEdge_ASTModuleDelete(mod);
     return false;
   }
-  module_ = mod;
+  ast_module_ = mod;
   return true;
 }
 
 bool WasmEdge::link(std::string_view /*debug_name*/) {
-  assert(module_ != nullptr);
+  assert(ast_module_ != nullptr);
 
   // Create store and register imports.
-  store_ = WasmEdge_StoreCreate();
+  if (store_ == nullptr) {
+    store_ = WasmEdge_StoreCreate();
+  }
   if (store_ == nullptr) {
     return false;
   }
   WasmEdge_Result res;
-  for (auto &&it : import_objects_) {
+  for (auto &&it : host_modules_) {
     res = WasmEdge_ExecutorRegisterImport(executor_.get(), store_.get(), it.second->cxt_);
     if (!WasmEdge_ResultOK(res)) {
       fail(FailState::UnableToInitializeCode,
@@ -327,30 +332,33 @@ bool WasmEdge::link(std::string_view /*debug_name*/) {
     }
   }
   // Instantiate module.
-  res = WasmEdge_ExecutorInstantiate(executor_.get(), store_.get(), module_.get());
+  WasmEdge_ModuleInstanceContext *mod = nullptr;
+  res = WasmEdge_ExecutorInstantiate(executor_.get(), &mod, store_.get(), ast_module_.get());
   if (!WasmEdge_ResultOK(res)) {
     fail(FailState::UnableToInitializeCode,
          std::string("Failed to link Wasm module: ") + std::string(WasmEdge_ResultGetMessage(res)));
     return false;
   }
   // Get the function and memory exports.
-  uint32_t memory_num = WasmEdge_StoreListMemoryLength(store_.get());
+  uint32_t memory_num = WasmEdge_ModuleInstanceListMemoryLength(mod);
   if (memory_num > 0) {
     WasmEdge_String name;
-    WasmEdge_StoreListMemory(store_.get(), &name, 1);
-    memory_ = WasmEdge_StoreFindMemory(store_.get(), name);
+    WasmEdge_ModuleInstanceListMemory(mod, &name, 1);
+    memory_ = WasmEdge_ModuleInstanceFindMemory(mod, name);
     if (memory_ == nullptr) {
+      WasmEdge_ModuleInstanceDelete(mod);
       return false;
     }
   }
-  uint32_t func_num = WasmEdge_StoreListFunctionLength(store_.get());
+  uint32_t func_num = WasmEdge_ModuleInstanceListFunctionLength(mod);
   if (func_num > 0) {
     std::vector<WasmEdge_String> names(func_num);
-    WasmEdge_StoreListFunction(store_.get(), &names[0], func_num);
+    WasmEdge_ModuleInstanceListFunction(mod, &names[0], func_num);
     for (auto i = 0; i < func_num; i++) {
       module_functions_.insert(std::string(names[i].Buf, names[i].Length));
     }
   }
+  module_ = mod;
   return true;
 }
 
@@ -398,10 +406,10 @@ bool WasmEdge::setWord(uint64_t pointer, Word word) {
 template <typename... Args>
 void WasmEdge::registerHostFunctionImpl(std::string_view module_name,
                                         std::string_view function_name, void (*function)(Args...)) {
-  auto it = import_objects_.find(std::string(module_name));
-  if (it == import_objects_.end()) {
-    import_objects_.emplace(module_name, std::make_unique<HostModuleData>(module_name));
-    it = import_objects_.find(std::string(module_name));
+  auto it = host_modules_.find(std::string(module_name));
+  if (it == host_modules_.end()) {
+    host_modules_.emplace(module_name, std::make_unique<HostModuleData>(module_name));
+    it = host_modules_.find(std::string(module_name));
   }
 
   auto data = std::make_unique<HostFuncData>(module_name, function_name);
@@ -435,7 +443,7 @@ void WasmEdge::registerHostFunctionImpl(std::string_view module_name,
     return;
   }
 
-  WasmEdge_ImportObjectAddFunction(
+  WasmEdge_ModuleInstanceAddFunction(
       it->second->cxt_, WasmEdge_StringWrap(function_name.data(), function_name.length()),
       hostfunc_cxt);
   host_functions_.insert_or_assign(std::string(module_name) + "." + std::string(function_name),
@@ -445,10 +453,10 @@ void WasmEdge::registerHostFunctionImpl(std::string_view module_name,
 template <typename R, typename... Args>
 void WasmEdge::registerHostFunctionImpl(std::string_view module_name,
                                         std::string_view function_name, R (*function)(Args...)) {
-  auto it = import_objects_.find(std::string(module_name));
-  if (it == import_objects_.end()) {
-    import_objects_.emplace(module_name, std::make_unique<HostModuleData>(module_name));
-    it = import_objects_.find(std::string(module_name));
+  auto it = host_modules_.find(std::string(module_name));
+  if (it == host_modules_.end()) {
+    host_modules_.emplace(module_name, std::make_unique<HostModuleData>(module_name));
+    it = host_modules_.find(std::string(module_name));
   }
 
   auto data = std::make_unique<HostFuncData>(module_name, function_name);
@@ -482,7 +490,7 @@ void WasmEdge::registerHostFunctionImpl(std::string_view module_name,
     return;
   }
 
-  WasmEdge_ImportObjectAddFunction(
+  WasmEdge_ModuleInstanceAddFunction(
       it->second->cxt_, WasmEdge_StringWrap(function_name.data(), function_name.length()),
       hostfunc_cxt);
   host_functions_.insert_or_assign(std::string(module_name) + "." + std::string(function_name),
@@ -492,8 +500,8 @@ void WasmEdge::registerHostFunctionImpl(std::string_view module_name,
 template <typename... Args>
 void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
                                      std::function<void(ContextBase *, Args...)> *function) {
-  auto *func_cxt = WasmEdge_StoreFindFunction(
-      store_.get(), WasmEdge_StringWrap(function_name.data(), function_name.length()));
+  auto *func_cxt = WasmEdge_ModuleInstanceFindFunction(
+      module_.get(), WasmEdge_StringWrap(function_name.data(), function_name.length()));
   if (!func_cxt) {
     *function = nullptr;
     return;
@@ -521,7 +529,7 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
 
-  *function = [function_name, this](ContextBase *context, Args... args) -> void {
+  *function = [function_name, func_cxt, this](ContextBase *context, Args... args) -> void {
     WasmEdge_Value params[] = {makeVal(args)...};
     const bool log = cmpLogLevel(LogLevel::trace);
     if (log) {
@@ -530,9 +538,7 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
     }
     SaveRestoreContext saved_context(context);
     WasmEdge_Result res =
-        WasmEdge_ExecutorInvoke(executor_.get(), store_.get(),
-                                WasmEdge_StringWrap(function_name.data(), function_name.length()),
-                                params, sizeof...(Args), nullptr, 0);
+        WasmEdge_ExecutorInvoke(executor_.get(), func_cxt, params, sizeof...(Args), nullptr, 0);
     if (!WasmEdge_ResultOK(res)) {
       fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed:\n" +
                                         WasmEdge_ResultGetMessage(res));
@@ -547,8 +553,8 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
 template <typename R, typename... Args>
 void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
                                      std::function<R(ContextBase *, Args...)> *function) {
-  auto *func_cxt = WasmEdge_StoreFindFunction(
-      store_.get(), WasmEdge_StringWrap(function_name.data(), function_name.length()));
+  auto *func_cxt = WasmEdge_ModuleInstanceFindFunction(
+      module_.get(), WasmEdge_StringWrap(function_name.data(), function_name.length()));
   if (!func_cxt) {
     *function = nullptr;
     return;
@@ -576,7 +582,7 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
 
-  *function = [function_name, this](ContextBase *context, Args... args) -> R {
+  *function = [function_name, func_cxt, this](ContextBase *context, Args... args) -> R {
     WasmEdge_Value params[] = {makeVal(args)...};
     WasmEdge_Value results[1];
     const bool log = cmpLogLevel(LogLevel::trace);
@@ -586,9 +592,7 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
     }
     SaveRestoreContext saved_context(context);
     WasmEdge_Result res =
-        WasmEdge_ExecutorInvoke(executor_.get(), store_.get(),
-                                WasmEdge_StringWrap(function_name.data(), function_name.length()),
-                                params, sizeof...(Args), results, 1);
+        WasmEdge_ExecutorInvoke(executor_.get(), func_cxt, params, sizeof...(Args), results, 1);
     if (!WasmEdge_ResultOK(res)) {
       fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed:\n" +
                                         WasmEdge_ResultGetMessage(res));

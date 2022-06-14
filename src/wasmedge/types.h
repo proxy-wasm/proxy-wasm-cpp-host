@@ -23,5 +23,7 @@ using WasmEdgeLoaderPtr = common::CSmartPtr<WasmEdge_LoaderContext, WasmEdge_Loa
 using WasmEdgeValidatorPtr = common::CSmartPtr<WasmEdge_ValidatorContext, WasmEdge_ValidatorDelete>;
 using WasmEdgeExecutorPtr = common::CSmartPtr<WasmEdge_ExecutorContext, WasmEdge_ExecutorDelete>;
 using WasmEdgeASTModulePtr = common::CSmartPtr<WasmEdge_ASTModuleContext, WasmEdge_ASTModuleDelete>;
+using WasmEdgeModulePtr =
+    common::CSmartPtr<WasmEdge_ModuleInstanceContext, WasmEdge_ModuleInstanceDelete>;
 
 } // namespace proxy_wasm::WasmEdge
