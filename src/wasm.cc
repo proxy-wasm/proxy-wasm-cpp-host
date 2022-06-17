@@ -89,6 +89,7 @@ void WasmBase::registerCallbacks() {
       &ConvertFunctionWordToUint32<decltype(exports::_fn),                                         \
                                    exports::_fn>::convertFunctionWordToUint32)
   _REGISTER(pthread_equal);
+  _REGISTER(emscripten_notify_memory_growth);
 #undef _REGISTER
 
   // Register the capability with the VM if it has been allowed, otherwise register a stub.

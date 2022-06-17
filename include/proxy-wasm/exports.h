@@ -177,6 +177,7 @@ void wasi_unstable_proc_exit(Word);
 Word wasi_unstable_clock_time_get(Word, uint64_t, Word);
 Word wasi_unstable_random_get(Word, Word);
 Word pthread_equal(Word left, Word right);
+void emscripten_notify_memory_growth(Word);
 
 // Support for embedders, not exported to Wasm.
 
