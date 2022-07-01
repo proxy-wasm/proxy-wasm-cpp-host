@@ -114,27 +114,18 @@ TEST_P(TestVm, GetOrCreateThreadLocalWasmFailCallbacks) {
 }
 
 // Tests the canary is always applied when making a call `createWasm`
-TEST_P(TestVm, AlwaysApplyCanaryForDifferentRootID) {
+TEST_P(TestVm, AlwaysApplyCanary) {
   // Use different root_id, but the others are the same
-  const auto *const root_id_1 = "root_id_1";
-  const auto *const root_id_2 = "root_id_2";
-  const auto *const plugin_name = "plugin_name";
-  const auto *const vm_id = "vm_id";
-  const auto *const vm_config = "vm_config";
-  const auto *const plugin_config = "plugin_config";
-  const auto *const vm_key = "vm_key";
-  const auto *const plugin_key = "plugin_key";
+  const std::string root_ids[2] = {"root_id_1", "root_id_2"};
+  const std::string plugin_names[2] = {"plugin_name_1", "plugin_name_2"};
+  const std::string vm_ids[2] = {"vm_id_1", "vm_id_2"};
+  const std::string vm_configs[2] = {"vm_config_1", "vm_config_2"};
+  const std::string plugin_configs[2] = {"plugin_config_1", "plugin_config_2"};
+  const std::string vm_keys[2] = {"vm_key_1", "vm_key_2"};
+  const std::string plugin_keys[2] = {"plugin_key_1", "plugin_key_2"};
   const auto fail_open = false;
 
-  // Define callbacks.
-  WasmHandleFactory wasm_handle_factory =
-      [this, vm_id, vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
-    auto base_wasm = std::make_shared<TestWasm>(newVm(), vm_id, vm_config, vm_key,
-                                                std::unordered_map<std::string, std::string>{},
-                                                AllowedCapabilitiesMap{});
-    return std::make_shared<WasmHandleBase>(base_wasm);
-  };
-
+  // Define common callbacks
   WasmHandleCloneFactory wasm_handle_clone_factory =
       [this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
       -> std::shared_ptr<WasmHandleBase> {
@@ -165,34 +156,80 @@ TEST_P(TestVm, AlwaysApplyCanaryForDifferentRootID) {
   // Read the minimal loadable binary.
   auto source = readTestWasmFile("configure_check.wasm");
 
-  // Create a first plugin.
-  const auto plugin_1 = std::make_shared<PluginBase>(plugin_name, root_id_1, vm_id, engine_,
-                                                     plugin_config, fail_open, plugin_key);
+  WasmHandleFactory wasm_handle_factory_baseline =
+      [this, vm_ids, vm_configs](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
+    auto base_wasm = std::make_shared<TestWasm>(newVm(), vm_ids[0], vm_configs[0], vm_key,
+                                                std::unordered_map<std::string, std::string>{},
+                                                AllowedCapabilitiesMap{});
+    return std::make_shared<WasmHandleBase>(base_wasm);
+  };
+
+  // Create a baseline plugin.
+  const auto plugin_baseline =
+      std::make_shared<PluginBase>(plugin_names[0], root_ids[0], vm_ids[0], engine_,
+                                   plugin_configs[0], fail_open, plugin_keys[0]);
   // Create a base Wasm by createWasm.
-  auto base_wasm_handle_1 = createWasm(vm_key, source, plugin_1, wasm_handle_factory,
-                                       wasm_handle_clone_factory_for_canary, false);
-  ASSERT_TRUE(base_wasm_handle_1 && base_wasm_handle_1->wasm());
+  auto wasm_handle_baseline =
+      createWasm(vm_keys[0], source, plugin_baseline, wasm_handle_factory_baseline,
+                 wasm_handle_clone_factory_for_canary, false);
+  ASSERT_TRUE(wasm_handle_baseline && wasm_handle_baseline->wasm());
 
-  // Check if it ran for root context 1
-  EXPECT_TRUE(root_context_in_canary->isLogged("onConfigure in TestRootContext1"));
-
-  // Create a first plugin.
-  const auto plugin_2 = std::make_shared<PluginBase>(plugin_name, root_id_2, vm_id, engine_,
-                                                     plugin_config, fail_open, plugin_key);
-  // Create a base Wasm by createWasm.
-  auto base_wasm_handle_2 = createWasm(vm_key, source, plugin_2, wasm_handle_factory,
-                                       wasm_handle_clone_factory_for_canary, false);
-  ASSERT_TRUE(base_wasm_handle_2 && base_wasm_handle_2->wasm());
-
-  // Check if it ran for root context 2
-  EXPECT_TRUE(root_context_in_canary->isLogged("onConfigure in TestRootContext2"));
-
-  // Base Wasm should be equal, because the same vm_key is used.
-  EXPECT_EQ(base_wasm_handle_1->wasm(), base_wasm_handle_2->wasm());
-  // Plugin key should be different with each other, because root_ids are different.
-  EXPECT_NE(plugin_1->key(), plugin_2->key());
+  // Check if it ran for baseline root context
+  EXPECT_TRUE(root_context_in_canary->isLogged("onConfigure: " + root_ids[0]));
   // For each create Wasm, canary should be done.
-  EXPECT_EQ(canary_count, 2);
+  EXPECT_EQ(canary_count, 1);
+
+  for (const auto &root_id : root_ids) {
+    for (const auto &plugin_name : plugin_names) {
+      for (const auto &vm_id : vm_ids) {
+        for (const auto &vm_config : vm_configs) {
+          for (const auto &plugin_config : plugin_configs) {
+            for (const auto &vm_key : vm_keys) {
+              for (const auto &plugin_key : plugin_keys) {
+                canary_count = 0;
+                WasmHandleFactory wasm_handle_factory_comp =
+                    [this, vm_id,
+                     vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
+                  auto base_wasm = std::make_shared<TestWasm>(
+                      newVm(), vm_id, vm_config, vm_key,
+                      std::unordered_map<std::string, std::string>{}, AllowedCapabilitiesMap{});
+                  return std::make_shared<WasmHandleBase>(base_wasm);
+                };
+                const auto plugin_comp = std::make_shared<PluginBase>(
+                    plugin_name, root_id, vm_id, engine_, plugin_config, fail_open, plugin_key);
+                // Create a base Wasm by createWasm.
+                auto wasm_handle_comp =
+                    createWasm(vm_key, source, plugin_comp, wasm_handle_factory_comp,
+                               wasm_handle_clone_factory_for_canary, false);
+                ASSERT_TRUE(wasm_handle_comp && wasm_handle_comp->wasm());
+
+                // Check if it ran for root context 2.
+                EXPECT_TRUE(root_context_in_canary->isLogged("onConfigure: " + root_id));
+
+                // Wasm VM is unique for vm_key.
+                if (vm_key == vm_keys[0]) {
+                  EXPECT_EQ(wasm_handle_baseline->wasm(), wasm_handle_comp->wasm());
+                } else {
+                  EXPECT_NE(wasm_handle_baseline->wasm(), wasm_handle_comp->wasm());
+                }
+
+                // plugin->key() is unique for root_id + plugin_config + plugin_key.
+                // plugin->key() is used as an identifier of local-specific plugins as well.
+                if (root_id == root_ids[0] && plugin_config == plugin_configs[0] &&
+                    plugin_key == plugin_keys[0]) {
+                  EXPECT_EQ(plugin_baseline->key(), plugin_comp->key());
+                } else {
+                  EXPECT_NE(plugin_baseline->key(), plugin_comp->key());
+                }
+                // For each create Wasm, canary should be done.
+                EXPECT_EQ(canary_count, 1);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 } // namespace proxy_wasm
