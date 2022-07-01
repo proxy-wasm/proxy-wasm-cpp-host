@@ -479,7 +479,6 @@ std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std:
                                            const WasmHandleCloneFactory &clone_factory,
                                            bool allow_precompiled) {
   std::shared_ptr<WasmHandleBase> wasm_handle;
-  bool is_new_wasm = false;
   {
     std::lock_guard<std::mutex> guard(base_wasms_mutex);
     if (base_wasms == nullptr) {
@@ -493,25 +492,25 @@ std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std:
       }
     }
     if (!wasm_handle) {
+      // If no cached base_wasm, creates a new base_wasm, loads the code and initializes it.
       wasm_handle = factory(vm_key);
       if (!wasm_handle) {
         return nullptr;
       }
-      is_new_wasm = true;
+      if (!wasm_handle->wasm()->load(code, allow_precompiled)) {
+        wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to load Wasm code");
+        return nullptr;
+      }
+      if (!wasm_handle->wasm()->initialize()) {
+        wasm_handle->wasm()->fail(FailState::UnableToInitializeCode,
+                                  "Failed to initialize Wasm code");
+        return nullptr;
+      }
       (*base_wasms)[vm_key] = wasm_handle;
     }
   }
-  if (is_new_wasm) {
-    if (!wasm_handle->wasm()->load(code, allow_precompiled)) {
-      wasm_handle->wasm()->fail(FailState::UnableToInitializeCode, "Failed to load Wasm code");
-      return nullptr;
-    }
-    if (!wasm_handle->wasm()->initialize()) {
-      wasm_handle->wasm()->fail(FailState::UnableToInitializeCode,
-                                "Failed to initialize Wasm code");
-      return nullptr;
-    }
-  }
+
+  // Either creating new one or reusing the existing one, apply canary for each plugin.
   if (!canary(wasm_handle, plugin, clone_factory)) {
     return nullptr;
   }

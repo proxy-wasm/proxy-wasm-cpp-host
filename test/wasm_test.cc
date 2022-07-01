@@ -113,4 +113,77 @@ TEST_P(TestVm, GetOrCreateThreadLocalWasmFailCallbacks) {
   ASSERT_NE(thread_local_plugin3->wasm(), thread_local_plugin2->wasm());
 }
 
+// Tests the canary is always applied when making a call `createWasm`
+TEST_P(TestVm, AlwaysApplyCanaryForDifferentRootID) {
+  // Use different root_id, but the others are the same
+  const auto *const root_id_1 = "root_id_1";
+  const auto *const root_id_2 = "root_id_2";
+  const auto *const plugin_name = "plugin_name";
+  const auto *const vm_id = "vm_id";
+  const auto *const vm_config = "vm_config";
+  const auto *const plugin_config = "plugin_config";
+  const auto *const vm_key = "vm_key";
+  const auto *const plugin_key = "plugin_key";
+  const auto fail_open = false;
+
+  // Define callbacks.
+  WasmHandleFactory wasm_handle_factory =
+      [this, vm_id, vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
+    auto base_wasm = std::make_shared<WasmBase>(newVm(), vm_id, vm_config, vm_key,
+                                                std::unordered_map<std::string, std::string>{},
+                                                AllowedCapabilitiesMap{});
+    return std::make_shared<WasmHandleBase>(base_wasm);
+  };
+
+  WasmHandleCloneFactory wasm_handle_clone_factory =
+      [this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
+      -> std::shared_ptr<WasmHandleBase> {
+    auto wasm = std::make_shared<WasmBase>(base_wasm_handle,
+                                           [this]() -> std::unique_ptr<WasmVm> { return newVm(); });
+    return std::make_shared<WasmHandleBase>(wasm);
+  };
+
+  auto canary_count = 0;
+  WasmHandleCloneFactory wasm_handle_clone_factory_for_canary =
+      [&canary_count, this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
+      -> std::shared_ptr<WasmHandleBase> {
+    auto wasm = std::make_shared<WasmBase>(base_wasm_handle,
+                                           [this]() -> std::unique_ptr<WasmVm> { return newVm(); });
+    canary_count++;
+    return std::make_shared<WasmHandleBase>(wasm);
+  };
+
+  PluginHandleFactory plugin_handle_factory =
+      [](const std::shared_ptr<WasmHandleBase> &base_wasm,
+         const std::shared_ptr<PluginBase> &plugin) -> std::shared_ptr<PluginHandleBase> {
+    return std::make_shared<PluginHandleBase>(base_wasm, plugin);
+  };
+
+  // Read the minimal loadable binary.
+  auto source = readTestWasmFile("configure_check.wasm");
+
+  // Create a first plugin.
+  const auto plugin_1 = std::make_shared<PluginBase>(plugin_name, root_id_1, vm_id, engine_,
+                                                     plugin_config, fail_open, plugin_key);
+  // Create base Wasm via createWasm.
+  auto base_wasm_handle_1 = createWasm(vm_key, source, plugin_1, wasm_handle_factory,
+                                       wasm_handle_clone_factory_for_canary, false);
+  ASSERT_TRUE(base_wasm_handle_1 && base_wasm_handle_1->wasm());
+
+  // Create a first plugin.
+  const auto plugin_2 = std::make_shared<PluginBase>(plugin_name, root_id_2, vm_id, engine_,
+                                                     plugin_config, fail_open, plugin_key);
+  // Create base Wasm via createWasm.
+  auto base_wasm_handle_2 = createWasm(vm_key, source, plugin_2, wasm_handle_factory,
+                                       wasm_handle_clone_factory_for_canary, false);
+  ASSERT_TRUE(base_wasm_handle_2 && base_wasm_handle_2->wasm());
+
+  // Base Wasm
+  EXPECT_EQ(base_wasm_handle_1->wasm(), base_wasm_handle_2->wasm());
+  // Plugin key should be different with each other, because root_id is different.
+  EXPECT_NE(plugin_1->key(), plugin_2->key());
+  // For each create Wasm, canary should be done.
+  EXPECT_EQ(canary_count, 2);
+}
+
 } // namespace proxy_wasm
