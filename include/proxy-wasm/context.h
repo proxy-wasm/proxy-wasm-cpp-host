@@ -315,11 +315,7 @@ public:
   }
 
   // Properties
-  WasmResult getProperty(std::string_view path, std::string *result) override {
-    if (path == "plugin_root_id") {
-      *result = root_id_;
-      return WasmResult::Ok;
-    }
+  WasmResult getProperty(std::string_view /* path */, std::string * /* result */) override {
     return unimplemented();
   }
   WasmResult setProperty(std::string_view /* key */,

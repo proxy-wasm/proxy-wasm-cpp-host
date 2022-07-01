@@ -91,10 +91,20 @@ private:
 class TestContext : public ContextBase {
 public:
   TestContext(WasmBase *wasm) : ContextBase(wasm) {}
+  TestContext(WasmBase *wasm, const std::shared_ptr<PluginBase> &plugin)
+      : ContextBase(wasm, plugin) {}
 
   WasmResult log(uint32_t /*log_level*/, std::string_view message) override {
     log_ += std::string(message) + "\n";
     return WasmResult::Ok;
+  }
+
+  WasmResult getProperty(std::string_view path, std::string *result) override {
+    if (path == "plugin_root_id") {
+      *result = root_id_;
+      return WasmResult::Ok;
+    }
+    return unimplemented();
   }
 
   bool isLogEmpty() { return log_.empty(); }
@@ -118,10 +128,37 @@ private:
 
 class TestWasm : public WasmBase {
 public:
-  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::unordered_map<std::string, std::string> envs = {})
-      : WasmBase(std::move(wasm_vm), "", "", "", std::move(envs), {}) {}
+  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
+           std::string_view vm_configuration, std::string_view vm_key,
+           std::unordered_map<std::string, std::string> envs,
+           AllowedCapabilitiesMap allowed_capabilities)
+      : WasmBase(std::move(wasm_vm), vm_id, vm_configuration, vm_key, std::move(envs),
+                 std::move(allowed_capabilities)) {}
+
+  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::unordered_map<std::string, std::string> envs)
+      : TestWasm(std::move(wasm_vm), "", "", "", std::move(envs), {}) {}
+
+  TestWasm(std::unique_ptr<WasmVm> wasm_vm) : TestWasm(std::move(wasm_vm), {}) {}
+
+  TestWasm(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory)
+      : TestWasm(base_wasm_handle, factory, nullptr) {}
+
+  TestWasm(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory,
+           std::function<void(TestContext *)> root_context_cb)
+      : WasmBase(base_wasm_handle, factory), root_context_cb_(std::move(root_context_cb)) {}
 
   ContextBase *createVmContext() override { return new TestContext(this); };
+
+  ContextBase *createRootContext(const std::shared_ptr<PluginBase> &plugin) override {
+    auto *ctx = new TestContext(this, plugin);
+    if (root_context_cb_) {
+      root_context_cb_(ctx);
+    }
+    return ctx;
+  }
+
+private:
+  std::function<void(TestContext *)> root_context_cb_;
 };
 
 class TestVm : public testing::TestWithParam<std::string> {
