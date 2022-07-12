@@ -68,7 +68,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@wasmtime__fallible_iterator__0_2_0//:fallible_iterator",
-        "@wasmtime__indexmap__1_8_1//:indexmap",
+        "@wasmtime__indexmap__1_9_1//:indexmap",
         "@wasmtime__stable_deref_trait__1_2_0//:stable_deref_trait",
     ],
 )
