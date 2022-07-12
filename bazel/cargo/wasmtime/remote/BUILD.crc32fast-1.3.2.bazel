@@ -43,7 +43,6 @@ cargo_build_script(
     build_script_env = {
     },
     crate_features = [
-        "default",
         "std",
     ],
     crate_root = "build.rs",
@@ -68,7 +67,6 @@ rust_library(
     name = "crc32fast",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
         "std",
     ],
     crate_root = "src/lib.rs",

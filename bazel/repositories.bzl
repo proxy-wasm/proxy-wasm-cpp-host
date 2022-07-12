@@ -116,10 +116,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         git_repository,
         name = "v8",
-        # 10.0.139.6
-        commit = "1e242a567b609aa18ce46f7b04cc51fd85756b67",
+        # 10.4.132.18
+        commit = "ce33dd2c08521fbe7f616bcd5941f2f388338030",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1646671271 +0000",
+        shallow_since = "1657561920 +0000",
         patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
         patch_args = ["-p1"],
     )
@@ -147,9 +147,9 @@ def proxy_wasm_cpp_host_repositories():
         new_git_repository,
         name = "com_googlesource_chromium_zlib",
         build_file = "@v8//:bazel/BUILD.zlib",
-        commit = "9538f4194f6e5eff1bd59f2396ed9d05b1a8d801",
+        commit = "64bbf988543996eb8df9a86877b32917187eba8f",
         remote = "https://chromium.googlesource.com/chromium/src/third_party/zlib.git",
-        shallow_since = "1644963419 -0800",
+        shallow_since = "1653988038 -0700",
     )
 
     native.bind(
@@ -201,9 +201,9 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "6e10746bd5141eebb1ba235b91cc042b743d7240f636be163a2c01bc0444ba68",
-        strip_prefix = "wasmtime-0.36.0",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.36.0.tar.gz",
+        sha256 = "8cb4ed3f14a1b054ff36e7017c056f10a28b57673f21d7548354fd40f2f02b3b",
+        strip_prefix = "wasmtime-0.38.1",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.38.1.tar.gz",
     )
 
     maybe(

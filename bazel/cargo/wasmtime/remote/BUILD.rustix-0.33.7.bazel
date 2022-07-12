@@ -186,7 +186,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
             "@wasmtime__errno__0_2_8//:errno",
-            "@wasmtime__libc__0_2_125//:libc",
+            "@wasmtime__libc__0_2_126//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
