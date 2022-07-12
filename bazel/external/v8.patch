@@ -1,6 +1,5 @@
 # 1. Disable pointer compression (limits the maximum number of WasmVMs).
 # 2. Don't expose Wasm C API (only Wasm C++ API).
-# 3. Fix linking on Linux (needed only for branch-heads/10.0).
 
 diff --git a/BUILD.bazel b/BUILD.bazel
 index 5fb10d3940..a19930d36e 100644
@@ -34,31 +33,3 @@ index ce3f569fd5..dc8a4c4f6a 100644
  }  // extern "C"
 +
 +#endif
-diff --git a/bazel/defs.bzl b/bazel/defs.bzl
-index dee5e69cc4..070fadb969 100644
---- a/bazel/defs.bzl
-+++ b/bazel/defs.bzl
-@@ -159,8 +159,21 @@ def _default_args():
-                 "DbgHelp.lib",
-                 "Advapi32.lib",
-             ],
--            "@v8//bazel/config:is_macos": ["-pthread"],
--            "//conditions:default": ["-Wl,--no-as-needed -ldl -pthread"],
-+            "@v8//bazel/config:is_macos": [
-+                "-pthread",
-+            ],
-+            "@v8//bazel/config:is_android": [
-+                "-Wl,--no-as-needed",
-+                "-ldl",
-+                "-pthread",
-+            ],
-+            "@v8//bazel/config:is_linux": [
-+                "-Wl,--no-as-needed",
-+                "-ldl",
-+                "-lrt",
-+                "-pthread",
-+            ],
-+            "//conditions:default": [],
-         }) + select({
-             ":should_add_rdynamic": ["-rdynamic"],
-             "//conditions:default": [],
