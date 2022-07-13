@@ -168,10 +168,10 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasm_micro_runtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
-        # WAMR-01-18-2022
-        sha256 = "af88da144bcb5ecac417af7fd34130487f5e4792e79670f07530474b2ef43912",
-        strip_prefix = "wasm-micro-runtime-d856af6c33591815ab4c890f0606bc99ee8135ad",
-        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/d856af6c33591815ab4c890f0606bc99ee8135ad.tar.gz",
+        # WAMR-05-18-2022
+        sha256 = "350736fffdc49533f5f372221d01e3b570ecd7b85f4429b22f5d89594eb99d9c",
+        strip_prefix = "wasm-micro-runtime-d7a2888b18c478d87ce8094e1419b4e061db289f",
+        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/d7a2888b18c478d87ce8094e1419b4e061db289f.tar.gz",
     )
 
     native.bind(

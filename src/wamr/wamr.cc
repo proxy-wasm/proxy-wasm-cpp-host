@@ -296,7 +296,7 @@ bool Wamr::link(std::string_view /*debug_name*/) {
     return false;
   }
 
-  wasm_extern_vec_t imports_vec = {imports.size(), imports.data()};
+  wasm_extern_vec_t imports_vec = {imports.size(), imports.data(), imports.size()};
   instance_ = wasm_instance_new(store_.get(), module_.get(), &imports_vec, nullptr);
   if (instance_ == nullptr) {
     fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
