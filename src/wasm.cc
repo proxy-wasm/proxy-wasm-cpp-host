@@ -447,11 +447,11 @@ void WasmBase::finishShutdown() {
   }
 }
 
-bool canary(std::shared_ptr<WasmHandleBase> &wasm_handle, const std::shared_ptr<PluginBase> &plugin,
+bool WasmHandleBase::canary(const std::shared_ptr<PluginBase> &plugin,
             const WasmHandleCloneFactory &clone_factory) {
-  auto configuration_canary_handle = clone_factory(wasm_handle);
+  auto configuration_canary_handle = clone_factory(shared_from_this());
   if (!configuration_canary_handle) {
-    wasm_handle->wasm()->fail(FailState::UnableToCloneVm, "Failed to clone Base Wasm");
+    this->wasm()->fail(FailState::UnableToCloneVm, "Failed to clone Base Wasm");
     return false;
   }
   if (!configuration_canary_handle->wasm()->initialize()) {
@@ -511,7 +511,7 @@ std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std:
   }
 
   // Either creating new one or reusing the existing one, apply canary for each plugin.
-  if (!canary(wasm_handle, plugin, clone_factory)) {
+  if (!wasm_handle->canary(plugin, clone_factory)) {
     return nullptr;
   }
   return wasm_handle;
