@@ -158,9 +158,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
 
   WasmHandleFactory wasm_handle_factory_baseline =
       [this, vm_ids, vm_configs](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
-    auto base_wasm = std::make_shared<TestWasm>(newVm(), vm_ids[0], vm_configs[0], vm_key,
-                                                std::unordered_map<std::string, std::string>{},
-                                                AllowedCapabilitiesMap{});
+    auto base_wasm = std::make_shared<TestWasm>(newVm(), vm_ids[0], vm_configs[0], vm_key);
     return std::make_shared<WasmHandleBase>(base_wasm);
   };
 
@@ -190,9 +188,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
                 WasmHandleFactory wasm_handle_factory_comp =
                     [this, vm_id,
                      vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
-                  auto base_wasm = std::make_shared<TestWasm>(
-                      newVm(), vm_id, vm_config, vm_key,
-                      std::unordered_map<std::string, std::string>{}, AllowedCapabilitiesMap{});
+                  auto base_wasm = std::make_shared<TestWasm>(newVm(), vm_id, vm_config, vm_key);
                   return std::make_shared<WasmHandleBase>(base_wasm);
                 };
                 const auto plugin_comp = std::make_shared<PluginBase>(

@@ -128,23 +128,15 @@ private:
 
 class TestWasm : public WasmBase {
 public:
+  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::unordered_map<std::string, std::string> envs = {})
+      : WasmBase(std::move(wasm_vm), "", "", "", std::move(envs), {}) {}
+
   TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
-           std::string_view vm_configuration, std::string_view vm_key,
-           std::unordered_map<std::string, std::string> envs,
-           AllowedCapabilitiesMap allowed_capabilities)
-      : WasmBase(std::move(wasm_vm), vm_id, vm_configuration, vm_key, std::move(envs),
-                 std::move(allowed_capabilities)) {}
-
-  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::unordered_map<std::string, std::string> envs)
-      : TestWasm(std::move(wasm_vm), "", "", "", std::move(envs), {}) {}
-
-  TestWasm(std::unique_ptr<WasmVm> wasm_vm) : TestWasm(std::move(wasm_vm), {}) {}
-
-  TestWasm(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory)
-      : TestWasm(base_wasm_handle, factory, nullptr) {}
+           std::string_view vm_configuration, std::string_view vm_key)
+      : WasmBase(std::move(wasm_vm), vm_id, vm_configuration, vm_key, {}, {}) {}
 
   TestWasm(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory,
-           std::function<void(TestContext *)> root_context_cb)
+           std::function<void(TestContext *)> root_context_cb = nullptr)
       : WasmBase(base_wasm_handle, factory), root_context_cb_(std::move(root_context_cb)) {}
 
   ContextBase *createVmContext() override { return new TestContext(this); };

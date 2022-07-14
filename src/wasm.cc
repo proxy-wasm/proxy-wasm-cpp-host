@@ -448,7 +448,7 @@ void WasmBase::finishShutdown() {
 }
 
 bool WasmHandleBase::canary(const std::shared_ptr<PluginBase> &plugin,
-            const WasmHandleCloneFactory &clone_factory) {
+                            const WasmHandleCloneFactory &clone_factory) {
   auto configuration_canary_handle = clone_factory(shared_from_this());
   if (!configuration_canary_handle) {
     this->wasm()->fail(FailState::UnableToCloneVm, "Failed to clone Base Wasm");

@@ -328,7 +328,8 @@ public:
     }
   }
 
-  bool canary(const std::shared_ptr<PluginBase> &plugin, const WasmHandleCloneFactory &clone_factory);
+  bool canary(const std::shared_ptr<PluginBase> &plugin,
+              const WasmHandleCloneFactory &clone_factory);
 
   void kill() { wasm_base_ = nullptr; }
 
