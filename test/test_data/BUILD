@@ -1,5 +1,5 @@
 load("@proxy_wasm_cpp_host//bazel:wasm.bzl", "wasm_rust_binary")
-load("@proxy_wasm_cpp_sdk//bazel/wasm:wasm.bzl", "wasm_cc_binary")
+load("@proxy_wasm_cpp_sdk//bazel:defs.bzl", "proxy_wasm_cc_binary")
 
 licenses(["notice"])  # Apache 2
 
@@ -61,10 +61,7 @@ wasm_rust_binary(
     wasi = True,
 )
 
-wasm_cc_binary(
+proxy_wasm_cc_binary(
     name = "configure_check.wasm",
     srcs = ["configure_check.cc"],
-    deps = [
-        "@proxy_wasm_cpp_sdk//:proxy_wasm_intrinsics",
-    ],
 )

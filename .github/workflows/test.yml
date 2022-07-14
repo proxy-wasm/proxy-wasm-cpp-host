@@ -55,7 +55,7 @@ jobs:
         --test_output=errors
         --config=clang
         -c opt
-        $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
+        $(bazel query 'kind(.*wasm_.*_binary, //test/test_data/...)')
 
     - name: Upload test data
       uses: actions/upload-artifact@v2
