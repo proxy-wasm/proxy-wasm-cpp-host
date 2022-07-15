@@ -95,7 +95,9 @@ public:
       : ContextBase(wasm, plugin) {}
 
   WasmResult log(uint32_t /*log_level*/, std::string_view message) override {
-    log_ += std::string(message) + "\n";
+    auto new_log = std::string(message) + "\n";
+    log_ += new_log;
+    global_log_ += new_log;
     return WasmResult::Ok;
   }
 
@@ -111,6 +113,12 @@ public:
 
   bool isLogged(std::string_view message) { return log_.find(message) != std::string::npos; }
 
+  static bool isGlobalLogged(std::string_view message) {
+    return global_log_.find(message) != std::string::npos;
+  }
+
+  static void resetGlobalLog() { global_log_ = ""; }
+
   uint64_t getCurrentTimeNanoseconds() override {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(
                std::chrono::system_clock::now().time_since_epoch())
@@ -124,6 +132,7 @@ public:
 
 private:
   std::string log_;
+  static std::string global_log_;
 };
 
 class TestWasm : public WasmBase {
@@ -135,22 +144,14 @@ public:
            std::string_view vm_configuration, std::string_view vm_key)
       : WasmBase(std::move(wasm_vm), vm_id, vm_configuration, vm_key, {}, {}) {}
 
-  TestWasm(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory,
-           std::function<void(TestContext *)> root_context_cb = nullptr)
-      : WasmBase(base_wasm_handle, factory), root_context_cb_(std::move(root_context_cb)) {}
+  TestWasm(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory)
+      : WasmBase(base_wasm_handle, factory) {}
 
   ContextBase *createVmContext() override { return new TestContext(this); };
 
   ContextBase *createRootContext(const std::shared_ptr<PluginBase> &plugin) override {
-    auto *ctx = new TestContext(this, plugin);
-    if (root_context_cb_) {
-      root_context_cb_(ctx);
-    }
-    return ctx;
+    return new TestContext(this, plugin);
   }
-
-private:
-  std::function<void(TestContext *)> root_context_cb_;
 };
 
 class TestVm : public testing::TestWithParam<std::string> {

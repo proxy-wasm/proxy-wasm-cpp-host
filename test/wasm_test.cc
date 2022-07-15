@@ -135,14 +135,11 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   };
 
   auto canary_count = 0;
-  TestContext *root_context_in_canary = nullptr;
   WasmHandleCloneFactory wasm_handle_clone_factory_for_canary =
-      [&canary_count, &root_context_in_canary,
-       this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
+      [&canary_count, this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
       -> std::shared_ptr<WasmHandleBase> {
-    auto wasm = std::make_shared<TestWasm>(
-        base_wasm_handle, [this]() -> std::unique_ptr<WasmVm> { return newVm(); },
-        [&root_context_in_canary](TestContext *ctx) { root_context_in_canary = ctx; });
+    auto wasm = std::make_shared<TestWasm>(base_wasm_handle,
+                                           [this]() -> std::unique_ptr<WasmVm> { return newVm(); });
     canary_count++;
     return std::make_shared<WasmHandleBase>(wasm);
   };
@@ -173,7 +170,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   ASSERT_TRUE(wasm_handle_baseline && wasm_handle_baseline->wasm());
 
   // Check if it ran for baseline root context
-  EXPECT_TRUE(root_context_in_canary->isLogged("onConfigure: " + root_ids[0]));
+  EXPECT_TRUE(TestContext::isGlobalLogged("onConfigure: " + root_ids[0]));
   // For each create Wasm, canary should be done.
   EXPECT_EQ(canary_count, 1);
 
@@ -185,6 +182,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             for (const auto &vm_key : vm_keys) {
               for (const auto &plugin_key : plugin_keys) {
                 canary_count = 0;
+                TestContext::resetGlobalLog();
                 WasmHandleFactory wasm_handle_factory_comp =
                     [this, vm_id,
                      vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
@@ -199,8 +197,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
                                wasm_handle_clone_factory_for_canary, false);
                 ASSERT_TRUE(wasm_handle_comp && wasm_handle_comp->wasm());
 
-                // Check if it ran for root context 2.
-                EXPECT_TRUE(root_context_in_canary->isLogged("onConfigure: " + root_id));
+                EXPECT_TRUE(TestContext::isGlobalLogged("onConfigure: " + root_id));
 
                 // Wasm VM is unique for vm_key.
                 if (vm_key == vm_keys[0]) {
