@@ -115,6 +115,10 @@ TEST_P(TestVm, GetOrCreateThreadLocalWasmFailCallbacks) {
 
 // Tests the canary is always applied when making a call `createWasm`
 TEST_P(TestVm, AlwaysApplyCanary) {
+  // Skip this test for s309x arch because it tooks too much time in CI.
+#if defined(__s390x__) || defined(__zarch__)
+  GTEST_SKIP();
+#endif
   // Use different root_id, but the others are the same
   const auto *const plugin_name = "plugin_name";
 
