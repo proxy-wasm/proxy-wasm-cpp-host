@@ -216,6 +216,8 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             }
             // For each create Wasm, canary should be done.
             EXPECT_EQ(canary_count, 1);
+
+            wasm_handle_comp->kill();
           }
         }
       }
