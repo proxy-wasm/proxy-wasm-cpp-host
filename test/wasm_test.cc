@@ -205,7 +205,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
               // configure_check.wasm should raise the error at `onConfigure` in canary when the
               // `plugin_config` is empty string.
               EXPECT_EQ(wasm_handle_comp, nullptr);
-              return;
+              continue;
             }
 
             ASSERT_TRUE(wasm_handle_comp && wasm_handle_comp->wasm());

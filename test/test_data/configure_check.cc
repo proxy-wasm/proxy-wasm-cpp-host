@@ -23,10 +23,7 @@ public:
   explicit TestRootContext1(uint32_t id, std::string_view root_id) : RootContext(id, root_id) {}
   bool onConfigure(size_t s) override {
     LOG_TRACE("onConfigure: root_id_1");
-    if (s == 0) {
-      return false;
-    }
-    return true;
+    return s != 0;
   }
 };
 
@@ -40,10 +37,7 @@ public:
   explicit TestRootContext2(uint32_t id, std::string_view root_id) : RootContext(id, root_id) {}
   bool onConfigure(size_t s) override {
     LOG_TRACE("onConfigure: root_id_2");
-    if (s == 0) {
-      return false;
-    }
-    return true;
+    return s != 0;
   }
 };
 
