@@ -125,7 +125,8 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   const std::string root_ids[2] = {"root_id_1", "root_id_2"};
   const std::string vm_ids[2] = {"vm_id_1", "vm_id_2"};
   const std::string vm_configs[2] = {"vm_config_1", "vm_config_2"};
-  const std::string plugin_configs[2] = {"plugin_config_1", "plugin_config_2"};
+  const std::string plugin_configs[3] = {"plugin_config_1", "plugin_config_2",
+                                         /* raising the error */ ""};
   const std::string plugin_keys[2] = {"plugin_key_1", "plugin_key_2"};
   const auto fail_open = false;
 
@@ -182,8 +183,8 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   for (const auto &root_id : root_ids) {
     for (const auto &vm_id : vm_ids) {
       for (const auto &vm_config : vm_configs) {
-        for (const auto &plugin_config : plugin_configs) {
-          for (const auto &plugin_key : plugin_keys) {
+        for (const auto &plugin_key : plugin_keys) {
+          for (const auto &plugin_config : plugin_configs) {
             canary_count = 0;
             TestContext::resetGlobalLog();
             WasmHandleFactory wasm_handle_factory_comp =
@@ -199,6 +200,14 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             auto wasm_handle_comp =
                 createWasm(vm_key, source, plugin_comp, wasm_handle_factory_comp,
                            wasm_handle_clone_factory_for_canary, false);
+
+            if (plugin_config.empty()) {
+              // configure_check.wasm should raise the error at `onConfigure` in canary when the
+              // `plugin_config` is empty string.
+              EXPECT_EQ(wasm_handle_comp, nullptr);
+              return;
+            }
+
             ASSERT_TRUE(wasm_handle_comp && wasm_handle_comp->wasm());
 
             EXPECT_TRUE(TestContext::isGlobalLogged("onConfigure: " + root_id));
