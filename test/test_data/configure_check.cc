@@ -27,9 +27,9 @@ public:
   }
 };
 
-class TestContext1 : public Context {
+class TestContext : public Context {
 public:
-  explicit TestContext1(uint32_t id, RootContext *root) : Context(id, root) {}
+  explicit TestContext(uint32_t id, RootContext *root) : Context(id, root) {}
 };
 
 class TestRootContext2 : public RootContext {
@@ -41,13 +41,8 @@ public:
   }
 };
 
-class TestContext2 : public Context {
-public:
-  explicit TestContext2(uint32_t id, RootContext *root) : Context(id, root) {}
-};
-
-static RegisterContextFactory register_TestContext1(CONTEXT_FACTORY(TestContext1),
+static RegisterContextFactory register_TestContext1(CONTEXT_FACTORY(TestContext),
                                                     ROOT_FACTORY(TestRootContext1), "root_id_1");
 
-static RegisterContextFactory register_TestContext2(CONTEXT_FACTORY(TestContext2),
+static RegisterContextFactory register_TestContext2(CONTEXT_FACTORY(TestContext),
                                                     ROOT_FACTORY(TestRootContext2), "root_id_2");
