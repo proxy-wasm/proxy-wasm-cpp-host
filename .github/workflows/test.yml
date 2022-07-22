@@ -57,7 +57,10 @@ jobs:
         -c opt
         $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
         $(bazel query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
-    # Note `proxy_wasm_cc_binary` generates `_optimized_wasm_cc_binary` rule building the final artifact of `proxy_wasm_cc_binary`.
+    
+    # Currently, in Github Action, "Bazel build step" creates `wasm_configure_check.wasm` directory as a temporal directory.
+    # Since the name of this directory has "*.wasm" pattern, the step "Mangle build rules to use existing test data" fails.
+    # So, here, we clear out the directories in test_data. 
     - name: Clean up test data
       shell: bash
       run: |
