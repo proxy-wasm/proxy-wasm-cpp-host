@@ -137,12 +137,10 @@ private:
 
 class TestWasm : public WasmBase {
 public:
-  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::unordered_map<std::string, std::string> envs = {})
-      : WasmBase(std::move(wasm_vm), "", "", "", std::move(envs), {}) {}
-
-  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
-           std::string_view vm_configuration, std::string_view vm_key)
-      : WasmBase(std::move(wasm_vm), vm_id, vm_configuration, vm_key, {}, {}) {}
+  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::unordered_map<std::string, std::string> envs = {},
+           std::string_view vm_id = "", std::string_view vm_configuration = "",
+           std::string_view vm_key = "")
+      : WasmBase(std::move(wasm_vm), vm_id, vm_configuration, vm_key, std::move(envs), {}) {}
 
   TestWasm(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory)
       : WasmBase(base_wasm_handle, factory) {}

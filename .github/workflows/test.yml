@@ -57,15 +57,13 @@ jobs:
         -c opt
         $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
         $(bazel query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
-
+    # Note `proxy_wasm_cc_binary` generates `_optimized_wasm_cc_binary` rule building the final artifact of `proxy_wasm_cc_binary`.
     - name: Clean up test data
       shell: bash
       run: |
         # Remove temporal directories
-        for i in $(cd bazel-bin/test/test_data && ls -1); do \
-          if [ -d "bazel-bin/test/test_data/$i" ]; then \
-            rm -rf bazel-bin/test/test_data/$i; \
-          fi; \
+        for i in $(find bazel-bin/test/test_data/ -mindepth 1 -maxdepth 1 -type d); do \
+          rm -rf $i; \
         done
 
     - name: Upload test data
@@ -279,6 +277,7 @@ jobs:
         done
 
     - name: Bazel build/test
+      timeout-minutes: 30
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}

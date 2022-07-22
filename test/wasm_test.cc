@@ -115,10 +115,6 @@ TEST_P(TestVm, GetOrCreateThreadLocalWasmFailCallbacks) {
 
 // Tests the canary is always applied when making a call `createWasm`
 TEST_P(TestVm, AlwaysApplyCanary) {
-  // Skip this test for s309x arch because it tooks too much time in CI.
-#if defined(__s390x__) || defined(__zarch__)
-  GTEST_SKIP();
-#endif
   // Use different root_id, but the others are the same
   const auto *const plugin_name = "plugin_name";
 
@@ -160,7 +156,8 @@ TEST_P(TestVm, AlwaysApplyCanary) {
 
   WasmHandleFactory wasm_handle_factory_baseline =
       [this, vm_ids, vm_configs](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
-    auto base_wasm = std::make_shared<TestWasm>(newVm(), vm_ids[0], vm_configs[0], vm_key);
+    auto base_wasm = std::make_shared<TestWasm>(
+        newVm(), std::unordered_map<std::string, std::string>(), vm_ids[0], vm_configs[0], vm_key);
     return std::make_shared<WasmHandleBase>(base_wasm);
   };
 
@@ -190,7 +187,9 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             WasmHandleFactory wasm_handle_factory_comp =
                 [this, vm_id,
                  vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
-              auto base_wasm = std::make_shared<TestWasm>(newVm(), vm_id, vm_config, vm_key);
+              auto base_wasm = std::make_shared<TestWasm>(
+                  newVm(), std::unordered_map<std::string, std::string>(), vm_id, vm_config,
+                  vm_key);
               return std::make_shared<WasmHandleBase>(base_wasm);
             };
             const auto plugin_comp = std::make_shared<PluginBase>(
