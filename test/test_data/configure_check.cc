@@ -18,31 +18,35 @@
 
 #include "proxy_wasm_intrinsics.h"
 
-class TestRootContext1 : public RootContext {
+class CanaryCheckRootContext1 : public RootContext {
 public:
-  explicit TestRootContext1(uint32_t id, std::string_view root_id) : RootContext(id, root_id) {}
+  explicit CanaryCheckRootContext1(uint32_t id, std::string_view root_id)
+      : RootContext(id, root_id) {}
   bool onConfigure(size_t s) override {
     LOG_TRACE("onConfigure: root_id_1");
     return s != 0;
   }
 };
 
-class TestContext : public Context {
+class CanaryCheckContext : public Context {
 public:
-  explicit TestContext(uint32_t id, RootContext *root) : Context(id, root) {}
+  explicit CanaryCheckContext(uint32_t id, RootContext *root) : Context(id, root) {}
 };
 
-class TestRootContext2 : public RootContext {
+class CanaryCheckRootContext2 : public RootContext {
 public:
-  explicit TestRootContext2(uint32_t id, std::string_view root_id) : RootContext(id, root_id) {}
+  explicit CanaryCheckRootContext2(uint32_t id, std::string_view root_id)
+      : RootContext(id, root_id) {}
   bool onConfigure(size_t s) override {
     LOG_TRACE("onConfigure: root_id_2");
     return s != 0;
   }
 };
 
-static RegisterContextFactory register_TestContext1(CONTEXT_FACTORY(TestContext),
-                                                    ROOT_FACTORY(TestRootContext1), "root_id_1");
+static RegisterContextFactory register_CanaryCheckContext1(CONTEXT_FACTORY(CanaryCheckContext),
+                                                           ROOT_FACTORY(CanaryCheckRootContext1),
+                                                           "root_id_1");
 
-static RegisterContextFactory register_TestContext2(CONTEXT_FACTORY(TestContext),
-                                                    ROOT_FACTORY(TestRootContext2), "root_id_2");
+static RegisterContextFactory register_CanaryCheckContext2(CONTEXT_FACTORY(CanaryCheckContext),
+                                                           ROOT_FACTORY(CanaryCheckRootContext2),
+                                                           "root_id_2");
