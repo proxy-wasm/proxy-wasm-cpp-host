@@ -17,6 +17,7 @@
 #include <unordered_set>
 
 #include "gtest/gtest.h"
+
 #include "test/utility.h"
 
 namespace proxy_wasm {
