@@ -91,7 +91,7 @@ cc_test(
     srcs = ["wasm_test.cc"],
     data = [
         "//test/test_data:abi_export.wasm",
-        "//test/test_data:configure_check.wasm",
+        "//test/test_data:canary_check.wasm",
     ],
     linkstatic = 1,
     deps = [

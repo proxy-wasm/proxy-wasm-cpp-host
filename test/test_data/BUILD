@@ -62,6 +62,6 @@ wasm_rust_binary(
 )
 
 proxy_wasm_cc_binary(
-    name = "configure_check.wasm",
-    srcs = ["configure_check.cc"],
+    name = "canary_check.wasm",
+    srcs = ["canary_check.cc"],
 )

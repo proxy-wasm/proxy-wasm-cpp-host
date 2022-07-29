@@ -14,9 +14,9 @@
 
 #include "include/proxy-wasm/wasm.h"
 
-#include "gtest/gtest.h"
 #include <unordered_set>
 
+#include "gtest/gtest.h"
 #include "test/utility.h"
 
 namespace proxy_wasm {
@@ -128,14 +128,6 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   const auto fail_open = false;
 
   // Define common callbacks
-  WasmHandleCloneFactory wasm_handle_clone_factory =
-      [this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
-      -> std::shared_ptr<WasmHandleBase> {
-    auto wasm = std::make_shared<TestWasm>(base_wasm_handle,
-                                           [this]() -> std::unique_ptr<WasmVm> { return newVm(); });
-    return std::make_shared<WasmHandleBase>(wasm);
-  };
-
   auto canary_count = 0;
   WasmHandleCloneFactory wasm_handle_clone_factory_for_canary =
       [&canary_count, this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
@@ -153,7 +145,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   };
 
   // Read the minimal loadable binary.
-  auto source = readTestWasmFile("configure_check.wasm");
+  auto source = readTestWasmFile("canary_check.wasm");
 
   WasmHandleFactory wasm_handle_factory_baseline =
       [this, vm_ids, vm_configs](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
@@ -202,9 +194,11 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             auto wasm_handle_comp =
                 createWasm(vm_key, source, plugin_comp, wasm_handle_factory_comp,
                            wasm_handle_clone_factory_for_canary, false);
+            // For each create Wasm, canary should be done.
+            EXPECT_EQ(canary_count, 1);
 
             if (plugin_config.empty()) {
-              // configure_check.wasm should raise the error at `onConfigure` in canary when the
+              // canary_check.wasm should raise the error at `onConfigure` in canary when the
               // `plugin_config` is empty string.
               EXPECT_EQ(wasm_handle_comp, nullptr);
               continue;
@@ -233,8 +227,6 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             } else {
               EXPECT_NE(plugin_baseline->key(), plugin_comp->key());
             }
-            // For each create Wasm, canary should be done.
-            EXPECT_EQ(canary_count, 1);
           }
         }
       }
