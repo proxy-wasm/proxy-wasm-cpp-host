@@ -56,6 +56,18 @@ jobs:
         --config=clang
         -c opt
         $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
+        $(bazel query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
+
+    # Currently, in Github Action, "Bazel build step" creates `wasm_canary_check.wasm` directory as a temporal directory.
+    # Since the name of this directory has "*.wasm" pattern, the step "Mangle build rules to use existing test data" fails.
+    # So, here, we clear out the directories in test_data.
+    - name: Clean up test data
+      shell: bash
+      run: |
+        # Remove temporal directories
+        for i in $(find bazel-bin/test/test_data/ -mindepth 1 -maxdepth 1 -type d); do \
+          rm -rf $i; \
+        done
 
     - name: Upload test data
       uses: actions/upload-artifact@v2
@@ -201,7 +213,7 @@ jobs:
           os: ubuntu-20.04
           arch: s390x
           action: test
-          flags: --config=clang
+          flags: --config=clang --test_timeout=1800
           run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
           cache: true
         - name: 'Wasmtime on macOS/x86_64'

@@ -1,4 +1,5 @@
 load("@proxy_wasm_cpp_host//bazel:wasm.bzl", "wasm_rust_binary")
+load("@proxy_wasm_cpp_sdk//bazel:defs.bzl", "proxy_wasm_cc_binary")
 
 licenses(["notice"])  # Apache 2
 
@@ -58,4 +59,9 @@ wasm_rust_binary(
     name = "random.wasm",
     srcs = ["random.rs"],
     wasi = True,
+)
+
+proxy_wasm_cc_binary(
+    name = "canary_check.wasm",
+    srcs = ["canary_check.cc"],
 )
