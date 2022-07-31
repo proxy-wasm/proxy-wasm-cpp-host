@@ -357,7 +357,7 @@ public:
                             std::shared_ptr<PluginBase> plugin)
       : plugin_(plugin), wasm_handle_(wasm_handle) {}
   ~PluginHandleBase() {
-    if (wasm_handle_) {
+    if (wasm_handle_ && wasm_handle_->wasm()) {
       wasm_handle_->wasm()->startShutdown(plugin_->key());
     }
   }
