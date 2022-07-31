@@ -26,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
@@ -38,19 +38,17 @@ load(
 )
 
 cargo_build_script(
-    name = "cranelift_codegen_build_script",
+    name = "proc_macro2_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
         "default",
-        "gimli",
-        "std",
-        "unwind",
+        "proc-macro",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
-    edition = "2021",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -58,47 +56,44 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.85.1",
+    version = "1.0.42",
     visibility = ["//visibility:private"],
     deps = [
-        "@wasmtime__cranelift_codegen_meta__0_85_1//:cranelift_codegen_meta",
-        "@wasmtime__cranelift_isle__0_85_1//:cranelift_isle",
     ],
 )
 
-# Unsupported target "x64-evex-encoding" with type "bench" omitted
-
 rust_library(
-    name = "cranelift_codegen",
+    name = "proc_macro2",
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "default",
-        "gimli",
-        "std",
-        "unwind",
+        "proc-macro",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2021",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-codegen",
+        "crate-name=proc-macro2",
         "manual",
     ],
-    version = "0.85.1",
+    version = "1.0.42",
     # buildifier: leave-alone
     deps = [
-        ":cranelift_codegen_build_script",
-        "@wasmtime__cranelift_bforest__0_85_1//:cranelift_bforest",
-        "@wasmtime__cranelift_codegen_shared__0_85_1//:cranelift_codegen_shared",
-        "@wasmtime__cranelift_entity__0_85_1//:cranelift_entity",
-        "@wasmtime__gimli__0_26_1//:gimli",
-        "@wasmtime__log__0_4_17//:log",
-        "@wasmtime__regalloc2__0_2_3//:regalloc2",
-        "@wasmtime__smallvec__1_9_0//:smallvec",
-        "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
+        ":proc_macro2_build_script",
+        "@wasmtime__unicode_ident__1_0_2//:unicode_ident",
     ],
 )
+
+# Unsupported target "comments" with type "test" omitted
+
+# Unsupported target "features" with type "test" omitted
+
+# Unsupported target "marker" with type "test" omitted
+
+# Unsupported target "test" with type "test" omitted
+
+# Unsupported target "test_fmt" with type "test" omitted

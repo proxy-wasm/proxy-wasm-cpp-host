@@ -93,6 +93,10 @@ jobs:
         # See: https://github.com/google/cargo-raze/issues/451
         git diff --exit-code -- ':!wasmtime/remote/BUILD.errno-0.*.bazel' ':!wasmtime/remote/BUILD.rustix-0.*.bazel'
 
+    - name: Format (bazel query)
+      run: |
+        bazel query 'deps(//bazel/cargo/...)'
+
   clang_format:
     name: check format with clang-format
 

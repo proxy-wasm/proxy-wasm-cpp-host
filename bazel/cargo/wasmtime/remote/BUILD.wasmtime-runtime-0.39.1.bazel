@@ -54,7 +54,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.38.1",
+    version = "0.39.1",
     visibility = ["//visibility:private"],
     deps = [
         "@wasmtime__cc__1_0_73//:cc",
@@ -73,6 +73,7 @@ cargo_build_script(
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
+            "@wasmtime__windows_sys__0_36_1//:windows_sys",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -118,7 +119,7 @@ rust_library(
         "crate-name=wasmtime-runtime",
         "manual",
     ],
-    version = "0.38.1",
+    version = "0.39.1",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
@@ -133,8 +134,8 @@ rust_library(
         "@wasmtime__rand__0_8_5//:rand",
         "@wasmtime__region__2_2_0//:region",
         "@wasmtime__thiserror__1_0_31//:thiserror",
-        "@wasmtime__wasmtime_environ__0_38_1//:wasmtime_environ",
-        "@wasmtime__wasmtime_jit_debug__0_38_1//:wasmtime_jit_debug",
+        "@wasmtime__wasmtime_environ__0_39_1//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit_debug__0_39_1//:wasmtime_jit_debug",
     ] + selects.with_or({
         # cfg(target_os = "macos")
         (
@@ -151,7 +152,7 @@ rust_library(
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@wasmtime__winapi__0_3_9//:winapi",
+            "@wasmtime__windows_sys__0_36_1//:windows_sys",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -174,7 +175,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__rustix__0_33_7//:rustix",
+            "@wasmtime__rustix__0_35_7//:rustix",
         ],
         "//conditions:default": [],
     }),

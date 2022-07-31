@@ -26,17 +26,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "(MIT OR Apache-2.0) AND Unicode-DFS-2016"
 ])
 
 # Generated Targets
 
+# Unsupported target "xid" with type "bench" omitted
+
 rust_library(
-    name = "regalloc2",
+    name = "unicode_ident",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "checker",
-        "default",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -46,15 +46,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=regalloc2",
+        "crate-name=unicode-ident",
         "manual",
     ],
-    version = "0.2.3",
+    version = "1.0.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__fxhash__0_2_1//:fxhash",
-        "@wasmtime__log__0_4_17//:log",
-        "@wasmtime__slice_group_by__0_3_0//:slice_group_by",
-        "@wasmtime__smallvec__1_9_0//:smallvec",
     ],
 )
+
+# Unsupported target "compare" with type "test" omitted
+
+# Unsupported target "static_size" with type "test" omitted
