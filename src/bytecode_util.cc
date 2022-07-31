@@ -175,6 +175,7 @@ bool BytecodeUtil::getFunctionNameIndex(std::string_view bytecode,
           char *data = abi::__cxa_demangle(func_name.c_str(), nullptr, nullptr, &status);
           if (data != nullptr) {
             func_name = std::string(data);
+            ::free(data);
           }
 #endif
           ret.insert({func_index, func_name});
