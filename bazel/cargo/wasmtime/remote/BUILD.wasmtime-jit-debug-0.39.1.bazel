@@ -32,11 +32,11 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_entity",
+    name = "wasmtime_jit_debug",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "enable-serde",
-        "serde",
+        "gdb_jit_int",
+        "lazy_static",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -46,12 +46,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-entity",
+        "crate-name=wasmtime-jit-debug",
         "manual",
     ],
-    version = "0.85.1",
+    version = "0.39.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__serde__1_0_139//:serde",
+        "@wasmtime__lazy_static__1_4_0//:lazy_static",
     ],
 )

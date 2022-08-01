@@ -30,38 +30,66 @@ licenses([
 ])
 
 # Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
 
-# Unsupported target "bench" with type "bench" omitted
-
-# Unsupported target "insert_unique_unchecked" with type "bench" omitted
-
-rust_library(
-    name = "hashbrown",
+cargo_build_script(
+    name = "serde_build_script",
     srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
     crate_features = [
-        "raw",
+        "default",
+        "derive",
+        "serde_derive",
+        "std",
     ],
-    crate_root = "src/lib.rs",
-    data = [],
-    edition = "2021",
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=hashbrown",
         "manual",
     ],
-    version = "0.12.2",
-    # buildifier: leave-alone
+    version = "1.0.140",
+    visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
-# Unsupported target "hasher" with type "test" omitted
-
-# Unsupported target "rayon" with type "test" omitted
-
-# Unsupported target "serde" with type "test" omitted
-
-# Unsupported target "set" with type "test" omitted
+rust_library(
+    name = "serde",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+        "derive",
+        "serde_derive",
+        "std",
+    ],
+    crate_root = "src/lib.rs",
+    data = [],
+    edition = "2015",
+    proc_macro_deps = [
+        "@wasmtime__serde_derive__1_0_140//:serde_derive",
+    ],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "crate-name=serde",
+        "manual",
+    ],
+    version = "1.0.140",
+    # buildifier: leave-alone
+    deps = [
+        ":serde_build_script",
+    ],
+)

@@ -44,7 +44,6 @@ cargo_build_script(
     },
     crate_features = [
         "cranelift",
-        "wasmtime-cranelift",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -56,7 +55,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.38.1",
+    version = "0.39.1",
     visibility = ["//visibility:private"],
     deps = [
     ] + selects.with_or({
@@ -65,6 +64,7 @@ cargo_build_script(
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
+            "@wasmtime__windows_sys__0_36_1//:windows_sys",
         ],
         "//conditions:default": [],
     }),
@@ -77,7 +77,6 @@ rust_library(
     },
     crate_features = [
         "cranelift",
-        "wasmtime-cranelift",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -93,7 +92,7 @@ rust_library(
         "crate-name=wasmtime",
         "manual",
     ],
-    version = "0.38.1",
+    version = "0.39.1",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_build_script",
@@ -107,22 +106,22 @@ rust_library(
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__object__0_28_4//:object",
         "@wasmtime__once_cell__1_13_0//:once_cell",
-        "@wasmtime__psm__0_1_19//:psm",
+        "@wasmtime__psm__0_1_20//:psm",
         "@wasmtime__region__2_2_0//:region",
-        "@wasmtime__serde__1_0_139//:serde",
+        "@wasmtime__serde__1_0_140//:serde",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
-        "@wasmtime__wasmparser__0_85_0//:wasmparser",
-        "@wasmtime__wasmtime_cranelift__0_38_1//:wasmtime_cranelift",
-        "@wasmtime__wasmtime_environ__0_38_1//:wasmtime_environ",
-        "@wasmtime__wasmtime_jit__0_38_1//:wasmtime_jit",
-        "@wasmtime__wasmtime_runtime__0_38_1//:wasmtime_runtime",
+        "@wasmtime__wasmparser__0_86_0//:wasmparser",
+        "@wasmtime__wasmtime_cranelift__0_39_1//:wasmtime_cranelift",
+        "@wasmtime__wasmtime_environ__0_39_1//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit__0_39_1//:wasmtime_jit",
+        "@wasmtime__wasmtime_runtime__0_39_1//:wasmtime_runtime",
     ] + selects.with_or({
         # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@wasmtime__winapi__0_3_9//:winapi",
+            "@wasmtime__windows_sys__0_36_1//:windows_sys",
         ],
         "//conditions:default": [],
     }),

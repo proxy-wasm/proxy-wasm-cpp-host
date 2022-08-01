@@ -31,8 +31,12 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "benchmark" with type "bench" omitted
+
+# Unsupported target "simple" with type "example" omitted
+
 rust_library(
-    name = "cranelift_codegen_shared",
+    name = "wasmparser",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -44,11 +48,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-codegen-shared",
+        "crate-name=wasmparser",
         "manual",
     ],
-    version = "0.85.1",
+    version = "0.86.0",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__indexmap__1_9_1//:indexmap",
     ],
 )

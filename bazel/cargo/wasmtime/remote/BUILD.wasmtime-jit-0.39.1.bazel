@@ -49,7 +49,7 @@ rust_library(
         "crate-name=wasmtime-jit",
         "manual",
     ],
-    version = "0.38.1",
+    version = "0.39.1",
     # buildifier: leave-alone
     deps = [
         "@wasmtime__addr2line__0_17_0//:addr2line",
@@ -57,16 +57,16 @@ rust_library(
         "@wasmtime__bincode__1_3_3//:bincode",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__cpp_demangle__0_3_5//:cpp_demangle",
-        "@wasmtime__gimli__0_26_1//:gimli",
+        "@wasmtime__gimli__0_26_2//:gimli",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__object__0_28_4//:object",
         "@wasmtime__region__2_2_0//:region",
         "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
-        "@wasmtime__serde__1_0_139//:serde",
+        "@wasmtime__serde__1_0_140//:serde",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
         "@wasmtime__thiserror__1_0_31//:thiserror",
-        "@wasmtime__wasmtime_environ__0_38_1//:wasmtime_environ",
-        "@wasmtime__wasmtime_runtime__0_38_1//:wasmtime_runtime",
+        "@wasmtime__wasmtime_environ__0_39_1//:wasmtime_environ",
+        "@wasmtime__wasmtime_runtime__0_39_1//:wasmtime_runtime",
     ] + selects.with_or({
         # cfg(target_os = "linux")
         (
@@ -77,7 +77,7 @@ rust_library(
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
         ): [
-            "@wasmtime__rustix__0_33_7//:rustix",
+            "@wasmtime__rustix__0_35_7//:rustix",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -86,7 +86,7 @@ rust_library(
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@wasmtime__winapi__0_3_9//:winapi",
+            "@wasmtime__windows_sys__0_36_1//:windows_sys",
         ],
         "//conditions:default": [],
     }),
