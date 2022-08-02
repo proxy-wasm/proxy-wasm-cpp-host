@@ -233,11 +233,9 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_wavm_wavm",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wavm.BUILD",
-        sha256 = "bf2b2aec8a4c6a5413081c0527cb40dd16cb67e9c74a91f8a82fe1cf27a3c5d5",
-        strip_prefix = "WAVM-c8997ebf154f3b42e688e670a7d0fa045b7a32a0",
-        url = "https://github.com/WAVM/WAVM/archive/c8997ebf154f3b42e688e670a7d0fa045b7a32a0.tar.gz",
-        patches = ["@proxy_wasm_cpp_host//bazel/external:wavm.patch"],
-        patch_args = ["-p1"],
+        sha256 = "7cfa3d7334c96f89553bb44eeee736a192826a78b4db114042d38d6882748f5b",
+        strip_prefix = "WAVM-nightly-2022-05-14",
+        url = "https://github.com/WAVM/WAVM/archive/refs/tags/nightly/2022-05-14.tar.gz",
     )
 
     native.bind(
