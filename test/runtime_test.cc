@@ -143,6 +143,7 @@ TEST_P(TestVm, WasmMemoryLimit) {
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
     EXPECT_TRUE(host->isErrorLogged(" - rust_oom"));
+    EXPECT_TRUE(host->isErrorLogged(" - alloc::alloc::handle_alloc_error"));
   }
 }
 
@@ -170,17 +171,12 @@ TEST_P(TestVm, Trap) {
   // Backtrace
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
+    EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
     EXPECT_TRUE(host->isErrorLogged(" - trigger"));
   }
 }
 
 TEST_P(TestVm, Trap2) {
-  if (engine_ == "wavm") {
-    // TODO(mathetake): Somehow WAVM exits with 'munmap_chunk(): invalid pointer' on unidentified
-    // build condition in 'libstdc++ abi::__cxa_demangle' originally from
-    // WAVM::Runtime::describeCallStack. Needs further investigation.
-    return;
-  }
   auto source = readTestWasmFile("trap.wasm");
   ASSERT_FALSE(source.empty());
   auto wasm = TestWasm(std::move(vm_));
@@ -204,6 +200,7 @@ TEST_P(TestVm, Trap2) {
   // Backtrace
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
+    EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
     EXPECT_TRUE(host->isErrorLogged(" - trigger2"));
   }
 }

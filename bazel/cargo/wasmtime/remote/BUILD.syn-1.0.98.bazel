@@ -98,9 +98,9 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":syn_build_script",
-        "@wasmtime__proc_macro2__1_0_40//:proc_macro2",
+        "@wasmtime__proc_macro2__1_0_42//:proc_macro2",
         "@wasmtime__quote__1_0_20//:quote",
-        "@wasmtime__unicode_ident__1_0_1//:unicode_ident",
+        "@wasmtime__unicode_ident__1_0_2//:unicode_ident",
     ],
 )
 

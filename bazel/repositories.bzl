@@ -66,10 +66,12 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "0c57c91a20df12d2b1e5db6c58fd6df21bce0c73940eeafbcb87761c14c28878",
-        strip_prefix = "rules_rust-0.3.1",
+        sha256 = "f3d443e9ad1eca99fbcade1c649adbd8200753cf22e47846b3105a43a550273b",
+        strip_prefix = "rules_rust-0.8.1",
         # NOTE: Update Rust version in bazel/dependencies.bzl.
-        url = "https://github.com/bazelbuild/rules_rust/archive/0.3.1.tar.gz",
+        url = "https://github.com/bazelbuild/rules_rust/archive/0.8.1.tar.gz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
+        patch_args = ["-p1"],
     )
 
     # Core.
@@ -201,9 +203,9 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "8cb4ed3f14a1b054ff36e7017c056f10a28b57673f21d7548354fd40f2f02b3b",
-        strip_prefix = "wasmtime-0.38.1",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.38.1.tar.gz",
+        sha256 = "6ef70886da14245f575c6ff8c7c999ae22579257eba5ebf382e066598c1e381c",
+        strip_prefix = "wasmtime-0.39.1",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v0.39.1.tar.gz",
     )
 
     maybe(
@@ -231,11 +233,9 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_wavm_wavm",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wavm.BUILD",
-        sha256 = "bf2b2aec8a4c6a5413081c0527cb40dd16cb67e9c74a91f8a82fe1cf27a3c5d5",
-        strip_prefix = "WAVM-c8997ebf154f3b42e688e670a7d0fa045b7a32a0",
-        url = "https://github.com/WAVM/WAVM/archive/c8997ebf154f3b42e688e670a7d0fa045b7a32a0.tar.gz",
-        patches = ["@proxy_wasm_cpp_host//bazel/external:wavm.patch"],
-        patch_args = ["-p1"],
+        sha256 = "7cfa3d7334c96f89553bb44eeee736a192826a78b4db114042d38d6882748f5b",
+        strip_prefix = "WAVM-nightly-2022-05-14",
+        url = "https://github.com/WAVM/WAVM/archive/refs/tags/nightly/2022-05-14.tar.gz",
     )
 
     native.bind(
