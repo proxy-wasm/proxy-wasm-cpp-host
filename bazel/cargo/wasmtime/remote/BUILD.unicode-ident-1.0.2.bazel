@@ -26,38 +26,35 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # MIT from expression "(MIT OR Apache-2.0) AND Unicode-DFS-2016"
 ])
 
 # Generated Targets
 
-# Unsupported target "addr2line" with type "example" omitted
+# Unsupported target "xid" with type "bench" omitted
 
 rust_library(
-    name = "addr2line",
+    name = "unicode_ident",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=addr2line",
+        "crate-name=unicode-ident",
         "manual",
     ],
-    version = "0.17.0",
+    version = "1.0.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__gimli__0_26_2//:gimli",
     ],
 )
 
-# Unsupported target "correctness" with type "test" omitted
+# Unsupported target "compare" with type "test" omitted
 
-# Unsupported target "output_equivalence" with type "test" omitted
-
-# Unsupported target "parse" with type "test" omitted
+# Unsupported target "static_size" with type "test" omitted

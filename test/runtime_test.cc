@@ -167,12 +167,6 @@ TEST_P(TestVm, Trap) {
 }
 
 TEST_P(TestVm, Trap2) {
-  if (engine_ == "wavm") {
-    // TODO(mathetake): Somehow WAVM exits with 'munmap_chunk(): invalid pointer' on unidentified
-    // build condition in 'libstdc++ abi::__cxa_demangle' originally from
-    // WAVM::Runtime::describeCallStack. Needs further investigation.
-    return;
-  }
   auto source = readTestWasmFile("trap.wasm");
   ASSERT_FALSE(source.empty());
   auto wasm = TestWasm(std::move(vm_));

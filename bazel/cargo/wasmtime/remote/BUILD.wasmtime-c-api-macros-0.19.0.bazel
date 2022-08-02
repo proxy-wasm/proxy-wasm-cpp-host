@@ -50,7 +50,7 @@ rust_proc_macro(
     version = "0.19.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__proc_macro2__1_0_40//:proc_macro2",
+        "@wasmtime__proc_macro2__1_0_42//:proc_macro2",
         "@wasmtime__quote__1_0_20//:quote",
     ],
 )

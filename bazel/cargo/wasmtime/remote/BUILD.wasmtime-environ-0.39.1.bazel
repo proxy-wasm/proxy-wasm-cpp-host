@@ -26,38 +26,41 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "addr2line" with type "example" omitted
-
 rust_library(
-    name = "addr2line",
+    name = "wasmtime_environ",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2015",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=addr2line",
+        "crate-name=wasmtime-environ",
         "manual",
     ],
-    version = "0.17.0",
+    version = "0.39.1",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__anyhow__1_0_58//:anyhow",
+        "@wasmtime__cranelift_entity__0_86_1//:cranelift_entity",
         "@wasmtime__gimli__0_26_2//:gimli",
+        "@wasmtime__indexmap__1_9_1//:indexmap",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__more_asserts__0_2_2//:more_asserts",
+        "@wasmtime__object__0_28_4//:object",
+        "@wasmtime__serde__1_0_140//:serde",
+        "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
+        "@wasmtime__thiserror__1_0_31//:thiserror",
+        "@wasmtime__wasmparser__0_86_0//:wasmparser",
+        "@wasmtime__wasmtime_types__0_39_1//:wasmtime_types",
     ],
 )
-
-# Unsupported target "correctness" with type "test" omitted
-
-# Unsupported target "output_equivalence" with type "test" omitted
-
-# Unsupported target "parse" with type "test" omitted

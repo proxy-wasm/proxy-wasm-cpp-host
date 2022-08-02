@@ -84,6 +84,10 @@ jobs:
     - name: Install dependencies
       run: cargo install cargo-raze --version 0.14.1
 
+    - name: Format (bazel query)
+      run: |
+        bazel query 'deps(//bazel/cargo/...)'
+
     - name: Format (cargo raze)
       working-directory: bazel/cargo
       run: |

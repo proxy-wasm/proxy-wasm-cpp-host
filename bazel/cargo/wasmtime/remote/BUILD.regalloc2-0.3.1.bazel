@@ -26,38 +26,35 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "addr2line" with type "example" omitted
-
 rust_library(
-    name = "addr2line",
+    name = "regalloc2",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "checker",
+        "default",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=addr2line",
+        "crate-name=regalloc2",
         "manual",
     ],
-    version = "0.17.0",
+    version = "0.3.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__gimli__0_26_2//:gimli",
+        "@wasmtime__fxhash__0_2_1//:fxhash",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__slice_group_by__0_3_0//:slice_group_by",
+        "@wasmtime__smallvec__1_9_0//:smallvec",
     ],
 )
-
-# Unsupported target "correctness" with type "test" omitted
-
-# Unsupported target "output_equivalence" with type "test" omitted
-
-# Unsupported target "parse" with type "test" omitted
