@@ -540,8 +540,8 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
     WasmEdge_Result res =
         WasmEdge_ExecutorInvoke(executor_.get(), func_cxt, params, sizeof...(Args), nullptr, 0);
     if (!WasmEdge_ResultOK(res)) {
-      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed:\n" +
-                                        WasmEdge_ResultGetMessage(res));
+      fail(FailState::RuntimeError, "Function: " + std::string(function_name) +
+                                        " failed: " + WasmEdge_ResultGetMessage(res));
       return;
     }
     if (log) {
@@ -594,8 +594,8 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
     WasmEdge_Result res =
         WasmEdge_ExecutorInvoke(executor_.get(), func_cxt, params, sizeof...(Args), results, 1);
     if (!WasmEdge_ResultOK(res)) {
-      fail(FailState::RuntimeError, "Function: " + std::string(function_name) + " failed:\n" +
-                                        WasmEdge_ResultGetMessage(res));
+      fail(FailState::RuntimeError, "Function: " + std::string(function_name) +
+                                        " failed: " + WasmEdge_ResultGetMessage(res));
       return R{};
     }
     R ret = convValTypeToArg<R>(results[0]);

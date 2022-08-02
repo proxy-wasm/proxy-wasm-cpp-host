@@ -616,9 +616,9 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     if (trap) {
       WasmByteVec error_message;
       wasm_trap_message(trap.get(), error_message.get());
+      std::string message(error_message.get()->data); // NULL-terminated
       fail(FailState::RuntimeError,
-           "Function: " + std::string(function_name) + " failed:\n" +
-               std::string(error_message.get()->data, error_message.get()->size));
+           "Function: " + std::string(function_name) + " failed: " + message);
       return;
     }
     if (log) {
@@ -678,9 +678,9 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
     if (trap) {
       WasmByteVec error_message;
       wasm_trap_message(trap.get(), error_message.get());
+      std::string message(error_message.get()->data); // NULL-terminated
       fail(FailState::RuntimeError,
-           "Function: " + std::string(function_name) + " failed:\n" +
-               std::string(error_message.get()->data, error_message.get()->size));
+           "Function: " + std::string(function_name) + " failed: " + message);
       return R{};
     }
     R ret = convertValueTypeToArg<R>(results.data[0]);

@@ -108,9 +108,7 @@ TEST_P(TestVm, TerminateExecution) {
   // Check integration logs.
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: infinite_loop failed"));
-  if (engine_ == "v8") {
-    EXPECT_TRUE(host->isErrorLogged("Uncaught Error: termination_exception"));
-  }
+  EXPECT_TRUE(host->isErrorLogged("termination_exception"));
 }
 
 TEST_P(TestVm, WasmMemoryLimit) {
@@ -135,8 +133,14 @@ TEST_P(TestVm, WasmMemoryLimit) {
   // Check integration logs.
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: infinite_memory failed"));
+  // Trap message
+  if (engine_ == "wavm") {
+    EXPECT_TRUE(host->isErrorLogged("wavm.reachedUnreachable"));
+  } else {
+    EXPECT_TRUE(host->isErrorLogged("unreachable"));
+  }
+  // Backtrace
   if (engine_ == "v8") {
-    EXPECT_TRUE(host->isErrorLogged("Uncaught RuntimeError: unreachable"));
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
     EXPECT_TRUE(host->isErrorLogged(" - rust_oom"));
     EXPECT_TRUE(host->isErrorLogged(" - alloc::alloc::handle_alloc_error"));
@@ -158,8 +162,14 @@ TEST_P(TestVm, Trap) {
   // Check integration logs.
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: trigger failed"));
+  // Trap message
+  if (engine_ == "wavm") {
+    EXPECT_TRUE(host->isErrorLogged("wavm.reachedUnreachable"));
+  } else {
+    EXPECT_TRUE(host->isErrorLogged("unreachable"));
+  }
+  // Backtrace
   if (engine_ == "v8") {
-    EXPECT_TRUE(host->isErrorLogged("Uncaught RuntimeError: unreachable"));
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
     EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
     EXPECT_TRUE(host->isErrorLogged(" - trigger"));
@@ -181,8 +191,14 @@ TEST_P(TestVm, Trap2) {
   // Check integration logs.
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: trigger2 failed"));
+  // Trap message
+  if (engine_ == "wavm") {
+    EXPECT_TRUE(host->isErrorLogged("wavm.reachedUnreachable"));
+  } else {
+    EXPECT_TRUE(host->isErrorLogged("unreachable"));
+  }
+  // Backtrace
   if (engine_ == "v8") {
-    EXPECT_TRUE(host->isErrorLogged("Uncaught RuntimeError: unreachable"));
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
     EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
     EXPECT_TRUE(host->isErrorLogged(" - trigger2"));
