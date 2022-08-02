@@ -36,6 +36,11 @@ config_setting(
 )
 
 config_setting(
+    name = "multiengine_nowavm",
+    values = {"define": "engine=nowavm"},
+)
+
+config_setting(
     name = "requested_crypto_system",
     values = {"define": "crypto=system"},
 )
