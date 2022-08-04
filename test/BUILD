@@ -1,6 +1,5 @@
 load("@proxy_wasm_cpp_host//bazel:select.bzl", "proxy_wasm_select_engine_null")
 load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
-load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
 
 licenses(["notice"])  # Apache 2
 
@@ -29,20 +28,6 @@ cc_test(
         "//:lib",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
-    ],
-)
-
-filegroup(
-    name = "corpus_pairs",
-    srcs = glob(["corpus_pairs/**"]),
-)
-
-cc_fuzz_test(
-    name = "pairs_util_fuzzer",
-    srcs = ["pairs_util_fuzzer.cc"],
-    corpus = [":corpus_pairs"],
-    deps = [
-        "//:lib",
     ],
 )
 
