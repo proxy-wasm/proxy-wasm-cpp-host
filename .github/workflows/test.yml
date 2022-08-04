@@ -282,6 +282,7 @@ jobs:
         done
 
     - name: Bazel build/test
+      shell: bash
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
