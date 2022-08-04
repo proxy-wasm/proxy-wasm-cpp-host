@@ -28,7 +28,7 @@ using Sizes = std::vector<std::pair<uint32_t, uint32_t>>;
 
 size_t PairsUtil::pairsSize(const Pairs &pairs) {
   size_t size = sizeof(uint32_t); // number of headers
-  for (auto &p : pairs) {
+  for (const auto &p : pairs) {
     size += 2 * sizeof(uint32_t); // size of name, size of value
     size += p.first.size() + 1;   // NULL-terminated name
     size += p.second.size() + 1;  // NULL-terminated value
@@ -52,7 +52,7 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
   ::memcpy(pos, &num_pairs, sizeof(uint32_t));
   pos += sizeof(uint32_t);
 
-  for (auto &p : pairs) {
+  for (const auto &p : pairs) {
     // Write name length.
     uint32_t name_len = htowasm(p.first.size());
     if (pos + sizeof(uint32_t) > end) {
@@ -70,7 +70,7 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
     pos += sizeof(uint32_t);
   }
 
-  for (auto &p : pairs) {
+  for (const auto &p : pairs) {
     // Write name.
     if (pos + p.first.size() + 1 > end) {
       return false;
