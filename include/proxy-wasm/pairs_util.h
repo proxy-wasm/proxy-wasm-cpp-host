@@ -55,7 +55,7 @@ public:
   /**
    * toPairs deserializes input buffer to Pairs.
    * @param buffer serialized input buffer.
-   * @return deserialized Pairs.
+   * @return deserialized Pairs or an empty instance in case of deserialization failure.
    */
   static Pairs toPairs(std::string_view buffer);
 };
