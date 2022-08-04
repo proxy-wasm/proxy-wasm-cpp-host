@@ -14,7 +14,7 @@
 
 #include "include/proxy-wasm/pairs_util.h"
 
-#include <string>
+#include <cstring>
 
 namespace proxy_wasm {
 namespace {

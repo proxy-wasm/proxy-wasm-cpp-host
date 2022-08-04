@@ -15,17 +15,14 @@
 
 #pragma once
 
-#include <cstring>
+#include <string>
 #include <string_view>
 #include <vector>
 
-#include "include/proxy-wasm/limits.h"
-#include "include/proxy-wasm/word.h"
-
 namespace proxy_wasm {
 
-using Sizes = std::vector<std::pair<uint32_t, uint32_t>>;
 using Pairs = std::vector<std::pair<std::string_view, std::string_view>>;
+using StringPairs = std::vector<std::pair<std::string, std::string>>;
 
 class PairsUtil {
 public:
@@ -34,14 +31,11 @@ public:
    * @param pairs Pairs to serialize.
    * @return size of the output buffer.
    */
-  template <typename Pairs> static size_t pairsSize(const Pairs &pairs) {
-    size_t size = sizeof(uint32_t); // number of headers
-    for (auto &p : pairs) {
-      size += 2 * sizeof(uint32_t); // size of name, size of value
-      size += p.first.size() + 1;   // NULL-terminated name
-      size += p.second.size() + 1;  // NULL-terminated value
-    }
-    return size;
+  static size_t pairsSize(const Pairs &pairs);
+
+  static size_t pairsSize(const StringPairs &stringpairs) {
+    Pairs views(stringpairs.begin(), stringpairs.end());
+    return pairsSize(views);
   }
 
   /**
@@ -51,60 +45,11 @@ public:
    * @param size size of the output buffer.
    * @return indicates whether serialization succeeded or not.
    */
-  template <typename Pairs>
-  static bool marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
-    if (buffer == nullptr) {
-      return false;
-    }
+  static bool marshalPairs(const Pairs &pairs, char *buffer, size_t size);
 
-    char *pos = buffer;
-    const char *end = buffer + size;
-
-    // Write number of pairs.
-    uint32_t num_pairs = htowasm(pairs.size());
-    if (pos + sizeof(uint32_t) > end) {
-      return false;
-    }
-    ::memcpy(pos, &num_pairs, sizeof(uint32_t));
-    pos += sizeof(uint32_t);
-
-    for (auto &p : pairs) {
-      // Write name length.
-      uint32_t name_len = htowasm(p.first.size());
-      if (pos + sizeof(uint32_t) > end) {
-        return false;
-      }
-      ::memcpy(pos, &name_len, sizeof(uint32_t));
-      pos += sizeof(uint32_t);
-
-      // Write value length.
-      uint32_t value_len = htowasm(p.second.size());
-      if (pos + sizeof(uint32_t) > end) {
-        return false;
-      }
-      ::memcpy(pos, &value_len, sizeof(uint32_t));
-      pos += sizeof(uint32_t);
-    }
-
-    for (auto &p : pairs) {
-      // Write name.
-      if (pos + p.first.size() + 1 > end) {
-        return false;
-      }
-      ::memcpy(pos, p.first.data(), p.first.size());
-      pos += p.first.size();
-      *pos++ = '\0'; // NULL-terminated string.
-
-      // Write value.
-      if (pos + p.second.size() + 1 > end) {
-        return false;
-      }
-      ::memcpy(pos, p.second.data(), p.second.size());
-      pos += p.second.size();
-      *pos++ = '\0'; // NULL-terminated string.
-    }
-
-    return pos == end;
+  static bool marshalPairs(const StringPairs &stringpairs, char *buffer, size_t size) {
+    Pairs views(stringpairs.begin(), stringpairs.end());
+    return marshalPairs(views, buffer, size);
   }
 
   /**
@@ -112,82 +57,7 @@ public:
    * @param buffer serialized input buffer.
    * @return deserialized Pairs.
    */
-  static Pairs toPairs(std::string_view buffer) {
-    if (buffer.data() == nullptr || buffer.size() > PROXY_WASM_HOST_PAIRS_MAX_BYTES) {
-      return {};
-    }
-
-    const char *pos = buffer.data();
-    const char *end = buffer.data() + buffer.size();
-
-    // Read number of pairs.
-    if (pos + sizeof(uint32_t) > end) {
-      return {};
-    }
-    uint32_t num_pairs = wasmtoh(*reinterpret_cast<const uint32_t *>(pos));
-    pos += sizeof(uint32_t);
-
-    // Check if we're not going to exceed the limit.
-    if (num_pairs > PROXY_WASM_HOST_PAIRS_MAX_COUNT) {
-      return {};
-    }
-    if (pos + num_pairs * 2 * sizeof(uint32_t) > end) {
-      return {};
-    }
-
-    Sizes sizes;
-    sizes.resize(num_pairs);
-
-    for (auto &s : sizes) {
-      // Read name length.
-      if (pos + sizeof(uint32_t) > end) {
-        return {};
-      }
-      s.first = wasmtoh(*reinterpret_cast<const uint32_t *>(pos));
-      pos += sizeof(uint32_t);
-
-      // Read value length.
-      if (pos + sizeof(uint32_t) > end) {
-        return {};
-      }
-      s.second = wasmtoh(*reinterpret_cast<const uint32_t *>(pos));
-      pos += sizeof(uint32_t);
-    }
-
-    Pairs pairs;
-    pairs.resize(num_pairs);
-
-    for (uint32_t i = 0; i < num_pairs; i++) {
-      auto &s = sizes[i];
-      auto &p = pairs[i];
-
-      // Don't overread.
-      if (pos + s.first + 1 > end) {
-        return {};
-      }
-      p.first = std::string_view(pos, s.first);
-      pos += s.first;
-      if (*pos++ != '\0') { // NULL-terminated string.
-        return {};
-      }
-
-      // Don't overread.
-      if (pos + s.second + 1 > end) {
-        return {};
-      }
-      p.second = std::string_view(pos, s.second);
-      pos += s.second;
-      if (*pos++ != '\0') { // NULL-terminated string.
-        return {};
-      }
-    }
-
-    if (pos != end) {
-      return {};
-    }
-
-    return pairs;
-  }
+  static Pairs toPairs(std::string_view buffer);
 };
 
 } // namespace proxy_wasm
