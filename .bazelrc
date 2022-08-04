@@ -17,6 +17,7 @@ build:clang-xsan --copt -fno-sanitize-recover=all
 build:clang-xsan --linkopt -fsanitize-link-c++-runtime
 build:clang-xsan --linkopt -fuse-ld=lld
 build:clang-xsan --linkopt -rtlib=compiler-rt
+build:clang-xsan --linkopt --unwindlib=libgcc
 
 # Use Clang compiler with Address and Undefined Behavior Sanitizers.
 build:clang-asan --config=clang-xsan
