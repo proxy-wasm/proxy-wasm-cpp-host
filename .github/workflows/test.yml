@@ -289,7 +289,7 @@ jobs:
         --test_output=errors
         --define engine=${{ matrix.engine }}
         ${{ matrix.flags }}
-        //test/... ${{ matrix.targets }}
+        -- //test/... ${{ matrix.targets }}
 
     - name: Bazel build/test (signed Wasm module)
       if: ${{ matrix.engine != 'null' && !startsWith(matrix.os, 'windows') }}
