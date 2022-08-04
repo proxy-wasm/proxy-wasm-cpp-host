@@ -29,6 +29,11 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
+    name = "bad_malloc.wasm",
+    srcs = ["bad_malloc.rs"],
+)
+
+wasm_rust_binary(
     name = "callback.wasm",
     srcs = ["callback.rs"],
 )
