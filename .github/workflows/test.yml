@@ -156,6 +156,7 @@ jobs:
           os: ubuntu-20.04
           arch: aarch64
           action: test
+          targets: -//test/fuzz/...
           flags: --config=zig-cc-linux-aarch64 --@v8//bazel/config:v8_target_cpu=arm64
           deps: qemu-user-static libc6-arm64-cross
           cache: true
