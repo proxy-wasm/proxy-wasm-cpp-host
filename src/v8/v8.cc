@@ -467,6 +467,10 @@ uint64_t V8::getMemorySize() { return memory_->data_size(); }
 
 std::optional<std::string_view> V8::getMemory(uint64_t pointer, uint64_t size) {
   assert(memory_ != nullptr);
+  // Make sure we're operating in a wasm32 memory space.
+  if (pointer > UINT32_MAX || size > UINT32_MAX || pointer + size > UINT32_MAX) {
+    return std::nullopt;
+  }
   if (pointer + size > memory_->data_size()) {
     return std::nullopt;
   }
@@ -475,6 +479,10 @@ std::optional<std::string_view> V8::getMemory(uint64_t pointer, uint64_t size) {
 
 bool V8::setMemory(uint64_t pointer, uint64_t size, const void *data) {
   assert(memory_ != nullptr);
+  // Make sure we're operating in a wasm32 memory space.
+  if (pointer > UINT32_MAX || size > UINT32_MAX || pointer + size > UINT32_MAX) {
+    return false;
+  }
   if (pointer + size > memory_->data_size()) {
     return false;
   }
@@ -484,6 +492,10 @@ bool V8::setMemory(uint64_t pointer, uint64_t size, const void *data) {
 
 bool V8::getWord(uint64_t pointer, Word *word) {
   constexpr auto size = sizeof(uint32_t);
+  // Make sure we're operating in a wasm32 memory space.
+  if (pointer > UINT32_MAX || pointer + size > UINT32_MAX) {
+    return false;
+  }
   if (pointer + size > memory_->data_size()) {
     return false;
   }
@@ -495,6 +507,10 @@ bool V8::getWord(uint64_t pointer, Word *word) {
 
 bool V8::setWord(uint64_t pointer, Word word) {
   constexpr auto size = sizeof(uint32_t);
+  // Make sure we're operating in a wasm32 memory space.
+  if (pointer > UINT32_MAX || pointer + size > UINT32_MAX) {
+    return false;
+  }
   if (pointer + size > memory_->data_size()) {
     return false;
   }
