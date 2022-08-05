@@ -455,13 +455,21 @@ Word get_buffer_bytes(Word type, Word start, Word length, Word ptr_ptr, Word siz
     return WasmResult::BadArgument;
   }
   // Don't overread.
-  if (start + length > buffer->size()) {
+  if (start > buffer->size()) {
+    length = 0;
+  } else if (start + length > buffer->size()) {
     length = buffer->size() - start;
   }
-  if (length > 0) {
-    return buffer->copyTo(context->wasm(), start, length, ptr_ptr, size_ptr);
+  if (length == 0) {
+    if (!context->wasmVm()->setWord(ptr_ptr, Word(0))) {
+      return WasmResult::InvalidMemoryAccess;
+    }
+    if (!context->wasmVm()->setWord(size_ptr, Word(0))) {
+      return WasmResult::InvalidMemoryAccess;
+    }
+    return WasmResult::Ok;
   }
-  return WasmResult::Ok;
+  return buffer->copyTo(context->wasm(), start, length, ptr_ptr, size_ptr);
 }
 
 Word get_buffer_status(Word type, Word length_ptr, Word flags_ptr) {
