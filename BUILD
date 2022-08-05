@@ -52,6 +52,7 @@ cc_library(
         "src/bytecode_util.cc",
         "src/context.cc",
         "src/exports.cc",
+        "src/pairs_util.cc",
         "src/shared_data.cc",
         "src/shared_data.h",
         "src/shared_queue.cc",
@@ -62,6 +63,7 @@ cc_library(
     ],
     hdrs = [
         "include/proxy-wasm/bytecode_util.h",
+        "include/proxy-wasm/pairs_util.h",
         "include/proxy-wasm/signature_util.h",
     ],
     linkopts = select({

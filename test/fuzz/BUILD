@@ -17,3 +17,17 @@ cc_fuzz_test(
         "//:lib",
     ],
 )
+
+filegroup(
+    name = "corpus_pairs",
+    srcs = glob(["corpus_pairs/**"]),
+)
+
+cc_fuzz_test(
+    name = "pairs_util_fuzzer",
+    srcs = ["pairs_util_fuzzer.cc"],
+    corpus = [":corpus_pairs"],
+    deps = [
+        "//:lib",
+    ],
+)
