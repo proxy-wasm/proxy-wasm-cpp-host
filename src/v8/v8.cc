@@ -107,6 +107,8 @@ public:
   void terminate() override;
 
 private:
+  wasm::own<wasm::Trap> trap(std::string message);
+
   std::string getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap);
 
   template <typename... Args>
@@ -519,6 +521,10 @@ bool V8::setWord(uint64_t pointer, Word word) {
   return true;
 }
 
+wasm::own<wasm::Trap> V8::trap(std::string message) {
+  return wasm::Trap::make(store_.get(), wasm::Message::make(std::move(message)));
+}
+
 template <typename... Args>
 void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
                                   void (*function)(Args...)) {
@@ -534,6 +540,9 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
         if (log) {
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params, sizeof...(Args)) + ")");
+        }
+        if (!func_data->vm_->isHostFunctionAllowed(func_data->name_)) {
+          return dynamic_cast<V8 *>(func_data->vm_)->trap("restricted_callback");
         }
         auto args = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
         auto function = reinterpret_cast<void (*)(Args...)>(func_data->raw_func_);
@@ -567,6 +576,9 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
         if (log) {
           func_data->vm_->integration()->trace("[vm->host] " + func_data->name_ + "(" +
                                                printValues(params, sizeof...(Args)) + ")");
+        }
+        if (!func_data->vm_->isHostFunctionAllowed(func_data->name_)) {
+          return dynamic_cast<V8 *>(func_data->vm_)->trap("restricted_callback");
         }
         auto args = convertValTypesToArgsTuple<std::tuple<Args...>>(params);
         auto function = reinterpret_cast<R (*)(Args...)>(func_data->raw_func_);

@@ -392,7 +392,15 @@ inline void *WasmBase::allocMemory(uint64_t size, uint64_t *address) {
   if (!malloc_) {
     return nullptr;
   }
+  wasm_vm_->setRestrictedCallback(
+      true, {// logging (Proxy-Wasm)
+             "env.proxy_log",
+             // logging (stdout/stderr)
+             "wasi_unstable.fd_write", "wasi_snapshot_preview1.fd_write",
+             // time
+             "wasi_unstable.clock_time_get", "wasi_snapshot_preview1.clock_time_get"});
   Word a = malloc_(vm_context(), size);
+  wasm_vm_->setRestrictedCallback(false);
   if (!a.u64_) {
     return nullptr;
   }
