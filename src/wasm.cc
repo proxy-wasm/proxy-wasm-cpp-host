@@ -355,6 +355,25 @@ ContextBase *WasmBase::getRootContext(const std::shared_ptr<PluginBase> &plugin,
 }
 
 void WasmBase::startVm(ContextBase *root_context) {
+  // wasi_snapshot_preview1.clock_time_get
+  wasm_vm_->setRestrictedCallback(
+      true, {// logging (Proxy-Wasm)
+             "env.proxy_log",
+             // logging (stdout/stderr)
+             "wasi_unstable.fd_write", "wasi_snapshot_preview1.fd_write",
+             // args
+             "wasi_unstable.args_sizes_get", "wasi_snapshot_preview1.args_sizes_get",
+             "wasi_unstable.args_get", "wasi_snapshot_preview1.args_get",
+             // environment variables
+             "wasi_unstable.environ_sizes_get", "wasi_snapshot_preview1.environ_sizes_get",
+             "wasi_unstable.environ_get", "wasi_snapshot_preview1.environ_get",
+             // preopened files/directories
+             "wasi_unstable.fd_prestat_get", "wasi_snapshot_preview1.fd_prestat_get",
+             "wasi_unstable.fd_prestat_dir_name", "wasi_snapshot_preview1.fd_prestat_dir_name",
+             // time
+             "wasi_unstable.clock_time_get", "wasi_snapshot_preview1.clock_time_get",
+             // random
+             "wasi_unstable.random_get", "wasi_snapshot_preview1.random_get"});
   if (_initialize_) {
     // WASI reactor.
     _initialize_(root_context);
@@ -370,6 +389,7 @@ void WasmBase::startVm(ContextBase *root_context) {
     // WASI command.
     _start_(root_context);
   }
+  wasm_vm_->setRestrictedCallback(false);
 }
 
 bool WasmBase::configure(ContextBase *root_context, std::shared_ptr<PluginBase> plugin) {
