@@ -40,6 +40,13 @@ def proxy_wasm_select_engine_wasmtime(xs, xp):
         "//conditions:default": [],
     })
 
+def proxy_wasm_select_engine_wasmedge(xs):
+    return select({
+        "@proxy_wasm_cpp_host//bazel:engine_wasmedge": xs,
+        "@proxy_wasm_cpp_host//bazel:multiengine": xs,
+        "//conditions:default": [],
+    })
+
 def proxy_wasm_select_engine_wavm(xs):
     return select({
         "@proxy_wasm_cpp_host//bazel:engine_wavm": xs,

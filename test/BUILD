@@ -56,7 +56,7 @@ cc_test(
     data = [
         "//test/test_data:callback.wasm",
         "//test/test_data:clock.wasm",
-        "//test/test_data:infinite_loop.wasm",
+        "//test/test_data:resource_limits.wasm",
         "//test/test_data:trap.wasm",
     ],
     linkstatic = 1,
@@ -74,8 +74,10 @@ cc_test(
     data = [
         "//test/test_data:clock.wasm",
         "//test/test_data:env.wasm",
+        "//test/test_data:random.wasm",
     ],
     linkstatic = 1,
+    shard_count = 8,
     deps = [
         ":utility_lib",
         "//:lib",
@@ -89,6 +91,22 @@ cc_test(
     srcs = ["wasm_test.cc"],
     data = [
         "//test/test_data:abi_export.wasm",
+        "//test/test_data:canary_check.wasm",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "security_test",
+    srcs = ["security_test.cc"],
+    data = [
+        "//test/test_data:bad_malloc.wasm",
     ],
     linkstatic = 1,
     deps = [

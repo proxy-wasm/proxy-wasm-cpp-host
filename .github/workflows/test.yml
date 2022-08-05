@@ -56,6 +56,18 @@ jobs:
         --config=clang
         -c opt
         $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
+        $(bazel query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
+
+    # Currently, in Github Action, "Bazel build step" creates `wasm_canary_check.wasm` directory as a temporal directory.
+    # Since the name of this directory has "*.wasm" pattern, the step "Mangle build rules to use existing test data" fails.
+    # So, here, we clear out the directories in test_data.
+    - name: Clean up test data
+      shell: bash
+      run: |
+        # Remove temporal directories
+        for i in $(find bazel-bin/test/test_data/ -mindepth 1 -maxdepth 1 -type d); do \
+          rm -rf $i; \
+        done
 
     - name: Upload test data
       uses: actions/upload-artifact@v2
@@ -113,6 +125,7 @@ jobs:
           os: windows-2019
           arch: x86_64
           action: test
+          targets: -//test/fuzz/...
         - name: 'V8 on Linux/x86_64'
           engine: 'v8'
           repo: 'v8'
@@ -143,6 +156,7 @@ jobs:
           os: ubuntu-20.04
           arch: aarch64
           action: test
+          targets: -//test/fuzz/...
           flags: --config=zig-cc-linux-aarch64 --@v8//bazel/config:v8_target_cpu=arm64
           deps: qemu-user-static libc6-arm64-cross
           cache: true
@@ -166,6 +180,13 @@ jobs:
           os: macos-11
           arch: x86_64
           action: test
+        - name: 'WasmEdge on Linux/x86_64'
+          engine: 'wasmedge'
+          repo: 'com_github_wasmedge_wasmedge'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=clang
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -194,8 +215,8 @@ jobs:
           os: ubuntu-20.04
           arch: s390x
           action: test
-          flags: --config=clang
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-5.0.0-clang-13-gcc-11
+          flags: --config=clang --test_timeout=1800
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x piotrsikora/build-tools:bazel-5.2.0-clang-14-gcc-12
           cache: true
         - name: 'Wasmtime on macOS/x86_64'
           engine: 'wasmtime'
@@ -209,6 +230,7 @@ jobs:
           os: windows-2019
           arch: x86_64
           action: test
+          targets: -//test/fuzz/...
         - name: 'WAVM on Linux/x86_64'
           engine: 'wavm'
           repo: 'com_github_wavm_wavm'
@@ -261,6 +283,7 @@ jobs:
         done
 
     - name: Bazel build/test
+      shell: bash
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
@@ -268,7 +291,7 @@ jobs:
         --test_output=errors
         --define engine=${{ matrix.engine }}
         ${{ matrix.flags }}
-        //test/...
+        -- //test/... ${{ matrix.targets }}
 
     - name: Bazel build/test (signed Wasm module)
       if: ${{ matrix.engine != 'null' && !startsWith(matrix.os, 'windows') }}

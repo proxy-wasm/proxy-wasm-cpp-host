@@ -16,6 +16,8 @@
 
 namespace proxy_wasm {
 
+std::string TestContext::global_log_;
+
 std::vector<std::string> getWasmEngines() {
   std::vector<std::string> engines = {
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
@@ -23,6 +25,9 @@ std::vector<std::string> getWasmEngines() {
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
     "wamr",
+#endif
+#if defined(PROXY_WASM_HOST_ENGINE_WASMEDGE)
+    "wasmedge",
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
     "wasmtime",

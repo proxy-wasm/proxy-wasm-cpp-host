@@ -1,0 +1,9 @@
+diff --git a/cranelift/isle/isle/src/lib.rs b/cranelift/isle/isle/src/lib.rs
+index 1164dafc3..4a9ad01ad 100644
+--- a/cranelift/isle/isle/src/lib.rs
++++ b/cranelift/isle/isle/src/lib.rs
+@@ -1,4 +1,3 @@
+-#![doc = include_str!("../README.md")]
+ #![deny(missing_docs)]
+ 
+ use std::collections::hash_map::Entry;

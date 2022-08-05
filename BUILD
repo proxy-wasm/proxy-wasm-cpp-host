@@ -4,6 +4,7 @@ load(
     "proxy_wasm_select_engine_null",
     "proxy_wasm_select_engine_v8",
     "proxy_wasm_select_engine_wamr",
+    "proxy_wasm_select_engine_wasmedge",
     "proxy_wasm_select_engine_wasmtime",
     "proxy_wasm_select_engine_wavm",
 )
@@ -22,6 +23,7 @@ filegroup(
 cc_library(
     name = "wasm_vm_headers",
     hdrs = [
+        "include/proxy-wasm/limits.h",
         "include/proxy-wasm/wasm_vm.h",
         "include/proxy-wasm/word.h",
     ],
@@ -50,6 +52,7 @@ cc_library(
         "src/bytecode_util.cc",
         "src/context.cc",
         "src/exports.cc",
+        "src/pairs_util.cc",
         "src/shared_data.cc",
         "src/shared_data.h",
         "src/shared_queue.cc",
@@ -60,6 +63,7 @@ cc_library(
     ],
     hdrs = [
         "include/proxy-wasm/bytecode_util.h",
+        "include/proxy-wasm/pairs_util.h",
         "include/proxy-wasm/signature_util.h",
     ],
     linkopts = select({
@@ -131,6 +135,28 @@ cc_library(
     deps = [
         ":wasm_vm_headers",
         "//external:wamr",
+    ],
+)
+
+cc_library(
+    name = "wasmedge_lib",
+    srcs = [
+        "src/common/types.h",
+        "src/wasmedge/types.h",
+        "src/wasmedge/wasmedge.cc",
+    ],
+    hdrs = ["include/proxy-wasm/wasmedge.h"],
+    defines = [
+        "PROXY_WASM_HAS_RUNTIME_WASMEDGE",
+        "PROXY_WASM_HOST_ENGINE_WASMEDGE",
+    ],
+    linkopts = [
+        "-lrt",
+        "-ldl",
+    ],
+    deps = [
+        ":wasm_vm_headers",
+        "//external:wasmedge",
     ],
 )
 
@@ -270,6 +296,8 @@ cc_library(
         [":v8_lib"],
     ) + proxy_wasm_select_engine_wamr(
         [":wamr_lib"],
+    ) + proxy_wasm_select_engine_wasmedge(
+        [":wasmedge_lib"],
     ) + proxy_wasm_select_engine_wasmtime(
         [":wasmtime_lib"],
         [":prefixed_wasmtime_lib"],

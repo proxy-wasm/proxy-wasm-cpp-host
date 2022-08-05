@@ -38,7 +38,7 @@ rust_proc_macro(
     ],
     crate_root = "crates/c-api/macros/src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -50,7 +50,7 @@ rust_proc_macro(
     version = "0.19.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__proc_macro2__1_0_36//:proc_macro2",
-        "@wasmtime__quote__1_0_15//:quote",
+        "@wasmtime__proc_macro2__1_0_42//:proc_macro2",
+        "@wasmtime__quote__1_0_20//:quote",
     ],
 )

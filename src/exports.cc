@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#include "include/proxy-wasm/limits.h"
+#include "include/proxy-wasm/pairs_util.h"
 #include "include/proxy-wasm/wasm.h"
 
 #include <openssl/rand.h>
@@ -56,55 +58,6 @@ RegisterForeignFunction::RegisterForeignFunction(const std::string &name, WasmFo
 }
 
 namespace exports {
-
-namespace {
-
-Pairs toPairs(std::string_view buffer) {
-  Pairs result;
-  const char *b = buffer.data();
-  if (buffer.size() < sizeof(uint32_t)) {
-    return {};
-  }
-  auto size = wasmtoh(*reinterpret_cast<const uint32_t *>(b));
-  b += sizeof(uint32_t);
-  if (sizeof(uint32_t) + size * 2 * sizeof(uint32_t) > buffer.size()) {
-    return {};
-  }
-  result.resize(size);
-  for (uint32_t i = 0; i < size; i++) {
-    result[i].first = std::string_view(nullptr, wasmtoh(*reinterpret_cast<const uint32_t *>(b)));
-    b += sizeof(uint32_t);
-    result[i].second = std::string_view(nullptr, wasmtoh(*reinterpret_cast<const uint32_t *>(b)));
-    b += sizeof(uint32_t);
-  }
-  for (auto &p : result) {
-    p.first = std::string_view(b, p.first.size());
-    b += p.first.size() + 1;
-    p.second = std::string_view(b, p.second.size());
-    b += p.second.size() + 1;
-  }
-  return result;
-}
-
-template <typename Pairs>
-bool getPairs(ContextBase *context, const Pairs &result, uint64_t ptr_ptr, uint64_t size_ptr) {
-  if (result.empty()) {
-    return context->wasm()->copyToPointerSize("", ptr_ptr, size_ptr);
-  }
-  uint64_t size = pairsSize(result);
-  uint64_t ptr = 0;
-  char *buffer = static_cast<char *>(context->wasm()->allocMemory(size, &ptr));
-  marshalPairs(result, buffer);
-  if (!context->wasmVm()->setWord(ptr_ptr, Word(ptr))) {
-    return false;
-  }
-  if (!context->wasmVm()->setWord(size_ptr, Word(size))) {
-    return false;
-  }
-  return true;
-}
-
-} // namespace
 
 // General ABI.
 
@@ -199,7 +152,7 @@ Word send_local_response(Word response_code, Word response_code_details_ptr,
   if (!details || !body || !additional_response_header_pairs) {
     return WasmResult::InvalidMemoryAccess;
   }
-  auto additional_headers = toPairs(additional_response_header_pairs.value());
+  auto additional_headers = PairsUtil::toPairs(additional_response_header_pairs.value());
   context->sendLocalResponse(response_code, body.value(), std::move(additional_headers),
                              grpc_status, details.value());
   context->wasm()->stopNextIteration(true);
@@ -434,7 +387,25 @@ Word get_header_map_pairs(Word type, Word ptr_ptr, Word size_ptr) {
   if (result != WasmResult::Ok) {
     return result;
   }
-  if (!getPairs(context, pairs, ptr_ptr, size_ptr)) {
+  if (pairs.empty()) {
+    if (!context->wasm()->copyToPointerSize("", ptr_ptr, size_ptr)) {
+      return WasmResult::InvalidMemoryAccess;
+    }
+    return WasmResult::Ok;
+  }
+  uint64_t size = PairsUtil::pairsSize(pairs);
+  uint64_t ptr = 0;
+  char *buffer = static_cast<char *>(context->wasm()->allocMemory(size, &ptr));
+  if (buffer == nullptr) {
+    return WasmResult::InvalidMemoryAccess;
+  }
+  if (!PairsUtil::marshalPairs(pairs, buffer, size)) {
+    return WasmResult::InvalidMemoryAccess;
+  }
+  if (!context->wasmVm()->setWord(ptr_ptr, Word(ptr))) {
+    return WasmResult::InvalidMemoryAccess;
+  }
+  if (!context->wasmVm()->setWord(size_ptr, Word(size))) {
     return WasmResult::InvalidMemoryAccess;
   }
   return WasmResult::Ok;
@@ -450,7 +421,7 @@ Word set_header_map_pairs(Word type, Word ptr, Word size) {
     return WasmResult::InvalidMemoryAccess;
   }
   return context->setHeaderMapPairs(static_cast<WasmHeaderMapType>(type.u64_),
-                                    toPairs(data.value()));
+                                    PairsUtil::toPairs(data.value()));
 }
 
 Word get_header_map_size(Word type, Word result_ptr) {
@@ -484,13 +455,21 @@ Word get_buffer_bytes(Word type, Word start, Word length, Word ptr_ptr, Word siz
     return WasmResult::BadArgument;
   }
   // Don't overread.
-  if (start + length > buffer->size()) {
+  if (start > buffer->size()) {
+    length = 0;
+  } else if (start + length > buffer->size()) {
     length = buffer->size() - start;
   }
-  if (length > 0) {
-    return buffer->copyTo(context->wasm(), start, length, ptr_ptr, size_ptr);
+  if (length == 0) {
+    if (!context->wasmVm()->setWord(ptr_ptr, Word(0))) {
+      return WasmResult::InvalidMemoryAccess;
+    }
+    if (!context->wasmVm()->setWord(size_ptr, Word(0))) {
+      return WasmResult::InvalidMemoryAccess;
+    }
+    return WasmResult::Ok;
   }
-  return WasmResult::Ok;
+  return buffer->copyTo(context->wasm(), start, length, ptr_ptr, size_ptr);
 }
 
 Word get_buffer_status(Word type, Word length_ptr, Word flags_ptr) {
@@ -540,8 +519,8 @@ Word http_call(Word uri_ptr, Word uri_size, Word header_pairs_ptr, Word header_p
   if (!uri || !body || !header_pairs || !trailer_pairs) {
     return WasmResult::InvalidMemoryAccess;
   }
-  auto headers = toPairs(header_pairs.value());
-  auto trailers = toPairs(trailer_pairs.value());
+  auto headers = PairsUtil::toPairs(header_pairs.value());
+  auto trailers = PairsUtil::toPairs(trailer_pairs.value());
   uint32_t token = 0;
   // NB: try to write the token to verify the memory before starting the async
   // operation.
@@ -610,7 +589,7 @@ Word grpc_call(Word service_ptr, Word service_size, Word service_name_ptr, Word 
     return WasmResult::InvalidMemoryAccess;
   }
   uint32_t token = 0;
-  auto initial_metadata = toPairs(initial_metadata_pairs.value());
+  auto initial_metadata = PairsUtil::toPairs(initial_metadata_pairs.value());
   auto result = context->grpcCall(service.value(), service_name.value(), method_name.value(),
                                   initial_metadata, request.value(),
                                   std::chrono::milliseconds(timeout_milliseconds), &token);
@@ -636,7 +615,7 @@ Word grpc_stream(Word service_ptr, Word service_size, Word service_name_ptr, Wor
     return WasmResult::InvalidMemoryAccess;
   }
   uint32_t token = 0;
-  auto initial_metadata = toPairs(initial_metadata_pairs.value());
+  auto initial_metadata = PairsUtil::toPairs(initial_metadata_pairs.value());
   auto result = context->grpcStream(service.value(), service_name.value(), method_name.value(),
                                     initial_metadata, &token);
   if (result != WasmResult::Ok) {
@@ -884,6 +863,12 @@ Word wasi_unstable_clock_time_get(Word clock_id, uint64_t /*precision*/,
 
 // __wasi_errno_t __wasi_random_get(uint8_t *buf, size_t buf_len);
 Word wasi_unstable_random_get(Word result_buf_ptr, Word buf_len) {
+  if (buf_len > PROXY_WASM_HOST_WASI_RANDOM_GET_MAX_SIZE_BYTES) {
+    return 28; // __WASI_EINVAL
+  }
+  if (buf_len == 0) {
+    return 0; // __WASI_ESUCCESS
+  }
   auto *context = contextOrEffectiveContext();
   std::vector<uint8_t> random(buf_len);
   RAND_bytes(random.data(), random.size());
@@ -900,6 +885,8 @@ void wasi_unstable_proc_exit(Word /*exit_code*/) {
 }
 
 Word pthread_equal(Word left, Word right) { return static_cast<uint64_t>(left == right); }
+
+void emscripten_notify_memory_growth(Word /*memory_index*/) {}
 
 Word set_tick_period_milliseconds(Word period_milliseconds) {
   TimerToken token = 0;

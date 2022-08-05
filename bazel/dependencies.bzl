@@ -17,6 +17,8 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign:crates.bzl", "wasmsign_fetch_remote_crates")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime:crates.bzl", "wasmtime_fetch_remote_crates")
 load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
+load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
+load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
 load("@rules_python//python:pip.bzl", "pip_install")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories", "rust_repository_set")
 
@@ -24,6 +26,9 @@ def proxy_wasm_cpp_host_dependencies():
     # Bazel extensions.
 
     rules_foreign_cc_dependencies()
+
+    rules_fuzzing_dependencies()
+    rules_fuzzing_init()
 
     rust_repositories()
     rust_repository_set(
@@ -34,7 +39,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasi",
         ],
-        version = "1.58.1",
+        version = "1.62.1",
     )
     rust_repository_set(
         name = "rust_linux_s390x",
@@ -43,7 +48,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasi",
         ],
-        version = "1.58.1",
+        version = "1.62.1",
     )
 
     zig_register_toolchains(

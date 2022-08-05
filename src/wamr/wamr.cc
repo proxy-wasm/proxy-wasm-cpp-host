@@ -296,7 +296,7 @@ bool Wamr::link(std::string_view /*debug_name*/) {
     return false;
   }
 
-  wasm_extern_vec_t imports_vec = {imports.size(), imports.data()};
+  wasm_extern_vec_t imports_vec = {imports.size(), imports.data(), imports.size()};
   instance_ = wasm_instance_new(store_.get(), module_.get(), &imports_vec, nullptr);
   if (instance_ == nullptr) {
     fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
@@ -578,9 +578,9 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
     if (trap) {
       WasmByteVec error_message;
       wasm_trap_message(trap.get(), error_message.get());
+      std::string message(error_message.get()->data); // NULL-terminated
       fail(FailState::RuntimeError,
-           "Function: " + std::string(function_name) + " failed:\n" +
-               std::string(error_message.get()->data, error_message.get()->size));
+           "Function: " + std::string(function_name) + " failed: " + message);
       return;
     }
     if (log) {
@@ -628,9 +628,9 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
     if (trap) {
       WasmByteVec error_message;
       wasm_trap_message(trap.get(), error_message.get());
+      std::string message(error_message.get()->data); // NULL-terminated
       fail(FailState::RuntimeError,
-           "Function: " + std::string(function_name) + " failed:\n" +
-               std::string(error_message.get()->data, error_message.get()->size));
+           "Function: " + std::string(function_name) + " failed: " + message);
       return R{};
     }
     R ret = convertValueTypeToArg<R>(results.data[0]);

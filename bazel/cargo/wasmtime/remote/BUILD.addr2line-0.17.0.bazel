@@ -52,7 +52,7 @@ rust_library(
     version = "0.17.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__gimli__0_26_1//:gimli",
+        "@wasmtime__gimli__0_26_2//:gimli",
     ],
 )
 

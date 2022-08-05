@@ -33,6 +33,9 @@
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
 #include "include/proxy-wasm/wasmtime.h"
 #endif
+#if defined(PROXY_WASM_HOST_ENGINE_WASMEDGE)
+#include "include/proxy-wasm/wasmedge.h"
+#endif
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
 #include "include/proxy-wasm/wamr.h"
 #endif
@@ -88,15 +91,33 @@ private:
 class TestContext : public ContextBase {
 public:
   TestContext(WasmBase *wasm) : ContextBase(wasm) {}
+  TestContext(WasmBase *wasm, const std::shared_ptr<PluginBase> &plugin)
+      : ContextBase(wasm, plugin) {}
 
   WasmResult log(uint32_t /*log_level*/, std::string_view message) override {
-    log_ += std::string(message) + "\n";
+    auto new_log = std::string(message) + "\n";
+    log_ += new_log;
+    global_log_ += new_log;
     return WasmResult::Ok;
+  }
+
+  WasmResult getProperty(std::string_view path, std::string *result) override {
+    if (path == "plugin_root_id") {
+      *result = root_id_;
+      return WasmResult::Ok;
+    }
+    return unimplemented();
   }
 
   bool isLogEmpty() { return log_.empty(); }
 
   bool isLogged(std::string_view message) { return log_.find(message) != std::string::npos; }
+
+  static bool isGlobalLogged(std::string_view message) {
+    return global_log_.find(message) != std::string::npos;
+  }
+
+  static void resetGlobalLog() { global_log_ = ""; }
 
   uint64_t getCurrentTimeNanoseconds() override {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -111,14 +132,24 @@ public:
 
 private:
   std::string log_;
+  static std::string global_log_;
 };
 
 class TestWasm : public WasmBase {
 public:
-  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::unordered_map<std::string, std::string> envs = {})
-      : WasmBase(std::move(wasm_vm), "", "", "", std::move(envs), {}) {}
+  TestWasm(std::unique_ptr<WasmVm> wasm_vm, std::unordered_map<std::string, std::string> envs = {},
+           std::string_view vm_id = "", std::string_view vm_configuration = "",
+           std::string_view vm_key = "")
+      : WasmBase(std::move(wasm_vm), vm_id, vm_configuration, vm_key, std::move(envs), {}) {}
+
+  TestWasm(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory)
+      : WasmBase(base_wasm_handle, factory) {}
 
   ContextBase *createVmContext() override { return new TestContext(this); };
+
+  ContextBase *createRootContext(const std::shared_ptr<PluginBase> &plugin) override {
+    return new TestContext(this, plugin);
+  }
 };
 
 class TestVm : public testing::TestWithParam<std::string> {
@@ -143,6 +174,10 @@ public:
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
     } else if (engine_ == "wasmtime") {
       vm = proxy_wasm::createWasmtimeVm();
+#endif
+#if defined(PROXY_WASM_HOST_ENGINE_WASMEDGE)
+    } else if (engine_ == "wasmedge") {
+      vm = proxy_wasm::createWasmEdgeVm();
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
     } else if (engine_ == "wamr") {
