@@ -125,6 +125,7 @@ jobs:
           os: windows-2019
           arch: x86_64
           action: test
+          targets: -//test/fuzz/...
         - name: 'V8 on Linux/x86_64'
           engine: 'v8'
           repo: 'v8'
@@ -155,6 +156,7 @@ jobs:
           os: ubuntu-20.04
           arch: aarch64
           action: test
+          targets: -//test/fuzz/...
           flags: --config=zig-cc-linux-aarch64 --@v8//bazel/config:v8_target_cpu=arm64
           deps: qemu-user-static libc6-arm64-cross
           cache: true
@@ -228,6 +230,7 @@ jobs:
           os: windows-2019
           arch: x86_64
           action: test
+          targets: -//test/fuzz/...
         - name: 'WAVM on Linux/x86_64'
           engine: 'wavm'
           repo: 'com_github_wavm_wavm'
@@ -280,6 +283,7 @@ jobs:
         done
 
     - name: Bazel build/test
+      shell: bash
       run: >
         ${{ matrix.run_under }}
         bazel ${{ matrix.action }}
@@ -287,7 +291,7 @@ jobs:
         --test_output=errors
         --define engine=${{ matrix.engine }}
         ${{ matrix.flags }}
-        //test/...
+        -- //test/... ${{ matrix.targets }}
 
     - name: Bazel build/test (signed Wasm module)
       if: ${{ matrix.engine != 'null' && !startsWith(matrix.os, 'windows') }}
