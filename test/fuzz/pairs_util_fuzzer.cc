@@ -22,7 +22,7 @@ namespace {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
   auto input = std::string_view(reinterpret_cast<const char *>(data), size);
 
-  auto pairs = PairsUtil::toPairs(input);
+  auto pairs = PairsUtil::toPairs(input, true);
 
   if (!pairs.empty()) {
     // Verify that non-empty Pairs serializes back to the same bytes.
@@ -31,7 +31,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
       __builtin_trap();
     }
     std::vector<char> new_data(new_size);
-    if (!PairsUtil::marshalPairs(pairs, new_data.data(), new_data.size())) {
+    if (!PairsUtil::marshalPairs(pairs, new_data.data(), new_data.size(), true)) {
       __builtin_trap();
     }
     if (::memcmp(new_data.data(), data, size) != 0) {

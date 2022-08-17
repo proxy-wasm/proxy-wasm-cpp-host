@@ -45,11 +45,12 @@ public:
    * @param size size of the output buffer.
    * @return indicates whether serialization succeeded or not.
    */
-  static bool marshalPairs(const Pairs &pairs, char *buffer, size_t size);
+  static bool marshalPairs(const Pairs &pairs, char *buffer, size_t size, bool is_wasm_byte_order);
 
-  static bool marshalPairs(const StringPairs &stringpairs, char *buffer, size_t size) {
+  static bool marshalPairs(const StringPairs &stringpairs, char *buffer, size_t size,
+                           bool is_wasm_byte_order) {
     Pairs views(stringpairs.begin(), stringpairs.end());
-    return marshalPairs(views, buffer, size);
+    return marshalPairs(views, buffer, size, is_wasm_byte_order);
   }
 
   /**
@@ -57,7 +58,7 @@ public:
    * @param buffer serialized input buffer.
    * @return deserialized Pairs or an empty instance in case of deserialization failure.
    */
-  static Pairs toPairs(std::string_view buffer);
+  static Pairs toPairs(std::string_view buffer, bool is_wasm_byte_order);
 };
 
 } // namespace proxy_wasm

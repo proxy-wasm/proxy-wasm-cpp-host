@@ -152,7 +152,8 @@ Word send_local_response(Word response_code, Word response_code_details_ptr,
   if (!details || !body || !additional_response_header_pairs) {
     return WasmResult::InvalidMemoryAccess;
   }
-  auto additional_headers = PairsUtil::toPairs(additional_response_header_pairs.value());
+  auto additional_headers = PairsUtil::toPairs(additional_response_header_pairs.value(),
+                                               context->wasmVm()->isWasmByteOrder());
   context->sendLocalResponse(response_code, body.value(), std::move(additional_headers),
                              grpc_status, details.value());
   context->wasm()->stopNextIteration(true);
@@ -399,7 +400,7 @@ Word get_header_map_pairs(Word type, Word ptr_ptr, Word size_ptr) {
   if (buffer == nullptr) {
     return WasmResult::InvalidMemoryAccess;
   }
-  if (!PairsUtil::marshalPairs(pairs, buffer, size)) {
+  if (!PairsUtil::marshalPairs(pairs, buffer, size, context->wasmVm()->isWasmByteOrder())) {
     return WasmResult::InvalidMemoryAccess;
   }
   if (!context->wasmVm()->setWord(ptr_ptr, Word(ptr))) {
@@ -420,8 +421,9 @@ Word set_header_map_pairs(Word type, Word ptr, Word size) {
   if (!data) {
     return WasmResult::InvalidMemoryAccess;
   }
-  return context->setHeaderMapPairs(static_cast<WasmHeaderMapType>(type.u64_),
-                                    PairsUtil::toPairs(data.value()));
+  return context->setHeaderMapPairs(
+      static_cast<WasmHeaderMapType>(type.u64_),
+      PairsUtil::toPairs(data.value(), context->wasmVm()->isWasmByteOrder()));
 }
 
 Word get_header_map_size(Word type, Word result_ptr) {
@@ -519,8 +521,8 @@ Word http_call(Word uri_ptr, Word uri_size, Word header_pairs_ptr, Word header_p
   if (!uri || !body || !header_pairs || !trailer_pairs) {
     return WasmResult::InvalidMemoryAccess;
   }
-  auto headers = PairsUtil::toPairs(header_pairs.value());
-  auto trailers = PairsUtil::toPairs(trailer_pairs.value());
+  auto headers = PairsUtil::toPairs(header_pairs.value(), context->wasmVm()->isWasmByteOrder());
+  auto trailers = PairsUtil::toPairs(trailer_pairs.value(), context->wasmVm()->isWasmByteOrder());
   uint32_t token = 0;
   // NB: try to write the token to verify the memory before starting the async
   // operation.
@@ -589,7 +591,8 @@ Word grpc_call(Word service_ptr, Word service_size, Word service_name_ptr, Word 
     return WasmResult::InvalidMemoryAccess;
   }
   uint32_t token = 0;
-  auto initial_metadata = PairsUtil::toPairs(initial_metadata_pairs.value());
+  auto initial_metadata =
+      PairsUtil::toPairs(initial_metadata_pairs.value(), context->wasmVm()->isWasmByteOrder());
   auto result = context->grpcCall(service.value(), service_name.value(), method_name.value(),
                                   initial_metadata, request.value(),
                                   std::chrono::milliseconds(timeout_milliseconds), &token);
@@ -615,7 +618,8 @@ Word grpc_stream(Word service_ptr, Word service_size, Word service_name_ptr, Wor
     return WasmResult::InvalidMemoryAccess;
   }
   uint32_t token = 0;
-  auto initial_metadata = PairsUtil::toPairs(initial_metadata_pairs.value());
+  auto initial_metadata =
+      PairsUtil::toPairs(initial_metadata_pairs.value(), context->wasmVm()->isWasmByteOrder());
   auto result = context->grpcStream(service.value(), service_name.value(), method_name.value(),
                                     initial_metadata, &token);
   if (result != WasmResult::Ok) {
@@ -693,8 +697,9 @@ Word writevImpl(Word fd, Word iovs, Word iovs_len, Word *nwritten_ptr) {
     }
     const auto *iovec = reinterpret_cast<const uint32_t *>(memslice.value().data());
     if (iovec[1] != 0U /* buf_len */) {
-      memslice = context->wasmVm()->getMemory(wasmtoh(iovec[0]) /* buf */,
-                                              wasmtoh(iovec[1]) /* buf_len */);
+      memslice = context->wasmVm()->getMemory(
+          wasmtoh(iovec[0], context->wasmVm()->isWasmByteOrder()) /* buf */,
+          wasmtoh(iovec[1], context->wasmVm()->isWasmByteOrder()) /* buf_len */);
       if (!memslice) {
         return 21; // __WASI_EFAULT
       }

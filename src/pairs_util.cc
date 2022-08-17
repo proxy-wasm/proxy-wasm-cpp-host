@@ -36,7 +36,8 @@ size_t PairsUtil::pairsSize(const Pairs &pairs) {
   return size;
 }
 
-bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
+bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size,
+                             [[maybe_unused]] bool is_wasm_byte_order) {
   if (buffer == nullptr) {
     return false;
   }
@@ -45,7 +46,7 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
   const char *end = buffer + size;
 
   // Write number of pairs.
-  uint32_t num_pairs = htowasm(pairs.size());
+  uint32_t num_pairs = htowasm(pairs.size(), is_wasm_byte_order);
   if (pos + sizeof(uint32_t) > end) {
     return false;
   }
@@ -54,7 +55,7 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
 
   for (const auto &p : pairs) {
     // Write name length.
-    uint32_t name_len = htowasm(p.first.size());
+    uint32_t name_len = htowasm(p.first.size(), is_wasm_byte_order);
     if (pos + sizeof(uint32_t) > end) {
       return false;
     }
@@ -62,7 +63,7 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
     pos += sizeof(uint32_t);
 
     // Write value length.
-    uint32_t value_len = htowasm(p.second.size());
+    uint32_t value_len = htowasm(p.second.size(), is_wasm_byte_order);
     if (pos + sizeof(uint32_t) > end) {
       return false;
     }
@@ -91,7 +92,7 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
   return pos == end;
 }
 
-Pairs PairsUtil::toPairs(std::string_view buffer) {
+Pairs PairsUtil::toPairs(std::string_view buffer, [[maybe_unused]] bool is_wasm_byte_order) {
   if (buffer.data() == nullptr || buffer.size() > PROXY_WASM_HOST_PAIRS_MAX_BYTES) {
     return {};
   }
@@ -103,7 +104,7 @@ Pairs PairsUtil::toPairs(std::string_view buffer) {
   if (pos + sizeof(uint32_t) > end) {
     return {};
   }
-  uint32_t num_pairs = wasmtoh(*reinterpret_cast<const uint32_t *>(pos));
+  uint32_t num_pairs = wasmtoh(*reinterpret_cast<const uint32_t *>(pos), is_wasm_byte_order);
   pos += sizeof(uint32_t);
 
   // Check if we're not going to exceed the limit.
@@ -122,14 +123,14 @@ Pairs PairsUtil::toPairs(std::string_view buffer) {
     if (pos + sizeof(uint32_t) > end) {
       return {};
     }
-    s.first = wasmtoh(*reinterpret_cast<const uint32_t *>(pos));
+    s.first = wasmtoh(*reinterpret_cast<const uint32_t *>(pos), is_wasm_byte_order);
     pos += sizeof(uint32_t);
 
     // Read value length.
     if (pos + sizeof(uint32_t) > end) {
       return {};
     }
-    s.second = wasmtoh(*reinterpret_cast<const uint32_t *>(pos));
+    s.second = wasmtoh(*reinterpret_cast<const uint32_t *>(pos), is_wasm_byte_order);
     pos += sizeof(uint32_t);
   }
 
