@@ -84,11 +84,8 @@ TEST_F(BaseVmTest, ByteOrder) {
   std::string data1("some_data");
   pairs1.push_back({data1.data(), std::to_string(data1.size())});
   std::vector<char> buffer(PairsUtil::pairsSize(pairs1));
-  // encode using null_vm byte order
-  EXPECT_TRUE(
-      PairsUtil::marshalPairs(pairs1, buffer.data(), buffer.size(), wasm_vm->isWasmByteOrder()));
-  // decode using host byte order
-  auto pairs2 = PairsUtil::toPairs(std::string_view(buffer.data(), buffer.size()), false);
+  EXPECT_TRUE(PairsUtil::marshalPairs(pairs1, buffer.data(), buffer.size()));
+  auto pairs2 = PairsUtil::toPairs(std::string_view(buffer.data(), buffer.size()));
   EXPECT_EQ(pairs2.size(), pairs1.size());
   EXPECT_EQ(pairs2[0].second, pairs1[0].second);
 #endif

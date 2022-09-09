@@ -24,9 +24,8 @@ namespace proxy_wasm {
 // Use byteswap functions only when compiling for big-endian platforms.
 #if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
     __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define htowasm1111(x, is_null) is_null ? (x) : __builtin_bswap32(x)
-#define htowasm(x, is_wasm_byte_order) is_wasm_byte_order ? __builtin_bswap32(x) : (x)
-#define wasmtoh(x, is_wasm_byte_order) is_wasm_byte_order ? __builtin_bswap32(x) : (x)
+#define htowasm(x, is_wasm_byte_order) ((is_wasm_byte_order) ? __builtin_bswap32(x) : (x))
+#define wasmtoh(x, is_wasm_byte_order) ((is_wasm_byte_order) ? __builtin_bswap32(x) : (x))
 #else
 #define htowasm(x, is_wasm_byte_order) (x)
 #define wasmtoh(x, is_wasm_byte_order) (x)

@@ -152,8 +152,7 @@ Word send_local_response(Word response_code, Word response_code_details_ptr,
   if (!details || !body || !additional_response_header_pairs) {
     return WasmResult::InvalidMemoryAccess;
   }
-  auto additional_headers = PairsUtil::toPairs(additional_response_header_pairs.value(),
-                                               context->wasmVm()->isWasmByteOrder());
+  auto additional_headers = PairsUtil::toPairs(additional_response_header_pairs.value());
   context->sendLocalResponse(response_code, body.value(), std::move(additional_headers),
                              grpc_status, details.value());
   context->wasm()->stopNextIteration(true);
@@ -400,7 +399,7 @@ Word get_header_map_pairs(Word type, Word ptr_ptr, Word size_ptr) {
   if (buffer == nullptr) {
     return WasmResult::InvalidMemoryAccess;
   }
-  if (!PairsUtil::marshalPairs(pairs, buffer, size, context->wasmVm()->isWasmByteOrder())) {
+  if (!PairsUtil::marshalPairs(pairs, buffer, size)) {
     return WasmResult::InvalidMemoryAccess;
   }
   if (!context->wasmVm()->setWord(ptr_ptr, Word(ptr))) {
@@ -421,9 +420,8 @@ Word set_header_map_pairs(Word type, Word ptr, Word size) {
   if (!data) {
     return WasmResult::InvalidMemoryAccess;
   }
-  return context->setHeaderMapPairs(
-      static_cast<WasmHeaderMapType>(type.u64_),
-      PairsUtil::toPairs(data.value(), context->wasmVm()->isWasmByteOrder()));
+  return context->setHeaderMapPairs(static_cast<WasmHeaderMapType>(type.u64_),
+                                    PairsUtil::toPairs(data.value()));
 }
 
 Word get_header_map_size(Word type, Word result_ptr) {
@@ -521,8 +519,8 @@ Word http_call(Word uri_ptr, Word uri_size, Word header_pairs_ptr, Word header_p
   if (!uri || !body || !header_pairs || !trailer_pairs) {
     return WasmResult::InvalidMemoryAccess;
   }
-  auto headers = PairsUtil::toPairs(header_pairs.value(), context->wasmVm()->isWasmByteOrder());
-  auto trailers = PairsUtil::toPairs(trailer_pairs.value(), context->wasmVm()->isWasmByteOrder());
+  auto headers = PairsUtil::toPairs(header_pairs.value());
+  auto trailers = PairsUtil::toPairs(trailer_pairs.value());
   uint32_t token = 0;
   // NB: try to write the token to verify the memory before starting the async
   // operation.
@@ -591,8 +589,7 @@ Word grpc_call(Word service_ptr, Word service_size, Word service_name_ptr, Word 
     return WasmResult::InvalidMemoryAccess;
   }
   uint32_t token = 0;
-  auto initial_metadata =
-      PairsUtil::toPairs(initial_metadata_pairs.value(), context->wasmVm()->isWasmByteOrder());
+  auto initial_metadata = PairsUtil::toPairs(initial_metadata_pairs.value());
   auto result = context->grpcCall(service.value(), service_name.value(), method_name.value(),
                                   initial_metadata, request.value(),
                                   std::chrono::milliseconds(timeout_milliseconds), &token);
@@ -618,8 +615,7 @@ Word grpc_stream(Word service_ptr, Word service_size, Word service_name_ptr, Wor
     return WasmResult::InvalidMemoryAccess;
   }
   uint32_t token = 0;
-  auto initial_metadata =
-      PairsUtil::toPairs(initial_metadata_pairs.value(), context->wasmVm()->isWasmByteOrder());
+  auto initial_metadata = PairsUtil::toPairs(initial_metadata_pairs.value());
   auto result = context->grpcStream(service.value(), service_name.value(), method_name.value(),
                                     initial_metadata, &token);
   if (result != WasmResult::Ok) {

@@ -19,8 +19,8 @@
 #include <string_view>
 #include <vector>
 
+#include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/limits.h"
-#include "include/proxy-wasm/word.h"
 
 namespace proxy_wasm {
 
@@ -36,8 +36,7 @@ size_t PairsUtil::pairsSize(const Pairs &pairs) {
   return size;
 }
 
-bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size,
-                             [[maybe_unused]] bool is_wasm_byte_order) {
+bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
   if (buffer == nullptr) {
     return false;
   }
@@ -46,7 +45,10 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size,
   const char *end = buffer + size;
 
   // Write number of pairs.
-  uint32_t num_pairs = htowasm(pairs.size(), is_wasm_byte_order);
+  uint32_t num_pairs =
+      htowasm(pairs.size(), contextOrEffectiveContext() == nullptr
+                                ? false
+                                : contextOrEffectiveContext()->wasmVm()->isWasmByteOrder());
   if (pos + sizeof(uint32_t) > end) {
     return false;
   }
@@ -55,7 +57,10 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size,
 
   for (const auto &p : pairs) {
     // Write name length.
-    uint32_t name_len = htowasm(p.first.size(), is_wasm_byte_order);
+    uint32_t name_len =
+        htowasm(p.first.size(), contextOrEffectiveContext() == nullptr
+                                    ? false
+                                    : contextOrEffectiveContext()->wasmVm()->isWasmByteOrder());
     if (pos + sizeof(uint32_t) > end) {
       return false;
     }
@@ -63,7 +68,10 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size,
     pos += sizeof(uint32_t);
 
     // Write value length.
-    uint32_t value_len = htowasm(p.second.size(), is_wasm_byte_order);
+    uint32_t value_len =
+        htowasm(p.second.size(), contextOrEffectiveContext() == nullptr
+                                     ? false
+                                     : contextOrEffectiveContext()->wasmVm()->isWasmByteOrder());
     if (pos + sizeof(uint32_t) > end) {
       return false;
     }
@@ -92,7 +100,7 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size,
   return pos == end;
 }
 
-Pairs PairsUtil::toPairs(std::string_view buffer, [[maybe_unused]] bool is_wasm_byte_order) {
+Pairs PairsUtil::toPairs(std::string_view buffer) {
   if (buffer.data() == nullptr || buffer.size() > PROXY_WASM_HOST_PAIRS_MAX_BYTES) {
     return {};
   }
@@ -104,7 +112,10 @@ Pairs PairsUtil::toPairs(std::string_view buffer, [[maybe_unused]] bool is_wasm_
   if (pos + sizeof(uint32_t) > end) {
     return {};
   }
-  uint32_t num_pairs = wasmtoh(*reinterpret_cast<const uint32_t *>(pos), is_wasm_byte_order);
+  uint32_t num_pairs = wasmtoh(*reinterpret_cast<const uint32_t *>(pos),
+                               contextOrEffectiveContext() == nullptr
+                                   ? false
+                                   : contextOrEffectiveContext()->wasmVm()->isWasmByteOrder());
   pos += sizeof(uint32_t);
 
   // Check if we're not going to exceed the limit.
@@ -123,14 +134,20 @@ Pairs PairsUtil::toPairs(std::string_view buffer, [[maybe_unused]] bool is_wasm_
     if (pos + sizeof(uint32_t) > end) {
       return {};
     }
-    s.first = wasmtoh(*reinterpret_cast<const uint32_t *>(pos), is_wasm_byte_order);
+    s.first = wasmtoh(*reinterpret_cast<const uint32_t *>(pos),
+                      contextOrEffectiveContext() == nullptr
+                          ? false
+                          : contextOrEffectiveContext()->wasmVm()->isWasmByteOrder());
     pos += sizeof(uint32_t);
 
     // Read value length.
     if (pos + sizeof(uint32_t) > end) {
       return {};
     }
-    s.second = wasmtoh(*reinterpret_cast<const uint32_t *>(pos), is_wasm_byte_order);
+    s.second = wasmtoh(*reinterpret_cast<const uint32_t *>(pos),
+                       contextOrEffectiveContext() == nullptr
+                           ? false
+                           : contextOrEffectiveContext()->wasmVm()->isWasmByteOrder());
     pos += sizeof(uint32_t);
   }
 
