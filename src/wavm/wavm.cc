@@ -230,7 +230,7 @@ struct Wavm : public WasmVm {
 #undef _REGISTER_CALLBACK
 
   void terminate() override {}
-  bool isWasmByteOrder() override { return true; }
+  bool usesWasmByteOrder() override { return true; }
 
   IR::Module ir_module_;
   WAVM::Runtime::ModuleRef module_ = nullptr;
@@ -390,12 +390,12 @@ bool Wavm::getWord(uint64_t pointer, Word *data) {
   auto *p = reinterpret_cast<char *>(memory_base_ + pointer);
   uint32_t data32;
   memcpy(&data32, p, sizeof(uint32_t));
-  data->u64_ = wasmtoh(data32, isWasmByteOrder());
+  data->u64_ = wasmtoh(data32, usesWasmByteOrder());
   return true;
 }
 
 bool Wavm::setWord(uint64_t pointer, Word data) {
-  uint32_t data32 = htowasm(data.u32(), isWasmByteOrder());
+  uint32_t data32 = htowasm(data.u32(), usesWasmByteOrder());
   return setMemory(pointer, sizeof(uint32_t), &data32);
 }
 

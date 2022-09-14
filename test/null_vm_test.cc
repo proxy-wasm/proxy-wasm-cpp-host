@@ -77,7 +77,7 @@ TEST_F(BaseVmTest, NullVmStartup) {
 TEST_F(BaseVmTest, ByteOrder) {
   auto wasm_vm = createNullVm();
   EXPECT_TRUE(wasm_vm->load("test_null_vm_plugin", {}, {}));
-  EXPECT_FALSE(wasm_vm->isWasmByteOrder());
+  EXPECT_FALSE(wasm_vm->usesWasmByteOrder());
 #if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
     __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
   proxy_wasm::Pairs pairs1;

@@ -694,8 +694,8 @@ Word writevImpl(Word fd, Word iovs, Word iovs_len, Word *nwritten_ptr) {
     const auto *iovec = reinterpret_cast<const uint32_t *>(memslice.value().data());
     if (iovec[1] != 0U /* buf_len */) {
       memslice = context->wasmVm()->getMemory(
-          wasmtoh(iovec[0], context->wasmVm()->isWasmByteOrder()) /* buf */,
-          wasmtoh(iovec[1], context->wasmVm()->isWasmByteOrder()) /* buf_len */);
+          wasmtoh(iovec[0], context->wasmVm()->usesWasmByteOrder()) /* buf */,
+          wasmtoh(iovec[1], context->wasmVm()->usesWasmByteOrder()) /* buf_len */);
       if (!memslice) {
         return 21; // __WASI_EFAULT
       }

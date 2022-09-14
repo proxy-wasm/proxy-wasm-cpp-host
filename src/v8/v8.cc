@@ -105,7 +105,7 @@ public:
 #undef _GET_MODULE_FUNCTION
 
   void terminate() override;
-  bool isWasmByteOrder() override { return true; }
+  bool usesWasmByteOrder() override { return true; }
 
 private:
   wasm::own<wasm::Trap> trap(std::string message);
@@ -504,7 +504,7 @@ bool V8::getWord(uint64_t pointer, Word *word) {
   }
   uint32_t word32;
   ::memcpy(&word32, memory_->data() + pointer, size);
-  word->u64_ = wasmtoh(word32, isWasmByteOrder());
+  word->u64_ = wasmtoh(word32, usesWasmByteOrder());
   return true;
 }
 
@@ -517,7 +517,7 @@ bool V8::setWord(uint64_t pointer, Word word) {
   if (pointer + size > memory_->data_size()) {
     return false;
   }
-  uint32_t word32 = htowasm(word.u32(), isWasmByteOrder());
+  uint32_t word32 = htowasm(word.u32(), usesWasmByteOrder());
   ::memcpy(memory_->data() + pointer, &word32, size);
   return true;
 }
