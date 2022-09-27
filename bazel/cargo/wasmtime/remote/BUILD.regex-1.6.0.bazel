@@ -46,6 +46,16 @@ licenses([
 rust_library(
     name = "regex",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "aho-corasick",
+        "memchr",
+        "perf",
+        "perf-cache",
+        "perf-dfa",
+        "perf-inline",
+        "perf-literal",
+        "std",
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",

@@ -34,6 +34,10 @@ licenses([
 rust_library(
     name = "regalloc2",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "checker",
+        "default",
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",

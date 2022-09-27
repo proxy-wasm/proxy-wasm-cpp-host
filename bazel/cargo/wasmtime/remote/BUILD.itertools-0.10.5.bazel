@@ -52,6 +52,11 @@ licenses([
 rust_library(
     name = "itertools",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+        "use_alloc",
+        "use_std",
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",

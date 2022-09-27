@@ -34,6 +34,8 @@ licenses([
 rust_proc_macro(
     name = "thiserror_impl",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",

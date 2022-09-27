@@ -34,6 +34,10 @@ licenses([
 rust_library(
     name = "wasmtime_jit_debug",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "gdb_jit_int",
+        "once_cell",
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",

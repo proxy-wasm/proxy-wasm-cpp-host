@@ -38,6 +38,8 @@ licenses([
 rust_library(
     name = "wasmparser",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",

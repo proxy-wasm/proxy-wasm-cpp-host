@@ -36,6 +36,10 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
+    crate_features = [
+        "default",
+        "std",
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",
@@ -53,6 +57,7 @@ rust_library(
         "@wasmtime__cranelift_codegen__0_88_1//:cranelift_codegen",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
     ] + selects.with_or({
+        # cfg(target_arch = "s390x")
         (
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
         ): [

@@ -36,6 +36,8 @@ licenses([
 rust_library(
     name = "fxhash",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
     crate_root = "lib.rs",
     data = [],
     edition = "2015",

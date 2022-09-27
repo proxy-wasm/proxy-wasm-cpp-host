@@ -42,6 +42,8 @@ cargo_build_script(
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
+    crate_features = [
+    ],
     crate_root = "build.rs",
     data = glob(["**"]),
     edition = "2018",
@@ -57,6 +59,7 @@ cargo_build_script(
     deps = [
         "@wasmtime__version_check__0_9_4//:version_check",
     ] + selects.with_or({
+        # cfg(any(target_os = "linux", target_os = "android", target_os = "windows", target_os = "macos", target_os = "ios", target_os = "freebsd", target_os = "openbsd", target_os = "netbsd", target_os = "dragonfly", target_os = "solaris", target_os = "illumos", target_os = "fuchsia", target_os = "redox", target_os = "cloudabi", target_os = "haiku", target_os = "vxworks", target_os = "emscripten", target_os = "wasi"))
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
@@ -66,11 +69,9 @@ cargo_build_script(
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-apple-ios-sim",
             "@rules_rust//rust/platform:aarch64-linux-android",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
-            "@rules_rust//rust/platform:armv7-linux-androideabi",
             "@rules_rust//rust/platform:i686-linux-android",
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
@@ -83,6 +84,7 @@ cargo_build_script(
         ],
         "//conditions:default": [],
     }) + selects.with_or({
+        # cfg(not(all(target_arch = "arm", target_os = "none")))
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
@@ -92,11 +94,9 @@ cargo_build_script(
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-apple-ios-sim",
             "@rules_rust//rust/platform:aarch64-linux-android",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
-            "@rules_rust//rust/platform:armv7-linux-androideabi",
             "@rules_rust//rust/platform:i686-linux-android",
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
@@ -121,6 +121,8 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
+    crate_features = [
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
@@ -137,6 +139,7 @@ rust_library(
     deps = [
         ":ahash_build_script",
     ] + selects.with_or({
+        # cfg(any(target_os = "linux", target_os = "android", target_os = "windows", target_os = "macos", target_os = "ios", target_os = "freebsd", target_os = "openbsd", target_os = "netbsd", target_os = "dragonfly", target_os = "solaris", target_os = "illumos", target_os = "fuchsia", target_os = "redox", target_os = "cloudabi", target_os = "haiku", target_os = "vxworks", target_os = "emscripten", target_os = "wasi"))
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
@@ -146,11 +149,9 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-apple-ios-sim",
             "@rules_rust//rust/platform:aarch64-linux-android",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
-            "@rules_rust//rust/platform:armv7-linux-androideabi",
             "@rules_rust//rust/platform:i686-linux-android",
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
@@ -164,6 +165,7 @@ rust_library(
         ],
         "//conditions:default": [],
     }) + selects.with_or({
+        # cfg(not(all(target_arch = "arm", target_os = "none")))
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
@@ -173,11 +175,9 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-apple-ios-sim",
             "@rules_rust//rust/platform:aarch64-linux-android",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
-            "@rules_rust//rust/platform:armv7-linux-androideabi",
             "@rules_rust//rust/platform:i686-linux-android",
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",

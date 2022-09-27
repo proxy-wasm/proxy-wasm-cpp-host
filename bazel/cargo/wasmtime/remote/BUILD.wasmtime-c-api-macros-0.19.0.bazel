@@ -34,6 +34,8 @@ licenses([
 rust_proc_macro(
     name = "wasmtime_c_api_macros",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
     crate_root = "crates/c-api/macros/src/lib.rs",
     data = [],
     edition = "2021",

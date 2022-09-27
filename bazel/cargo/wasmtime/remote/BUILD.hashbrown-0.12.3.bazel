@@ -38,6 +38,10 @@ licenses([
 rust_library(
     name = "hashbrown",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "ahash",
+        "raw",
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",

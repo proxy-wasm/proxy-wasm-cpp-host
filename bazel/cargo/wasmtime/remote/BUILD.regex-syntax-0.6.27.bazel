@@ -36,6 +36,8 @@ licenses([
 rust_library(
     name = "regex_syntax",
     srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
