@@ -26,29 +26,28 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "0BSD OR (MIT OR Apache-2.0)"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
 rust_library(
-    name = "adler",
+    name = "wasmtime_jit_debug",
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2015",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=adler",
+        "crate-name=wasmtime-jit-debug",
         "manual",
     ],
-    version = "1.0.2",
+    version = "1.0.1",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__once_cell__1_15_0//:once_cell",
     ],
 )

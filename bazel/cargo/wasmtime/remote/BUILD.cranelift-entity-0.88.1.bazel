@@ -32,10 +32,8 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_native",
+    name = "cranelift_entity",
     srcs = glob(["**/*.rs"]),
-    aliases = {
-    },
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",
@@ -44,20 +42,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-native",
+        "crate-name=cranelift-entity",
         "manual",
     ],
-    version = "0.86.1",
+    version = "0.88.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_codegen__0_86_1//:cranelift_codegen",
-        "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
-    ] + selects.with_or({
-        (
-            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
-        ): [
-            "@wasmtime__libc__0_2_133//:libc",
-        ],
-        "//conditions:default": [],
-    }),
+        "@wasmtime__serde__1_0_145//:serde",
+    ],
 )

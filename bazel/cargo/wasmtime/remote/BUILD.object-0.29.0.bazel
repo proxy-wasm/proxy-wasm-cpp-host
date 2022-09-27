@@ -48,6 +48,9 @@ rust_library(
     version = "0.29.0",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__crc32fast__1_3_2//:crc32fast",
+        "@wasmtime__hashbrown__0_12_3//:hashbrown",
+        "@wasmtime__indexmap__1_9_1//:indexmap",
         "@wasmtime__memchr__2_5_0//:memchr",
     ],
 )

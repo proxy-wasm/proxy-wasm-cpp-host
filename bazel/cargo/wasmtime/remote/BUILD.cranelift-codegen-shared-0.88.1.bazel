@@ -32,7 +32,7 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_codegen_meta",
+    name = "cranelift_codegen_shared",
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
     data = [],
@@ -42,12 +42,11 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-codegen-meta",
+        "crate-name=cranelift-codegen-shared",
         "manual",
     ],
-    version = "0.86.1",
+    version = "0.88.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_codegen_shared__0_86_1//:cranelift_codegen_shared",
     ],
 )

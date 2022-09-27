@@ -47,7 +47,7 @@ rust_library(
         "crate-name=wasmtime-jit",
         "manual",
     ],
-    version = "0.39.1",
+    version = "1.0.1",
     # buildifier: leave-alone
     deps = [
         "@wasmtime__addr2line__0_17_0//:addr2line",
@@ -57,14 +57,13 @@ rust_library(
         "@wasmtime__cpp_demangle__0_3_5//:cpp_demangle",
         "@wasmtime__gimli__0_26_2//:gimli",
         "@wasmtime__log__0_4_17//:log",
-        "@wasmtime__object__0_28_4//:object",
-        "@wasmtime__region__2_2_0//:region",
+        "@wasmtime__object__0_29_0//:object",
         "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
         "@wasmtime__serde__1_0_145//:serde",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
         "@wasmtime__thiserror__1_0_36//:thiserror",
-        "@wasmtime__wasmtime_environ__0_39_1//:wasmtime_environ",
-        "@wasmtime__wasmtime_runtime__0_39_1//:wasmtime_runtime",
+        "@wasmtime__wasmtime_environ__1_0_1//:wasmtime_environ",
+        "@wasmtime__wasmtime_runtime__1_0_1//:wasmtime_runtime",
     ] + selects.with_or({
         (
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",

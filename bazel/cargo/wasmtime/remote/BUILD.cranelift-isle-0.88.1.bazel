@@ -26,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
@@ -38,13 +38,13 @@ load(
 )
 
 cargo_build_script(
-    name = "backtrace_build_script",
+    name = "cranelift_isle_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_root = "build.rs",
     data = glob(["**"]),
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -52,52 +52,31 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.3.66",
+    version = "0.88.1",
     visibility = ["//visibility:private"],
     deps = [
-        "@wasmtime__cc__1_0_73//:cc",
     ],
 )
 
-# Unsupported target "benchmarks" with type "bench" omitted
-
-# Unsupported target "backtrace" with type "example" omitted
-
-# Unsupported target "raw" with type "example" omitted
-
 rust_library(
-    name = "backtrace",
+    name = "cranelift_isle",
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=backtrace",
+        "crate-name=cranelift-isle",
         "manual",
     ],
-    version = "0.3.66",
+    version = "0.88.1",
     # buildifier: leave-alone
     deps = [
-        ":backtrace_build_script",
-        "@wasmtime__addr2line__0_17_0//:addr2line",
-        "@wasmtime__cfg_if__1_0_0//:cfg_if",
-        "@wasmtime__libc__0_2_133//:libc",
-        "@wasmtime__miniz_oxide__0_5_4//:miniz_oxide",
-        "@wasmtime__object__0_29_0//:object",
-        "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
+        ":cranelift_isle_build_script",
     ],
 )
 
-# Unsupported target "accuracy" with type "test" omitted
-
-# Unsupported target "concurrent-panics" with type "test" omitted
-
-# Unsupported target "long_fn_name" with type "test" omitted
-
-# Unsupported target "skip_inner_frames" with type "test" omitted
-
-# Unsupported target "smoke" with type "test" omitted
+# Unsupported target "run_tests" with type "test" omitted

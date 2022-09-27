@@ -52,7 +52,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.39.1",
+    version = "1.0.1",
     visibility = ["//visibility:private"],
     deps = [
         "@wasmtime__cc__1_0_73//:cc",
@@ -106,6 +106,9 @@ rust_library(
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",
+    proc_macro_deps = [
+        "@wasmtime__paste__1_0_9//:paste",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -114,23 +117,21 @@ rust_library(
         "crate-name=wasmtime-runtime",
         "manual",
     ],
-    version = "0.39.1",
+    version = "1.0.1",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
         "@wasmtime__anyhow__1_0_65//:anyhow",
-        "@wasmtime__backtrace__0_3_66//:backtrace",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_9_1//:indexmap",
         "@wasmtime__libc__0_2_133//:libc",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__memoffset__0_6_5//:memoffset",
-        "@wasmtime__more_asserts__0_2_2//:more_asserts",
         "@wasmtime__rand__0_8_5//:rand",
-        "@wasmtime__region__2_2_0//:region",
         "@wasmtime__thiserror__1_0_36//:thiserror",
-        "@wasmtime__wasmtime_environ__0_39_1//:wasmtime_environ",
-        "@wasmtime__wasmtime_jit_debug__0_39_1//:wasmtime_jit_debug",
+        "@wasmtime__wasmtime_asm_macros__1_0_1//:wasmtime_asm_macros",
+        "@wasmtime__wasmtime_environ__1_0_1//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit_debug__1_0_1//:wasmtime_jit_debug",
     ] + selects.with_or({
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
