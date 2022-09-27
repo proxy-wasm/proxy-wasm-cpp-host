@@ -34,9 +34,6 @@ licenses([
 rust_library(
     name = "rand_chacha",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "std",
-    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
@@ -52,6 +49,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@wasmtime__ppv_lite86__0_2_16//:ppv_lite86",
-        "@wasmtime__rand_core__0_6_3//:rand_core",
+        "@wasmtime__rand_core__0_6_4//:rand_core",
     ],
 )

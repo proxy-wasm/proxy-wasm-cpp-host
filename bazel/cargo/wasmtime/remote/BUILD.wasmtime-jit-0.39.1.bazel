@@ -36,8 +36,6 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
-    crate_features = [
-    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",
@@ -53,7 +51,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@wasmtime__addr2line__0_17_0//:addr2line",
-        "@wasmtime__anyhow__1_0_58//:anyhow",
+        "@wasmtime__anyhow__1_0_65//:anyhow",
         "@wasmtime__bincode__1_3_3//:bincode",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__cpp_demangle__0_3_5//:cpp_demangle",
@@ -62,13 +60,12 @@ rust_library(
         "@wasmtime__object__0_28_4//:object",
         "@wasmtime__region__2_2_0//:region",
         "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
-        "@wasmtime__serde__1_0_140//:serde",
+        "@wasmtime__serde__1_0_145//:serde",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
-        "@wasmtime__thiserror__1_0_31//:thiserror",
+        "@wasmtime__thiserror__1_0_36//:thiserror",
         "@wasmtime__wasmtime_environ__0_39_1//:wasmtime_environ",
         "@wasmtime__wasmtime_runtime__0_39_1//:wasmtime_runtime",
     ] + selects.with_or({
-        # cfg(target_os = "linux")
         (
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
@@ -77,11 +74,10 @@ rust_library(
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
         ): [
-            "@wasmtime__rustix__0_35_7//:rustix",
+            "@wasmtime__rustix__0_35_10//:rustix",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
-        # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",

@@ -26,18 +26,14 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "(MIT OR Apache-2.0) AND Unicode-DFS-2016"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "xid" with type "bench" omitted
-
-rust_library(
-    name = "unicode_ident",
+rust_proc_macro(
+    name = "paste",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
@@ -46,15 +42,21 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=unicode-ident",
+        "crate-name=paste",
         "manual",
     ],
-    version = "1.0.2",
+    version = "1.0.9",
     # buildifier: leave-alone
     deps = [
     ],
 )
 
-# Unsupported target "compare" with type "test" omitted
+# Unsupported target "compiletest" with type "test" omitted
 
-# Unsupported target "static_size" with type "test" omitted
+# Unsupported target "test_attr" with type "test" omitted
+
+# Unsupported target "test_doc" with type "test" omitted
+
+# Unsupported target "test_expr" with type "test" omitted
+
+# Unsupported target "test_item" with type "test" omitted

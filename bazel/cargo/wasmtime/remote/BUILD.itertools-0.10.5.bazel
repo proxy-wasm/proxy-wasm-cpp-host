@@ -52,11 +52,6 @@ licenses([
 rust_library(
     name = "itertools",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "default",
-        "use_alloc",
-        "use_std",
-    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
@@ -68,10 +63,10 @@ rust_library(
         "crate-name=itertools",
         "manual",
     ],
-    version = "0.10.3",
+    version = "0.10.5",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__either__1_7_0//:either",
+        "@wasmtime__either__1_8_0//:either",
     ],
 )
 

@@ -34,8 +34,6 @@ licenses([
 rust_proc_macro(
     name = "wasmtime_c_api_macros",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-    ],
     crate_root = "crates/c-api/macros/src/lib.rs",
     data = [],
     edition = "2021",
@@ -50,7 +48,7 @@ rust_proc_macro(
     version = "0.19.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__proc_macro2__1_0_42//:proc_macro2",
-        "@wasmtime__quote__1_0_20//:quote",
+        "@wasmtime__proc_macro2__1_0_44//:proc_macro2",
+        "@wasmtime__quote__1_0_21//:quote",
     ],
 )

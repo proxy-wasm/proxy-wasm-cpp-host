@@ -34,10 +34,6 @@ licenses([
 rust_library(
     name = "cranelift_entity",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "enable-serde",
-        "serde",
-    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",
@@ -52,6 +48,6 @@ rust_library(
     version = "0.86.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__serde__1_0_140//:serde",
+        "@wasmtime__serde__1_0_145//:serde",
     ],
 )

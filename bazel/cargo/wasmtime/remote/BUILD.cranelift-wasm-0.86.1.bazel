@@ -34,10 +34,6 @@ licenses([
 rust_library(
     name = "cranelift_wasm",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "default",
-        "std",
-    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",
@@ -55,7 +51,7 @@ rust_library(
         "@wasmtime__cranelift_codegen__0_86_1//:cranelift_codegen",
         "@wasmtime__cranelift_entity__0_86_1//:cranelift_entity",
         "@wasmtime__cranelift_frontend__0_86_1//:cranelift_frontend",
-        "@wasmtime__itertools__0_10_3//:itertools",
+        "@wasmtime__itertools__0_10_5//:itertools",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__smallvec__1_9_0//:smallvec",
         "@wasmtime__wasmparser__0_86_0//:wasmparser",

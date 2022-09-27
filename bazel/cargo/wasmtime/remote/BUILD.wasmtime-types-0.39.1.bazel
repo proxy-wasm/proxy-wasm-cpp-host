@@ -34,8 +34,6 @@ licenses([
 rust_library(
     name = "wasmtime_types",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",
@@ -51,8 +49,8 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@wasmtime__cranelift_entity__0_86_1//:cranelift_entity",
-        "@wasmtime__serde__1_0_140//:serde",
-        "@wasmtime__thiserror__1_0_31//:thiserror",
+        "@wasmtime__serde__1_0_145//:serde",
+        "@wasmtime__thiserror__1_0_36//:thiserror",
         "@wasmtime__wasmparser__0_86_0//:wasmparser",
     ],
 )

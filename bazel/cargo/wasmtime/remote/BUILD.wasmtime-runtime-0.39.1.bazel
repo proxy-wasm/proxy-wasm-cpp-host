@@ -42,8 +42,6 @@ cargo_build_script(
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
-    crate_features = [
-    ],
     crate_root = "build.rs",
     data = glob(["**"]),
     edition = "2021",
@@ -59,7 +57,6 @@ cargo_build_script(
     deps = [
         "@wasmtime__cc__1_0_73//:cc",
     ] + selects.with_or({
-        # cfg(target_os = "macos")
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-darwin",
@@ -68,7 +65,6 @@ cargo_build_script(
         ],
         "//conditions:default": [],
     }) + selects.with_or({
-        # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
@@ -77,7 +73,6 @@ cargo_build_script(
         ],
         "//conditions:default": [],
     }) + selects.with_or({
-        # cfg(unix)
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
@@ -85,9 +80,11 @@ cargo_build_script(
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-apple-ios-sim",
             "@rules_rust//rust/platform:aarch64-linux-android",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
+            "@rules_rust//rust/platform:armv7-linux-androideabi",
             "@rules_rust//rust/platform:i686-linux-android",
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
@@ -106,8 +103,6 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
-    crate_features = [
-    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2021",
@@ -123,21 +118,20 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
-        "@wasmtime__anyhow__1_0_58//:anyhow",
+        "@wasmtime__anyhow__1_0_65//:anyhow",
         "@wasmtime__backtrace__0_3_66//:backtrace",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_9_1//:indexmap",
-        "@wasmtime__libc__0_2_126//:libc",
+        "@wasmtime__libc__0_2_133//:libc",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__memoffset__0_6_5//:memoffset",
         "@wasmtime__more_asserts__0_2_2//:more_asserts",
         "@wasmtime__rand__0_8_5//:rand",
         "@wasmtime__region__2_2_0//:region",
-        "@wasmtime__thiserror__1_0_31//:thiserror",
+        "@wasmtime__thiserror__1_0_36//:thiserror",
         "@wasmtime__wasmtime_environ__0_39_1//:wasmtime_environ",
         "@wasmtime__wasmtime_jit_debug__0_39_1//:wasmtime_jit_debug",
     ] + selects.with_or({
-        # cfg(target_os = "macos")
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:x86_64-apple-darwin",
@@ -147,7 +141,6 @@ rust_library(
         ],
         "//conditions:default": [],
     }) + selects.with_or({
-        # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
@@ -156,7 +149,6 @@ rust_library(
         ],
         "//conditions:default": [],
     }) + selects.with_or({
-        # cfg(unix)
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
@@ -164,9 +156,11 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
             "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-apple-ios-sim",
             "@rules_rust//rust/platform:aarch64-linux-android",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
+            "@rules_rust//rust/platform:armv7-linux-androideabi",
             "@rules_rust//rust/platform:i686-linux-android",
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
@@ -175,7 +169,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__rustix__0_35_7//:rustix",
+            "@wasmtime__rustix__0_35_10//:rustix",
         ],
         "//conditions:default": [],
     }),

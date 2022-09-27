@@ -34,12 +34,6 @@ licenses([
 rust_library(
     name = "linux_raw_sys",
     srcs = glob(["**/*.rs"]),
-    crate_features = [
-        "errno",
-        "general",
-        "ioctl",
-        "no_std",
-    ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
