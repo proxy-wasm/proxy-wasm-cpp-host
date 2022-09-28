@@ -504,7 +504,7 @@ bool V8::getWord(uint64_t pointer, Word *word) {
   }
   uint32_t word32;
   ::memcpy(&word32, memory_->data() + pointer, size);
-  word->u64_ = wasmtoh(word32, usesWasmByteOrder());
+  word->u64_ = wasmtoh(word32, true);
   return true;
 }
 
@@ -517,7 +517,7 @@ bool V8::setWord(uint64_t pointer, Word word) {
   if (pointer + size > memory_->data_size()) {
     return false;
   }
-  uint32_t word32 = htowasm(word.u32(), usesWasmByteOrder());
+  uint32_t word32 = htowasm(word.u32(), true);
   ::memcpy(memory_->data() + pointer, &word32, size);
   return true;
 }

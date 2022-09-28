@@ -390,12 +390,12 @@ bool Wavm::getWord(uint64_t pointer, Word *data) {
   auto *p = reinterpret_cast<char *>(memory_base_ + pointer);
   uint32_t data32;
   memcpy(&data32, p, sizeof(uint32_t));
-  data->u64_ = wasmtoh(data32, usesWasmByteOrder());
+  data->u64_ = wasmtoh(data32, true);
   return true;
 }
 
 bool Wavm::setWord(uint64_t pointer, Word data) {
-  uint32_t data32 = htowasm(data.u32(), usesWasmByteOrder());
+  uint32_t data32 = htowasm(data.u32(), true);
   return setMemory(pointer, sizeof(uint32_t), &data32);
 }
 

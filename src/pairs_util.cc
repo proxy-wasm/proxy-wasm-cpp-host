@@ -21,6 +21,7 @@
 
 #include "include/proxy-wasm/exports.h"
 #include "include/proxy-wasm/limits.h"
+#include "include/proxy-wasm/word.h"
 
 namespace proxy_wasm {
 

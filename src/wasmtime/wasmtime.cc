@@ -395,7 +395,7 @@ bool Wasmtime::getWord(uint64_t pointer, Word *word) {
 
   uint32_t word32;
   ::memcpy(&word32, wasm_memory_data(memory_.get()) + pointer, size);
-  word->u64_ = wasmtoh(word32, usesWasmByteOrder());
+  word->u64_ = wasmtoh(word32, true);
   return true;
 }
 
@@ -404,7 +404,7 @@ bool Wasmtime::setWord(uint64_t pointer, Word word) {
   if (pointer + size > wasm_memory_data_size(memory_.get())) {
     return false;
   }
-  uint32_t word32 = htowasm(word.u32(), usesWasmByteOrder());
+  uint32_t word32 = htowasm(word.u32(), true);
   ::memcpy(wasm_memory_data(memory_.get()) + pointer, &word32, size);
   return true;
 }
