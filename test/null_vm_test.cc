@@ -78,17 +78,6 @@ TEST_F(BaseVmTest, ByteOrder) {
   auto wasm_vm = createNullVm();
   EXPECT_TRUE(wasm_vm->load("test_null_vm_plugin", {}, {}));
   EXPECT_FALSE(wasm_vm->usesWasmByteOrder());
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
-    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  proxy_wasm::Pairs pairs1;
-  std::string data1("some_data");
-  pairs1.push_back({data1.data(), std::to_string(data1.size())});
-  std::vector<char> buffer(PairsUtil::pairsSize(pairs1));
-  EXPECT_TRUE(PairsUtil::marshalPairs(pairs1, buffer.data(), buffer.size()));
-  auto pairs2 = PairsUtil::toPairs(std::string_view(buffer.data(), buffer.size()));
-  EXPECT_EQ(pairs2.size(), pairs1.size());
-  EXPECT_EQ(pairs2[0].second, pairs1[0].second);
-#endif
 }
 
 } // namespace proxy_wasm

@@ -47,9 +47,9 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
 
   // Write number of pairs.
   uint32_t num_pairs =
-      htowasm(pairs.size(), contextOrEffectiveContext() == nullptr
-                                ? false
-                                : contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder());
+      htowasm(pairs.size(), contextOrEffectiveContext() != nullptr
+                                ? contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder()
+                                : false);
   if (pos + sizeof(uint32_t) > end) {
     return false;
   }
@@ -59,9 +59,9 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
   for (const auto &p : pairs) {
     // Write name length.
     uint32_t name_len =
-        htowasm(p.first.size(), contextOrEffectiveContext() == nullptr
-                                    ? false
-                                    : contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder());
+        htowasm(p.first.size(), contextOrEffectiveContext() != nullptr
+                                    ? contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder()
+                                    : false);
     if (pos + sizeof(uint32_t) > end) {
       return false;
     }
@@ -70,9 +70,9 @@ bool PairsUtil::marshalPairs(const Pairs &pairs, char *buffer, size_t size) {
 
     // Write value length.
     uint32_t value_len =
-        htowasm(p.second.size(), contextOrEffectiveContext() == nullptr
-                                     ? false
-                                     : contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder());
+        htowasm(p.second.size(), contextOrEffectiveContext() != nullptr
+                                     ? contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder()
+                                     : false);
     if (pos + sizeof(uint32_t) > end) {
       return false;
     }
@@ -114,9 +114,9 @@ Pairs PairsUtil::toPairs(std::string_view buffer) {
     return {};
   }
   uint32_t num_pairs = wasmtoh(*reinterpret_cast<const uint32_t *>(pos),
-                               contextOrEffectiveContext() == nullptr
-                                   ? false
-                                   : contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder());
+                               contextOrEffectiveContext() != nullptr
+                                   ? contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder()
+                                   : false);
   pos += sizeof(uint32_t);
 
   // Check if we're not going to exceed the limit.
@@ -136,9 +136,9 @@ Pairs PairsUtil::toPairs(std::string_view buffer) {
       return {};
     }
     s.first = wasmtoh(*reinterpret_cast<const uint32_t *>(pos),
-                      contextOrEffectiveContext() == nullptr
-                          ? false
-                          : contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder());
+                      contextOrEffectiveContext() != nullptr
+                          ? contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder()
+                          : false);
     pos += sizeof(uint32_t);
 
     // Read value length.
@@ -146,9 +146,9 @@ Pairs PairsUtil::toPairs(std::string_view buffer) {
       return {};
     }
     s.second = wasmtoh(*reinterpret_cast<const uint32_t *>(pos),
-                       contextOrEffectiveContext() == nullptr
-                           ? false
-                           : contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder());
+                       contextOrEffectiveContext() != nullptr
+                           ? contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder()
+                           : false);
     pos += sizeof(uint32_t);
   }
 
