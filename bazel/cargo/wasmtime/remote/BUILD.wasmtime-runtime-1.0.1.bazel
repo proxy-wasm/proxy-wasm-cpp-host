@@ -156,28 +156,5 @@ rust_library(
             "@wasmtime__windows_sys__0_36_1//:windows_sys",
         ],
         "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(unix)
-        (
-            "@rules_rust//rust/platform:i686-apple-darwin",
-            "@rules_rust//rust/platform:i686-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
-            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:aarch64-apple-darwin",
-            "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-linux-android",
-            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
-            "@rules_rust//rust/platform:i686-linux-android",
-            "@rules_rust//rust/platform:i686-unknown-freebsd",
-            "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
-            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-ios",
-            "@rules_rust//rust/platform:x86_64-linux-android",
-            "@rules_rust//rust/platform:x86_64-unknown-freebsd",
-        ): [
-            "@wasmtime__rustix__0_35_10//:rustix",
-        ],
-        "//conditions:default": [],
     }),
 )
