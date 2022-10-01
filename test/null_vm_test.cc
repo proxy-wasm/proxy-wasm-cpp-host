@@ -16,7 +16,6 @@
 
 #include "include/proxy-wasm/null.h"
 #include "include/proxy-wasm/null_vm_plugin.h"
-#include "include/proxy-wasm/pairs_util.h"
 
 #include "gtest/gtest.h"
 
