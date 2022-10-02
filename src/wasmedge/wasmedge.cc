@@ -281,6 +281,7 @@ private:
                              std::function<R(ContextBase *, Args...)> *function);
 
   void terminate() override {}
+  bool usesWasmByteOrder() override { return true; }
 
   WasmEdgeLoaderPtr loader_;
   WasmEdgeValidatorPtr validator_;

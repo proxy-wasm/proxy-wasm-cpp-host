@@ -165,6 +165,17 @@ cc_test(
     ],
 )
 
+cc_test(
+    name = "pairs_util_test",
+    srcs = ["pairs_util_test.cc"],
+    linkstatic = 1,
+    deps = [
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "utility_lib",
     testonly = True,
