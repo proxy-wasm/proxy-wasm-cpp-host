@@ -30,8 +30,8 @@
 
 #include "include/v8-version.h"
 #include "include/v8.h"
-#include "src/wasm/c-api.h"
 #include "src/flags/flags.h"
+#include "src/wasm/c-api.h"
 #include "wasm-api/wasm.hh"
 
 namespace proxy_wasm {
