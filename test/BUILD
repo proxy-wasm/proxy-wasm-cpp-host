@@ -66,6 +66,7 @@ cc_test(
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],
+    timeout = "long",
 )
 
 cc_test(
@@ -163,6 +164,7 @@ cc_test(
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
     ],
+    timeout = "long",
 )
 
 cc_test(
