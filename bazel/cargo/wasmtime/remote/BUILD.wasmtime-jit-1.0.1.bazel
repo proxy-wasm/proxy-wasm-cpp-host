@@ -67,6 +67,19 @@ rust_library(
         "@wasmtime__wasmtime_environ__1_0_1//:wasmtime_environ",
         "@wasmtime__wasmtime_runtime__1_0_1//:wasmtime_runtime",
     ] + selects.with_or({
+        # cfg(target_os = "linux")
+        (
+            "@rules_rust//rust/platform:i686-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
+            "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
+            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
+        ): [
+            "@wasmtime__rustix__0_35_10//:rustix",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
         # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
