@@ -49,10 +49,12 @@ rust_library(
         "crate-name=smallvec",
         "manual",
     ],
-    version = "1.9.0",
+    version = "1.10.0",
     # buildifier: leave-alone
     deps = [
     ],
 )
+
+# Unsupported target "debugger_visualizer" with type "test" omitted
 
 # Unsupported target "macro" with type "test" omitted

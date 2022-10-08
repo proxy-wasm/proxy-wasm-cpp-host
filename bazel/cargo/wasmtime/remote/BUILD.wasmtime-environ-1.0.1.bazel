@@ -60,7 +60,7 @@ rust_library(
         "@wasmtime__object__0_29_0//:object",
         "@wasmtime__serde__1_0_145//:serde",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
-        "@wasmtime__thiserror__1_0_36//:thiserror",
+        "@wasmtime__thiserror__1_0_37//:thiserror",
         "@wasmtime__wasmparser__0_89_1//:wasmparser",
         "@wasmtime__wasmtime_types__1_0_1//:wasmtime_types",
     ],

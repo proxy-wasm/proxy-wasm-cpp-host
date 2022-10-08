@@ -100,7 +100,7 @@ rust_library(
         "@wasmtime__gimli__0_26_2//:gimli",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__regalloc2__0_3_2//:regalloc2",
-        "@wasmtime__smallvec__1_9_0//:smallvec",
+        "@wasmtime__smallvec__1_10_0//:smallvec",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
     ],
 )

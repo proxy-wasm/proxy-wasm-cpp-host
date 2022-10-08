@@ -55,6 +55,6 @@ rust_library(
         "@wasmtime__fxhash__0_2_1//:fxhash",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__slice_group_by__0_3_0//:slice_group_by",
-        "@wasmtime__smallvec__1_9_0//:smallvec",
+        "@wasmtime__smallvec__1_10_0//:smallvec",
     ],
 )

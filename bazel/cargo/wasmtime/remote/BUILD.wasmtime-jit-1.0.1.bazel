@@ -63,7 +63,7 @@ rust_library(
         "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
         "@wasmtime__serde__1_0_145//:serde",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
-        "@wasmtime__thiserror__1_0_36//:thiserror",
+        "@wasmtime__thiserror__1_0_37//:thiserror",
         "@wasmtime__wasmtime_environ__1_0_1//:wasmtime_environ",
         "@wasmtime__wasmtime_runtime__1_0_1//:wasmtime_runtime",
     ] + selects.with_or({
@@ -76,7 +76,7 @@ rust_library(
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
         ): [
-            "@wasmtime__rustix__0_35_10//:rustix",
+            "@wasmtime__rustix__0_35_11//:rustix",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

@@ -54,7 +54,7 @@ rust_library(
     deps = [
         "@wasmtime__cranelift_codegen__0_88_1//:cranelift_codegen",
         "@wasmtime__log__0_4_17//:log",
-        "@wasmtime__smallvec__1_9_0//:smallvec",
+        "@wasmtime__smallvec__1_10_0//:smallvec",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
     ],
 )

@@ -84,7 +84,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":quote_build_script",
-        "@wasmtime__proc_macro2__1_0_44//:proc_macro2",
+        "@wasmtime__proc_macro2__1_0_46//:proc_macro2",
     ],
 )
 

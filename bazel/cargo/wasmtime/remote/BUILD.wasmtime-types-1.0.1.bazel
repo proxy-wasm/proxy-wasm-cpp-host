@@ -52,7 +52,7 @@ rust_library(
     deps = [
         "@wasmtime__cranelift_entity__0_88_1//:cranelift_entity",
         "@wasmtime__serde__1_0_145//:serde",
-        "@wasmtime__thiserror__1_0_36//:thiserror",
+        "@wasmtime__thiserror__1_0_37//:thiserror",
         "@wasmtime__wasmparser__0_89_1//:wasmparser",
     ],
 )

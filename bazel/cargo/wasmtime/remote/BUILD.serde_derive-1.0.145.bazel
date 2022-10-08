@@ -82,8 +82,8 @@ rust_proc_macro(
     # buildifier: leave-alone
     deps = [
         ":serde_derive_build_script",
-        "@wasmtime__proc_macro2__1_0_44//:proc_macro2",
+        "@wasmtime__proc_macro2__1_0_46//:proc_macro2",
         "@wasmtime__quote__1_0_21//:quote",
-        "@wasmtime__syn__1_0_101//:syn",
+        "@wasmtime__syn__1_0_102//:syn",
     ],
 )

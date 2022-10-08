@@ -57,7 +57,7 @@ rust_library(
         "@wasmtime__cranelift_frontend__0_88_1//:cranelift_frontend",
         "@wasmtime__itertools__0_10_5//:itertools",
         "@wasmtime__log__0_4_17//:log",
-        "@wasmtime__smallvec__1_9_0//:smallvec",
+        "@wasmtime__smallvec__1_10_0//:smallvec",
         "@wasmtime__wasmparser__0_89_1//:wasmparser",
         "@wasmtime__wasmtime_types__1_0_1//:wasmtime_types",
     ],
