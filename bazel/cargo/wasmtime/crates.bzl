@@ -109,6 +109,12 @@ def wasmtime_fetch_remote_crates():
         sha256 = "c1ad822118d20d2c234f427000d5acc36eabe1e29a348c89b63dd60b13f28e5d",
         strip_prefix = "bumpalo-3.11.0",
         build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.bumpalo-3.11.0.bazel"),
+        patches = [
+            "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:wasmtime-bumpalo.patch",
+        ],
+        patch_args = [
+            "-p1",
+        ],
     )
 
     maybe(
