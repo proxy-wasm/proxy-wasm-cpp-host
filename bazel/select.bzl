@@ -28,7 +28,8 @@ def proxy_wasm_select_engine_v8(xs):
 
 def proxy_wasm_select_engine_wamr(xs):
     return select({
-        "@proxy_wasm_cpp_host//bazel:engine_wamr": xs,
+        "@proxy_wasm_cpp_host//bazel:engine_wamr_interp": xs,
+        "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": xs,
         "@proxy_wasm_cpp_host//bazel:multiengine": xs,
         "//conditions:default": [],
     })

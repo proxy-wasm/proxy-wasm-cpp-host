@@ -27,8 +27,13 @@ config_setting(
 )
 
 config_setting(
-    name = "engine_wamr",
-    values = {"define": "engine=wamr"},
+    name = "engine_wamr_interp",
+    values = {"define": "engine=wamr-interp"},
+)
+
+config_setting(
+    name = "engine_wamr_jit",
+    values = {"define": "engine=wamr-jit"},
 )
 
 config_setting(
