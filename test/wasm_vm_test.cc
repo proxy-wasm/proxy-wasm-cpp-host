@@ -31,9 +31,9 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()
                          });
 
 TEST_P(TestVm, Basic) {
-  if (engine_ == "wamr" || engine_ == "wasmedge") {
+  if (engine_ == "wasmedge") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::NotCloneable);
-  } else if (engine_ == "wasmtime" || engine_ == "v8") {
+  } else if (engine_ == "wasmtime" || engine_ == "v8" || engine_ == "wamr") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
   } else if (engine_ == "wavm") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::InstantiatedModule);
