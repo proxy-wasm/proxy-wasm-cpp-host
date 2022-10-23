@@ -53,9 +53,16 @@ rust_library(
     # buildifier: leave-alone
     deps = [
     ] + selects.with_or({
-        # cfg(unix)
+        # cfg(target_os = "wasi")
         (
             "@rules_rust//rust/platform:wasm32-wasi",
+        ): [
+            "@wasmtime__libc__0_2_135//:libc",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(unix)
+        (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-darwin",

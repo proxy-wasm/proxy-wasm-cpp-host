@@ -681,7 +681,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-c-api-macros"
 version = "0.19.0"
-source = "git+https://github.com/bytecodealliance/wasmtime?tag=v1.0.0#9db8498faecf32dfc5c3fa923ac09250656d8f04"
+source = "git+https://github.com/bytecodealliance/wasmtime?tag=v1.0.1#c63087ff668fbdffe326c7b48401acbbf0e82a65"
 dependencies = [
  "proc-macro2",
  "quote",

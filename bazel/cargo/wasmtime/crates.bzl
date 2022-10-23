@@ -218,6 +218,9 @@ def wasmtime_fetch_remote_crates():
         type = "tar.gz",
         sha256 = "3be64cecea9d90105fc6a2ba2d003e98c867c1d6c4c86cc878f97ad9fb916293",
         strip_prefix = "cranelift-isle-0.88.1",
+        patches = [
+            "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:cranelift-isle.patch",
+        ],
         patch_args = [
             "-p4",
         ],
@@ -768,7 +771,7 @@ def wasmtime_fetch_remote_crates():
         new_git_repository,
         name = "wasmtime__wasmtime_c_api_macros__0_19_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "9db8498faecf32dfc5c3fa923ac09250656d8f04",
+        commit = "c63087ff668fbdffe326c7b48401acbbf0e82a65",
         build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-c-api-macros-0.19.0.bazel"),
         init_submodules = True,
     )
