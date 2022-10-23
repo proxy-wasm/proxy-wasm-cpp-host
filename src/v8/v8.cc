@@ -30,13 +30,9 @@
 
 #include "include/v8-version.h"
 #include "include/v8.h"
+#include "src/flags/flags.h"
 #include "src/wasm/c-api.h"
 #include "wasm-api/wasm.hh"
-
-namespace v8::internal {
-extern bool FLAG_liftoff;
-extern unsigned int FLAG_wasm_max_mem_pages;
-} // namespace v8::internal
 
 namespace proxy_wasm {
 namespace v8 {
@@ -46,8 +42,8 @@ wasm::Engine *engine() {
   static wasm::own<wasm::Engine> engine;
 
   std::call_once(init, []() {
-    ::v8::internal::FLAG_liftoff = false;
-    ::v8::internal::FLAG_wasm_max_mem_pages =
+    ::v8::internal::v8_flags.liftoff = false;
+    ::v8::internal::v8_flags.wasm_max_mem_pages =
         PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES / PROXY_WASM_HOST_WASM_MEMORY_PAGE_SIZE_BYTES;
     ::v8::V8::EnableWebAssemblyTrapHandler(true);
     engine = wasm::Engine::make();
@@ -105,6 +101,7 @@ public:
 #undef _GET_MODULE_FUNCTION
 
   void terminate() override;
+  bool usesWasmByteOrder() override { return true; }
 
 private:
   wasm::own<wasm::Trap> trap(std::string message);
@@ -503,7 +500,7 @@ bool V8::getWord(uint64_t pointer, Word *word) {
   }
   uint32_t word32;
   ::memcpy(&word32, memory_->data() + pointer, size);
-  word->u64_ = wasmtoh(word32);
+  word->u64_ = wasmtoh(word32, true);
   return true;
 }
 
@@ -516,7 +513,7 @@ bool V8::setWord(uint64_t pointer, Word word) {
   if (pointer + size > memory_->data_size()) {
     return false;
   }
-  uint32_t word32 = htowasm(word.u32());
+  uint32_t word32 = htowasm(word.u32(), true);
   ::memcpy(memory_->data() + pointer, &word32, size);
   return true;
 }

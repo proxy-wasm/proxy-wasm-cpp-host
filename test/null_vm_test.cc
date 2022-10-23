@@ -73,4 +73,10 @@ TEST_F(BaseVmTest, NullVmStartup) {
   EXPECT_NE(test_null_vm_plugin, nullptr);
 }
 
+TEST_F(BaseVmTest, ByteOrder) {
+  auto wasm_vm = createNullVm();
+  EXPECT_TRUE(wasm_vm->load("test_null_vm_plugin", {}, {}));
+  EXPECT_FALSE(wasm_vm->usesWasmByteOrder());
+}
+
 } // namespace proxy_wasm

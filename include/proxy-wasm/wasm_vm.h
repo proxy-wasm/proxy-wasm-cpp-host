@@ -303,6 +303,12 @@ public:
    */
   virtual void terminate() = 0;
 
+  /**
+   * Byte order flag (host or wasm).
+   * @return 'false' for a null VM and 'true' for a wasm VM.
+   */
+  virtual bool usesWasmByteOrder() = 0;
+
   bool isFailed() { return failed_ != FailState::Ok; }
   void fail(FailState fail_state, std::string_view message) {
     integration()->error(message);

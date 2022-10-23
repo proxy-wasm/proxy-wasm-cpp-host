@@ -52,6 +52,7 @@ cc_test(
 
 cc_test(
     name = "runtime_test",
+    timeout = "long",
     srcs = ["runtime_test.cc"],
     data = [
         "//test/test_data:callback.wasm",
@@ -152,6 +153,7 @@ cc_test(
 
 cc_test(
     name = "wasm_vm_test",
+    timeout = "long",
     srcs = ["wasm_vm_test.cc"],
     data = [
         "//test/test_data:abi_export.wasm",
@@ -159,6 +161,17 @@ cc_test(
     linkstatic = 1,
     deps = [
         ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "pairs_util_test",
+    srcs = ["pairs_util_test.cc"],
+    linkstatic = 1,
+    deps = [
         "//:lib",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
