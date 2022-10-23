@@ -50,7 +50,7 @@ rust_library(
     version = "1.0.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__anyhow__1_0_65//:anyhow",
+        "@wasmtime__anyhow__1_0_66//:anyhow",
         "@wasmtime__cranelift_codegen__0_88_1//:cranelift_codegen",
         "@wasmtime__cranelift_entity__0_88_1//:cranelift_entity",
         "@wasmtime__cranelift_frontend__0_88_1//:cranelift_frontend",

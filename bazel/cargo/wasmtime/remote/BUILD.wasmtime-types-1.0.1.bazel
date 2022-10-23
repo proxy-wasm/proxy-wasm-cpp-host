@@ -51,7 +51,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@wasmtime__cranelift_entity__0_88_1//:cranelift_entity",
-        "@wasmtime__serde__1_0_145//:serde",
+        "@wasmtime__serde__1_0_147//:serde",
         "@wasmtime__thiserror__1_0_37//:thiserror",
         "@wasmtime__wasmparser__0_89_1//:wasmparser",
     ],

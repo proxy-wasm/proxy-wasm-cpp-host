@@ -61,7 +61,7 @@ rust_library(
         (
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
         ): [
-            "@wasmtime__libc__0_2_134//:libc",
+            "@wasmtime__libc__0_2_135//:libc",
         ],
         "//conditions:default": [],
     }),

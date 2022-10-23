@@ -126,10 +126,10 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
-        "@wasmtime__anyhow__1_0_65//:anyhow",
+        "@wasmtime__anyhow__1_0_66//:anyhow",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_9_1//:indexmap",
-        "@wasmtime__libc__0_2_134//:libc",
+        "@wasmtime__libc__0_2_135//:libc",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__memoffset__0_6_5//:memoffset",
         "@wasmtime__rand__0_8_5//:rand",

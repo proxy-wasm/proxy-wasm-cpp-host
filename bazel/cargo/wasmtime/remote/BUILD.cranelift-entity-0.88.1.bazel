@@ -52,6 +52,6 @@ rust_library(
     version = "0.88.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__serde__1_0_145//:serde",
+        "@wasmtime__serde__1_0_147//:serde",
     ],
 )
