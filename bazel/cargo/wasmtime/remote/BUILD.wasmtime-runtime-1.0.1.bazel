@@ -129,7 +129,7 @@ rust_library(
         "@wasmtime__anyhow__1_0_66//:anyhow",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_9_1//:indexmap",
-        "@wasmtime__libc__0_2_135//:libc",
+        "@wasmtime__libc__0_2_136//:libc",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__memoffset__0_6_5//:memoffset",
         "@wasmtime__rand__0_8_5//:rand",
@@ -176,7 +176,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__rustix__0_35_11//:rustix",
+            "@wasmtime__rustix__0_35_12//:rustix",
         ],
         "//conditions:default": [],
     }),

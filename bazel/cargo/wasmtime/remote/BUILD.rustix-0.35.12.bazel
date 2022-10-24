@@ -62,7 +62,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.35.11",
+    version = "0.35.12",
     visibility = ["//visibility:private"],
     deps = [
         "@wasmtime__cc__1_0_73//:cc",
@@ -152,7 +152,7 @@ rust_library(
         "crate-name=rustix",
         "manual",
     ],
-    version = "0.35.11",
+    version = "0.35.12",
     # buildifier: leave-alone
     deps = [
         ":rustix_build_script",
@@ -166,6 +166,10 @@ rust_library(
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-linux-android",
+                        "@rules_rust//rust/platform:i686-unknown-linux-gnu",
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
+            "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
         ): [
             "@wasmtime__linux_raw_sys__0_0_46//:linux_raw_sys",
         ],
@@ -177,9 +181,24 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
+            "@rules_rust//rust/platform:i686-apple-darwin",
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-apple-darwin",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+            "@rules_rust//rust/platform:aarch64-apple-darwin",
+            "@rules_rust//rust/platform:aarch64-apple-ios",
+            "@rules_rust//rust/platform:aarch64-linux-android",
+            "@rules_rust//rust/platform:i686-linux-android",
+            "@rules_rust//rust/platform:i686-unknown-freebsd",
+            "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
+            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
+            "@rules_rust//rust/platform:wasm32-unknown-unknown",
+            "@rules_rust//rust/platform:wasm32-wasi",
+            "@rules_rust//rust/platform:x86_64-apple-ios",
+            "@rules_rust//rust/platform:x86_64-linux-android",
+            "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__libc__0_2_135//:libc",
-            "@wasmtime__linux_raw_sys__0_0_46//:linux_raw_sys",
+            "@wasmtime__libc__0_2_136//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -203,7 +222,6 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
             "@wasmtime__errno__0_2_8//:errno",
-            "@wasmtime__libc__0_2_135//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({

@@ -399,12 +399,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__libc__0_2_135",
-        url = "https://crates.io/api/v1/crates/libc/0.2.135/download",
+        name = "wasmtime__libc__0_2_136",
+        url = "https://crates.io/api/v1/crates/libc/0.2.136/download",
         type = "tar.gz",
-        sha256 = "68783febc7782c6c5cb401fbda4de5a9898be1762314da0bb2c10ced61f18b0c",
-        strip_prefix = "libc-0.2.135",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.libc-0.2.135.bazel"),
+        sha256 = "55edcf6c0bb319052dea84732cf99db461780fd5e8d3eb46ab6ff312ab31f197",
+        strip_prefix = "libc-0.2.136",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.libc-0.2.136.bazel"),
     )
 
     maybe(
@@ -599,12 +599,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__rustix__0_35_11",
-        url = "https://crates.io/api/v1/crates/rustix/0.35.11/download",
+        name = "wasmtime__rustix__0_35_12",
+        url = "https://crates.io/api/v1/crates/rustix/0.35.12/download",
         type = "tar.gz",
-        sha256 = "fbb2fda4666def1433b1b05431ab402e42a1084285477222b72d6c564c417cef",
-        strip_prefix = "rustix-0.35.11",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.rustix-0.35.11.bazel"),
+        sha256 = "985947f9b6423159c4726323f373be0a21bdb514c5af06a849cb3d2dce2d01e8",
+        strip_prefix = "rustix-0.35.12",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.rustix-0.35.12.bazel"),
     )
 
     maybe(
