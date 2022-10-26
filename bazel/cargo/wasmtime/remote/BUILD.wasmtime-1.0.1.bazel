@@ -100,7 +100,7 @@ rust_library(
         "@wasmtime__bincode__1_3_3//:bincode",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_9_1//:indexmap",
-        "@wasmtime__libc__0_2_136//:libc",
+        "@wasmtime__libc__0_2_137//:libc",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__object__0_29_0//:object",
         "@wasmtime__once_cell__1_15_0//:once_cell",

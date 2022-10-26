@@ -108,6 +108,12 @@ def wasmtime_fetch_remote_crates():
         type = "tar.gz",
         sha256 = "572f695136211188308f16ad2ca5c851a712c464060ae6974944458eb83880ba",
         strip_prefix = "bumpalo-3.11.1",
+        patches = [
+            "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:wasmtime-bumpalo.patch",
+        ],
+        patch_args = [
+            "-p1",
+        ],
         build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.bumpalo-3.11.1.bazel"),
     )
 
@@ -399,12 +405,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__libc__0_2_136",
-        url = "https://crates.io/api/v1/crates/libc/0.2.136/download",
+        name = "wasmtime__libc__0_2_137",
+        url = "https://crates.io/api/v1/crates/libc/0.2.137/download",
         type = "tar.gz",
-        sha256 = "55edcf6c0bb319052dea84732cf99db461780fd5e8d3eb46ab6ff312ab31f197",
-        strip_prefix = "libc-0.2.136",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.libc-0.2.136.bazel"),
+        sha256 = "fc7fcc620a3bff7cdd7a365be3376c97191aeaccc2a603e600951e452615bf89",
+        strip_prefix = "libc-0.2.137",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.libc-0.2.137.bazel"),
     )
 
     maybe(
