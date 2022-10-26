@@ -109,7 +109,7 @@ def wasmtime_fetch_remote_crates():
         sha256 = "572f695136211188308f16ad2ca5c851a712c464060ae6974944458eb83880ba",
         strip_prefix = "bumpalo-3.11.1",
         patches = [
-            "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:wasmtime-bumpalo.patch",
+            "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:bumpalo.patch",
         ],
         patch_args = [
             "-p1",

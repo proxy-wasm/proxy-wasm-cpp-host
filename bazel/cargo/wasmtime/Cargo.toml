@@ -28,7 +28,7 @@ patch_args = ["-p4"]
 
 [package.metadata.raze.crates.bumpalo.'*']
 patches = [
-    "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:wasmtime-bumpalo.patch",
+    "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:bumpalo.patch",
 ]
 patch_args = ["-p1"]
 
