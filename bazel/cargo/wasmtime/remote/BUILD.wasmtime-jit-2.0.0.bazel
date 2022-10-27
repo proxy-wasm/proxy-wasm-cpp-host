@@ -49,7 +49,7 @@ rust_library(
         "crate-name=wasmtime-jit",
         "manual",
     ],
-    version = "1.0.1",
+    version = "2.0.0",
     # buildifier: leave-alone
     deps = [
         "@wasmtime__addr2line__0_17_0//:addr2line",
@@ -64,8 +64,8 @@ rust_library(
         "@wasmtime__serde__1_0_147//:serde",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
         "@wasmtime__thiserror__1_0_37//:thiserror",
-        "@wasmtime__wasmtime_environ__1_0_1//:wasmtime_environ",
-        "@wasmtime__wasmtime_runtime__1_0_1//:wasmtime_runtime",
+        "@wasmtime__wasmtime_environ__2_0_0//:wasmtime_environ",
+        "@wasmtime__wasmtime_runtime__2_0_0//:wasmtime_runtime",
     ] + selects.with_or({
         # cfg(target_os = "linux")
         (

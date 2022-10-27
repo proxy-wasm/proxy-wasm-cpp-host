@@ -31,8 +31,10 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "factc" with type "example" omitted
+
 rust_library(
-    name = "wasmtime_asm_macros",
+    name = "wasmtime_environ",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -44,12 +46,22 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=wasmtime-asm-macros",
+        "crate-name=wasmtime-environ",
         "manual",
     ],
-    version = "1.0.1",
+    version = "2.0.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cfg_if__1_0_0//:cfg_if",
+        "@wasmtime__anyhow__1_0_66//:anyhow",
+        "@wasmtime__cranelift_entity__0_89_0//:cranelift_entity",
+        "@wasmtime__gimli__0_26_2//:gimli",
+        "@wasmtime__indexmap__1_9_1//:indexmap",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__object__0_29_0//:object",
+        "@wasmtime__serde__1_0_147//:serde",
+        "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
+        "@wasmtime__thiserror__1_0_37//:thiserror",
+        "@wasmtime__wasmparser__0_92_0//:wasmparser",
+        "@wasmtime__wasmtime_types__2_0_0//:wasmtime_types",
     ],
 )
