@@ -32,9 +32,11 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "rand_chacha",
+    name = "rand_core",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "alloc",
+        "getrandom",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -45,13 +47,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=rand_chacha",
+        "crate-name=rand_core",
         "manual",
     ],
-    version = "0.3.1",
+    version = "0.6.4",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__ppv_lite86__0_2_16//:ppv_lite86",
-        "@wasmtime__rand_core__0_6_4//:rand_core",
+        "@wasmtime__getrandom__0_2_8//:getrandom",
     ],
 )

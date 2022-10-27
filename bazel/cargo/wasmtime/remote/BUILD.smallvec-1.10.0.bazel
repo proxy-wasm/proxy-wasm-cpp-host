@@ -31,11 +31,12 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "bench" with type "bench" omitted
+
 rust_library(
-    name = "rand_chacha",
+    name = "smallvec",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -45,13 +46,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=rand_chacha",
+        "crate-name=smallvec",
         "manual",
     ],
-    version = "0.3.1",
+    version = "1.10.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__ppv_lite86__0_2_16//:ppv_lite86",
-        "@wasmtime__rand_core__0_6_4//:rand_core",
     ],
 )
+
+# Unsupported target "debugger_visualizer" with type "test" omitted
+
+# Unsupported target "macro" with type "test" omitted

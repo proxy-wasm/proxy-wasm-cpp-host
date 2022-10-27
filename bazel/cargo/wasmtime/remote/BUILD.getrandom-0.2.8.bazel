@@ -31,19 +31,15 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "mod" with type "bench" omitted
+
 rust_library(
-    name = "rand",
+    name = "getrandom",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
-        "alloc",
-        "default",
-        "getrandom",
-        "libc",
-        "rand_chacha",
         "std",
-        "std_rng",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -53,15 +49,22 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=rand",
+        "crate-name=getrandom",
         "manual",
     ],
-    version = "0.8.5",
+    version = "0.2.8",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__rand_chacha__0_3_1//:rand_chacha",
-        "@wasmtime__rand_core__0_6_4//:rand_core",
+        "@wasmtime__cfg_if__1_0_0//:cfg_if",
     ] + selects.with_or({
+        # cfg(target_os = "wasi")
+        (
+            "@rules_rust//rust/platform:wasm32-wasi",
+        ): [
+            "@wasmtime__wasi__0_11_0_wasi_snapshot_preview1//:wasi",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
         # cfg(unix)
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
@@ -86,3 +89,9 @@ rust_library(
         "//conditions:default": [],
     }),
 )
+
+# Unsupported target "custom" with type "test" omitted
+
+# Unsupported target "normal" with type "test" omitted
+
+# Unsupported target "rdrand" with type "test" omitted

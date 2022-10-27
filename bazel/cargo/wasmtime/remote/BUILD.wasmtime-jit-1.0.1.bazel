@@ -26,62 +26,66 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "rand",
+    name = "wasmtime_jit",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
-        "alloc",
-        "default",
-        "getrandom",
-        "libc",
-        "rand_chacha",
-        "std",
-        "std_rng",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=rand",
+        "crate-name=wasmtime-jit",
         "manual",
     ],
-    version = "0.8.5",
+    version = "1.0.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__rand_chacha__0_3_1//:rand_chacha",
-        "@wasmtime__rand_core__0_6_4//:rand_core",
+        "@wasmtime__addr2line__0_17_0//:addr2line",
+        "@wasmtime__anyhow__1_0_66//:anyhow",
+        "@wasmtime__bincode__1_3_3//:bincode",
+        "@wasmtime__cfg_if__1_0_0//:cfg_if",
+        "@wasmtime__cpp_demangle__0_3_5//:cpp_demangle",
+        "@wasmtime__gimli__0_26_2//:gimli",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__object__0_29_0//:object",
+        "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
+        "@wasmtime__serde__1_0_147//:serde",
+        "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
+        "@wasmtime__thiserror__1_0_37//:thiserror",
+        "@wasmtime__wasmtime_environ__1_0_1//:wasmtime_environ",
+        "@wasmtime__wasmtime_runtime__1_0_1//:wasmtime_runtime",
     ] + selects.with_or({
-        # cfg(unix)
+        # cfg(target_os = "linux")
         (
-            "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
-            "@rules_rust//rust/platform:aarch64-apple-darwin",
-            "@rules_rust//rust/platform:aarch64-apple-ios",
-            "@rules_rust//rust/platform:aarch64-linux-android",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
-            "@rules_rust//rust/platform:i686-linux-android",
-            "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-ios",
-            "@rules_rust//rust/platform:x86_64-linux-android",
-            "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__libc__0_2_137//:libc",
+            "@wasmtime__rustix__0_35_12//:rustix",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # cfg(target_os = "windows")
+        (
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@wasmtime__windows_sys__0_36_1//:windows_sys",
         ],
         "//conditions:default": [],
     }),

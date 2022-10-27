@@ -26,16 +26,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "rand_chacha",
+    name = "regalloc2",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "std",
+        "checker",
+        "default",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -45,13 +46,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=rand_chacha",
+        "crate-name=regalloc2",
         "manual",
     ],
-    version = "0.3.1",
+    version = "0.3.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__ppv_lite86__0_2_16//:ppv_lite86",
-        "@wasmtime__rand_core__0_6_4//:rand_core",
+        "@wasmtime__fxhash__0_2_1//:fxhash",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__slice_group_by__0_3_0//:slice_group_by",
+        "@wasmtime__smallvec__1_10_0//:smallvec",
     ],
 )

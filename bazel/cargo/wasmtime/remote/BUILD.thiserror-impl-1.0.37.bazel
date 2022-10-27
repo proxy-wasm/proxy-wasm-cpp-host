@@ -31,11 +31,10 @@ licenses([
 
 # Generated Targets
 
-rust_library(
-    name = "rand_chacha",
+rust_proc_macro(
+    name = "thiserror_impl",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -45,13 +44,14 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=rand_chacha",
+        "crate-name=thiserror-impl",
         "manual",
     ],
-    version = "0.3.1",
+    version = "1.0.37",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__ppv_lite86__0_2_16//:ppv_lite86",
-        "@wasmtime__rand_core__0_6_4//:rand_core",
+        "@wasmtime__proc_macro2__1_0_47//:proc_macro2",
+        "@wasmtime__quote__1_0_21//:quote",
+        "@wasmtime__syn__1_0_103//:syn",
     ],
 )

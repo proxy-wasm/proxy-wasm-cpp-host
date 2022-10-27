@@ -31,10 +31,15 @@ licenses([
 
 # Generated Targets
 
+# Unsupported target "arraystring" with type "bench" omitted
+
+# Unsupported target "extend" with type "bench" omitted
+
 rust_library(
-    name = "rand_chacha",
+    name = "arrayvec",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -45,13 +50,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=rand_chacha",
+        "crate-name=arrayvec",
         "manual",
     ],
-    version = "0.3.1",
+    version = "0.7.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__ppv_lite86__0_2_16//:ppv_lite86",
-        "@wasmtime__rand_core__0_6_4//:rand_core",
     ],
 )
+
+# Unsupported target "serde" with type "test" omitted
+
+# Unsupported target "tests" with type "test" omitted
