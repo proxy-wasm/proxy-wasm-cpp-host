@@ -32,7 +32,7 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "wasmtime_types",
+    name = "wasmtime_asm_macros",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -44,15 +44,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=wasmtime-types",
+        "crate-name=wasmtime-asm-macros",
         "manual",
     ],
-    version = "1.0.1",
+    version = "2.0.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_entity__0_88_1//:cranelift_entity",
-        "@wasmtime__serde__1_0_147//:serde",
-        "@wasmtime__thiserror__1_0_37//:thiserror",
-        "@wasmtime__wasmparser__0_89_1//:wasmparser",
+        "@wasmtime__cfg_if__1_0_0//:cfg_if",
     ],
 )

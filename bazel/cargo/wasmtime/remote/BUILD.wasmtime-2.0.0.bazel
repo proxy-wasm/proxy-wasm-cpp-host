@@ -55,7 +55,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.1",
+    version = "2.0.0",
     visibility = ["//visibility:private"],
     deps = [
     ] + selects.with_or({
@@ -92,7 +92,7 @@ rust_library(
         "crate-name=wasmtime",
         "manual",
     ],
-    version = "1.0.1",
+    version = "2.0.0",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_build_script",
@@ -107,11 +107,11 @@ rust_library(
         "@wasmtime__psm__0_1_21//:psm",
         "@wasmtime__serde__1_0_147//:serde",
         "@wasmtime__target_lexicon__0_12_4//:target_lexicon",
-        "@wasmtime__wasmparser__0_89_1//:wasmparser",
-        "@wasmtime__wasmtime_cranelift__1_0_1//:wasmtime_cranelift",
-        "@wasmtime__wasmtime_environ__1_0_1//:wasmtime_environ",
-        "@wasmtime__wasmtime_jit__1_0_1//:wasmtime_jit",
-        "@wasmtime__wasmtime_runtime__1_0_1//:wasmtime_runtime",
+        "@wasmtime__wasmparser__0_92_0//:wasmparser",
+        "@wasmtime__wasmtime_cranelift__2_0_0//:wasmtime_cranelift",
+        "@wasmtime__wasmtime_environ__2_0_0//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit__2_0_0//:wasmtime_jit",
+        "@wasmtime__wasmtime_runtime__2_0_0//:wasmtime_runtime",
     ] + selects.with_or({
         # cfg(target_os = "windows")
         (

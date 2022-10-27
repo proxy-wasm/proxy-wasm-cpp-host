@@ -54,7 +54,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.1",
+    version = "2.0.0",
     visibility = ["//visibility:private"],
     deps = [
         "@wasmtime__cc__1_0_73//:cc",
@@ -122,7 +122,7 @@ rust_library(
         "crate-name=wasmtime-runtime",
         "manual",
     ],
-    version = "1.0.1",
+    version = "2.0.0",
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
@@ -134,9 +134,9 @@ rust_library(
         "@wasmtime__memoffset__0_6_5//:memoffset",
         "@wasmtime__rand__0_8_5//:rand",
         "@wasmtime__thiserror__1_0_37//:thiserror",
-        "@wasmtime__wasmtime_asm_macros__1_0_1//:wasmtime_asm_macros",
-        "@wasmtime__wasmtime_environ__1_0_1//:wasmtime_environ",
-        "@wasmtime__wasmtime_jit_debug__1_0_1//:wasmtime_jit_debug",
+        "@wasmtime__wasmtime_asm_macros__2_0_0//:wasmtime_asm_macros",
+        "@wasmtime__wasmtime_environ__2_0_0//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit_debug__2_0_0//:wasmtime_jit_debug",
     ] + selects.with_or({
         # cfg(target_os = "macos")
         (

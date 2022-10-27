@@ -32,7 +32,7 @@ licenses([
 # Generated Targets
 
 rust_library(
-    name = "cranelift_codegen_meta",
+    name = "wasmtime_types",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -44,12 +44,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=cranelift-codegen-meta",
+        "crate-name=wasmtime-types",
         "manual",
     ],
-    version = "0.88.1",
+    version = "2.0.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__cranelift_codegen_shared__0_88_1//:cranelift_codegen_shared",
+        "@wasmtime__cranelift_entity__0_89_0//:cranelift_entity",
+        "@wasmtime__serde__1_0_147//:serde",
+        "@wasmtime__thiserror__1_0_37//:thiserror",
+        "@wasmtime__wasmparser__0_92_0//:wasmparser",
     ],
 )
