@@ -187,6 +187,12 @@ jobs:
           arch: x86_64
           action: test
           flags: --config=clang
+        - name: 'WasmEdge on macOS/x86_64'
+          engine: 'wasmedge'
+          repo: 'com_github_wasmedge_wasmedge'
+          os: macos-11
+          arch: x86_64
+          action: test
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
