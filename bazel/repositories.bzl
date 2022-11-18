@@ -176,9 +176,9 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_wasmedge_wasmedge",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmedge.BUILD",
-        sha256 = "4cff44e8c805ed4364d326ff1dd40e3aeb21ba1a11388372386eea1ccc7f93dd",
-        strip_prefix = "WasmEdge-proxy-wasm-0.10.0",
-        url = "https://github.com/WasmEdge/WasmEdge/archive/refs/tags/proxy-wasm/0.10.0.tar.gz",
+        sha256 = "65d95e5f83d25ab09fa9a29369f578838e8a519fb170704d0f5896187364429b",
+        strip_prefix = "WasmEdge-proxy-wasm-0.11.2",
+        url = "https://github.com/WasmEdge/WasmEdge/archive/refs/tags/proxy-wasm/0.11.2.tar.gz",
     )
 
     native.bind(

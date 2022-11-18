@@ -150,10 +150,15 @@ cc_library(
         "PROXY_WASM_HAS_RUNTIME_WASMEDGE",
         "PROXY_WASM_HOST_ENGINE_WASMEDGE",
     ],
-    linkopts = [
-        "-lrt",
-        "-ldl",
-    ],
+    linkopts = select({
+        "@platforms//os:macos": [
+            "-ldl",
+        ],
+        "//conditions:default": [
+            "-lrt",
+            "-ldl",
+        ],
+    }),
     deps = [
         ":wasm_vm_headers",
         "//external:wasmedge",
