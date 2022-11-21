@@ -111,15 +111,6 @@ cargo_build_script(
         ): [
         ],
         "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(windows)
-        (
-            "@rules_rust//rust/platform:i686-pc-windows-msvc",
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
-        ): [
-            "@wasmtime__windows_sys__0_42_0//:windows_sys",
-        ],
-        "//conditions:default": [],
     }),
 )
 
@@ -204,15 +195,6 @@ rust_library(
         ): [
             "@wasmtime__errno__0_2_8//:errno",
             "@wasmtime__libc__0_2_137//:libc",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(windows)
-        (
-            "@rules_rust//rust/platform:i686-pc-windows-msvc",
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
-        ): [
-            "@wasmtime__windows_sys__0_42_0//:windows_sys",
         ],
         "//conditions:default": [],
     }),
