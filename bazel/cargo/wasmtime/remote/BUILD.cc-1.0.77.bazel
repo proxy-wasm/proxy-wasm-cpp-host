@@ -31,27 +31,35 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
-# Unsupported target "dwarf-validate" with type "example" omitted
-
-# Unsupported target "dwarfdump" with type "example" omitted
-
-# Unsupported target "simple" with type "example" omitted
-
-# Unsupported target "simple_line" with type "example" omitted
-
-rust_library(
-    name = "gimli",
+rust_binary(
+    # Prefix bin name to disambiguate from (probable) collision with lib name
+    # N.B.: The exact form of this is subject to change.
+    name = "cargo_bin_gcc_shim",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "fallible-iterator",
-        "indexmap",
-        "read",
-        "read-core",
-        "stable_deref_trait",
-        "std",
-        "write",
+    ],
+    crate_root = "src/bin/gcc-shim.rs",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "crate-name=gcc-shim",
+        "manual",
+    ],
+    version = "1.0.77",
+    # buildifier: leave-alone
+    deps = [
+        ":cc",
+    ],
+)
+
+rust_library(
+    name = "cc",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -61,18 +69,19 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=gimli",
+        "crate-name=cc",
         "manual",
     ],
-    version = "0.26.2",
+    version = "1.0.77",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__fallible_iterator__0_2_0//:fallible_iterator",
-        "@wasmtime__indexmap__1_9_2//:indexmap",
-        "@wasmtime__stable_deref_trait__1_2_0//:stable_deref_trait",
     ],
 )
 
-# Unsupported target "convert_self" with type "test" omitted
+# Unsupported target "cc_env" with type "test" omitted
 
-# Unsupported target "parse_self" with type "test" omitted
+# Unsupported target "cflags" with type "test" omitted
+
+# Unsupported target "cxxflags" with type "test" omitted
+
+# Unsupported target "test" with type "test" omitted

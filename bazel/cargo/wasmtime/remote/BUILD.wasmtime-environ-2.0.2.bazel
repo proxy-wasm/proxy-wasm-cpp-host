@@ -26,53 +26,42 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
-# Unsupported target "dwarf-validate" with type "example" omitted
-
-# Unsupported target "dwarfdump" with type "example" omitted
-
-# Unsupported target "simple" with type "example" omitted
-
-# Unsupported target "simple_line" with type "example" omitted
+# Unsupported target "factc" with type "example" omitted
 
 rust_library(
-    name = "gimli",
+    name = "wasmtime_environ",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "fallible-iterator",
-        "indexmap",
-        "read",
-        "read-core",
-        "stable_deref_trait",
-        "std",
-        "write",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=gimli",
+        "crate-name=wasmtime-environ",
         "manual",
     ],
-    version = "0.26.2",
+    version = "2.0.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__fallible_iterator__0_2_0//:fallible_iterator",
+        "@wasmtime__anyhow__1_0_66//:anyhow",
+        "@wasmtime__cranelift_entity__0_89_2//:cranelift_entity",
+        "@wasmtime__gimli__0_26_2//:gimli",
         "@wasmtime__indexmap__1_9_2//:indexmap",
-        "@wasmtime__stable_deref_trait__1_2_0//:stable_deref_trait",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__object__0_29_0//:object",
+        "@wasmtime__serde__1_0_147//:serde",
+        "@wasmtime__target_lexicon__0_12_5//:target_lexicon",
+        "@wasmtime__thiserror__1_0_37//:thiserror",
+        "@wasmtime__wasmparser__0_92_0//:wasmparser",
+        "@wasmtime__wasmtime_types__2_0_2//:wasmtime_types",
     ],
 )
-
-# Unsupported target "convert_self" with type "test" omitted
-
-# Unsupported target "parse_self" with type "test" omitted
