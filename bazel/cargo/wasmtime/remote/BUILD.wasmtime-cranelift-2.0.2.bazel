@@ -31,12 +31,8 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "benchmark" with type "bench" omitted
-
-# Unsupported target "simple" with type "example" omitted
-
 rust_library(
-    name = "wasmparser",
+    name = "wasmtime_cranelift",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -48,12 +44,24 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=wasmparser",
+        "crate-name=wasmtime-cranelift",
         "manual",
     ],
-    version = "0.92.0",
+    version = "2.0.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__indexmap__1_9_2//:indexmap",
+        "@wasmtime__anyhow__1_0_66//:anyhow",
+        "@wasmtime__cranelift_codegen__0_89_2//:cranelift_codegen",
+        "@wasmtime__cranelift_entity__0_89_2//:cranelift_entity",
+        "@wasmtime__cranelift_frontend__0_89_2//:cranelift_frontend",
+        "@wasmtime__cranelift_native__0_89_2//:cranelift_native",
+        "@wasmtime__cranelift_wasm__0_89_2//:cranelift_wasm",
+        "@wasmtime__gimli__0_26_2//:gimli",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__object__0_29_0//:object",
+        "@wasmtime__target_lexicon__0_12_5//:target_lexicon",
+        "@wasmtime__thiserror__1_0_37//:thiserror",
+        "@wasmtime__wasmparser__0_92_0//:wasmparser",
+        "@wasmtime__wasmtime_environ__2_0_2//:wasmtime_environ",
     ],
 )

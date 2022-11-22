@@ -31,27 +31,21 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
-# Unsupported target "dwarf-validate" with type "example" omitted
-
-# Unsupported target "dwarfdump" with type "example" omitted
-
-# Unsupported target "simple" with type "example" omitted
-
-# Unsupported target "simple_line" with type "example" omitted
-
 rust_library(
-    name = "gimli",
+    name = "windows_sys",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
     crate_features = [
-        "fallible-iterator",
-        "indexmap",
-        "read",
-        "read-core",
-        "stable_deref_trait",
-        "std",
-        "write",
+        "Win32",
+        "Win32_Foundation",
+        "Win32_NetworkManagement",
+        "Win32_NetworkManagement_IpHelper",
+        "Win32_Networking",
+        "Win32_Networking_WinSock",
+        "Win32_System",
+        "Win32_System_Threading",
+        "default",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -61,18 +55,27 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=gimli",
+        "crate-name=windows-sys",
         "manual",
     ],
-    version = "0.26.2",
+    version = "0.42.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__fallible_iterator__0_2_0//:fallible_iterator",
-        "@wasmtime__indexmap__1_9_2//:indexmap",
-        "@wasmtime__stable_deref_trait__1_2_0//:stable_deref_trait",
-    ],
+    ] + selects.with_or({
+        # i686-pc-windows-msvc
+        (
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+        ): [
+            "@wasmtime__windows_i686_msvc__0_42_0//:windows_i686_msvc",
+        ],
+        "//conditions:default": [],
+    }) + selects.with_or({
+        # x86_64-pc-windows-msvc
+        (
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@wasmtime__windows_x86_64_msvc__0_42_0//:windows_x86_64_msvc",
+        ],
+        "//conditions:default": [],
+    }),
 )
-
-# Unsupported target "convert_self" with type "test" omitted
-
-# Unsupported target "parse_self" with type "test" omitted

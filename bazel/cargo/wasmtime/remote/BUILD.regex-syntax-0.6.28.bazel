@@ -33,25 +33,10 @@ licenses([
 
 # Unsupported target "bench" with type "bench" omitted
 
-# Unsupported target "dwarf-validate" with type "example" omitted
-
-# Unsupported target "dwarfdump" with type "example" omitted
-
-# Unsupported target "simple" with type "example" omitted
-
-# Unsupported target "simple_line" with type "example" omitted
-
 rust_library(
-    name = "gimli",
+    name = "regex_syntax",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "fallible-iterator",
-        "indexmap",
-        "read",
-        "read-core",
-        "stable_deref_trait",
-        "std",
-        "write",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -61,18 +46,11 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=gimli",
+        "crate-name=regex-syntax",
         "manual",
     ],
-    version = "0.26.2",
+    version = "0.6.28",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__fallible_iterator__0_2_0//:fallible_iterator",
-        "@wasmtime__indexmap__1_9_2//:indexmap",
-        "@wasmtime__stable_deref_trait__1_2_0//:stable_deref_trait",
     ],
 )
-
-# Unsupported target "convert_self" with type "test" omitted
-
-# Unsupported target "parse_self" with type "test" omitted

@@ -26,49 +26,30 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0 OR MIT"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "object",
+    name = "wasmtime_asm_macros",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "coff",
-        "crc32fast",
-        "elf",
-        "hashbrown",
-        "indexmap",
-        "macho",
-        "pe",
-        "read_core",
-        "std",
-        "write",
-        "write_core",
-        "write_std",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=object",
+        "crate-name=wasmtime-asm-macros",
         "manual",
     ],
-    version = "0.29.0",
+    version = "2.0.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__crc32fast__1_3_2//:crc32fast",
-        "@wasmtime__hashbrown__0_12_3//:hashbrown",
-        "@wasmtime__indexmap__1_9_2//:indexmap",
-        "@wasmtime__memchr__2_5_0//:memchr",
+        "@wasmtime__cfg_if__1_0_0//:cfg_if",
     ],
 )
-
-# Unsupported target "integration" with type "test" omitted
-
-# Unsupported target "parse_self" with type "test" omitted
