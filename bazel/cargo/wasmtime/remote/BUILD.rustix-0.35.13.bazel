@@ -65,7 +65,7 @@ cargo_build_script(
     version = "0.35.13",
     visibility = ["//visibility:private"],
     deps = [
-        "@wasmtime__cc__1_0_73//:cc",
+        "@wasmtime__cc__1_0_77//:cc",
     ] + selects.with_or({
         # cfg(all(any(target_os = "android", target_os = "linux"), any(rustix_use_libc, miri, not(all(target_os = "linux", any(target_arch = "x86", all(target_arch = "x86_64", target_pointer_width = "64"), all(target_endian = "little", any(target_arch = "arm", all(target_arch = "aarch64", target_pointer_width = "64"), target_arch = "powerpc64", target_arch = "riscv64", target_arch = "mips", target_arch = "mips64"))))))))
         (
@@ -150,9 +150,7 @@ rust_library(
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-linux-android",
-        ): [
-            "@wasmtime__linux_raw_sys__0_0_46//:linux_raw_sys",
-        ],
+        ): [],
         "//conditions:default": [],
     }) + selects.with_or({
         # cfg(all(not(rustix_use_libc), not(miri), target_os = "linux", any(target_arch = "x86", all(target_arch = "x86_64", target_pointer_width = "64"), all(target_endian = "little", any(target_arch = "arm", all(target_arch = "aarch64", target_pointer_width = "64"), target_arch = "powerpc64", target_arch = "riscv64", target_arch = "mips", target_arch = "mips64")))))
@@ -162,7 +160,6 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
         ): [
-            "@wasmtime__libc__0_2_137//:libc",
             "@wasmtime__linux_raw_sys__0_0_46//:linux_raw_sys",
         ],
         "//conditions:default": [],
