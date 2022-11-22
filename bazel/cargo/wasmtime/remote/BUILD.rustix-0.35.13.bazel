@@ -192,6 +192,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
+            "@wasmtime__libc__0_2_137//:libc",
             "@wasmtime__errno__0_2_8//:errno",
         ],
         "//conditions:default": [],
@@ -202,7 +203,6 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
             "@wasmtime__windows_sys__0_36_1//:windows_sys",
-            "@wasmtime__libc__0_2_137//:libc",
         ],
         "//conditions:default": [],
     }),
