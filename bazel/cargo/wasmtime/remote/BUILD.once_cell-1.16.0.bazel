@@ -31,48 +31,44 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
+# Unsupported target "bench" with type "example" omitted
 
-# Unsupported target "dwarf-validate" with type "example" omitted
+# Unsupported target "bench_acquire" with type "example" omitted
 
-# Unsupported target "dwarfdump" with type "example" omitted
+# Unsupported target "bench_vs_lazy_static" with type "example" omitted
 
-# Unsupported target "simple" with type "example" omitted
+# Unsupported target "lazy_static" with type "example" omitted
 
-# Unsupported target "simple_line" with type "example" omitted
+# Unsupported target "reentrant_init_deadlocks" with type "example" omitted
+
+# Unsupported target "regex" with type "example" omitted
+
+# Unsupported target "test_synchronization" with type "example" omitted
 
 rust_library(
-    name = "gimli",
+    name = "once_cell",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "fallible-iterator",
-        "indexmap",
-        "read",
-        "read-core",
-        "stable_deref_trait",
+        "alloc",
+        "default",
+        "race",
         "std",
-        "write",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=gimli",
+        "crate-name=once_cell",
         "manual",
     ],
-    version = "0.26.2",
+    version = "1.16.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__fallible_iterator__0_2_0//:fallible_iterator",
-        "@wasmtime__indexmap__1_9_2//:indexmap",
-        "@wasmtime__stable_deref_trait__1_2_0//:stable_deref_trait",
     ],
 )
 
-# Unsupported target "convert_self" with type "test" omitted
-
-# Unsupported target "parse_self" with type "test" omitted
+# Unsupported target "it" with type "test" omitted

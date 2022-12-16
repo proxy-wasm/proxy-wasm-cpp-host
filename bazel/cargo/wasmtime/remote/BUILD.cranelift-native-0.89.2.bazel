@@ -26,53 +26,43 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
-# Unsupported target "dwarf-validate" with type "example" omitted
-
-# Unsupported target "dwarfdump" with type "example" omitted
-
-# Unsupported target "simple" with type "example" omitted
-
-# Unsupported target "simple_line" with type "example" omitted
-
 rust_library(
-    name = "gimli",
+    name = "cranelift_native",
     srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
     crate_features = [
-        "fallible-iterator",
-        "indexmap",
-        "read",
-        "read-core",
-        "stable_deref_trait",
+        "default",
         "std",
-        "write",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=gimli",
+        "crate-name=cranelift-native",
         "manual",
     ],
-    version = "0.26.2",
+    version = "0.89.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__fallible_iterator__0_2_0//:fallible_iterator",
-        "@wasmtime__indexmap__1_9_2//:indexmap",
-        "@wasmtime__stable_deref_trait__1_2_0//:stable_deref_trait",
-    ],
+        "@wasmtime__cranelift_codegen__0_89_2//:cranelift_codegen",
+        "@wasmtime__target_lexicon__0_12_5//:target_lexicon",
+    ] + selects.with_or({
+        # cfg(target_arch = "s390x")
+        (
+            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
+        ): [
+            "@wasmtime__libc__0_2_137//:libc",
+        ],
+        "//conditions:default": [],
+    }),
 )
-
-# Unsupported target "convert_self" with type "test" omitted
-
-# Unsupported target "parse_self" with type "test" omitted
