@@ -28,6 +28,15 @@ $ cargo raze --generate-lockfile
 $ cd ../..
 ```
 
+## Resolve duplicates in lockfile
+
+Currently due to an issue with raze (https://github.com/google/cargo-raze/issues/451) it
+is likely that you will need to clear up any duplicates created in the lockfile.
+
+Resolving this issue can be tricky as updates can generate a lot of change, but essentially
+you will need to check the overall diff for any problematic files and check to see where new
+dependencies have been added.
+
 ## Commit changes
 
 ```console
