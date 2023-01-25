@@ -167,19 +167,35 @@ jobs:
           arch: x86_64
           action: test
           cache: true
-        - name: 'WAMR on Linux/x86_64'
-          engine: 'wamr'
+        - name: 'WAMR interp on Linux/x86_64'
+          engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: ubuntu-20.04
           arch: x86_64
           action: test
           flags: --config=clang
-        - name: 'WAMR on macOS/x86_64'
-          engine: 'wamr'
+        - name: 'WAMR interp on macOS/x86_64'
+          engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: macos-11
           arch: x86_64
           action: test
+        - name: 'WAMR jit on Linux/x86_64'
+          engine: 'wamr-jit'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=clang
+          deps: lld-12
+          cache: true
+        - name: 'WAMR jit on macOS/x86_64'
+          engine: 'wamr-jit'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
+          os: macos-11
+          arch: x86_64
+          action: test
+          cache: true
         - name: 'WasmEdge on Linux/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'

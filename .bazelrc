@@ -53,6 +53,7 @@ build:clang-tsan --copt -fsanitize=thread
 build:clang-tsan --linkopt -fsanitize=thread
 
 # Use Clang-Tidy tool.
+build:clang-tidy --config=clang
 build:clang-tidy --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect
 build:clang-tidy --@bazel_clang_tidy//:clang_tidy_config=@proxy_wasm_cpp_host//:clang_tidy_config
 build:clang-tidy --output_groups=report
