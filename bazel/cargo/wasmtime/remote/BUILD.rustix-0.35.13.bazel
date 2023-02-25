@@ -65,7 +65,7 @@ cargo_build_script(
     version = "0.35.13",
     visibility = ["//visibility:private"],
     deps = [
-        "@wasmtime__cc__1_0_77//:cc",
+        "@wasmtime__cc__1_0_79//:cc",
     ] + selects.with_or({
         # cfg(all(any(target_os = "android", target_os = "linux"), any(rustix_use_libc, miri, not(all(target_os = "linux", any(target_arch = "x86", all(target_arch = "x86_64", target_pointer_width = "64"), all(target_endian = "little", any(target_arch = "arm", all(target_arch = "aarch64", target_pointer_width = "64"), target_arch = "powerpc64", target_arch = "riscv64", target_arch = "mips", target_arch = "mips64"))))))))
         (
