@@ -93,7 +93,7 @@ rust_library(
     deps = [
         ":cranelift_codegen_build_script",
         "@wasmtime__arrayvec__0_7_2//:arrayvec",
-        "@wasmtime__bumpalo__3_11_1//:bumpalo",
+        "@wasmtime__bumpalo__3_12_0//:bumpalo",
         "@wasmtime__cranelift_bforest__0_89_2//:cranelift_bforest",
         "@wasmtime__cranelift_codegen_shared__0_89_2//:cranelift_codegen_shared",
         "@wasmtime__cranelift_entity__0_89_2//:cranelift_entity",
@@ -101,6 +101,6 @@ rust_library(
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__regalloc2__0_4_2//:regalloc2",
         "@wasmtime__smallvec__1_10_0//:smallvec",
-        "@wasmtime__target_lexicon__0_12_5//:target_lexicon",
+        "@wasmtime__target_lexicon__0_12_6//:target_lexicon",
     ],
 )

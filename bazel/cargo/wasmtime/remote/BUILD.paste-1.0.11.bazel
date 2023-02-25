@@ -38,7 +38,7 @@ load(
 )
 
 cargo_build_script(
-    name = "windows_aarch64_msvc_build_script",
+    name = "paste_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
@@ -54,14 +54,14 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.42.0",
+    version = "1.0.11",
     visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
-rust_library(
-    name = "windows_aarch64_msvc",
+rust_proc_macro(
+    name = "paste",
     srcs = glob(["**/*.rs"]),
     crate_features = [
     ],
@@ -73,12 +73,22 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=windows_aarch64_msvc",
+        "crate-name=paste",
         "manual",
     ],
-    version = "0.42.0",
+    version = "1.0.11",
     # buildifier: leave-alone
     deps = [
-        ":windows_aarch64_msvc_build_script",
+        ":paste_build_script",
     ],
 )
+
+# Unsupported target "compiletest" with type "test" omitted
+
+# Unsupported target "test_attr" with type "test" omitted
+
+# Unsupported target "test_doc" with type "test" omitted
+
+# Unsupported target "test_expr" with type "test" omitted
+
+# Unsupported target "test_item" with type "test" omitted

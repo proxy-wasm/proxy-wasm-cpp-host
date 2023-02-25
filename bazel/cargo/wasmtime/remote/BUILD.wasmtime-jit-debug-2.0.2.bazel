@@ -52,6 +52,6 @@ rust_library(
     version = "2.0.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__once_cell__1_16_0//:once_cell",
+        "@wasmtime__once_cell__1_17_1//:once_cell",
     ],
 )

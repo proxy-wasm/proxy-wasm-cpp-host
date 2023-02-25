@@ -53,7 +53,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@wasmtime__addr2line__0_17_0//:addr2line",
-        "@wasmtime__anyhow__1_0_66//:anyhow",
+        "@wasmtime__anyhow__1_0_69//:anyhow",
         "@wasmtime__bincode__1_3_3//:bincode",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__cpp_demangle__0_3_5//:cpp_demangle",
@@ -61,9 +61,9 @@ rust_library(
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__object__0_29_0//:object",
         "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
-        "@wasmtime__serde__1_0_147//:serde",
-        "@wasmtime__target_lexicon__0_12_5//:target_lexicon",
-        "@wasmtime__thiserror__1_0_37//:thiserror",
+        "@wasmtime__serde__1_0_152//:serde",
+        "@wasmtime__target_lexicon__0_12_6//:target_lexicon",
+        "@wasmtime__thiserror__1_0_38//:thiserror",
         "@wasmtime__wasmtime_environ__2_0_2//:wasmtime_environ",
         "@wasmtime__wasmtime_runtime__2_0_2//:wasmtime_runtime",
     ] + selects.with_or({

@@ -61,7 +61,7 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.103",
+    version = "1.0.109",
     visibility = ["//visibility:private"],
     deps = [
     ],
@@ -94,13 +94,13 @@ rust_library(
         "crate-name=syn",
         "manual",
     ],
-    version = "1.0.103",
+    version = "1.0.109",
     # buildifier: leave-alone
     deps = [
         ":syn_build_script",
-        "@wasmtime__proc_macro2__1_0_47//:proc_macro2",
-        "@wasmtime__quote__1_0_21//:quote",
-        "@wasmtime__unicode_ident__1_0_5//:unicode_ident",
+        "@wasmtime__proc_macro2__1_0_51//:proc_macro2",
+        "@wasmtime__quote__1_0_23//:quote",
+        "@wasmtime__unicode_ident__1_0_6//:unicode_ident",
     ],
 )
 

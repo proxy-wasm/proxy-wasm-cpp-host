@@ -57,7 +57,7 @@ cargo_build_script(
     version = "2.0.2",
     visibility = ["//visibility:private"],
     deps = [
-        "@wasmtime__cc__1_0_77//:cc",
+        "@wasmtime__cc__1_0_79//:cc",
     ] + selects.with_or({
         # cfg(target_os = "macos")
         (
@@ -112,7 +112,7 @@ rust_library(
     data = [],
     edition = "2021",
     proc_macro_deps = [
-        "@wasmtime__paste__1_0_9//:paste",
+        "@wasmtime__paste__1_0_11//:paste",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -126,14 +126,14 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":wasmtime_runtime_build_script",
-        "@wasmtime__anyhow__1_0_66//:anyhow",
+        "@wasmtime__anyhow__1_0_69//:anyhow",
         "@wasmtime__cfg_if__1_0_0//:cfg_if",
         "@wasmtime__indexmap__1_9_2//:indexmap",
-        "@wasmtime__libc__0_2_137//:libc",
+        "@wasmtime__libc__0_2_139//:libc",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__memoffset__0_6_5//:memoffset",
         "@wasmtime__rand__0_8_5//:rand",
-        "@wasmtime__thiserror__1_0_37//:thiserror",
+        "@wasmtime__thiserror__1_0_38//:thiserror",
         "@wasmtime__wasmtime_asm_macros__2_0_2//:wasmtime_asm_macros",
         "@wasmtime__wasmtime_environ__2_0_2//:wasmtime_environ",
         "@wasmtime__wasmtime_jit_debug__2_0_2//:wasmtime_jit_debug",

@@ -26,17 +26,17 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "(MIT OR Apache-2.0) AND Unicode-DFS-2016"
+    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
 ])
 
 # Generated Targets
 
-# Unsupported target "xid" with type "bench" omitted
-
 rust_library(
-    name = "unicode_ident",
+    name = "aho_corasick",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -46,15 +46,12 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=unicode-ident",
+        "crate-name=aho_corasick",
         "manual",
     ],
-    version = "1.0.5",
+    version = "0.7.20",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__memchr__2_5_0//:memchr",
     ],
 )
-
-# Unsupported target "compare" with type "test" omitted
-
-# Unsupported target "static_size" with type "test" omitted

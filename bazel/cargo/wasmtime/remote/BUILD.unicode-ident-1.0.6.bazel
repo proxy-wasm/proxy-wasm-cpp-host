@@ -26,16 +26,16 @@ package(default_visibility = [
 ])
 
 licenses([
-    "unencumbered",  # Unlicense from expression "Unlicense OR MIT"
+    "notice",  # MIT from expression "(MIT OR Apache-2.0) AND Unicode-DFS-2016"
 ])
 
 # Generated Targets
 
+# Unsupported target "xid" with type "bench" omitted
+
 rust_library(
-    name = "termcolor",
+    name = "unicode_ident",
     srcs = glob(["**/*.rs"]),
-    aliases = {
-    },
     crate_features = [
     ],
     crate_root = "src/lib.rs",
@@ -46,20 +46,15 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=termcolor",
+        "crate-name=unicode-ident",
         "manual",
     ],
-    version = "1.1.3",
+    version = "1.0.6",
     # buildifier: leave-alone
     deps = [
-    ] + selects.with_or({
-        # cfg(windows)
-        (
-            "@rules_rust//rust/platform:i686-pc-windows-msvc",
-            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
-        ): [
-            "@wasmtime__winapi_util__0_1_5//:winapi_util",
-        ],
-        "//conditions:default": [],
-    }),
+    ],
 )
+
+# Unsupported target "compare" with type "test" omitted
+
+# Unsupported target "static_size" with type "test" omitted

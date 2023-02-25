@@ -26,7 +26,7 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # Apache-2.0 from expression "Apache-2.0"
+    "notice",  # MIT from expression "MIT OR Apache-2.0"
 ])
 
 # Generated Targets
@@ -38,11 +38,13 @@ load(
 )
 
 cargo_build_script(
-    name = "target_lexicon_build_script",
+    name = "proc_macro2_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
+        "default",
+        "proc-macro",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -54,20 +56,18 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "0.12.5",
+    version = "1.0.51",
     visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
-# Unsupported target "host" with type "example" omitted
-
-# Unsupported target "misc" with type "example" omitted
-
 rust_library(
-    name = "target_lexicon",
+    name = "proc_macro2",
     srcs = glob(["**/*.rs"]),
     crate_features = [
+        "default",
+        "proc-macro",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -77,12 +77,23 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=target-lexicon",
+        "crate-name=proc-macro2",
         "manual",
     ],
-    version = "0.12.5",
+    version = "1.0.51",
     # buildifier: leave-alone
     deps = [
-        ":target_lexicon_build_script",
+        ":proc_macro2_build_script",
+        "@wasmtime__unicode_ident__1_0_6//:unicode_ident",
     ],
 )
+
+# Unsupported target "comments" with type "test" omitted
+
+# Unsupported target "features" with type "test" omitted
+
+# Unsupported target "marker" with type "test" omitted
+
+# Unsupported target "test" with type "test" omitted
+
+# Unsupported target "test_fmt" with type "test" omitted

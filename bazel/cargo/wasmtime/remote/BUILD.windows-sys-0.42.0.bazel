@@ -66,7 +66,7 @@ rust_library(
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
         ): [
-            "@wasmtime__windows_i686_msvc__0_42_0//:windows_i686_msvc",
+            "@wasmtime__windows_i686_msvc__0_42_1//:windows_i686_msvc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -74,7 +74,7 @@ rust_library(
         (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@wasmtime__windows_x86_64_msvc__0_42_0//:windows_x86_64_msvc",
+            "@wasmtime__windows_x86_64_msvc__0_42_1//:windows_x86_64_msvc",
         ],
         "//conditions:default": [],
     }),

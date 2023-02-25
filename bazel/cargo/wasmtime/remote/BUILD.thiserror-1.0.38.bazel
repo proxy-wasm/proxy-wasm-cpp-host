@@ -38,13 +38,11 @@ load(
 )
 
 cargo_build_script(
-    name = "quote_build_script",
+    name = "thiserror_build_script",
     srcs = glob(["**/*.rs"]),
     build_script_env = {
     },
     crate_features = [
-        "default",
-        "proc-macro",
     ],
     crate_root = "build.rs",
     data = glob(["**"]),
@@ -56,38 +54,60 @@ cargo_build_script(
         "cargo-raze",
         "manual",
     ],
-    version = "1.0.21",
+    version = "1.0.38",
     visibility = ["//visibility:private"],
     deps = [
     ],
 )
 
 rust_library(
-    name = "quote",
+    name = "thiserror",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "default",
-        "proc-macro",
     ],
     crate_root = "src/lib.rs",
     data = [],
     edition = "2018",
+    proc_macro_deps = [
+        "@wasmtime__thiserror_impl__1_0_38//:thiserror_impl",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=quote",
+        "crate-name=thiserror",
         "manual",
     ],
-    version = "1.0.21",
+    version = "1.0.38",
     # buildifier: leave-alone
     deps = [
-        ":quote_build_script",
-        "@wasmtime__proc_macro2__1_0_47//:proc_macro2",
+        ":thiserror_build_script",
     ],
 )
 
 # Unsupported target "compiletest" with type "test" omitted
 
-# Unsupported target "test" with type "test" omitted
+# Unsupported target "test_backtrace" with type "test" omitted
+
+# Unsupported target "test_deprecated" with type "test" omitted
+
+# Unsupported target "test_display" with type "test" omitted
+
+# Unsupported target "test_error" with type "test" omitted
+
+# Unsupported target "test_expr" with type "test" omitted
+
+# Unsupported target "test_from" with type "test" omitted
+
+# Unsupported target "test_generics" with type "test" omitted
+
+# Unsupported target "test_lints" with type "test" omitted
+
+# Unsupported target "test_option" with type "test" omitted
+
+# Unsupported target "test_path" with type "test" omitted
+
+# Unsupported target "test_source" with type "test" omitted
+
+# Unsupported target "test_transparent" with type "test" omitted

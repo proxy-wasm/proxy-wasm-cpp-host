@@ -55,6 +55,6 @@ rust_library(
         "@wasmtime__cranelift_codegen__0_89_2//:cranelift_codegen",
         "@wasmtime__log__0_4_17//:log",
         "@wasmtime__smallvec__1_10_0//:smallvec",
-        "@wasmtime__target_lexicon__0_12_5//:target_lexicon",
+        "@wasmtime__target_lexicon__0_12_6//:target_lexicon",
     ],
 )

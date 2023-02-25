@@ -67,10 +67,10 @@ rust_library(
         "crate-name=regex",
         "manual",
     ],
-    version = "1.7.0",
+    version = "1.7.1",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__aho_corasick__0_7_19//:aho_corasick",
+        "@wasmtime__aho_corasick__0_7_20//:aho_corasick",
         "@wasmtime__memchr__2_5_0//:memchr",
         "@wasmtime__regex_syntax__0_6_28//:regex_syntax",
     ],
