@@ -26,59 +26,53 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "windows_sys",
+    name = "wasmtime_jit",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
     crate_features = [
-        "Win32",
-        "Win32_Foundation",
-        "Win32_Security",
-        "Win32_Storage",
-        "Win32_Storage_FileSystem",
-        "Win32_System",
-        "Win32_System_Diagnostics",
-        "Win32_System_Diagnostics_Debug",
-        "Win32_System_Kernel",
-        "Win32_System_Memory",
-        "Win32_System_SystemInformation",
-        "Win32_System_Threading",
-        "default",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=windows-sys",
+        "crate-name=wasmtime-jit",
         "manual",
     ],
-    version = "0.42.0",
+    version = "6.0.0",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__addr2line__0_17_0//:addr2line",
+        "@wasmtime__anyhow__1_0_69//:anyhow",
+        "@wasmtime__bincode__1_3_3//:bincode",
+        "@wasmtime__cfg_if__1_0_0//:cfg_if",
+        "@wasmtime__cpp_demangle__0_3_5//:cpp_demangle",
+        "@wasmtime__gimli__0_26_2//:gimli",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__object__0_29_0//:object",
+        "@wasmtime__rustc_demangle__0_1_21//:rustc_demangle",
+        "@wasmtime__serde__1_0_152//:serde",
+        "@wasmtime__target_lexicon__0_12_6//:target_lexicon",
+        "@wasmtime__wasmtime_environ__6_0_0//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit_icache_coherence__6_0_0//:wasmtime_jit_icache_coherence",
+        "@wasmtime__wasmtime_runtime__6_0_0//:wasmtime_runtime",
     ] + selects.with_or({
-        # i686-pc-windows-msvc
+        # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
-        ): [
-            "@wasmtime__windows_i686_msvc__0_42_1//:windows_i686_msvc",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # x86_64-pc-windows-msvc
-        (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@wasmtime__windows_x86_64_msvc__0_42_1//:windows_x86_64_msvc",
+            "@wasmtime__windows_sys__0_42_0//:windows_sys",
         ],
         "//conditions:default": [],
     }),

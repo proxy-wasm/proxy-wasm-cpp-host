@@ -26,23 +26,15 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
-# Unsupported target "insert_unique_unchecked" with type "bench" omitted
-
 rust_library(
-    name = "hashbrown",
+    name = "wasmtime_cranelift",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "ahash",
-        "default",
-        "inline-more",
-        "raw",
     ],
     crate_root = "src/lib.rs",
     data = [],
@@ -52,20 +44,24 @@ rust_library(
     ],
     tags = [
         "cargo-raze",
-        "crate-name=hashbrown",
+        "crate-name=wasmtime-cranelift",
         "manual",
     ],
-    version = "0.12.3",
+    version = "6.0.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__ahash__0_7_6//:ahash",
+        "@wasmtime__anyhow__1_0_69//:anyhow",
+        "@wasmtime__cranelift_codegen__0_93_0//:cranelift_codegen",
+        "@wasmtime__cranelift_entity__0_93_0//:cranelift_entity",
+        "@wasmtime__cranelift_frontend__0_93_0//:cranelift_frontend",
+        "@wasmtime__cranelift_native__0_93_0//:cranelift_native",
+        "@wasmtime__cranelift_wasm__0_93_0//:cranelift_wasm",
+        "@wasmtime__gimli__0_26_2//:gimli",
+        "@wasmtime__log__0_4_17//:log",
+        "@wasmtime__object__0_29_0//:object",
+        "@wasmtime__target_lexicon__0_12_6//:target_lexicon",
+        "@wasmtime__thiserror__1_0_38//:thiserror",
+        "@wasmtime__wasmparser__0_100_0//:wasmparser",
+        "@wasmtime__wasmtime_environ__6_0_0//:wasmtime_environ",
     ],
 )
-
-# Unsupported target "hasher" with type "test" omitted
-
-# Unsupported target "rayon" with type "test" omitted
-
-# Unsupported target "serde" with type "test" omitted
-
-# Unsupported target "set" with type "test" omitted

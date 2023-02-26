@@ -26,13 +26,13 @@ package(default_visibility = [
 ])
 
 licenses([
-    "notice",  # MIT from expression "MIT OR Apache-2.0"
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
 ])
 
 # Generated Targets
 
 rust_library(
-    name = "errno",
+    name = "wasmtime_jit_icache_coherence",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
@@ -40,35 +40,27 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2015",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=errno",
+        "crate-name=wasmtime-jit-icache-coherence",
         "manual",
     ],
-    version = "0.2.8",
+    version = "6.0.0",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__cfg_if__1_0_0//:cfg_if",
     ] + selects.with_or({
-        # cfg(target_os = "wasi")
-        (
-            "@rules_rust//rust/platform:wasm32-wasi",
-        ): [
-            "@wasmtime__libc__0_2_139//:libc",
-        ],
-        "//conditions:default": [],
-    }) + selects.with_or({
-        # cfg(unix)
+        # cfg(any(target_os = "linux", target_os = "macos", target_os = "freebsd", target_os = "android"))
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
             "@rules_rust//rust/platform:x86_64-apple-darwin",
             "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
             "@rules_rust//rust/platform:aarch64-apple-darwin",
-            "@rules_rust//rust/platform:aarch64-apple-ios",
             "@rules_rust//rust/platform:aarch64-linux-android",
             "@rules_rust//rust/platform:aarch64-unknown-linux-gnu",
             "@rules_rust//rust/platform:arm-unknown-linux-gnueabi",
@@ -76,7 +68,6 @@ rust_library(
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
-            "@rules_rust//rust/platform:x86_64-apple-ios",
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
@@ -84,12 +75,12 @@ rust_library(
         ],
         "//conditions:default": [],
     }) + selects.with_or({
-        # cfg(windows)
+        # cfg(target_os = "windows")
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@wasmtime__winapi__0_3_9//:winapi",
+            "@wasmtime__windows_sys__0_42_0//:windows_sys",
         ],
         "//conditions:default": [],
     }),

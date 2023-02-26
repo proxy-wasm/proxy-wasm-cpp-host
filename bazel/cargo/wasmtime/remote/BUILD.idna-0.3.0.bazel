@@ -31,41 +31,32 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "bench" with type "bench" omitted
-
-# Unsupported target "insert_unique_unchecked" with type "bench" omitted
+# Unsupported target "all" with type "bench" omitted
 
 rust_library(
-    name = "hashbrown",
+    name = "idna",
     srcs = glob(["**/*.rs"]),
     crate_features = [
-        "ahash",
-        "default",
-        "inline-more",
-        "raw",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2021",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=hashbrown",
+        "crate-name=idna",
         "manual",
     ],
-    version = "0.12.3",
+    version = "0.3.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__ahash__0_7_6//:ahash",
+        "@wasmtime__unicode_bidi__0_3_10//:unicode_bidi",
+        "@wasmtime__unicode_normalization__0_1_22//:unicode_normalization",
     ],
 )
 
-# Unsupported target "hasher" with type "test" omitted
+# Unsupported target "tests" with type "test" omitted
 
-# Unsupported target "rayon" with type "test" omitted
-
-# Unsupported target "serde" with type "test" omitted
-
-# Unsupported target "set" with type "test" omitted
+# Unsupported target "unit" with type "test" omitted
