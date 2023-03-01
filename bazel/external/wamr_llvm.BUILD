@@ -10,7 +10,7 @@ filegroup(
 )
 
 cmake(
-    name = "llvm_13_0_1_lib",
+    name = "llvm_wamr_lib",
     cache_entries = {
         # Disable both: BUILD and INCLUDE, since some of the INCLUDE
         # targets build code instead of only generating build files.
@@ -20,20 +20,16 @@ cmake(
         "LLVM_INCLUDE_DOCS": "off",
         "LLVM_BUILD_EXAMPLES": "off",
         "LLVM_INCLUDE_EXAMPLES": "off",
-        "LLVM_BUILD_RUNTIME": "off",
-        "LLVM_BUILD_RUNTIMES": "off",
-        "LLVM_INCLUDE_RUNTIMES": "off",
         "LLVM_BUILD_TESTS": "off",
         "LLVM_INCLUDE_TESTS": "off",
         "LLVM_BUILD_TOOLS": "off",
         "LLVM_INCLUDE_TOOLS": "off",
-        "LLVM_BUILD_UTILS": "off",
-        "LLVM_INCLUDE_UTILS": "off",
         "LLVM_ENABLE_IDE": "off",
         "LLVM_ENABLE_LIBEDIT": "off",
         "LLVM_ENABLE_LIBXML2": "off",
         "LLVM_ENABLE_TERMINFO": "off",
         "LLVM_ENABLE_ZLIB": "off",
+        "LLVM_ENABLE_ZSTD": "off",
         "LLVM_TARGETS_TO_BUILD": "X86",
         "CMAKE_CXX_FLAGS": "-Wno-unused-command-line-argument",
     },
@@ -133,4 +129,5 @@ cmake(
         "libLLVMSupport.a",
         "libLLVMDemangle.a",
     ],
+    working_directory = "llvm",
 )

@@ -20,7 +20,7 @@ cmake(
         "-GNinja",
     ] + select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": [
-            "-DLLVM_DIR=$EXT_BUILD_DEPS/copy_llvm_13_0_1/llvm/lib/cmake/llvm",
+            "-DLLVM_DIR=$EXT_BUILD_DEPS/copy_llvm-15_0_7/llvm/lib/cmake/llvm",
             "-DWAMR_BUILD_AOT=1",
             "-DWAMR_BUILD_FAST_INTERP=0",
             "-DWAMR_BUILD_INTERP=0",
@@ -42,7 +42,7 @@ cmake(
     }),
     out_static_libs = ["libvmlib.a"],
     deps = select({
-        "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": ["@llvm-13_0_1//:llvm_13_0_1_lib"],
+        "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": ["@llvm-15_0_7//:llvm_wamr_lib"],
         "//conditions:default": [],
     }),
 )
