@@ -125,10 +125,12 @@ bool Wamr::load(std::string_view bytecode, std::string_view /*precompiled*/,
     return false;
   }
 
-  WasmByteVec vec;
-  wasm_byte_vec_new(vec.get(), bytecode.size(), bytecode.data());
-
-  module_ = wasm_module_new(store_.get(), vec.get());
+  wasm_byte_vec_t binary = {.size = bytecode.size(),
+                            .data = (char *)bytecode.data(),
+                            .num_elems = bytecode.size(),
+                            .size_of_elem = sizeof(byte_t),
+                            .lock = nullptr};
+  module_ = wasm_module_new(store_.get(), &binary);
   if (module_ == nullptr) {
     return false;
   }
@@ -344,11 +346,10 @@ bool Wamr::link(std::string_view /*debug_name*/) {
   wasm_instance_exports(instance_.get(), exports.get());
 
   for (size_t i = 0; i < export_types.get()->size; i++) {
-    const wasm_externtype_t *exp_extern_type = wasm_exporttype_type(export_types.get()->data[i]);
     wasm_extern_t *actual_extern = exports.get()->data[i];
 
     wasm_externkind_t kind = wasm_extern_kind(actual_extern);
-    assert(kind == wasm_externtype_kind(exp_extern_type));
+    assert(kind == wasm_externtype_kind(wasm_exporttype_type(export_types.get()->data[i])));
     switch (kind) {
     case WASM_EXTERN_FUNC: {
       WasmFuncPtr func = wasm_func_copy(wasm_extern_as_func(actual_extern));
