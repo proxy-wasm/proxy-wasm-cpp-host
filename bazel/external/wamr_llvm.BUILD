@@ -29,6 +29,7 @@ cmake(
         "LLVM_INCLUDE_TOOLS": "off",
         "LLVM_BUILD_UTILS": "off",
         "LLVM_INCLUDE_UTILS": "off",
+        "LLVM_CCACHE_BUILD": "on",
         "LLVM_ENABLE_IDE": "off",
         "LLVM_ENABLE_LIBEDIT": "off",
         "LLVM_ENABLE_LIBXML2": "off",

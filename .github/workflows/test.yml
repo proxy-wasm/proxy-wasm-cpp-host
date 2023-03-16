@@ -186,8 +186,8 @@ jobs:
           os: ubuntu-20.04
           arch: x86_64
           action: test
-          flags: --config=clang
-          deps: lld-12
+          flags: --config=clang --sandbox_writable_path=$HOME/.ccache
+          deps: lld-12 ccache
           cache: true
         - name: 'WAMR jit on macOS/x86_64'
           engine: 'wamr-jit'
@@ -195,7 +195,9 @@ jobs:
           os: macos-11
           arch: x86_64
           action: test
+          flags: --sandbox_writable_path=$HOME/Library/Caches/ccache
           cache: true
+          deps: ccache
         - name: 'WasmEdge on Linux/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
@@ -267,7 +269,11 @@ jobs:
 
     - name: Install dependencies (Linux)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
-      run: sudo apt update -y && sudo apt install -y ${{ matrix.deps }}
+      run: sudo apt update -y && sudo apt install -y ${{ matrix.deps }} && mkdir ~/.ccache
+
+    - name: Install dependencies (MacOS)
+      if: ${{ matrix.deps != '' && startsWith(matrix.os, 'macos') }}
+      run: brew install ${{ matrix.deps }} && mkdir ~/Library/Caches/ccache
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
@@ -275,7 +281,7 @@ jobs:
 
     - name: Set cache key
       if: ${{ matrix.cache }}
-      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)-$(echo ${{ matrix.flags }} | sha256sum)"
+      run: echo "uniq=$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)-$(echo ${{ matrix.flags }} | sha256sum)" >> $GITHUB_OUTPUT
       id: cache-key
 
     - name: Bazel cache
@@ -288,6 +294,27 @@ jobs:
         key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.engine }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
         restore-keys: |
           ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.engine }}-${{ steps.cache-key.outputs.uniq }}-
+
+    - name: Set WAMR-LLVM cache key
+      if: ${{ matrix.cache && matrix.engine == 'wamr-jit' }}
+      run: echo "uniq=$(bazel query --output build //external:llvm-13_0_1 | grep -E 'sha256' | cut -d\" -f2)" >> $GITHUB_OUTPUT
+      id: wamr-llvm-cache-key
+
+    - name: CCache of WAMR-LLVM (Linux)
+      if: ${{ matrix.cache && matrix.engine == 'wamr-jit' && startsWith(matrix.os, 'ubuntu') }}
+      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
+      with:
+        path: $HOME/.ccache
+        key: 0-${{ matrix.arch }}-${{ matrix.os }}-${{ steps.wamr-llvm-cache-key.outputs.uniq }}
+        restore-keys: 0-${{ matrix.arch }}-${{ matrix.os }}
+
+    - name: CCache of WAMR-LLVM (MacOS)
+      if: ${{ matrix.cache && matrix.engine == 'wamr-jit' && startsWith(matrix.os, 'macos') }}
+      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
+      with:
+        path: $HOME/Library/Caches/ccache
+        key: 0-${{ matrix.arch }}-${{ matrix.os }}-${{ steps.wamr-llvm-cache-key.outputs.uniq }}
+        restore-keys: 0-${{ matrix.arch }}-${{ matrix.os }}
 
     - name: Download test data
       uses: actions/download-artifact@v2
