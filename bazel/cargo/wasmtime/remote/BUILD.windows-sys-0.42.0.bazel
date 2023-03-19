@@ -39,11 +39,15 @@ rust_library(
     crate_features = [
         "Win32",
         "Win32_Foundation",
-        "Win32_NetworkManagement",
-        "Win32_NetworkManagement_IpHelper",
-        "Win32_Networking",
-        "Win32_Networking_WinSock",
+        "Win32_Security",
+        "Win32_Storage",
+        "Win32_Storage_FileSystem",
         "Win32_System",
+        "Win32_System_Diagnostics",
+        "Win32_System_Diagnostics_Debug",
+        "Win32_System_Kernel",
+        "Win32_System_Memory",
+        "Win32_System_SystemInformation",
         "Win32_System_Threading",
         "default",
     ],
@@ -66,7 +70,7 @@ rust_library(
         (
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
         ): [
-            "@wasmtime__windows_i686_msvc__0_42_0//:windows_i686_msvc",
+            "@wasmtime__windows_i686_msvc__0_42_2//:windows_i686_msvc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -74,7 +78,7 @@ rust_library(
         (
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@wasmtime__windows_x86_64_msvc__0_42_0//:windows_x86_64_msvc",
+            "@wasmtime__windows_x86_64_msvc__0_42_2//:windows_x86_64_msvc",
         ],
         "//conditions:default": [],
     }),
