@@ -188,7 +188,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__once_cell__1_16_0//:once_cell",
+            "@wasmtime__once_cell__1_17_1//:once_cell",
         ],
         "//conditions:default": [],
     }),

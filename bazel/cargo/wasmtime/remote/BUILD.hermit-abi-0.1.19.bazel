@@ -51,6 +51,6 @@ rust_library(
     version = "0.1.19",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__libc__0_2_137//:libc",
+        "@wasmtime__libc__0_2_140//:libc",
     ],
 )

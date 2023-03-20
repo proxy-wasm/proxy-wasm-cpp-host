@@ -40,6 +40,8 @@ rust_library(
     srcs = glob(["**/*.rs"]),
     crate_features = [
         "ahash",
+        "default",
+        "inline-more",
         "raw",
     ],
     crate_root = "src/lib.rs",

@@ -71,7 +71,7 @@ rust_library(
     version = "0.10.5",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__either__1_8_0//:either",
+        "@wasmtime__either__1_8_1//:either",
     ],
 )
 
