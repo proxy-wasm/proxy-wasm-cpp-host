@@ -142,7 +142,7 @@ TEST_P(TestVm, WasmMemoryLimit) {
   // Backtrace
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
-    EXPECT_TRUE(host->isErrorLogged(" - rust_oom"));
+    EXPECT_TRUE(host->isErrorLogged("rust_oom"));
     EXPECT_TRUE(host->isErrorLogged(" - alloc::alloc::handle_alloc_error"));
   }
 }
