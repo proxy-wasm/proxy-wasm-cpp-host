@@ -42,9 +42,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "bazel-zig-cc",
-        sha256 = "ad6384b4d16ebb3e5047df6548a195e598346da84e5f320250beb9198705ac81",
-        strip_prefix = "bazel-zig-cc-v0.4.4",
-        url = "https://git.sr.ht/~motiejus/bazel-zig-cc/archive/v0.4.4.tar.gz",
+        sha256 = "0c29b7975c65026eefdb9226864c3eefccd4a8b5549b4b2709d1912fdc92e472",
+        strip_prefix = "bazel-zig-cc-0.4.4",
+        url = "https://github.com/uber/bazel-zig-cc/archive/refs/tags/v0.4.4.tar.gz",
     )
 
     maybe(
