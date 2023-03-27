@@ -64,7 +64,7 @@ rust_library(
             "@rules_rust//rust/platform:aarch64-apple-ios",
             "@rules_rust//rust/platform:x86_64-apple-ios",
         ): [
-            "@wasmtime__libc__0_2_137//:libc",
+            "@wasmtime__libc__0_2_140//:libc",
         ],
         "//conditions:default": [],
     }),

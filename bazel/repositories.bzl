@@ -74,10 +74,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "f3d443e9ad1eca99fbcade1c649adbd8200753cf22e47846b3105a43a550273b",
-        strip_prefix = "rules_rust-0.8.1",
+        sha256 = "c8a84a01bff4be4c7a8beefbc12e713ff296fed2110c30572a44205856594cfc",
+        strip_prefix = "rules_rust-0.19.0",
         # NOTE: Update Rust version in bazel/dependencies.bzl.
-        url = "https://github.com/bazelbuild/rules_rust/archive/0.8.1.tar.gz",
+        url = "https://github.com/bazelbuild/rules_rust/archive/0.19.0.tar.gz",
         patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
         patch_args = ["-p1"],
     )
@@ -201,9 +201,9 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "f850c7d2480e71b587a7102d8814e127dc9bf8370ffa0e382fe86ec80d629190",
-        strip_prefix = "wasmtime-2.0.2",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v2.0.2.tar.gz",
+        sha256 = "7ed6359faa385c40fc77e324301e5c70c7fdaeeca8a5ab58e25b1f75035b2cd6",
+        strip_prefix = "wasmtime-6.0.1",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v6.0.1.tar.gz",
     )
 
     maybe(

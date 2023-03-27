@@ -92,7 +92,7 @@ rust_library(
     deps = [
         ":indexmap_build_script",
         "@wasmtime__hashbrown__0_12_3//:hashbrown",
-        "@wasmtime__serde__1_0_147//:serde",
+        "@wasmtime__serde__1_0_157//:serde",
     ],
 )
 

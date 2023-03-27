@@ -57,7 +57,7 @@ cargo_build_script(
     version = "0.1.2",
     visibility = ["//visibility:private"],
     deps = [
-        "@wasmtime__cc__1_0_77//:cc",
+        "@wasmtime__cc__1_0_79//:cc",
     ],
 )
 
@@ -81,6 +81,6 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         ":errno_dragonfly_build_script",
-        "@wasmtime__libc__0_2_137//:libc",
+        "@wasmtime__libc__0_2_140//:libc",
     ],
 )
