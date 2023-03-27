@@ -171,8 +171,6 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   // For each create Wasm, canary should be done.
   EXPECT_EQ(canary_count, 1);
 
-  std::unordered_set<std::shared_ptr<WasmHandleBase>> reference_holder;
-
   for (const auto &root_id : root_ids) {
     for (const auto &vm_id : vm_ids) {
       for (const auto &vm_config : vm_configs) {
@@ -206,11 +204,6 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             }
 
             ASSERT_TRUE(wasm_handle_comp && wasm_handle_comp->wasm());
-            // Keep the reference of wasm_handle_comp in order to utilize the WasmHandleBase
-            // cache of createWasm. If we don't keep the reference, WasmHandleBase and VM will be
-            // destroyed for each iteration.
-            reference_holder.insert(wasm_handle_comp);
-
             EXPECT_TRUE(TestContext::isGlobalLogged("onConfigure: " + root_id));
 
             // Wasm VM is unique for vm_key.
