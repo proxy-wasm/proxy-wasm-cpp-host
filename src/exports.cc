@@ -19,6 +19,8 @@
 
 #include <openssl/rand.h>
 
+#include <fstream>
+#include <iostream>
 #include <utility>
 
 namespace proxy_wasm {
@@ -913,6 +915,41 @@ Word log(Word level, Word address, Word size) {
   if (!message) {
     return WasmResult::InvalidMemoryAccess;
   }
+  return context->log(level, message.value());
+}
+
+Word log_destination(Word destination, Word dest_size, Word level, Word address, Word size) {
+  if (level > static_cast<uint64_t>(LogLevel::Max)) {
+    return WasmResult::BadArgument;
+  }
+  auto *context = contextOrEffectiveContext();
+  const auto &log_destinations = context->wasm()->log_destinations();
+
+  auto message = context->wasmVm()->getMemory(address, size);
+  if (!message) {
+    return WasmResult::InvalidMemoryAccess;
+  }
+  auto dest = context->wasmVm()->getMemory(destination, dest_size);
+  if (!dest) {
+    return WasmResult::InvalidMemoryAccess;
+  }
+  context->log(level, dest.value());
+  // iterate over log_destinations map to check if dest
+  // destination requested by plugin exists
+  for (const auto &e : log_destinations) {
+    if (e.first == dest.value()) {
+      // write message to the file which is the value of the key if it exists
+      std::ofstream log_file;
+      log_file.open(e.second, std::ios::out | std::ios_base::app);
+      if (!log_file) {
+        return WasmResult::InvalidMemoryAccess;
+      }
+      log_file << message.value() << std::endl;
+      log_file.close();
+      return WasmResult::Ok;
+    }
+  }
+  // As a fallback, write to the default log destination.
   return context->log(level, message.value());
 }
 

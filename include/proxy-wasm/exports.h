@@ -67,6 +67,7 @@ namespace exports {
 Word get_configuration(Word value_ptr_ptr, Word value_size_ptr);
 Word get_status(Word code_ptr, Word value_ptr_ptr, Word value_size_ptr);
 Word log(Word level, Word address, Word size);
+Word log_destination(Word dest, Word dest_size, Word level, Word address, Word size);
 Word get_log_level(Word result_level_uint32_ptr);
 Word get_property(Word path_ptr, Word path_size, Word value_ptr_ptr, Word value_size_ptr);
 Word set_property(Word key_ptr, Word key_size, Word value_ptr, Word value_size);
@@ -152,18 +153,19 @@ void emscripten_notify_memory_growth(Word);
 // Support for embedders, not exported to Wasm.
 
 #define FOR_ALL_HOST_FUNCTIONS(_f)                                                                 \
-  _f(log) _f(get_status) _f(set_property) _f(get_property) _f(send_local_response)                 \
-      _f(get_shared_data) _f(set_shared_data) _f(register_shared_queue) _f(resolve_shared_queue)   \
-          _f(dequeue_shared_queue) _f(enqueue_shared_queue) _f(get_header_map_value)               \
-              _f(add_header_map_value) _f(replace_header_map_value) _f(remove_header_map_value)    \
-                  _f(get_header_map_pairs) _f(set_header_map_pairs) _f(get_header_map_size)        \
-                      _f(get_buffer_status) _f(get_buffer_bytes) _f(set_buffer_bytes)              \
-                          _f(http_call) _f(grpc_call) _f(grpc_stream) _f(grpc_close)               \
-                              _f(grpc_cancel) _f(grpc_send) _f(set_tick_period_milliseconds)       \
-                                  _f(get_current_time_nanoseconds) _f(define_metric)               \
-                                      _f(increment_metric) _f(record_metric) _f(get_metric)        \
-                                          _f(set_effective_context) _f(done)                       \
-                                              _f(call_foreign_function)
+  _f(log) _f(log_destination) _f(get_status) _f(set_property) _f(get_property)                     \
+      _f(send_local_response) _f(get_shared_data) _f(set_shared_data) _f(register_shared_queue)    \
+          _f(resolve_shared_queue) _f(dequeue_shared_queue) _f(enqueue_shared_queue)               \
+              _f(get_header_map_value) _f(add_header_map_value) _f(replace_header_map_value)       \
+                  _f(remove_header_map_value) _f(get_header_map_pairs) _f(set_header_map_pairs)    \
+                      _f(get_header_map_size) _f(get_buffer_status) _f(get_buffer_bytes)           \
+                          _f(set_buffer_bytes) _f(http_call) _f(grpc_call) _f(grpc_stream)         \
+                              _f(grpc_close) _f(grpc_cancel) _f(grpc_send)                         \
+                                  _f(set_tick_period_milliseconds)                                 \
+                                      _f(get_current_time_nanoseconds) _f(define_metric)           \
+                                          _f(increment_metric) _f(record_metric) _f(get_metric)    \
+                                              _f(set_effective_context) _f(done)                   \
+                                                  _f(call_foreign_function)
 
 #define FOR_ALL_HOST_FUNCTIONS_ABI_SPECIFIC(_f)                                                    \
   _f(get_configuration) _f(continue_request) _f(continue_response) _f(clear_route_cache)           \
