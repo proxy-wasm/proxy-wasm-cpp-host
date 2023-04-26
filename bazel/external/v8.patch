@@ -1,3 +1,7 @@
+# 1. Disable pointer compression (limits the maximum number of WasmVMs).
+# 2. Don't expose Wasm C API (only Wasm C++ API).
+# 3. Fix gcc build error by disabling nonnull warning.
+
 diff --git a/BUILD.bazel b/BUILD.bazel
 index 4e89f90e7e..3fcb38b3f3 100644
 --- a/BUILD.bazel
