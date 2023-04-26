@@ -39,12 +39,12 @@ def proxy_wasm_cpp_host_repositories():
         patch_args = ["-p1"],
     )
 
-    # https://github.com/uber/hermetic_cc_toolchain/releases
     maybe(
         http_archive,
-        name = "hermetic_cc_toolchain",
-        sha256 = "43a1b398f08109c4f03b9ba2b3914bd43d1fec0425f71b71f802bf3f78cee0c2",
-        url = "https://github.com/uber/hermetic_cc_toolchain/releases/download/v2.0.0-rc1/hermetic_cc_toolchain-v2.0.0-rc1.tar.gz",
+        name = "bazel-zig-cc",
+        sha256 = "ff89e0220c72cdc774e451a35e5c3b9f1593d0df71341844b2108c181ac0eef9",
+        strip_prefix = "hermetic_cc_toolchain-0.4.4",
+        url = "https://github.com/uber/hermetic_cc_toolchain/archive/refs/tags/v0.4.4.tar.gz",
     )
 
     maybe(
