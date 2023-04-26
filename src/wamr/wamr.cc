@@ -261,9 +261,15 @@ bool Wamr::link(std::string_view /*debug_name*/) {
     const wasm_name_t *name_ptr = wasm_importtype_name(import_types.get()->data[i]);
     const wasm_externtype_t *extern_type = wasm_importtype_type(import_types.get()->data[i]);
 
-    std::string_view module_name(module_name_ptr->data, module_name_ptr->size);
-    std::string_view name(name_ptr->data, name_ptr->size);
-    assert(name_ptr->size > 0);
+    if (std::strlen(name_ptr->data) == 0) {
+      fail(FailState::UnableToInitializeCode, std::string("The name field of import_types[") +
+                                                  std::to_string(i) + std::string("] is empty"));
+      return false;
+    }
+
+    std::string_view module_name(module_name_ptr->data);
+    std::string_view name(name_ptr->data);
+
     switch (wasm_externtype_kind(extern_type)) {
     case WASM_EXTERN_FUNC: {
       auto it = host_functions_.find(std::string(module_name) + "." + std::string(name));
@@ -354,8 +360,7 @@ bool Wamr::link(std::string_view /*debug_name*/) {
     case WASM_EXTERN_FUNC: {
       WasmFuncPtr func = wasm_func_copy(wasm_extern_as_func(actual_extern));
       const wasm_name_t *name_ptr = wasm_exporttype_name(export_types.get()->data[i]);
-      module_functions_.insert_or_assign(std::string(name_ptr->data, name_ptr->size),
-                                         std::move(func));
+      module_functions_.insert_or_assign(std::string(name_ptr->data), std::move(func));
     } break;
     case WASM_EXTERN_GLOBAL: {
       // TODO(mathetake): add support when/if needed.

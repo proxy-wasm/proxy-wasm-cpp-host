@@ -159,10 +159,10 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasm_micro_runtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
-        # WAMR-2022-12-16
-        sha256 = "976b928f420040a77e793051e4d742208adf157370b9ad0f5535e126adb31eb0",
-        strip_prefix = "wasm-micro-runtime-WAMR-1.1.2",
-        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/WAMR-1.1.2.tar.gz",
+        # WAMR-1.2.1
+        sha256 = "7548d4bbea8dbb9b005e83bd571f93a12fb3f0b5e87a8b0130f004dd92df4b0b",
+        strip_prefix = "wasm-micro-runtime-WAMR-1.2.1",
+        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/refs/tags/WAMR-1.2.1.zip",
     )
 
     native.bind(
@@ -172,11 +172,11 @@ def proxy_wasm_cpp_host_repositories():
 
     maybe(
         http_archive,
-        name = "llvm-13_0_1",
+        name = "llvm-15_0_7",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr_llvm.BUILD",
-        sha256 = "ec6b80d82c384acad2dc192903a6cf2cdbaffb889b84bfb98da9d71e630fc834",
-        strip_prefix = "llvm-13.0.1.src",
-        url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/llvm-13.0.1.src.tar.xz",
+        sha256 = "8b5fcb24b4128cf04df1b0b9410ce8b1a729cb3c544e6da885d234280dedeac6",
+        strip_prefix = "llvm-project-15.0.7.src",
+        url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/llvm-project-15.0.7.src.tar.xz",
     )
 
     # WasmEdge with dependencies.
