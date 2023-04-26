@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel-zig-cc//toolchain:defs.bzl", zig_register_toolchains = "register_toolchains")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+load("@hermetic_cc_toolchain//toolchain:defs.bzl", zig_toolchains = "toolchains")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign:crates.bzl", "wasmsign_fetch_remote_crates")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime:crates.bzl", "wasmtime_fetch_remote_crates")
 load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
@@ -51,16 +51,7 @@ def proxy_wasm_cpp_host_dependencies():
         version = "1.68.0",
     )
 
-    zig_register_toolchains(
-        version = "0.9.1",
-        url_format = "https://ziglang.org/download/{version}/zig-{host_platform}-{version}.tar.xz",
-        host_platform_sha256 = {
-            "linux-aarch64": "5d99a39cded1870a3fa95d4de4ce68ac2610cca440336cfd252ffdddc2b90e66",
-            "linux-x86_64": "be8da632c1d3273f766b69244d80669fe4f5e27798654681d77c992f17c237d7",
-            "macos-aarch64": "8c473082b4f0f819f1da05de2dbd0c1e891dff7d85d2c12b6ee876887d438287",
-            "macos-x86_64": "2d94984972d67292b55c1eb1c00de46580e9916575d083003546e9a01166754c",
-        },
-    )
+    zig_toolchains()
 
     # Test dependencies.
 
