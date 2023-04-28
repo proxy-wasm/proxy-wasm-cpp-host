@@ -156,7 +156,7 @@ jobs:
           os: ubuntu-20.04
           arch: x86_64
           action: test
-          flags: --config=clang --config=gcc
+          flags: --config=gcc
           cache: true
         - name: 'V8 on Linux/aarch64'
           engine: 'v8'
