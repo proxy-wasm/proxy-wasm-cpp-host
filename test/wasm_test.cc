@@ -26,6 +26,7 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()
                          [](const testing::TestParamInfo<std::string> &info) {
                            return info.param;
                          });
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(TestVm); // noop for engine=null
 
 // Fail callbacks only used for WasmVMs - not available for NullVM.
 TEST_P(TestVm, GetOrCreateThreadLocalWasmFailCallbacks) {

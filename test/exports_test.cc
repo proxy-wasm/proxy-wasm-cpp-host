@@ -34,6 +34,7 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()
                          [](const testing::TestParamInfo<std::string> &info) {
                            return info.param;
                          });
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(TestVm); // noop for engine=null
 
 TEST_P(TestVm, Environment) {
   std::unordered_map<std::string, std::string> envs = {{"KEY1", "VALUE1"}, {"KEY2", "VALUE2"}};
