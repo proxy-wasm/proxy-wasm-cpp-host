@@ -150,6 +150,14 @@ jobs:
           action: test
           flags: --config=clang-tsan
           cache: true
+        - name: 'V8 on Linux/x86_64 with GCC'
+          engine: 'v8'
+          repo: 'v8'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=gcc
+          cache: true
         - name: 'V8 on Linux/aarch64'
           engine: 'v8'
           repo: 'v8'

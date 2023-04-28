@@ -1,11 +1,12 @@
 # 1. Disable pointer compression (limits the maximum number of WasmVMs).
 # 2. Don't expose Wasm C API (only Wasm C++ API).
+# 3. Fix gcc build error by disabling nonnull warning.
 
 diff --git a/BUILD.bazel b/BUILD.bazel
-index 5fb10d3940..a19930d36e 100644
+index 4e89f90e7e..3fcb38b3f3 100644
 --- a/BUILD.bazel
 +++ b/BUILD.bazel
-@@ -161,7 +161,7 @@ v8_int(
+@@ -157,7 +157,7 @@ v8_int(
  # If no explicit value for v8_enable_pointer_compression, we set it to 'none'.
  v8_string(
      name = "v8_enable_pointer_compression",
@@ -14,11 +15,23 @@ index 5fb10d3940..a19930d36e 100644
  )
  
  # Default setting for v8_enable_pointer_compression.
+diff --git a/bazel/defs.bzl b/bazel/defs.bzl
+index e957c0fad3..063627b72b 100644
+--- a/bazel/defs.bzl
++++ b/bazel/defs.bzl
+@@ -131,6 +131,7 @@ def _default_args():
+                 "-Wno-redundant-move",
+                 "-Wno-return-type",
+                 "-Wno-stringop-overflow",
++                "-Wno-nonnull",
+                 # Use GNU dialect, because GCC doesn't allow using
+                 # ##__VA_ARGS__ when in standards-conforming mode.
+                 "-std=gnu++17",
 diff --git a/src/wasm/c-api.cc b/src/wasm/c-api.cc
-index ce3f569fd5..dc8a4c4f6a 100644
+index 4473e205c0..65a6ec7e1d 100644
 --- a/src/wasm/c-api.cc
 +++ b/src/wasm/c-api.cc
-@@ -2238,6 +2238,8 @@ auto Instance::exports() const -> ownvec<Extern> {
+@@ -2247,6 +2247,8 @@ auto Instance::exports() const -> ownvec<Extern> {
  
  }  // namespace wasm
  
@@ -27,7 +40,7 @@ index ce3f569fd5..dc8a4c4f6a 100644
  // BEGIN FILE wasm-c.cc
  
  extern "C" {
-@@ -3257,3 +3259,5 @@ wasm_instance_t* wasm_frame_instance(const wasm_frame_t* frame) {
+@@ -3274,3 +3276,5 @@ wasm_instance_t* wasm_frame_instance(const wasm_frame_t* frame) {
  #undef WASM_DEFINE_SHARABLE_REF
  
  }  // extern "C"
