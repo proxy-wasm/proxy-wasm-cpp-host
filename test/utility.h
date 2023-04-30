@@ -93,6 +93,9 @@ public:
   TestContext(WasmBase *wasm) : ContextBase(wasm) {}
   TestContext(WasmBase *wasm, const std::shared_ptr<PluginBase> &plugin)
       : ContextBase(wasm, plugin) {}
+  TestContext(WasmBase *wasm, uint32_t parent_context_id,
+              std::shared_ptr<PluginHandleBase> &plugin_handle)
+      : ContextBase(wasm, parent_context_id, plugin_handle) {}
 
   WasmResult log(uint32_t /*log_level*/, std::string_view message) override {
     auto new_log = std::string(message) + "\n";
