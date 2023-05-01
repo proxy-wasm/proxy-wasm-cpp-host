@@ -118,6 +118,21 @@ cc_test(
 )
 
 cc_test(
+    name = "logging_test",
+    srcs = ["logging_test.cc"],
+    data = [
+        "//test/test_data:http_logging.wasm",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "security_test",
     srcs = ["security_test.cc"],
     data = [

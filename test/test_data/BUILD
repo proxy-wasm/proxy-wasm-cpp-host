@@ -84,3 +84,8 @@ proxy_wasm_cc_binary(
     name = "canary_check.wasm",
     srcs = ["canary_check.cc"],
 )
+
+proxy_wasm_cc_binary(
+    name = "http_logging.wasm",
+    srcs = ["http_logging.cc"],
+)
