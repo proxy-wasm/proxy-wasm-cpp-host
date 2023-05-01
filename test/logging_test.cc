@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "include/proxy-wasm/wasm.h"
 #include "gtest/gtest.h"
-#include <cstdlib>
+#include "include/proxy-wasm/wasm.h"
 #include "test/utility.h"
 
 namespace proxy_wasm {
