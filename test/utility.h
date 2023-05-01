@@ -159,39 +159,39 @@ class TestVm : public testing::TestWithParam<std::string> {
 public:
   TestVm() {
     engine_ = GetParam();
-    vm_ = newVm();
+    vm_ = MakeVm(engine_);
   }
 
-  std::unique_ptr<proxy_wasm::WasmVm> newVm() {
+  static std::unique_ptr<proxy_wasm::WasmVm> MakeVm(const std::string &engine) {
     std::unique_ptr<proxy_wasm::WasmVm> vm;
-    if (engine_.empty()) {
+    if (engine.empty()) {
       ADD_FAILURE() << "engine must not be empty";
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
-    } else if (engine_ == "v8") {
+    } else if (engine == "v8") {
       vm = proxy_wasm::createV8Vm();
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WAVM)
-    } else if (engine_ == "wavm") {
+    } else if (engine == "wavm") {
       vm = proxy_wasm::createWavmVm();
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
-    } else if (engine_ == "wasmtime") {
+    } else if (engine == "wasmtime") {
       vm = proxy_wasm::createWasmtimeVm();
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMEDGE)
-    } else if (engine_ == "wasmedge") {
+    } else if (engine == "wasmedge") {
       vm = proxy_wasm::createWasmEdgeVm();
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
-    } else if (engine_ == "wamr") {
+    } else if (engine == "wamr") {
       vm = proxy_wasm::createWamrVm();
 #endif
     } else {
-      ADD_FAILURE() << "compiled without support for the requested \"" << engine_ << "\" engine";
+      ADD_FAILURE() << "compiled without support for the requested \"" << engine << "\" engine";
     }
     vm->integration() = std::make_unique<TestIntegration>();
     return vm;
-  };
+  }
 
   std::unique_ptr<proxy_wasm::WasmVm> vm_;
   std::string engine_;
