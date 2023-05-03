@@ -190,6 +190,7 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle,
       vm_id_(base_wasm_handle->wasm()->vm_id_), vm_key_(base_wasm_handle->wasm()->vm_key_),
       started_from_(base_wasm_handle->wasm()->wasm_vm()->cloneable()),
       envs_(base_wasm_handle->wasm()->envs()),
+      log_destinations_(base_wasm_handle->wasm()->log_destinations()),
       allowed_capabilities_(base_wasm_handle->wasm()->allowed_capabilities_),
       base_wasm_handle_(base_wasm_handle) {
   if (started_from_ != Cloneable::NotCloneable) {
@@ -207,9 +208,11 @@ WasmBase::WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle,
 WasmBase::WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
                    std::string_view vm_configuration, std::string_view vm_key,
                    std::unordered_map<std::string, std::string> envs,
+                   std::unordered_map<std::string, std::string> log_dest,
                    AllowedCapabilitiesMap allowed_capabilities)
     : vm_id_(std::string(vm_id)), vm_key_(std::string(vm_key)), wasm_vm_(std::move(wasm_vm)),
-      envs_(std::move(envs)), allowed_capabilities_(std::move(allowed_capabilities)),
+      envs_(std::move(envs)), log_destinations_(std::move(log_dest)),
+      allowed_capabilities_(std::move(allowed_capabilities)),
       vm_configuration_(std::string(vm_configuration)), vm_id_handle_(getVmIdHandle(vm_id)) {
   if (!wasm_vm_) {
     failed_ = FailState::UnableToCreateVm;
@@ -358,7 +361,7 @@ void WasmBase::startVm(ContextBase *root_context) {
   // wasi_snapshot_preview1.clock_time_get
   wasm_vm_->setRestrictedCallback(
       true, {// logging (Proxy-Wasm)
-             "env.proxy_log",
+             "env.proxy_log", "env.proxy_log_destination",
              // logging (stdout/stderr)
              "wasi_unstable.fd_write", "wasi_snapshot_preview1.fd_write",
              // args

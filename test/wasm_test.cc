@@ -14,6 +14,7 @@
 
 #include "include/proxy-wasm/wasm.h"
 
+#include <iostream>
 #include <unordered_set>
 
 #include "gtest/gtest.h"
@@ -43,9 +44,9 @@ TEST_P(TestVm, GetOrCreateThreadLocalWasmFailCallbacks) {
   // Define callbacks.
   WasmHandleFactory wasm_handle_factory =
       [this, vm_id, vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
-    auto base_wasm = std::make_shared<WasmBase>(newVm(), vm_id, vm_config, vm_key,
-                                                std::unordered_map<std::string, std::string>{},
-                                                AllowedCapabilitiesMap{});
+    auto base_wasm = std::make_shared<WasmBase>(
+        newVm(), vm_id, vm_config, vm_key, std::unordered_map<std::string, std::string>{},
+        std::unordered_map<std::string, std::string>{}, AllowedCapabilitiesMap{});
     return std::make_shared<WasmHandleBase>(base_wasm);
   };
 
@@ -171,7 +172,6 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   // For each create Wasm, canary should be done.
   EXPECT_EQ(canary_count, 1);
 
-  std::unordered_set<std::shared_ptr<WasmHandleBase>> reference_holder;
 
   for (const auto &root_id : root_ids) {
     for (const auto &vm_id : vm_ids) {
@@ -209,7 +209,6 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             // Keep the reference of wasm_handle_comp in order to utilize the WasmHandleBase
             // cache of createWasm. If we don't keep the reference, WasmHandleBase and VM will be
             // destroyed for each iteration.
-            reference_holder.insert(wasm_handle_comp);
 
             EXPECT_TRUE(TestContext::isGlobalLogged("onConfigure: " + root_id));
 

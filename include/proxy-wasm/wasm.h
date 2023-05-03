@@ -51,6 +51,7 @@ public:
   WasmBase(std::unique_ptr<WasmVm> wasm_vm, std::string_view vm_id,
            std::string_view vm_configuration, std::string_view vm_key,
            std::unordered_map<std::string, std::string> envs,
+           std::unordered_map<std::string, std::string> log_dest,
            AllowedCapabilitiesMap allowed_capabilities);
   WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory);
   virtual ~WasmBase();
@@ -136,6 +137,9 @@ public:
   AbiVersion abiVersion() const { return abi_version_; }
 
   const std::unordered_map<std::string, std::string> &envs() { return envs_; }
+  const std::unordered_map<std::string, std::string> &log_destinations() {
+    return log_destinations_;
+  }
 
   // Called to raise the flag which indicates that the context should stop iteration regardless of
   // returned filter status from Proxy-Wasm extensions. For example, we ignore
@@ -222,7 +226,7 @@ protected:
   std::unique_ptr<ShutdownHandle> shutdown_handle_;
   std::unordered_map<std::string, std::string>
       envs_; // environment variables passed through wasi.environ_get
-
+  std::unordered_map<std::string, std::string> log_destinations_;
   WasmCallVoid<0> _initialize_; /* WASI reactor (Emscripten v1.39.17+, Rust nightly) */
   WasmCallVoid<0> _start_;      /* WASI command (Emscripten v1.39.0+, TinyGo) */
 
@@ -394,7 +398,7 @@ inline void *WasmBase::allocMemory(uint64_t size, uint64_t *address) {
   }
   wasm_vm_->setRestrictedCallback(
       true, {// logging (Proxy-Wasm)
-             "env.proxy_log",
+             "env.proxy_log", "env.proxy_log_destination",
              // logging (stdout/stderr)
              "wasi_unstable.fd_write", "wasi_snapshot_preview1.fd_write",
              // time
