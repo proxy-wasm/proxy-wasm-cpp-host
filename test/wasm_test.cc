@@ -233,6 +233,30 @@ TEST_P(TestVm, AlwaysApplyCanary) {
       }
     }
   }
+
+  {
+    // Validate that canarying is cached
+    canary_count = 0;
+    TestContext::resetGlobalLog();
+    const auto &root_id = root_ids[0];
+    const auto &vm_id = vm_ids[0];
+    const auto &vm_config = vm_configs[0];
+    const auto &plugin_key = plugin_keys[0];
+    const auto &plugin_config = plugin_configs[0];
+    WasmHandleFactory wasm_handle_factory_comp =
+        [this, vm_id, vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
+      auto base_wasm = std::make_shared<TestWasm>(
+          newVm(), std::unordered_map<std::string, std::string>(), vm_id, vm_config, vm_key);
+      return std::make_shared<WasmHandleBase>(base_wasm);
+    };
+    const auto plugin_comp = std::make_shared<PluginBase>(plugin_name, root_id, vm_id, engine_,
+                                                          plugin_config, fail_open, plugin_key);
+    const auto vm_key = makeVmKey(vm_id, vm_config, "common_code");
+    // Create a base Wasm by createWasm.
+    auto wasm_handle_comp = createWasm(vm_key, source, plugin_comp, wasm_handle_factory_comp,
+                                       wasm_handle_clone_factory_for_canary, false);
+    EXPECT_EQ(canary_count, 0);
+  }
 }
 
 } // namespace proxy_wasm
