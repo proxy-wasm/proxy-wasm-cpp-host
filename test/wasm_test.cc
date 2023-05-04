@@ -196,7 +196,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             auto wasm_handle_comp =
                 createWasm(vm_key, source, plugin_comp, wasm_handle_factory_comp,
                            wasm_handle_clone_factory_for_canary, false);
-            // Validate that canarying is cached for the first variant.
+            // Validate that canarying is cached for the first baseline plugin variant.
             if (first) {
               first = false;
               EXPECT_EQ(canary_count, 0);
