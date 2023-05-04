@@ -476,7 +476,6 @@ bool WasmHandleBase::canary(const std::shared_ptr<PluginBase> &plugin,
   if (it != plugin_canary_cache_.end()) {
     return it->second;
   }
-  std::cout << "CANARY TEST " << plugin->key() << std::endl;
   auto configuration_canary_handle = clone_factory(shared_from_this());
   if (!configuration_canary_handle) {
     this->wasm()->fail(FailState::UnableToCloneVm, "Failed to clone Base Wasm");
