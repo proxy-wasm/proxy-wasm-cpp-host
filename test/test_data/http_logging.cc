@@ -14,9 +14,9 @@
 
 #include "proxy_wasm_intrinsics.h"
 
-class LoggingStreamContext : public Context {
+class LoggingContext : public Context {
 public:
-  explicit LoggingStreamContext(uint32_t id, RootContext *root) : Context(id, root) {}
+  explicit LoggingContext(uint32_t id, RootContext *root) : Context(id, root) {}
 
   void onCreate() override { LOG_INFO("onCreate called"); }
   void onDelete() override { LOG_INFO("onDelete called"); }
@@ -24,16 +24,14 @@ public:
 
   FilterHeadersStatus onRequestHeaders(uint32_t headers, bool end_of_stream) override {
     LOG_INFO("onRequestHeaders called");
-    // A real host would implement header getters/setters to be called here.
     return FilterHeadersStatus::Continue;
   }
 
   FilterHeadersStatus onResponseHeaders(uint32_t headers, bool end_of_stream) override {
     LOG_INFO("onResponseHeaders called");
-    // A real host would implement header getters/setters to be called here.
     return FilterHeadersStatus::Continue;
   }
 };
 
-static RegisterContextFactory register_StaticContext(CONTEXT_FACTORY(LoggingStreamContext),
+static RegisterContextFactory register_StaticContext(CONTEXT_FACTORY(LoggingContext),
                                                      ROOT_FACTORY(RootContext));

@@ -159,10 +159,10 @@ class TestVm : public testing::TestWithParam<std::string> {
 public:
   TestVm() {
     engine_ = GetParam();
-    vm_ = MakeVm(engine_);
+    vm_ = makeVm(engine_);
   }
 
-  static std::unique_ptr<proxy_wasm::WasmVm> MakeVm(const std::string &engine) {
+  static std::unique_ptr<proxy_wasm::WasmVm> makeVm(const std::string &engine) {
     std::unique_ptr<proxy_wasm::WasmVm> vm;
     if (engine.empty()) {
       ADD_FAILURE() << "engine must not be empty";

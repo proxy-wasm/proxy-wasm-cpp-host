@@ -43,7 +43,7 @@ TEST_P(TestVm, GetOrCreateThreadLocalWasmFailCallbacks) {
   // Define callbacks.
   WasmHandleFactory wasm_handle_factory =
       [this, vm_id, vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
-    auto base_wasm = std::make_shared<WasmBase>(MakeVm(engine_), vm_id, vm_config, vm_key,
+    auto base_wasm = std::make_shared<WasmBase>(makeVm(engine_), vm_id, vm_config, vm_key,
                                                 std::unordered_map<std::string, std::string>{},
                                                 AllowedCapabilitiesMap{});
     return std::make_shared<WasmHandleBase>(base_wasm);
@@ -53,7 +53,7 @@ TEST_P(TestVm, GetOrCreateThreadLocalWasmFailCallbacks) {
       [this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
       -> std::shared_ptr<WasmHandleBase> {
     auto wasm = std::make_shared<WasmBase>(
-        base_wasm_handle, [this]() -> std::unique_ptr<WasmVm> { return MakeVm(engine_); });
+        base_wasm_handle, [this]() -> std::unique_ptr<WasmVm> { return makeVm(engine_); });
     return std::make_shared<WasmHandleBase>(wasm);
   };
 
@@ -134,7 +134,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
       [&canary_count, this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
       -> std::shared_ptr<WasmHandleBase> {
     auto wasm = std::make_shared<TestWasm>(
-        base_wasm_handle, [this]() -> std::unique_ptr<WasmVm> { return MakeVm(engine_); });
+        base_wasm_handle, [this]() -> std::unique_ptr<WasmVm> { return makeVm(engine_); });
     canary_count++;
     return std::make_shared<WasmHandleBase>(wasm);
   };
@@ -151,7 +151,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   WasmHandleFactory wasm_handle_factory_baseline =
       [this, vm_ids, vm_configs](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
     auto base_wasm =
-        std::make_shared<TestWasm>(MakeVm(engine_), std::unordered_map<std::string, std::string>(),
+        std::make_shared<TestWasm>(makeVm(engine_), std::unordered_map<std::string, std::string>(),
                                    vm_ids[0], vm_configs[0], vm_key);
     return std::make_shared<WasmHandleBase>(base_wasm);
   };
@@ -185,7 +185,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
                 [this, vm_id,
                  vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
               auto base_wasm = std::make_shared<TestWasm>(
-                  MakeVm(engine_), std::unordered_map<std::string, std::string>(), vm_id, vm_config,
+                  makeVm(engine_), std::unordered_map<std::string, std::string>(), vm_id, vm_config,
                   vm_key);
               return std::make_shared<WasmHandleBase>(base_wasm);
             };
