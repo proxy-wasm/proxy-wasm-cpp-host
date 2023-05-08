@@ -51,18 +51,17 @@ TEST_P(TestVm, HttpLogging) {
   {
     auto wasm_handle = std::make_shared<WasmHandleBase>(wasm);
     auto plugin_handle = std::make_shared<PluginHandleBase>(wasm_handle, plugin);
-    auto stream_context =
-        std::make_unique<TestContext>(wasm.get(), root_context->id(), plugin_handle);
-    stream_context->onCreate();
-    EXPECT_TRUE(stream_context->isLogged("onCreate called"));
-    stream_context->onRequestHeaders(/*headers=*/0, /*end_of_stream=*/false);
-    EXPECT_TRUE(stream_context->isLogged("onRequestHeaders called"));
-    stream_context->onResponseHeaders(/*headers=*/0, /*end_of_stream=*/false);
-    EXPECT_TRUE(stream_context->isLogged("onResponseHeaders called"));
-    stream_context->onDone();
-    EXPECT_TRUE(stream_context->isLogged("onDone called"));
-    stream_context->onDelete();
-    EXPECT_TRUE(stream_context->isLogged("onDelete called"));
+    auto stream_context = TestContext(wasm.get(), root_context->id(), plugin_handle);
+    stream_context.onCreate();
+    EXPECT_TRUE(stream_context.isLogged("onCreate called"));
+    stream_context.onRequestHeaders(/*headers=*/0, /*end_of_stream=*/false);
+    EXPECT_TRUE(stream_context.isLogged("onRequestHeaders called"));
+    stream_context.onResponseHeaders(/*headers=*/0, /*end_of_stream=*/false);
+    EXPECT_TRUE(stream_context.isLogged("onResponseHeaders called"));
+    stream_context.onDone();
+    EXPECT_TRUE(stream_context.isLogged("onDone called"));
+    stream_context.onDelete();
+    EXPECT_TRUE(stream_context.isLogged("onDelete called"));
   }
   EXPECT_FALSE(wasm->isFailed());
 }
