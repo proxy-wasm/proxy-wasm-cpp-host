@@ -472,8 +472,7 @@ bool WasmHandleBase::canary(const std::shared_ptr<PluginBase> &plugin,
   if (this->wasm() == nullptr) {
     return false;
   }
-  std::string plugin_key(plugin->key());
-  auto it = plugin_canary_cache_.find(plugin_key);
+  auto it = plugin_canary_cache_.find(plugin->key());
   if (it != plugin_canary_cache_.end()) {
     return it->second;
   }
@@ -495,11 +494,11 @@ bool WasmHandleBase::canary(const std::shared_ptr<PluginBase> &plugin,
   if (!configuration_canary_handle->wasm()->configure(root_context, plugin)) {
     configuration_canary_handle->wasm()->fail(FailState::ConfigureFailed,
                                               "Failed to configure base Wasm plugin");
-    plugin_canary_cache_[plugin_key] = false;
+    plugin_canary_cache_[plugin->key()] = false;
     return false;
   }
   configuration_canary_handle->kill();
-  plugin_canary_cache_[plugin_key] = true;
+  plugin_canary_cache_[plugin->key()] = true;
   return true;
 }
 
