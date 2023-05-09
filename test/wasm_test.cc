@@ -200,11 +200,11 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             if (first) {
               first = false;
               EXPECT_EQ(canary_count, 0);
-              continue;
+            } else {
+              // For each create Wasm, canary should be done.
+              EXPECT_EQ(canary_count, 1);
+              EXPECT_TRUE(TestContext::isGlobalLogged("onConfigure: " + root_id));
             }
-
-            // For each create Wasm, canary should be done.
-            EXPECT_EQ(canary_count, 1);
 
             if (plugin_config.empty()) {
               // canary_check.wasm should raise the error at `onConfigure` in canary when the
@@ -218,8 +218,6 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             // cache of createWasm. If we don't keep the reference, WasmHandleBase and VM will be
             // destroyed for each iteration.
             reference_holder.insert(wasm_handle_comp);
-
-            EXPECT_TRUE(TestContext::isGlobalLogged("onConfigure: " + root_id));
 
             // Wasm VM is unique for vm_key.
             if (vm_key == vm_key_baseline) {
