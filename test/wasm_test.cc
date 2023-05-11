@@ -172,6 +172,7 @@ TEST_P(TestVm, AlwaysApplyCanary) {
   // For each create Wasm, canary should be done.
   EXPECT_EQ(canary_count, 1);
 
+  bool first = true;
   std::unordered_set<std::shared_ptr<WasmHandleBase>> reference_holder;
 
   for (const auto &root_id : root_ids) {
@@ -196,8 +197,15 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             auto wasm_handle_comp =
                 createWasm(vm_key, source, plugin_comp, wasm_handle_factory_comp,
                            wasm_handle_clone_factory_for_canary, false);
-            // For each create Wasm, canary should be done.
-            EXPECT_EQ(canary_count, 1);
+            // Validate that canarying is cached for the first baseline plugin variant.
+            if (first) {
+              first = false;
+              EXPECT_EQ(canary_count, 0);
+            } else {
+              // For each create Wasm, canary should be done.
+              EXPECT_EQ(canary_count, 1);
+              EXPECT_TRUE(TestContext::isGlobalLogged("onConfigure: " + root_id));
+            }
 
             if (plugin_config.empty()) {
               // canary_check.wasm should raise the error at `onConfigure` in canary when the
@@ -211,8 +219,6 @@ TEST_P(TestVm, AlwaysApplyCanary) {
             // cache of createWasm. If we don't keep the reference, WasmHandleBase and VM will be
             // destroyed for each iteration.
             reference_holder.insert(wasm_handle_comp);
-
-            EXPECT_TRUE(TestContext::isGlobalLogged("onConfigure: " + root_id));
 
             // Wasm VM is unique for vm_key.
             if (vm_key == vm_key_baseline) {
