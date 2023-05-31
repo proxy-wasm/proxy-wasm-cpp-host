@@ -52,7 +52,7 @@ rust_library(
     version = "0.3.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__unicode_bidi__0_3_12//:unicode_bidi",
+        "@wasmtime__unicode_bidi__0_3_13//:unicode_bidi",
         "@wasmtime__unicode_normalization__0_1_22//:unicode_normalization",
     ],
 )
