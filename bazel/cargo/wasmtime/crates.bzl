@@ -63,16 +63,6 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__atty__0_2_14",
-        url = "https://crates.io/api/v1/crates/atty/0.2.14/download",
-        type = "tar.gz",
-        sha256 = "d9b39be18770d11421cdb1b9947a45dd3f37e93092cbf377614828a319d5fee8",
-        strip_prefix = "atty-0.2.14",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.atty-0.2.14.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "wasmtime__autocfg__1_1_0",
         url = "https://crates.io/api/v1/crates/autocfg/1.1.0/download",
         type = "tar.gz",
@@ -305,12 +295,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__env_logger__0_9_3",
-        url = "https://crates.io/api/v1/crates/env_logger/0.9.3/download",
+        name = "wasmtime__env_logger__0_10_0",
+        url = "https://crates.io/api/v1/crates/env_logger/0.10.0/download",
         type = "tar.gz",
-        sha256 = "a12e6657c4c97ebab115a42dcee77225f7f482cdd841cf7088c657a42e9e00e7",
-        strip_prefix = "env_logger-0.9.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.env_logger-0.9.3.bazel"),
+        sha256 = "85cdab6a89accf66733ad5a1693a4dcced6aeff64602b634530dd73c1f3ee9f0",
+        strip_prefix = "env_logger-0.10.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.env_logger-0.10.0.bazel"),
     )
 
     maybe(
@@ -415,16 +405,6 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__hermit_abi__0_1_19",
-        url = "https://crates.io/api/v1/crates/hermit-abi/0.1.19/download",
-        type = "tar.gz",
-        sha256 = "62b467343b94ba476dcb2500d242dadbb39557df889310ac77c5d99100aaac33",
-        strip_prefix = "hermit-abi-0.1.19",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.hermit-abi-0.1.19.bazel"),
-    )
-
-    maybe(
-        http_archive,
         name = "wasmtime__hermit_abi__0_3_1",
         url = "https://crates.io/api/v1/crates/hermit-abi/0.3.1/download",
         type = "tar.gz",
@@ -471,6 +451,16 @@ def wasmtime_fetch_remote_crates():
         sha256 = "eae7b9aee968036d54dce06cebaefd919e4472e753296daccd6d344e3e2df0c2",
         strip_prefix = "io-lifetimes-1.0.11",
         build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.io-lifetimes-1.0.11.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__is_terminal__0_4_7",
+        url = "https://crates.io/api/v1/crates/is-terminal/0.4.7/download",
+        type = "tar.gz",
+        sha256 = "adcf93614601c8129ddf72e2d5633df827ba6551541c6d8c59520a371475be1f",
+        strip_prefix = "is-terminal-0.4.7",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.is-terminal-0.4.7.bazel"),
     )
 
     maybe(

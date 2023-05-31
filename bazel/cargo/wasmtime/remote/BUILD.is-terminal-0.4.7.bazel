@@ -31,10 +31,8 @@ licenses([
 
 # Generated Targets
 
-# Unsupported target "atty" with type "example" omitted
-
 rust_library(
-    name = "atty",
+    name = "is_terminal",
     srcs = glob(["**/*.rs"]),
     aliases = {
     },
@@ -42,20 +40,21 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     data = [],
-    edition = "2015",
+    edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-raze",
-        "crate-name=atty",
+        "crate-name=is-terminal",
         "manual",
     ],
-    version = "0.2.14",
+    version = "0.4.7",
     # buildifier: leave-alone
     deps = [
+        "@wasmtime__io_lifetimes__1_0_11//:io_lifetimes",
     ] + selects.with_or({
-        # cfg(unix)
+        # cfg(not(any(windows, target_os = "hermit", target_os = "unknown")))
         (
             "@rules_rust//rust/platform:i686-apple-darwin",
             "@rules_rust//rust/platform:i686-unknown-linux-gnu",
@@ -70,11 +69,12 @@ rust_library(
             "@rules_rust//rust/platform:i686-unknown-freebsd",
             "@rules_rust//rust/platform:powerpc-unknown-linux-gnu",
             "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
+            "@rules_rust//rust/platform:wasm32-wasi",
             "@rules_rust//rust/platform:x86_64-apple-ios",
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__libc__0_2_144//:libc",
+            "@wasmtime__rustix__0_37_19//:rustix",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
@@ -83,7 +83,7 @@ rust_library(
             "@rules_rust//rust/platform:i686-pc-windows-msvc",
             "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
         ): [
-            "@wasmtime__winapi__0_3_9//:winapi",
+            "@wasmtime__windows_sys__0_48_0//:windows_sys",
         ],
         "//conditions:default": [],
     }),

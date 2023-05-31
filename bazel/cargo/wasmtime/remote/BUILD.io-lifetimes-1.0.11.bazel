@@ -44,6 +44,7 @@ cargo_build_script(
     },
     crate_features = [
         "close",
+        "default",
         "hermit-abi",
         "libc",
         "windows-sys",
@@ -104,6 +105,7 @@ rust_library(
     },
     crate_features = [
         "close",
+        "default",
         "hermit-abi",
         "libc",
         "windows-sys",
