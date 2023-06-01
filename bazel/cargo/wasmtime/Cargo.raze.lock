@@ -828,7 +828,7 @@ dependencies = [
 
 [[package]]
 name = "wasmtime-c-api-bazel"
-version = "9.0.2"
+version = "9.0.3"
 dependencies = [
  "anyhow",
  "env_logger",
@@ -840,7 +840,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-c-api-macros"
 version = "0.0.0"
-source = "git+https://github.com/bytecodealliance/wasmtime?tag=v9.0.2#0aa00479c9fbb39ef19a9f35d2ed0137454c93f5"
+source = "git+https://github.com/bytecodealliance/wasmtime?tag=v9.0.3#271b605e8d3d44c5d0a39bb4e65c3efb3869ff74"
 dependencies = [
  "proc-macro2",
  "quote",

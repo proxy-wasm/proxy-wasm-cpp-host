@@ -967,7 +967,7 @@ def wasmtime_fetch_remote_crates():
         new_git_repository,
         name = "wasmtime__wasmtime_c_api_macros__0_0_0",
         remote = "https://github.com/bytecodealliance/wasmtime",
-        commit = "0aa00479c9fbb39ef19a9f35d2ed0137454c93f5",
+        commit = "271b605e8d3d44c5d0a39bb4e65c3efb3869ff74",
         build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-c-api-macros-0.0.0.bazel"),
         init_submodules = True,
     )
