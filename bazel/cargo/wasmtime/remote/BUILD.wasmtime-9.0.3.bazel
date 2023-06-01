@@ -1,0 +1,128 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_proc_macro",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//bazel/cargo/wasmtime", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
+])
+
+# Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "wasmtime_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "cranelift",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2021",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "9.0.3",
+    visibility = ["//visibility:private"],
+    deps = [
+    ] + selects.with_or({
+        # cfg(target_os = "windows")
+        (
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@wasmtime__windows_sys__0_48_0//:windows_sys",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+rust_library(
+    name = "wasmtime",
+    srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
+    crate_features = [
+        "cranelift",
+    ],
+    crate_root = "src/lib.rs",
+    data = [],
+    edition = "2021",
+    proc_macro_deps = [
+        "@wasmtime__paste__1_0_12//:paste",
+    ],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "crate-name=wasmtime",
+        "manual",
+    ],
+    version = "9.0.3",
+    # buildifier: leave-alone
+    deps = [
+        ":wasmtime_build_script",
+        "@wasmtime__anyhow__1_0_71//:anyhow",
+        "@wasmtime__bincode__1_3_3//:bincode",
+        "@wasmtime__bumpalo__3_13_0//:bumpalo",
+        "@wasmtime__cfg_if__1_0_0//:cfg_if",
+        "@wasmtime__fxprof_processed_profile__0_6_0//:fxprof_processed_profile",
+        "@wasmtime__indexmap__1_9_3//:indexmap",
+        "@wasmtime__libc__0_2_144//:libc",
+        "@wasmtime__log__0_4_18//:log",
+        "@wasmtime__object__0_30_3//:object",
+        "@wasmtime__once_cell__1_17_2//:once_cell",
+        "@wasmtime__psm__0_1_21//:psm",
+        "@wasmtime__serde__1_0_163//:serde",
+        "@wasmtime__serde_json__1_0_96//:serde_json",
+        "@wasmtime__target_lexicon__0_12_7//:target_lexicon",
+        "@wasmtime__wasmparser__0_103_0//:wasmparser",
+        "@wasmtime__wasmtime_cranelift__9_0_3//:wasmtime_cranelift",
+        "@wasmtime__wasmtime_environ__9_0_3//:wasmtime_environ",
+        "@wasmtime__wasmtime_jit__9_0_3//:wasmtime_jit",
+        "@wasmtime__wasmtime_runtime__9_0_3//:wasmtime_runtime",
+    ] + selects.with_or({
+        # cfg(target_os = "windows")
+        (
+            "@rules_rust//rust/platform:i686-pc-windows-msvc",
+            "@rules_rust//rust/platform:x86_64-pc-windows-msvc",
+        ): [
+            "@wasmtime__windows_sys__0_48_0//:windows_sys",
+        ],
+        "//conditions:default": [],
+    }),
+)
