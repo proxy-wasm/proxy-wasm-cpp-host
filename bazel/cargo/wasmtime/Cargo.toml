@@ -1,7 +1,8 @@
 [package]
-edition = "2018"
+edition = "2021"
 name = "wasmtime-c-api-bazel"
 version = "9.0.2"
+rust-version = "1.66.0"
 
 [lib]
 path = "fake_lib.rs"

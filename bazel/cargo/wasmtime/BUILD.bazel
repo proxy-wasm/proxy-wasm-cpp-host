@@ -41,7 +41,7 @@ alias(
 
 alias(
     name = "wasmtime",
-    actual = "@wasmtime__wasmtime__9_0_2//:wasmtime",
+    actual = "@wasmtime__wasmtime__9_0_3//:wasmtime",
     tags = [
         "cargo-raze",
         "manual",
