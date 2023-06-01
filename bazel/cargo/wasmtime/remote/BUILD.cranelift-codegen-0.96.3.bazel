@@ -1,0 +1,109 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_proc_macro",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//bazel/cargo/wasmtime", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
+])
+
+# Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "cranelift_codegen_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "default",
+        "gimli",
+        "std",
+        "trace-log",
+        "unwind",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2021",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.96.3",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@wasmtime__cranelift_codegen_meta__0_96_3//:cranelift_codegen_meta",
+        "@wasmtime__cranelift_isle__0_96_3//:cranelift_isle",
+    ],
+)
+
+# Unsupported target "x64-evex-encoding" with type "bench" omitted
+
+rust_library(
+    name = "cranelift_codegen",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "default",
+        "gimli",
+        "std",
+        "trace-log",
+        "unwind",
+    ],
+    crate_root = "src/lib.rs",
+    data = [],
+    edition = "2021",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "crate-name=cranelift-codegen",
+        "manual",
+    ],
+    version = "0.96.3",
+    # buildifier: leave-alone
+    deps = [
+        ":cranelift_codegen_build_script",
+        "@wasmtime__bumpalo__3_13_0//:bumpalo",
+        "@wasmtime__cranelift_bforest__0_96_3//:cranelift_bforest",
+        "@wasmtime__cranelift_codegen_shared__0_96_3//:cranelift_codegen_shared",
+        "@wasmtime__cranelift_control__0_96_3//:cranelift_control",
+        "@wasmtime__cranelift_entity__0_96_3//:cranelift_entity",
+        "@wasmtime__gimli__0_27_2//:gimli",
+        "@wasmtime__hashbrown__0_13_2//:hashbrown",
+        "@wasmtime__log__0_4_18//:log",
+        "@wasmtime__regalloc2__0_8_1//:regalloc2",
+        "@wasmtime__smallvec__1_10_0//:smallvec",
+        "@wasmtime__target_lexicon__0_12_7//:target_lexicon",
+    ],
+)

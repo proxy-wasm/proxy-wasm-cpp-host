@@ -1,0 +1,68 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_proc_macro",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//bazel/cargo/wasmtime", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
+])
+
+# Generated Targets
+
+rust_library(
+    name = "cranelift_native",
+    srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
+    crate_features = [
+        "default",
+        "std",
+    ],
+    crate_root = "src/lib.rs",
+    data = [],
+    edition = "2021",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "crate-name=cranelift-native",
+        "manual",
+    ],
+    version = "0.96.3",
+    # buildifier: leave-alone
+    deps = [
+        "@wasmtime__cranelift_codegen__0_96_3//:cranelift_codegen",
+        "@wasmtime__target_lexicon__0_12_7//:target_lexicon",
+    ] + selects.with_or({
+        # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
+        (
+            "@rules_rust//rust/platform:s390x-unknown-linux-gnu",
+        ): [
+            "@wasmtime__libc__0_2_144//:libc",
+        ],
+        "//conditions:default": [],
+    }),
+)

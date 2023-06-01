@@ -14,7 +14,7 @@ licenses([
 # Aliased targets
 alias(
     name = "anyhow",
-    actual = "@wasmtime__anyhow__1_0_70//:anyhow",
+    actual = "@wasmtime__anyhow__1_0_71//:anyhow",
     tags = [
         "cargo-raze",
         "manual",
@@ -23,7 +23,7 @@ alias(
 
 alias(
     name = "env_logger",
-    actual = "@wasmtime__env_logger__0_9_3//:env_logger",
+    actual = "@wasmtime__env_logger__0_10_0//:env_logger",
     tags = [
         "cargo-raze",
         "manual",
@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "once_cell",
-    actual = "@wasmtime__once_cell__1_17_1//:once_cell",
+    actual = "@wasmtime__once_cell__1_17_2//:once_cell",
     tags = [
         "cargo-raze",
         "manual",
@@ -41,7 +41,7 @@ alias(
 
 alias(
     name = "wasmtime",
-    actual = "@wasmtime__wasmtime__6_0_1//:wasmtime",
+    actual = "@wasmtime__wasmtime__9_0_3//:wasmtime",
     tags = [
         "cargo-raze",
         "manual",

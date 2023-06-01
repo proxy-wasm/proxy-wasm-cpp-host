@@ -1,17 +1,18 @@
 [package]
-edition = "2018"
+edition = "2021"
 name = "wasmtime-c-api-bazel"
-version = "2.0.2"
+version = "9.0.3"
+rust-version = "1.66.0"
 
 [lib]
 path = "fake_lib.rs"
 
 [dependencies]
-env_logger = "0.9"
+env_logger = "0.10"
 anyhow = "1.0"
-once_cell = "1.3"
-wasmtime = {version = "6.0.1", default-features = false, features = ['cranelift']}
-wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v6.0.1"}
+once_cell = "1.12"
+wasmtime = {version = "9.0.3", default-features = false, features = ['cranelift']}
+wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v9.0.3"}
 
 [package.metadata.raze]
 rust_rules_workspace_name = "rules_rust"
