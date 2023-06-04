@@ -539,6 +539,11 @@ struct GeneralInterface {
   // Log a message.
   virtual WasmResult log(uint32_t level, std::string_view message) = 0;
 
+  // Log a message to the specified destination. If the destination is missing or empty, message
+  // will be logged to the default destination i.e proxy logs at specified level.
+  virtual WasmResult logWithDestination(uint32_t level, std::string_view message,
+                                        std::string_view destination) = 0;
+
   // Return the current log level in the host
   virtual uint32_t getLogLevel() = 0;
 

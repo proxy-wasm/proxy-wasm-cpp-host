@@ -237,6 +237,10 @@ public:
   WasmResult log(uint32_t /* level */, std::string_view /* message */) override {
     return unimplemented();
   }
+  WasmResult logWithDestination(uint32_t /* level */, std::string_view /* message */,
+                                std::string_view /* destination */) override {
+    return unimplemented();
+  }
   uint32_t getLogLevel() override {
     unimplemented();
     return 0;

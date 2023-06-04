@@ -923,7 +923,6 @@ Word log_destination(Word destination, Word dest_size, Word level, Word address,
     return WasmResult::BadArgument;
   }
   auto *context = contextOrEffectiveContext();
-  const auto &log_destinations = context->wasm()->log_destinations();
 
   auto message = context->wasmVm()->getMemory(address, size);
   if (!message) {
@@ -933,24 +932,7 @@ Word log_destination(Word destination, Word dest_size, Word level, Word address,
   if (!dest) {
     return WasmResult::InvalidMemoryAccess;
   }
-  context->log(level, dest.value());
-  // iterate over log_destinations map to check if dest
-  // destination requested by plugin exists
-  for (const auto &e : log_destinations) {
-    if (e.first == dest.value()) {
-      // write message to the file which is the value of the key if it exists
-      std::ofstream log_file;
-      log_file.open(e.second, std::ios::out | std::ios_base::app);
-      if (!log_file) {
-        return WasmResult::InvalidMemoryAccess;
-      }
-      log_file << message.value() << std::endl;
-      log_file.close();
-      return WasmResult::Ok;
-    }
-  }
-  // As a fallback, write to the default log destination.
-  return context->log(level, message.value());
+  return context->logWithDestination(level, message.value(), dest.value());
 }
 
 Word get_log_level(Word result_level_uint32_ptr) {
