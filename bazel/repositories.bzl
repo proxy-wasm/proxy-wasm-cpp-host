@@ -74,10 +74,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "88a6911bf60c44710407cc718668ce79a4a339e1310b47f306aa0f1beadc6895",
-        strip_prefix = "rules_rust-0.22.0",
+        sha256 = "e3fe2a255589d128c5e59e407ee57c832533f25ce14cc23605d368cf507ce08d",
+        strip_prefix = "rules_rust-0.24.1",
         # NOTE: Update Rust version in bazel/dependencies.bzl.
-        url = "https://github.com/bazelbuild/rules_rust/archive/0.22.0.tar.gz",
+        url = "https://github.com/bazelbuild/rules_rust/archive/0.24.1.tar.gz",
         patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
         patch_args = ["-p1"],
     )
