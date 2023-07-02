@@ -66,6 +66,18 @@ std::string BytesToHex(const std::vector<uint8_t> &bytes) {
   return result;
 }
 
+template <class T>
+void cleanupLocalCache(std::unordered_map<std::string, std::weak_ptr<T>> &cache) {
+  auto it = cache.cbegin();
+  while (it != cache.cend()) {
+    if (it->second.expired()) {
+      it = cache.erase(it);
+      continue;
+    }
+    ++it;
+  }
+}
+
 } // namespace
 
 std::string makeVmKey(std::string_view vm_id, std::string_view vm_configuration,
@@ -569,9 +581,9 @@ getOrCreateThreadLocalWasm(const std::shared_ptr<WasmHandleBase> &base_handle,
     if (wasm_handle) {
       return wasm_handle;
     }
-    // Remove stale entry.
-    local_wasms.erase(vm_key);
   }
+  // Remove stale entries.
+  cleanupLocalCache(local_wasms);
   // Create and initialize new thread-local WasmVM.
   auto wasm_handle = clone_factory(base_handle);
   if (!wasm_handle) {
@@ -606,9 +618,9 @@ std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
     if (plugin_handle) {
       return plugin_handle;
     }
-    // Remove stale entry.
-    local_plugins.erase(key);
   }
+  // Remove stale entries.
+  cleanupLocalCache(local_plugins);
   // Get thread-local WasmVM.
   auto wasm_handle = getOrCreateThreadLocalWasm(base_handle, clone_factory);
   if (!wasm_handle) {
