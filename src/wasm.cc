@@ -27,11 +27,10 @@
 #include <unordered_map>
 #include <utility>
 
-#include <openssl/sha.h>
-
 #include "include/proxy-wasm/bytecode_util.h"
 #include "include/proxy-wasm/signature_util.h"
 #include "include/proxy-wasm/vm_id_handle.h"
+#include "src/hash.h"
 
 namespace proxy_wasm {
 
@@ -44,33 +43,11 @@ thread_local std::unordered_map<std::string, std::weak_ptr<PluginHandleBase>> lo
 std::mutex base_wasms_mutex;
 std::unordered_map<std::string, std::weak_ptr<WasmHandleBase>> *base_wasms = nullptr;
 
-std::vector<uint8_t> Sha256(const std::vector<std::string_view> &parts) {
-  uint8_t sha256[SHA256_DIGEST_LENGTH];
-  SHA256_CTX sha_ctx;
-  SHA256_Init(&sha_ctx);
-  for (auto part : parts) {
-    SHA256_Update(&sha_ctx, part.data(), part.size());
-  }
-  SHA256_Final(sha256, &sha_ctx);
-  return std::vector<uint8_t>(std::begin(sha256), std::end(sha256));
-}
-
-std::string BytesToHex(const std::vector<uint8_t> &bytes) {
-  static const char *const hex = "0123456789ABCDEF";
-  std::string result;
-  result.reserve(bytes.size() * 2);
-  for (auto byte : bytes) {
-    result.push_back(hex[byte >> 4]);
-    result.push_back(hex[byte & 0xf]);
-  }
-  return result;
-}
-
 } // namespace
 
 std::string makeVmKey(std::string_view vm_id, std::string_view vm_configuration,
                       std::string_view code) {
-  return BytesToHex(Sha256({vm_id, vm_configuration, code}));
+  return Sha256String({vm_id, "||", vm_configuration, "||", code});
 }
 
 class WasmBase::ShutdownHandle {
