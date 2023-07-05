@@ -66,6 +66,8 @@ cc_library(
         "src/bytecode_util.cc",
         "src/context.cc",
         "src/exports.cc",
+        "src/hash.cc",
+        "src/hash.h",
         "src/pairs_util.cc",
         "src/shared_data.cc",
         "src/shared_data.h",
