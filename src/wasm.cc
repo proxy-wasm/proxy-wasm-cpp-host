@@ -60,7 +60,8 @@ void cacheLocalWasm(const std::string &key, const std::shared_ptr<WasmHandleBase
   local_wasms_keys.emplace(key);
 }
 
-void cacheLocalPlugin(const std::string &key, const std::shared_ptr<PluginHandleBase> &plugin_handle) {
+void cacheLocalPlugin(const std::string &key,
+                      const std::shared_ptr<PluginHandleBase> &plugin_handle) {
   local_plugins[key] = plugin_handle;
   local_plugins_keys.emplace(key);
 }
