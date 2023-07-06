@@ -55,12 +55,12 @@ const size_t max_local_cache_gc_chunk_size = 64;
 std::mutex base_wasms_mutex;
 std::unordered_map<std::string, std::weak_ptr<WasmHandleBase>> *base_wasms = nullptr;
 
-void cacheLocalWasm(const std::string &key, std::shared_ptr<WasmHandleBase> wasm_handle) {
+void cacheLocalWasm(const std::string &key, const std::shared_ptr<WasmHandleBase> &wasm_handle) {
   local_wasms[key] = wasm_handle;
   local_wasms_keys.emplace(key);
 }
 
-void cacheLocalPlugin(const std::string &key, std::shared_ptr<PluginHandleBase> plugin_handle) {
+void cacheLocalPlugin(const std::string &key, const std::shared_ptr<PluginHandleBase> &plugin_handle) {
   local_plugins[key] = plugin_handle;
   local_plugins_keys.emplace(key);
 }
