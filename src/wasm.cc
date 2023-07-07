@@ -49,7 +49,7 @@ thread_local std::queue<std::string> local_plugins_keys;
 
 // Check no more than `max_local_cache_gc_chunk_size` cache entries at a time during stale entries
 // cleanup.
-const size_t max_local_cache_gc_chunk_size = 64;
+const size_t MAX_LOCAL_CACHE_GC_CHUNK_SIZE = 64;
 
 // Map from Wasm Key to the base Wasm instance, using a pointer to avoid the initialization fiasco.
 std::mutex base_wasms_mutex;
@@ -69,11 +69,7 @@ void cacheLocalPlugin(const std::string &key,
 template <class T>
 void removeStaleLocalCacheEntries(std::unordered_map<std::string, std::weak_ptr<T>> &cache,
                                   std::queue<std::string> &keys) {
-  auto num_keys_to_check = max_local_cache_gc_chunk_size;
-  if (num_keys_to_check > keys.size()) {
-    num_keys_to_check = keys.size();
-  }
-
+  auto num_keys_to_check = std::min(MAX_LOCAL_CACHE_GC_CHUNK_SIZE, keys.size());
   for (size_t i = 0; i < num_keys_to_check; i++) {
     std::string key(keys.front());
     keys.pop();
