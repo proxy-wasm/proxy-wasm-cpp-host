@@ -569,15 +569,14 @@ std::shared_ptr<WasmHandleBase> createWasm(const std::string &vm_key, const std:
 
 std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_key) {
   auto it = local_wasms.find(std::string(vm_key));
-  if (it == local_wasms.end()) {
-    removeStaleLocalCacheEntries(local_wasms, local_wasms_keys);
-    return nullptr;
+  if (it != local_wasms.end()) {
+    auto wasm = it->second.lock();
+    if (wasm) {
+      return wasm;
+    }
   }
-  auto wasm = it->second.lock();
-  if (!wasm) {
-    local_wasms.erase(std::string(vm_key));
-  }
-  return wasm;
+  removeStaleLocalCacheEntries(local_wasms, local_wasms_keys);
+  return nullptr;
 }
 
 static std::shared_ptr<WasmHandleBase>
