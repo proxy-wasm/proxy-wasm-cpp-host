@@ -47,7 +47,7 @@ thread_local std::unordered_map<std::string, std::weak_ptr<PluginHandleBase>> lo
 // Plugin key queue to track stale entries in `local_plugins`.
 thread_local std::queue<std::string> local_plugins_keys;
 
-// Check no more than `max_local_cache_gc_chunk_size` cache entries at a time during stale entries
+// Check no more than `MAX_LOCAL_CACHE_GC_CHUNK_SIZE` cache entries at a time during stale entries
 // cleanup.
 const size_t MAX_LOCAL_CACHE_GC_CHUNK_SIZE = 64;
 
