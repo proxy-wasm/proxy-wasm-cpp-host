@@ -574,6 +574,7 @@ std::shared_ptr<WasmHandleBase> getThreadLocalWasm(std::string_view vm_key) {
     if (wasm) {
       return wasm;
     }
+    local_wasms.erase(it);
   }
   removeStaleLocalCacheEntries(local_wasms, local_wasms_keys);
   return nullptr;
@@ -590,6 +591,7 @@ getOrCreateThreadLocalWasm(const std::shared_ptr<WasmHandleBase> &base_handle,
     if (wasm_handle) {
       return wasm_handle;
     }
+    local_wasms.erase(it);
   }
   removeStaleLocalCacheEntries(local_wasms, local_wasms_keys);
   // Create and initialize new thread-local WasmVM.
@@ -626,6 +628,7 @@ std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
     if (plugin_handle) {
       return plugin_handle;
     }
+    local_plugins.erase(it);
   }
   removeStaleLocalCacheEntries(local_plugins, local_plugins_keys);
   // Get thread-local WasmVM.
