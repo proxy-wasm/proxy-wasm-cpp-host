@@ -20,6 +20,8 @@
 
 #include "test/utility.h"
 
+#include "src/wasm.h"
+
 namespace proxy_wasm {
 
 INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()),
@@ -240,6 +242,86 @@ TEST_P(TestVm, AlwaysApplyCanary) {
       }
     }
   }
+}
+
+// Check that there are no stale thread-local cache keys (eventually)
+TEST_P(TestVm, CleanupThreadLocalCacheKeys) {
+  const auto *const plugin_name = "plugin_name";
+  const auto *const root_id = "root_id";
+  const auto *const vm_id = "vm_id";
+  const auto *const vm_config = "vm_config";
+  const auto *const plugin_config = "plugin_config";
+  const auto fail_open = false;
+
+  WasmHandleFactory wasm_handle_factory =
+      [this, vm_id, vm_config](std::string_view vm_key) -> std::shared_ptr<WasmHandleBase> {
+    auto base_wasm = std::make_shared<WasmBase>(makeVm(engine_), vm_id, vm_config, vm_key,
+                                                std::unordered_map<std::string, std::string>{},
+                                                AllowedCapabilitiesMap{});
+    return std::make_shared<WasmHandleBase>(base_wasm);
+  };
+
+  WasmHandleCloneFactory wasm_handle_clone_factory =
+      [this](const std::shared_ptr<WasmHandleBase> &base_wasm_handle)
+      -> std::shared_ptr<WasmHandleBase> {
+    auto wasm = std::make_shared<WasmBase>(
+        base_wasm_handle, [this]() -> std::unique_ptr<WasmVm> { return makeVm(engine_); });
+    return std::make_shared<WasmHandleBase>(wasm);
+  };
+
+  PluginHandleFactory plugin_handle_factory =
+      [](const std::shared_ptr<WasmHandleBase> &base_wasm,
+         const std::shared_ptr<PluginBase> &plugin) -> std::shared_ptr<PluginHandleBase> {
+    return std::make_shared<PluginHandleBase>(base_wasm, plugin);
+  };
+
+  // Read the minimal loadable binary.
+  auto source = readTestWasmFile("abi_export.wasm");
+
+  // Simulate a plugin lifetime.
+  const auto plugin1 = std::make_shared<PluginBase>(plugin_name, root_id, vm_id, engine_,
+                                                    plugin_config, fail_open, "plugin_1");
+  auto base_wasm_handle1 =
+      createWasm("vm_1", source, plugin1, wasm_handle_factory, wasm_handle_clone_factory, false);
+  ASSERT_TRUE(base_wasm_handle1 && base_wasm_handle1->wasm());
+
+  auto local_plugin1 = getOrCreateThreadLocalPlugin(
+      base_wasm_handle1, plugin1, wasm_handle_clone_factory, plugin_handle_factory);
+  ASSERT_TRUE(local_plugin1 && local_plugin1->plugin());
+  local_plugin1.reset();
+
+  auto stale_plugins_keys = internal::testing::staleLocalPluginsKeys();
+  ASSERT_EQ(1, stale_plugins_keys.size());
+
+  // Now we create another plugin with a slightly different key and expect that there are no stale
+  // thread-local cache entries.
+  const auto plugin2 = std::make_shared<PluginBase>(plugin_name, root_id, vm_id, engine_,
+                                                    plugin_config, fail_open, "plugin_2");
+  auto local_plugin2 = getOrCreateThreadLocalPlugin(
+      base_wasm_handle1, plugin2, wasm_handle_clone_factory, plugin_handle_factory);
+  ASSERT_TRUE(local_plugin2 && local_plugin2->plugin());
+
+  stale_plugins_keys = internal::testing::staleLocalPluginsKeys();
+  ASSERT_TRUE(stale_plugins_keys.empty());
+
+  // Same with VM thread-local cache. Trigger `base_wasm_handle1` invalidation by freeing objects
+  // referencing it.
+  local_plugin2.reset();
+
+  auto stale_wasms_keys = internal::testing::staleLocalWasmsKeys();
+  ASSERT_EQ(1, stale_wasms_keys.size());
+
+  // Create another base WASM handle and invoke WASM thread-local cache key cleanup.
+  auto base_wasm_handle2 =
+      createWasm("vm_2", source, plugin2, wasm_handle_factory, wasm_handle_clone_factory, false);
+  ASSERT_TRUE(base_wasm_handle2 && base_wasm_handle2->wasm());
+
+  auto local_plugin3 = getOrCreateThreadLocalPlugin(
+      base_wasm_handle2, plugin2, wasm_handle_clone_factory, plugin_handle_factory);
+  ASSERT_TRUE(local_plugin3 && local_plugin3->plugin());
+
+  stale_wasms_keys = internal::testing::staleLocalWasmsKeys();
+  ASSERT_TRUE(stale_wasms_keys.empty());
 }
 
 } // namespace proxy_wasm
