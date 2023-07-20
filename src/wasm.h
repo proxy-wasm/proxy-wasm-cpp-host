@@ -17,9 +17,9 @@
 #include <string>
 #include <vector>
 
-namespace proxy_wasm::internal::testing {
+namespace proxy_wasm {
 
-std::vector<std::string> staleLocalWasmsKeys();
-std::vector<std::string> staleLocalPluginsKeys();
+std::vector<std::string> staleLocalWasmsKeysForTesting();
+std::vector<std::string> staleLocalPluginsKeysForTesting();
 
-} // namespace proxy_wasm::internal::testing
+} // namespace proxy_wasm

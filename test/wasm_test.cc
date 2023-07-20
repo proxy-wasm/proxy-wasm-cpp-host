@@ -290,7 +290,7 @@ TEST_P(TestVm, CleanupThreadLocalCacheKeys) {
   ASSERT_TRUE(local_plugin1 && local_plugin1->plugin());
   local_plugin1.reset();
 
-  auto stale_plugins_keys = internal::testing::staleLocalPluginsKeys();
+  auto stale_plugins_keys = staleLocalPluginsKeysForTesting();
   EXPECT_EQ(1, stale_plugins_keys.size());
 
   // Now we create another plugin with a slightly different key and expect that there are no stale
@@ -301,14 +301,14 @@ TEST_P(TestVm, CleanupThreadLocalCacheKeys) {
       base_wasm_handle1, plugin2, wasm_handle_clone_factory, plugin_handle_factory);
   ASSERT_TRUE(local_plugin2 && local_plugin2->plugin());
 
-  stale_plugins_keys = internal::testing::staleLocalPluginsKeys();
+  stale_plugins_keys = staleLocalPluginsKeysForTesting();
   EXPECT_TRUE(stale_plugins_keys.empty());
 
   // Trigger deletion of the thread-local WasmVM cloned from base_wasm_handle1 by freeing objects
   // referencing it.
   local_plugin2.reset();
 
-  auto stale_wasms_keys = internal::testing::staleLocalWasmsKeys();
+  auto stale_wasms_keys = staleLocalWasmsKeysForTesting();
   EXPECT_EQ(1, stale_wasms_keys.size());
 
   // Create another base WASM handle and invoke WASM thread-local cache key cleanup.
@@ -320,7 +320,7 @@ TEST_P(TestVm, CleanupThreadLocalCacheKeys) {
       base_wasm_handle2, plugin2, wasm_handle_clone_factory, plugin_handle_factory);
   ASSERT_TRUE(local_plugin3 && local_plugin3->plugin());
 
-  stale_wasms_keys = internal::testing::staleLocalWasmsKeys();
+  stale_wasms_keys = staleLocalWasmsKeysForTesting();
   EXPECT_TRUE(stale_wasms_keys.empty());
 }
 
