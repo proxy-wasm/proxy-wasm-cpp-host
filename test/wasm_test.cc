@@ -304,7 +304,7 @@ TEST_P(TestVm, CleanupThreadLocalCacheKeys) {
   stale_plugins_keys = internal::testing::staleLocalPluginsKeys();
   EXPECT_TRUE(stale_plugins_keys.empty());
 
-  // Same with VM thread-local cache. Trigger `base_wasm_handle1` invalidation by freeing objects
+  // Trigger deletion of the thread-local WasmVM cloned from base_wasm_handle1 by freeing objects
   // referencing it.
   local_plugin2.reset();
 
