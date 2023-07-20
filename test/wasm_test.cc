@@ -291,7 +291,7 @@ TEST_P(TestVm, CleanupThreadLocalCacheKeys) {
   local_plugin1.reset();
 
   auto stale_plugins_keys = internal::testing::staleLocalPluginsKeys();
-  ASSERT_EQ(1, stale_plugins_keys.size());
+  EXPECT_EQ(1, stale_plugins_keys.size());
 
   // Now we create another plugin with a slightly different key and expect that there are no stale
   // thread-local cache entries.
@@ -302,14 +302,14 @@ TEST_P(TestVm, CleanupThreadLocalCacheKeys) {
   ASSERT_TRUE(local_plugin2 && local_plugin2->plugin());
 
   stale_plugins_keys = internal::testing::staleLocalPluginsKeys();
-  ASSERT_TRUE(stale_plugins_keys.empty());
+  EXPECT_TRUE(stale_plugins_keys.empty());
 
   // Same with VM thread-local cache. Trigger `base_wasm_handle1` invalidation by freeing objects
   // referencing it.
   local_plugin2.reset();
 
   auto stale_wasms_keys = internal::testing::staleLocalWasmsKeys();
-  ASSERT_EQ(1, stale_wasms_keys.size());
+  EXPECT_EQ(1, stale_wasms_keys.size());
 
   // Create another base WASM handle and invoke WASM thread-local cache key cleanup.
   auto base_wasm_handle2 =
@@ -321,7 +321,7 @@ TEST_P(TestVm, CleanupThreadLocalCacheKeys) {
   ASSERT_TRUE(local_plugin3 && local_plugin3->plugin());
 
   stale_wasms_keys = internal::testing::staleLocalWasmsKeys();
-  ASSERT_TRUE(stale_wasms_keys.empty());
+  EXPECT_TRUE(stale_wasms_keys.empty());
 }
 
 } // namespace proxy_wasm
