@@ -670,4 +670,24 @@ void clearWasmCachesForTesting() {
   }
 }
 
+std::vector<std::string> staleLocalPluginsKeysForTesting() {
+  std::vector<std::string> keys;
+  for (const auto &kv : local_plugins) {
+    if (kv.second.expired()) {
+      keys.push_back(kv.first);
+    }
+  }
+  return keys;
+}
+
+std::vector<std::string> staleLocalWasmsKeysForTesting() {
+  std::vector<std::string> keys;
+  for (const auto &kv : local_wasms) {
+    if (kv.second.expired()) {
+      keys.push_back(kv.first);
+    }
+  }
+  return keys;
+}
+
 } // namespace proxy_wasm

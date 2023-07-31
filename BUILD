@@ -76,6 +76,7 @@ cc_library(
         "src/signature_util.cc",
         "src/vm_id_handle.cc",
         "src/wasm.cc",
+        "src/wasm.h",
     ],
     hdrs = [
         "include/proxy-wasm/bytecode_util.h",
