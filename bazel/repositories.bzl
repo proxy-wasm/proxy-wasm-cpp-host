@@ -97,9 +97,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "proxy_wasm_cpp_sdk",
-        sha256 = "db00ef59d8024d0db74a269ece76d8106c1e9afc1abed237aea8366a8db2983e",
-        strip_prefix = "proxy-wasm-cpp-sdk-6efffe99a90d764b063b9fa8213d2c34ae69a7da",
-        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/6efffe99a90d764b063b9fa8213d2c34ae69a7da.tar.gz"],
+        sha256 = "04ae5e2bad2c4b281f9874515ddf9d060529f0be3a30911b4c7c7bd73d65ce68",
+        strip_prefix = "proxy-wasm-cpp-sdk-2679d4bddaede88ca48e4cf9f1bdf884adb18bcd",
+        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/2679d4bddaede88ca48e4cf9f1bdf884adb18bcd.tar.gz"],
     )
 
     # Test dependencies.
