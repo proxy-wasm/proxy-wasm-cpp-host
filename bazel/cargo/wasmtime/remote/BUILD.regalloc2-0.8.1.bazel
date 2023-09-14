@@ -54,9 +54,9 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@wasmtime__hashbrown__0_13_2//:hashbrown",
-        "@wasmtime__log__0_4_18//:log",
+        "@wasmtime__log__0_4_20//:log",
         "@wasmtime__rustc_hash__1_1_0//:rustc_hash",
         "@wasmtime__slice_group_by__0_3_1//:slice_group_by",
-        "@wasmtime__smallvec__1_10_0//:smallvec",
+        "@wasmtime__smallvec__1_11_0//:smallvec",
     ],
 )

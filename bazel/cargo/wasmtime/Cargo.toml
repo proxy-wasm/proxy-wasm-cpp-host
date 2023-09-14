@@ -11,7 +11,7 @@ path = "fake_lib.rs"
 env_logger = "0.10"
 anyhow = "1.0"
 once_cell = "1.12"
-wasmtime = {version = "9.0.3", default-features = false, features = ['cranelift']}
+wasmtime = {version = "9.0.3", features = ['cranelift']}
 wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v9.0.3"}
 
 [package.metadata.raze]
@@ -38,5 +38,5 @@ additional_flags = [
     "--cfg=feature=\\\"cc\\\"",
 ]
 buildrs_additional_deps = [
-    "@wasmtime__cc__1_0_79//:cc",
+    "@wasmtime__cc__1_0_83//:cc",
 ]

@@ -52,7 +52,7 @@ rust_library(
     version = "0.6.3",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__rustix__0_37_19//:rustix",
+        "@wasmtime__rustix__0_37_23//:rustix",
     ],
 )
 

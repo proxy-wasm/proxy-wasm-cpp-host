@@ -1,0 +1,57 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_proc_macro",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//bazel/cargo/wasmtime", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # BSD-3-Clause from expression "GPL-2.0 OR BSD-3-Clause"
+])
+
+# Generated Targets
+
+rust_library(
+    name = "ittapi",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+    ],
+    crate_root = "src/lib.rs",
+    data = [],
+    edition = "2021",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "crate-name=ittapi",
+        "manual",
+    ],
+    version = "0.3.4",
+    # buildifier: leave-alone
+    deps = [
+        "@wasmtime__anyhow__1_0_75//:anyhow",
+        "@wasmtime__ittapi_sys__0_3_4//:ittapi_sys",
+        "@wasmtime__log__0_4_20//:log",
+    ],
+)
