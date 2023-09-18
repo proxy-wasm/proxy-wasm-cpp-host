@@ -126,10 +126,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         git_repository,
         name = "v8",
-        # 10.7.193.13
-        commit = "6c8b357a84847a479cd329478522feefc1c3195a",
+        # 11.7.439.17
+        commit = "934b99feafeaaafca2d9e587d586afc8687dea80",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1664374400 +0000",
+        shallow_since = "1694622353 +0000",
         patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
         patch_args = ["-p1"],
     )
@@ -143,9 +143,9 @@ def proxy_wasm_cpp_host_repositories():
         new_git_repository,
         name = "com_googlesource_chromium_base_trace_event_common",
         build_file = "@v8//:bazel/BUILD.trace_event_common",
-        commit = "521ac34ebd795939c7e16b37d9d3ddb40e8ed556",
+        commit = "147f65333c38ddd1ebf554e89965c243c8ce50b3",
         remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
-        shallow_since = "1662508800 +0000",
+        shallow_since = "1676317690 +0000",
     )
 
     native.bind(
