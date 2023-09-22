@@ -14,7 +14,7 @@ licenses([
 # Aliased targets
 alias(
     name = "anyhow",
-    actual = "@wasmtime__anyhow__1_0_71//:anyhow",
+    actual = "@wasmtime__anyhow__1_0_75//:anyhow",
     tags = [
         "cargo-raze",
         "manual",
@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "once_cell",
-    actual = "@wasmtime__once_cell__1_17_2//:once_cell",
+    actual = "@wasmtime__once_cell__1_18_0//:once_cell",
     tags = [
         "cargo-raze",
         "manual",
@@ -41,7 +41,7 @@ alias(
 
 alias(
     name = "wasmtime",
-    actual = "@wasmtime__wasmtime__9_0_3//:wasmtime",
+    actual = "@wasmtime__wasmtime__13_0_0//:wasmtime",
     tags = [
         "cargo-raze",
         "manual",
