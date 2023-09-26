@@ -152,14 +152,14 @@ public:
               const std::shared_ptr<PluginHandleBase> &plugin_handle); // Stream context.
   virtual ~ContextBase();
 
-  WasmBase *wasm() const { return wasm_; }
+  virtual WasmBase *wasm() const { return wasm_; }
   uint32_t id() const { return id_; }
   // The VM Context used for calling "malloc" has an id_ == 0.
   bool isVmContext() const { return id_ == 0; }
   // Root Contexts have the VM Context as a parent.
   bool isRootContext() const { return parent_context_id_ == 0; }
-  ContextBase *parent_context() const { return parent_context_; }
-  ContextBase *root_context() const {
+  virtual ContextBase *parent_context() const { return parent_context_; }
+  virtual ContextBase *root_context() const {
     const ContextBase *previous = this;
     ContextBase *parent = parent_context_;
     while (parent != previous) {
@@ -172,7 +172,7 @@ public:
   std::string_view log_prefix() const {
     return isRootContext() ? root_log_prefix_ : plugin_->log_prefix();
   }
-  WasmVm *wasmVm() const;
+  virtual WasmVm *wasmVm() const;
 
   // Called before deleting the context.
   virtual void destroy();

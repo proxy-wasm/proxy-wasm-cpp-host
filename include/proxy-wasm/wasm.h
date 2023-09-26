@@ -55,18 +55,18 @@ public:
   WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory);
   virtual ~WasmBase();
 
-  bool load(const std::string &code, bool allow_precompiled = false);
-  bool initialize();
-  void startVm(ContextBase *root_context);
-  bool configure(ContextBase *root_context, std::shared_ptr<PluginBase> plugin);
+  virtual bool load(const std::string &code, bool allow_precompiled = false);
+  virtual bool initialize();
+  virtual void startVm(ContextBase *root_context);
+  virtual bool configure(ContextBase *root_context, std::shared_ptr<PluginBase> plugin);
   // Returns the root ContextBase or nullptr if onStart returns false.
-  ContextBase *start(const std::shared_ptr<PluginBase> &plugin);
+  virtual ContextBase *start(const std::shared_ptr<PluginBase> &plugin);
 
   std::string_view vm_id() const { return vm_id_; }
   std::string_view vm_key() const { return vm_key_; }
   WasmVm *wasm_vm() const { return wasm_vm_.get(); }
-  ContextBase *vm_context() const { return vm_context_.get(); }
-  ContextBase *getRootContext(const std::shared_ptr<PluginBase> &plugin, bool allow_closed);
+  virtual ContextBase *vm_context() const { return vm_context_.get(); }
+  virtual ContextBase *getRootContext(const std::shared_ptr<PluginBase> &plugin, bool allow_closed);
   ContextBase *getContext(uint32_t id) {
     auto it = contexts_.find(id);
     if (it != contexts_.end())
@@ -322,13 +322,13 @@ using WasmHandleCloneFactory =
 class WasmHandleBase : public std::enable_shared_from_this<WasmHandleBase> {
 public:
   explicit WasmHandleBase(std::shared_ptr<WasmBase> wasm_base) : wasm_base_(wasm_base) {}
-  ~WasmHandleBase() {
+  virtual ~WasmHandleBase() {
     if (wasm_base_) {
       wasm_base_->startShutdown();
     }
   }
 
-  bool canary(const std::shared_ptr<PluginBase> &plugin,
+  virtual bool canary(const std::shared_ptr<PluginBase> &plugin,
               const WasmHandleCloneFactory &clone_factory);
 
   void kill() { wasm_base_ = nullptr; }
@@ -357,7 +357,7 @@ public:
   explicit PluginHandleBase(std::shared_ptr<WasmHandleBase> wasm_handle,
                             std::shared_ptr<PluginBase> plugin)
       : plugin_(plugin), wasm_handle_(wasm_handle) {}
-  ~PluginHandleBase() {
+  virtual ~PluginHandleBase() {
     if (wasm_handle_) {
       wasm_handle_->wasm()->startShutdown(plugin_->key());
     }
