@@ -317,14 +317,21 @@ template <typename P> static uint32_t headerSize(const P &p) { return p ? p->siz
 
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_stream) {
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
-  if (!wasm_->on_request_headers_abi_01_ && !wasm_->on_request_headers_abi_02_) {
+  if (!wasm_->on_request_headers_abi_01_ && !wasm_->on_request_headers_abi_02_ &&
+      !wasm_->on_request_headers_abi_03_) {
     return FilterHeadersStatus::Continue;
   }
   DeferAfterCallActions actions(this);
-  const auto result = wasm_->on_request_headers_abi_01_
-                          ? wasm_->on_request_headers_abi_01_(this, id_, headers)
-                          : wasm_->on_request_headers_abi_02_(this, id_, headers,
-                                                              static_cast<uint32_t>(end_of_stream));
+  uint64_t result;
+  if (wasm_->on_request_headers_abi_01_) {
+    result = wasm_->on_request_headers_abi_01_(this, id_, headers);
+  } else if (wasm_->on_request_headers_abi_02_) {
+    result =
+        wasm_->on_request_headers_abi_02_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
+  } else if (wasm_->on_request_headers_abi_03_) {
+    result =
+        wasm_->on_request_headers_abi_03_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
+  }
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
   return convertVmCallResultToFilterHeadersStatus(result);
 }
@@ -493,7 +500,8 @@ FilterHeadersStatus ContextBase::convertVmCallResultToFilterHeadersStatus(uint64
       result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark)) {
     return FilterHeadersStatus::StopAllIterationAndWatermark;
   }
-  if (result == static_cast<uint64_t>(FilterHeadersStatus::StopIteration)) {
+  if ((wasm_->on_request_headers_abi_01_ || wasm_->on_request_headers_abi_02_) &&
+      result == static_cast<uint64_t>(FilterHeadersStatus::StopIteration)) {
     // Always convert StopIteration (pause processing headers, but continue processing body)
     // to StopAllIterationAndWatermark (pause all processing), since the former breaks all
     // assumptions about HTTP processing.

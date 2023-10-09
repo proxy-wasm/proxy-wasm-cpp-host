@@ -200,6 +200,8 @@ void WasmBase::getFunctions() {
     _GET_PROXY_ABI(on_request_headers, _abi_02);
     _GET_PROXY_ABI(on_response_headers, _abi_02);
     _GET_PROXY(on_foreign_function);
+  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_100) {
+    _GET_PROXY_ABI(on_request_headers, _abi_03);
   }
 #undef _GET_PROXY_ABI
 #undef _GET_PROXY
