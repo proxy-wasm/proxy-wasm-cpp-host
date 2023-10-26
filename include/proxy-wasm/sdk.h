@@ -24,31 +24,27 @@ namespace internal {
 
 // isolate those includes to prevent ::proxy_wasm namespace pollution with std
 // namespace definitions.
-namespace proxy_wasm {
-
 #include "proxy_wasm_common.h"
 #include "proxy_wasm_enums.h"
-
-} // namespace proxy_wasm
 
 } // namespace internal
 
 // proxy_wasm_common.h
-using WasmResult = internal::proxy_wasm::WasmResult;
-using WasmHeaderMapType = internal::proxy_wasm::WasmHeaderMapType;
-using WasmBufferType = internal::proxy_wasm::WasmBufferType;
-using WasmBufferFlags = internal::proxy_wasm::WasmBufferFlags;
-using WasmStreamType = internal::proxy_wasm::WasmStreamType;
+using WasmResult = internal::WasmResult;
+using WasmHeaderMapType = internal::WasmHeaderMapType;
+using WasmBufferType = internal::WasmBufferType;
+using WasmBufferFlags = internal::WasmBufferFlags;
+using WasmStreamType = internal::WasmStreamType;
 
 // proxy_wasm_enums.h
-using LogLevel = internal::proxy_wasm::LogLevel;
-using FilterStatus = internal::proxy_wasm::FilterStatus;
-using FilterHeadersStatus = internal::proxy_wasm::FilterHeadersStatus;
-using FilterMetadataStatus = internal::proxy_wasm::FilterMetadataStatus;
-using FilterTrailersStatus = internal::proxy_wasm::FilterTrailersStatus;
-using FilterDataStatus = internal::proxy_wasm::FilterDataStatus;
-using GrpcStatus = internal::proxy_wasm::GrpcStatus;
-using MetricType = internal::proxy_wasm::MetricType;
-using CloseType = internal::proxy_wasm::CloseType;
+using LogLevel = internal::LogLevel;
+using FilterStatus = internal::FilterStatus;
+using FilterHeadersStatus = internal::FilterHeadersStatus;
+using FilterMetadataStatus = internal::FilterMetadataStatus;
+using FilterTrailersStatus = internal::FilterTrailersStatus;
+using FilterDataStatus = internal::FilterDataStatus;
+using GrpcStatus = internal::GrpcStatus;
+using MetricType = internal::MetricType;
+using CloseType = internal::CloseType;
 
 } // namespace proxy_wasm
