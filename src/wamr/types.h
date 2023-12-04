@@ -18,6 +18,7 @@
 namespace proxy_wasm::wamr {
 
 using WasmEnginePtr = common::CSmartPtr<wasm_engine_t, wasm_engine_delete>;
+using WasmConfigPtr = common::CSmartPtr<wasm_config_t, wasm_config_delete>;
 using WasmFuncPtr = common::CSmartPtr<wasm_func_t, wasm_func_delete>;
 using WasmStorePtr = common::CSmartPtr<wasm_store_t, wasm_store_delete>;
 using WasmModulePtr = common::CSmartPtr<wasm_module_t, wasm_module_delete>;
