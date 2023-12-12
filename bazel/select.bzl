@@ -19,6 +19,13 @@ def proxy_wasm_select_engine_null(xs):
         "//conditions:default": [],
     })
 
+def proxy_wasm_select_engine_dyn(xs):
+    return select({
+        "@proxy_wasm_cpp_host//bazel:engine_dyn": xs,
+        "@proxy_wasm_cpp_host//bazel:multiengine": xs,
+        "//conditions:default": [],
+    })
+
 def proxy_wasm_select_engine_v8(xs):
     return select({
         "@proxy_wasm_cpp_host//bazel:engine_v8": xs,

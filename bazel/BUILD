@@ -22,6 +22,11 @@ config_setting(
 )
 
 config_setting(
+    name = "engine_dyn",
+    values = {"define": "engine=dyn"},
+)
+
+config_setting(
     name = "engine_v8",
     values = {"define": "engine=v8"},
 )
