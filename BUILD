@@ -15,6 +15,7 @@
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load(
     "@proxy_wasm_cpp_host//bazel:select.bzl",
+    "proxy_wasm_select_engine_dyn",
     "proxy_wasm_select_engine_null",
     "proxy_wasm_select_engine_v8",
     "proxy_wasm_select_engine_wamr",
@@ -120,6 +121,31 @@ cc_library(
         "@com_google_protobuf//:protobuf_lite",
         "@proxy_wasm_cpp_sdk//:api_lib",
     ],
+)
+
+cc_library(
+    name = "dyn_lib",
+    srcs = [
+        "src/dyn/dyn.cc",
+        "src/dyn/dyn_ffi.cc",
+        "src/dyn/dyn_vm.cc",
+        "src/dyn/dyn_vm_plugin.cc",
+    ],
+    hdrs = [
+        "include/proxy-wasm/dyn_vm.h",
+        "include/proxy-wasm/dyn_vm_plugin.h",
+        "include/proxy-wasm/wasm_api_impl.h",
+    ],
+    defines = [
+        "PROXY_WASM_HAS_RUNTIME_DYN",
+        "PROXY_WASM_HOST_ENGINE_DYN",
+    ],
+    deps = [
+        ":headers",
+        "@com_google_protobuf//:protobuf_lite",
+        "@proxy_wasm_cpp_sdk//:api_lib",
+    ],
+    alwayslink = 1,
 )
 
 cc_library(
@@ -315,6 +341,8 @@ cc_library(
         ":base_lib",
     ] + proxy_wasm_select_engine_null(
         [":null_lib"],
+    ) + proxy_wasm_select_engine_dyn(
+        [":dyn_lib"],
     ) + proxy_wasm_select_engine_v8(
         [":v8_lib"],
     ) + proxy_wasm_select_engine_wamr(

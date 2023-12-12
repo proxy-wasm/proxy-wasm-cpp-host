@@ -149,6 +149,10 @@ Word wasi_unstable_random_get(Word, Word);
 Word pthread_equal(Word left, Word right);
 void emscripten_notify_memory_growth(Word);
 
+Word set_effective_context(Word context_id);
+void setLimitedEffectiveContext(ContextBase *context);
+ContextBase *getBaseContext();
+
 // Support for embedders, not exported to Wasm.
 
 #define FOR_ALL_HOST_FUNCTIONS(_f)                                                                 \
