@@ -38,6 +38,7 @@ cc_library(
     name = "wasm_vm_headers",
     hdrs = [
         "include/proxy-wasm/limits.h",
+        "include/proxy-wasm/sdk.h",
         "include/proxy-wasm/wasm_vm.h",
         "include/proxy-wasm/word.h",
     ],
