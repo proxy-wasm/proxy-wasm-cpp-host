@@ -14,6 +14,7 @@
 
 #include "include/proxy-wasm/pairs_util.h"
 
+#include <cstdint>
 #include <cstring>
 
 namespace proxy_wasm {
