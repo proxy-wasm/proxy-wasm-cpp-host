@@ -3,10 +3,16 @@ build --action_env=CC
 build --action_env=CXX
 build --action_env=PATH
 
-# Use Clang compiler.
+# Use Clang compiler with libc++.
 build:clang --action_env=BAZEL_COMPILER=clang
 build:clang --action_env=CC=clang
 build:clang --action_env=CXX=clang++
+build:clang --action_env=CXXFLAGS=-stdlib=libc++
+build:clang --action_env=LDFLAGS=-stdlib=libc++
+build:clang --action_env=BAZEL_CXXOPTS=-stdlib=libc++
+build:clang --action_env=BAZEL_LINKLIBS=-l%:libc++.a:-l%:libc++abi.a
+build:clang --action_env=BAZEL_LINKOPTS=-lm:-pthread
+build:clang --define force_libcpp=enabled
 
 # Common flags for Clang sanitizers.
 build:clang-xsan --config=clang
