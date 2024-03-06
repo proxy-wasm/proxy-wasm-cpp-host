@@ -69,6 +69,6 @@ rust_library(
     version = "0.48.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__windows_targets__0_48_0//:windows_targets",
+        "@wasmtime__windows_targets__0_48_5//:windows_targets",
     ],
 )
