@@ -55,7 +55,7 @@ rust_library(
     # buildifier: leave-alone
     deps = [
         "@wasmtime__indexmap__1_9_3//:indexmap",
-        "@wasmtime__url__2_3_1//:url",
+        "@wasmtime__url__2_5_0//:url",
     ],
 )
 

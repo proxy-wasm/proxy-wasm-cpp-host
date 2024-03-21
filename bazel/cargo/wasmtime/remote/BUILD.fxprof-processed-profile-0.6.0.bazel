@@ -50,11 +50,11 @@ rust_library(
     version = "0.6.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__bitflags__2_3_1//:bitflags",
+        "@wasmtime__bitflags__2_5_0//:bitflags",
         "@wasmtime__debugid__0_8_0//:debugid",
         "@wasmtime__fxhash__0_2_1//:fxhash",
-        "@wasmtime__serde__1_0_163//:serde",
-        "@wasmtime__serde_json__1_0_96//:serde_json",
+        "@wasmtime__serde__1_0_197//:serde",
+        "@wasmtime__serde_json__1_0_114//:serde_json",
     ],
 )
 

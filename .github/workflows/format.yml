@@ -87,7 +87,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install dependencies
-      run: cargo install cargo-raze --version 0.14.1
+      run: cargo install cargo-raze --version 0.16.1
 
     - name: Format (bazel query)
       run: |

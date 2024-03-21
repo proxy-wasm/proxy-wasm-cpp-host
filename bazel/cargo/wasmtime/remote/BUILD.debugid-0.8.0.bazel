@@ -50,7 +50,7 @@ rust_library(
     version = "0.8.0",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__uuid__1_3_3//:uuid",
+        "@wasmtime__uuid__1_8_0//:uuid",
     ],
 )
 

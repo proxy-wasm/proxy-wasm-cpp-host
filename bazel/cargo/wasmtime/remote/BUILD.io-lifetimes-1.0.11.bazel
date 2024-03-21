@@ -44,7 +44,6 @@ cargo_build_script(
     },
     crate_features = [
         "close",
-        "default",
         "hermit-abi",
         "libc",
         "windows-sys",
@@ -105,7 +104,6 @@ rust_library(
     },
     crate_features = [
         "close",
-        "default",
         "hermit-abi",
         "libc",
         "windows-sys",
@@ -147,7 +145,7 @@ rust_library(
             "@rules_rust//rust/platform:x86_64-linux-android",
             "@rules_rust//rust/platform:x86_64-unknown-freebsd",
         ): [
-            "@wasmtime__libc__0_2_144//:libc",
+            "@wasmtime__libc__0_2_153//:libc",
         ],
         "//conditions:default": [],
     }) + selects.with_or({
