@@ -58,7 +58,7 @@ rust_library(
     version = "0.13.2",
     # buildifier: leave-alone
     deps = [
-        "@wasmtime__ahash__0_8_3//:ahash",
+        "@wasmtime__ahash__0_8_11//:ahash",
     ],
 )
 

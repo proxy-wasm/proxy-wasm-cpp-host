@@ -4,6 +4,10 @@ load("@proxy_wasm_cpp_host//bazel:repositories.bzl", "proxy_wasm_cpp_host_reposi
 
 proxy_wasm_cpp_host_repositories()
 
+load("@proxy_wasm_cpp_host//bazel:python.bzl", "proxy_wasm_cpp_host_python")
+
+proxy_wasm_cpp_host_python()
+
 load("@proxy_wasm_cpp_host//bazel:dependencies.bzl", "proxy_wasm_cpp_host_dependencies")
 
 proxy_wasm_cpp_host_dependencies()

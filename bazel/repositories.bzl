@@ -58,26 +58,26 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_fuzzing",
-        sha256 = "23bb074064c6f488d12044934ab1b0631e8e6898d5cf2f6bde087adb01111573",
-        strip_prefix = "rules_fuzzing-0.3.1",
-        url = "https://github.com/bazelbuild/rules_fuzzing/archive/v0.3.1.zip",
+        sha256 = "6a3bd3c701d8d5fa0f28db229d2d1a3fc6f274c006e10ceb89d8dcb529e1959d",
+        strip_prefix = "rules_fuzzing-1dbcd9167300ad226d29972f5f9c925d6d81f441",
+        url = "https://github.com/bazelbuild/rules_fuzzing/archive/1dbcd9167300ad226d29972f5f9c925d6d81f441.zip",
     )
 
     maybe(
         http_archive,
         name = "rules_python",
-        sha256 = "a30abdfc7126d497a7698c29c46ea9901c6392d6ed315171a6df5ce433aa4502",
-        strip_prefix = "rules_python-0.6.0",
-        url = "https://github.com/bazelbuild/rules_python/archive/0.6.0.tar.gz",
+        sha256 = "c68bdc4fbec25de5b5493b8819cfc877c4ea299c0dcb15c244c5a00208cde311",
+        strip_prefix = "rules_python-0.31.0",
+        url = "https://github.com/bazelbuild/rules_python/archive/0.31.0.tar.gz",
     )
 
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "e3fe2a255589d128c5e59e407ee57c832533f25ce14cc23605d368cf507ce08d",
-        strip_prefix = "rules_rust-0.24.1",
+        sha256 = "1e6e8ea8675bd8e19ecca7996dca75c40b3e75a9ca208cfd12c1ca9a3554a6d8",
+        strip_prefix = "rules_rust-0.40.0",
         # NOTE: Update Rust version in bazel/dependencies.bzl.
-        url = "https://github.com/bazelbuild/rules_rust/archive/0.24.1.tar.gz",
+        url = "https://github.com/bazelbuild/rules_rust/archive/0.40.0.tar.gz",
         patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
         patch_args = ["-p1"],
     )
