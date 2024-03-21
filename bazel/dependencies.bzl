@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 load("@bazel-zig-cc//toolchain:defs.bzl", zig_register_toolchains = "register_toolchains")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+load("@io_bazel_rules_go//go:deps.bzl", "go_rules_dependencies")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign:crates.bzl", "wasmsign_fetch_remote_crates")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime:crates.bzl", "wasmtime_fetch_remote_crates")
 load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
@@ -21,9 +23,17 @@ load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
 load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
 load("@rules_python//python:pip.bzl", "pip_install")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories", "rust_repository_set")
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains")
 
-def proxy_wasm_cpp_host_dependencies():
+GO_VERSION = "1.20.3"
+
+# Set go_version=host to use host go
+def proxy_wasm_cpp_host_dependencies(go_version = GO_VERSION):
     # Bazel extensions.
+
+    go_rules_dependencies()
+    go_register_toolchains(version = go_version)
+    gazelle_dependencies()
 
     rules_foreign_cc_dependencies()
 
