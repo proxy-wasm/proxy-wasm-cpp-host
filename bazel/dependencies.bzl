@@ -14,13 +14,14 @@
 
 load("@bazel-zig-cc//toolchain:defs.bzl", zig_register_toolchains = "register_toolchains")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign:crates.bzl", "wasmsign_fetch_remote_crates")
-load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime:crates.bzl", "wasmtime_fetch_remote_crates")
+load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign/remote:crates.bzl", wasmsign_crate_repositories = "crate_repositories")
+load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:crates.bzl", wasmtime_crate_repositories = "crate_repositories")
 load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
 load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
 load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
 load("@rules_python//python:pip.bzl", "pip_install")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories", "rust_repository_set")
+load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
 
 def proxy_wasm_cpp_host_dependencies():
     # Bazel extensions.
@@ -39,7 +40,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasi",
         ],
-        version = "1.68.0",
+        version = "1.76.0",
     )
     rust_repository_set(
         name = "rust_linux_s390x",
@@ -48,7 +49,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasi",
         ],
-        version = "1.68.0",
+        version = "1.76.0",
     )
 
     zig_register_toolchains(
@@ -61,10 +62,6 @@ def proxy_wasm_cpp_host_dependencies():
             "macos-x86_64": "2d94984972d67292b55c1eb1c00de46580e9916575d083003546e9a01166754c",
         },
     )
-
-    # Test dependencies.
-
-    wasmsign_fetch_remote_crates()
 
     # NullVM dependencies.
 
@@ -79,5 +76,8 @@ def proxy_wasm_cpp_host_dependencies():
     )
 
     # Wasmtime dependencies.
+    crate_universe_dependencies(bootstrap = True)
+    wasmtime_crate_repositories()
 
-    wasmtime_fetch_remote_crates()
+    # Test dependencies.
+    wasmsign_crate_repositories()
