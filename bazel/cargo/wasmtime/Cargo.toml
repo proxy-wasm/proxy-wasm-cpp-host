@@ -19,7 +19,7 @@ rust_rules_workspace_name = "rules_rust"
 gen_workspace_prefix = "wasmtime"
 genmode = "Remote"
 package_aliases_dir = "."
-workspace_path = "//bazel/cargo/wasmtime"
+workspace_path = "//bazel/cargo/wasmtime/remote"
 
 [package.metadata.raze.crates.cranelift-isle.'*']
 patches = [
