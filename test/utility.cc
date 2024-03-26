@@ -41,6 +41,17 @@ std::vector<std::string> getWasmEngines() {
   return engines;
 }
 
+std::vector<std::string> getDynEngines() {
+  std::vector<std::string> engines = {
+#if defined(PROXY_WASM_HOST_ENGINE_DYN)
+    "dyn",
+#endif
+    ""
+  };
+  engines.pop_back();
+  return engines;
+}
+
 std::string readTestWasmFile(const std::string &filename) {
   auto path = "test/test_data/" + filename;
   std::ifstream file(path, std::ios::binary);
