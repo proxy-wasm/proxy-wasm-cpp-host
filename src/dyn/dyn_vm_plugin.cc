@@ -16,14 +16,14 @@
 #include "include/proxy-wasm/wasm_vm.h"
 
 #include "include/proxy-wasm/dyn_vm_plugin.h"
-#include <iostream>
-#include <dlfcn.h>
-#include <thread>
-#include <sstream>
-#include <string>
-#include <stdexcept>
-#include <unistd.h>
 #include <cstdarg>
+#include <dlfcn.h>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <thread>
+#include <unistd.h>
 
 namespace proxy_wasm {
 
@@ -61,16 +61,16 @@ DynVmPluginSource::~DynVmPluginSource() {
 }
 
 void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCallVoid<0> *f) {
-  if (source->dl_handle == NULL) {
+  if (source->dl_handle == nullptr) {
     *f = nullptr;
     return;
   }
   void *target = dlsym(source->dl_handle, std::string(function_name).c_str());
-  if (target == NULL) {
+  if (target == nullptr) {
     *f = nullptr;
     return;
   }
-  void (*target_func)() = reinterpret_cast<void (*)()>(target);
+  auto target_func = reinterpret_cast<void (*)()>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context) {
     proxy_wasm::SaveRestoreContext saved_context(context);
     wasm_vm_->integration()->trace(call_format(function_name, 0));
@@ -79,16 +79,16 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
 }
 
 void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCallVoid<1> *f) {
-  if (source->dl_handle == NULL) {
+  if (source->dl_handle == nullptr) {
     *f = nullptr;
     return;
   }
   void *target = dlsym(source->dl_handle, std::string(function_name).c_str());
-  if (target == NULL) {
+  if (target == nullptr) {
     *f = nullptr;
     return;
   }
-  void (*target_func)(uint64_t) = reinterpret_cast<void (*)(uint64_t)>(target);
+  auto target_func = reinterpret_cast<void (*)(uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1) {
     proxy_wasm::SaveRestoreContext saved_context(context);
     wasm_vm_->integration()->trace(call_format(function_name, 1, w1));
@@ -97,16 +97,16 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
 }
 
 void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCallVoid<2> *f) {
-  if (source->dl_handle == NULL) {
+  if (source->dl_handle == nullptr) {
     *f = nullptr;
     return;
   }
   void *target = dlsym(source->dl_handle, std::string(function_name).c_str());
-  if (target == NULL) {
+  if (target == nullptr) {
     *f = nullptr;
     return;
   }
-  void (*target_func)(uint64_t, uint64_t) = reinterpret_cast<void (*)(uint64_t, uint64_t)>(target);
+  auto target_func = reinterpret_cast<void (*)(uint64_t, uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1,
                                           proxy_wasm::Word w2) {
     proxy_wasm::SaveRestoreContext saved_context(context);
@@ -116,16 +116,16 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
 }
 
 void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCallVoid<3> *f) {
-  if (source->dl_handle == NULL) {
+  if (source->dl_handle == nullptr) {
     *f = nullptr;
     return;
   }
   void *target = dlsym(source->dl_handle, std::string(function_name).c_str());
-  if (target == NULL) {
+  if (target == nullptr) {
     *f = nullptr;
     return;
   }
-  void (*target_func)(uint64_t, uint64_t, uint64_t) =
+  auto target_func =
       reinterpret_cast<void (*)(uint64_t, uint64_t, uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1,
                                           proxy_wasm::Word w2, proxy_wasm::Word w3) {
@@ -136,16 +136,16 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
 }
 
 void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCallVoid<5> *f) {
-  if (source->dl_handle == NULL) {
+  if (source->dl_handle == nullptr) {
     *f = nullptr;
     return;
   }
   void *target = dlsym(source->dl_handle, std::string(function_name).c_str());
-  if (target == NULL) {
+  if (target == nullptr) {
     *f = nullptr;
     return;
   }
-  void (*target_func)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t) =
+  auto target_func =
       reinterpret_cast<void (*)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1,
                                           proxy_wasm::Word w2, proxy_wasm::Word w3,
@@ -157,16 +157,16 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
 }
 
 void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCallWord<1> *f) {
-  if (source->dl_handle == NULL || function_name == "malloc") {
+  if (source->dl_handle == nullptr || function_name == "malloc") {
     *f = nullptr;
     return;
   }
   void *target = dlsym(source->dl_handle, std::string(function_name).c_str());
-  if (target == NULL) {
+  if (target == nullptr) {
     *f = nullptr;
     return;
   }
-  uint64_t (*target_func)(uint64_t) = reinterpret_cast<uint64_t (*)(uint64_t)>(target);
+  auto target_func = reinterpret_cast<uint64_t (*)(uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1) {
     proxy_wasm::SaveRestoreContext saved_context(context);
     wasm_vm_->integration()->trace(call_format(function_name, 1, w1));
@@ -175,16 +175,16 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
 }
 
 void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCallWord<2> *f) {
-  if (source->dl_handle == NULL) {
+  if (source->dl_handle == nullptr) {
     *f = nullptr;
     return;
   }
   void *target = dlsym(source->dl_handle, std::string(function_name).c_str());
-  if (target == NULL) {
+  if (target == nullptr) {
     *f = nullptr;
     return;
   }
-  uint64_t (*target_func)(uint64_t, uint64_t) =
+  auto target_func =
       reinterpret_cast<uint64_t (*)(uint64_t, uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1,
                                           proxy_wasm::Word w2) {
@@ -195,16 +195,16 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
 }
 
 void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCallWord<3> *f) {
-  if (source->dl_handle == NULL) {
+  if (source->dl_handle == nullptr) {
     *f = nullptr;
     return;
   }
   void *target = dlsym(source->dl_handle, std::string(function_name).c_str());
-  if (target == NULL) {
+  if (target == nullptr) {
     *f = nullptr;
     return;
   }
-  uint64_t (*target_func)(uint64_t, uint64_t, uint64_t) =
+  auto target_func =
       reinterpret_cast<uint64_t (*)(uint64_t, uint64_t, uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1,
                                           proxy_wasm::Word w2, proxy_wasm::Word w3) {

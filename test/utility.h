@@ -39,6 +39,9 @@
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
 #include "include/proxy-wasm/wamr.h"
 #endif
+#if defined(PROXY_WASM_HOST_ENGINE_DYN)
+#include "include/proxy-wasm/dyn.h"
+#endif
 
 namespace proxy_wasm {
 
@@ -185,6 +188,10 @@ public:
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
     } else if (engine == "wamr") {
       vm = proxy_wasm::createWamrVm();
+#endif
+#if defined(PROXY_WASM_HOST_ENGINE_DYN)
+    } else if (engine == "dyn") {
+      vm = proxy_wasm::createDynVm();
 #endif
     } else {
       ADD_FAILURE() << "compiled without support for the requested \"" << engine << "\" engine";
