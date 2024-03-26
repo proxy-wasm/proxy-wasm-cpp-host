@@ -16,16 +16,15 @@
 #include "include/proxy-wasm/dyn_vm.h"
 
 #include <cstring>
-
+#include <dlfcn.h>
 #include <limits>
 #include <memory>
+#include <sys/mman.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <sys/mman.h>
-#include <dlfcn.h>
-#include <unistd.h>
-#include <sys/syscall.h>
 
 namespace proxy_wasm {
 
@@ -42,7 +41,7 @@ std::unique_ptr<WasmVm> DynVm::clone() {
 }
 
 // "Load" the plugin by obtaining a pointer to it from the factory.
-bool DynVm::load(std::string_view shared_lib, std::string_view /*precompiled*/,
+bool DynVm::load(std::string_view plugin_name, std::string_view /*precompiled*/,
                  const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
   plugin_ = std::make_unique<DynVmPlugin>();
   plugin_->source = std::make_shared<DynVmPluginSource>();
@@ -59,13 +58,14 @@ bool DynVm::load(std::string_view shared_lib, std::string_view /*precompiled*/,
 
   size_t written = 0;
   ssize_t wrote;
-  const char *data = shared_lib.data();
-  while (written < shared_lib.size()) {
-    wrote = write(plugin_->source->memfd, data + written, shared_lib.length() - written);
+  const char *data = plugin_name.data();
+  while (written < plugin_name.size()) {
+    wrote = write(plugin_->source->memfd, data + written, plugin_name.length() - written);
     if (wrote < 0) {
       integration()->error("failed to write to memfd: " + std::string(strerror(errno)));
       return false;
-    } else if (wrote == 0) {
+    }
+    if (wrote == 0) {
       integration()->error("failed to write to memfd, EOF on write");
       return false;
     }

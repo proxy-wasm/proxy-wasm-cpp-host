@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "include/proxy-wasm/dyn.h"
 #include "include/proxy-wasm/dyn_vm.h"
 
 namespace proxy_wasm {

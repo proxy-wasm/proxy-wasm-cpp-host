@@ -24,9 +24,6 @@
 
 namespace proxy_wasm {
 
-class WasmVm;
-std::unique_ptr<WasmVm> createDynVm();
-
 // The DynVm wraps a C++ Wasm plugin which has been compiled with the Wasm API
 // and dynamically linked into the proxy.
 struct DynVm : public WasmVm {

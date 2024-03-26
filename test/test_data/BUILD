@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@proxy_wasm_cpp_host//bazel:wasm.bzl", "wasm_rust_binary")
+load("@proxy_wasm_cpp_host//bazel:wasm.bzl", "dyn_rust_library")
 load("@proxy_wasm_cpp_sdk//bazel:defs.bzl", "proxy_wasm_cc_binary")
 
 licenses(["notice"])  # Apache 2
@@ -21,6 +22,11 @@ package(default_visibility = ["//visibility:public"])
 
 wasm_rust_binary(
     name = "abi_export.wasm",
+    srcs = ["abi_export.rs"],
+)
+
+dyn_rust_library(
+    name = "abi_export.so",
     srcs = ["abi_export.rs"],
 )
 

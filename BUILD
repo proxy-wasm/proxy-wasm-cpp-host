@@ -132,6 +132,7 @@ cc_library(
         "src/dyn/dyn_vm_plugin.cc",
     ],
     hdrs = [
+        "include/proxy-wasm/dyn.h",
         "include/proxy-wasm/dyn_vm.h",
         "include/proxy-wasm/dyn_vm_plugin.h",
         "include/proxy-wasm/wasm_api_impl.h",
