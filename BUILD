@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load(
     "@proxy_wasm_cpp_host//bazel:select.bzl",
     "proxy_wasm_select_engine_null",
@@ -21,7 +22,6 @@ load(
     "proxy_wasm_select_engine_wasmtime",
     "proxy_wasm_select_engine_wavm",
 )
-load("@rules_cc//cc:defs.bzl", "cc_library")
 
 licenses(["notice"])  # Apache 2
 
