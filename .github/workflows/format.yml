@@ -18,13 +18,13 @@ on:
 
   pull_request:
     branches:
-    - master
+    - main
     - 'envoy-release/**'
     - 'istio-release/**'
 
   push:
     branches:
-    - master
+    - main
     - 'envoy-release/**'
     - 'istio-release/**'
 
@@ -145,11 +145,11 @@ jobs:
         //...
 
     - name: Skip Bazel cache update
-      if: ${{ github.ref != 'refs/heads/master' }}
+      if: ${{ github.ref != 'refs/heads/main' }}
       run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
 
     - name: Cleanup Bazel cache
-      if: ${{ github.ref == 'refs/heads/master' }}
+      if: ${{ github.ref == 'refs/heads/main' }}
       run: |
         export OUTPUT=$(${{ matrix.run_under }} bazel info output_base)
         echo "===== BEFORE ====="
