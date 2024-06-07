@@ -78,16 +78,13 @@ jobs:
     - name: Format (buildifier)
       run: find . -name "WORKSPACE" -o -name "*BUILD*" -o -name "*.bzl" | xargs -n1 buildifier -mode=check
 
-  cargo_raze:
-    name: check format with cargo-raze
+  rules_rust:
+    name: check format with rules_rust
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Install dependencies
-      run: cargo install cargo-raze --version 0.14.1
 
     - name: Format (bazel query)
       run: |
@@ -96,11 +93,11 @@ jobs:
     - name: Format (cargo raze)
       working-directory: bazel/cargo
       run: |
-        cd wasmsign && cargo raze && cd ..
-        cd wasmtime && cargo raze && cd ..
-        # Ignore manual changes in "errno" and "rustix" crates until fixed in cargo-raze.
-        # See: https://github.com/google/cargo-raze/issues/451
-        git diff --exit-code -- ':!wasmtime/remote/BUILD.errno-0.*.bazel' ':!wasmtime/remote/BUILD.rustix-0.*.bazel'
+        cargo generate-lockfile
+        mv Cargo.lock bazel/cargo/Cargo.Bazel.lock
+        bazel run //bazel/cargo/wasmtime:crates_vendor
+        bazel run //bazel/cargo/wasmsign:crates_vendor
+        git diff --exit-code
 
   clang_format:
     name: check format with clang-format

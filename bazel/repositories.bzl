@@ -74,10 +74,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "e3fe2a255589d128c5e59e407ee57c832533f25ce14cc23605d368cf507ce08d",
-        strip_prefix = "rules_rust-0.24.1",
+        sha256 = "060d90fa2af050380936ac8dc5dd570ea1be88ebc17dddf6804b367fbd62b0e8",
+        strip_prefix = "rules_rust-0.39.0",
         # NOTE: Update Rust version in bazel/dependencies.bzl.
-        url = "https://github.com/bazelbuild/rules_rust/archive/0.24.1.tar.gz",
+        url = "https://github.com/bazelbuild/rules_rust/archive/0.39.0.tar.gz",
         patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
         patch_args = ["-p1"],
     )
@@ -106,9 +106,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "com_google_googletest",
-        sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
-        strip_prefix = "googletest-release-1.10.0",
-        urls = ["https://github.com/google/googletest/archive/release-1.10.0.tar.gz"],
+        sha256 = "8ad598c73ad796e0d8280b082cebd82a630d73e73cd3c70057938a6501bba5d7",
+        strip_prefix = "googletest-1.14.0",
+        urls = ["https://github.com/google/googletest/archive/v1.14.0.tar.gz"],
     )
 
     # NullVM dependencies.
