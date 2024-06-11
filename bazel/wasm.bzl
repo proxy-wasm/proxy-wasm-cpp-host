@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("@rules_rust//rust:defs.bzl", "rust_shared_library")
 
 def _wasm_rust_transition_impl(settings, attr):
     return {
@@ -59,12 +60,28 @@ def _wasm_binary_impl(ctx):
 
     return [DefaultInfo(files = depset([out]), runfiles = ctx.runfiles([out]))]
 
+def _dyn_binary_impl(ctx):
+    out = ctx.actions.declare_file(ctx.label.name)
+    ctx.actions.run(
+        executable = "cp",
+        arguments = [ctx.files.binary[0].path, out.path],
+        outputs = [out],
+        inputs = ctx.files.binary,
+    )
+
+    return [DefaultInfo(files = depset([out]), runfiles = ctx.runfiles([out]))]
+
 def _wasm_attrs(transition):
     return {
         "binary": attr.label(mandatory = True, cfg = transition),
         "signing_key": attr.label_list(allow_files = True),
         "_wasmsign_tool": attr.label(default = "//bazel/cargo/wasmsign:cargo_bin_wasmsign", executable = True, cfg = "exec"),
         "_whitelist_function_transition": attr.label(default = "@bazel_tools//tools/whitelists/function_transition_whitelist"),
+    }
+
+def _dyn_attrs():
+    return {
+        "binary": attr.label(mandatory = True),
     }
 
 wasm_rust_binary_rule = rule(
@@ -75,6 +92,11 @@ wasm_rust_binary_rule = rule(
 wasi_rust_binary_rule = rule(
     implementation = _wasm_binary_impl,
     attrs = _wasm_attrs(wasi_rust_transition),
+)
+
+dyn_rust_binary_rule = rule(
+    implementation = _dyn_binary_impl,
+    attrs = _dyn_attrs(),
 )
 
 def wasm_rust_binary(name, tags = [], wasi = False, signing_key = [], **kwargs):
@@ -98,5 +120,22 @@ def wasm_rust_binary(name, tags = [], wasi = False, signing_key = [], **kwargs):
         name = name,
         binary = ":" + wasm_name,
         signing_key = signing_key,
+        tags = tags + ["manual"],
+    )
+
+def dyn_rust_library(name, tags = [], **kwargs):
+    dyn_name = "_dyn_" + name.replace(".", "_")
+    kwargs.setdefault("visibility", ["//visibility:public"])
+
+    rust_shared_library(
+        name = dyn_name,
+        edition = "2018",
+        tags = ["manual"],
+        **kwargs
+    )
+
+    dyn_rust_binary_rule(
+        name = name,
+        binary = ":" + dyn_name,
         tags = tags + ["manual"],
     )

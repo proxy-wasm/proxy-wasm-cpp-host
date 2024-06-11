@@ -113,6 +113,12 @@ jobs:
           arch: x86_64
           action: test
           flags: --config=gcc
+        - name: 'DynVM on Linux/x86_64'
+          engine: 'dyn'
+          os: ubuntu-20.04
+          arch: x86_64
+          action: test
+          flags: --config=gcc
         - name: 'NullVM on Linux/x86_64 with ASan'
           engine: 'null'
           os: ubuntu-20.04

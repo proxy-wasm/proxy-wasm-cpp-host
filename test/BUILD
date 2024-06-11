@@ -181,6 +181,21 @@ cc_test(
 )
 
 cc_test(
+    name = "dyn_vm_test",
+    srcs = ["dyn_vm_test.cc"],
+    data = [
+        "//test/test_data:abi_export.so",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "wasm_vm_test",
     timeout = "long",
     srcs = ["wasm_vm_test.cc"],
