@@ -6,4 +6,4 @@ index be68365..47c14cd 100644
 -#![doc = include_str!("../README.md")]
  #![deny(missing_debug_implementations)]
  #![deny(missing_docs)]
- #![no_std]
+ #![cfg_attr(not(feature = "std"), no_std)]
