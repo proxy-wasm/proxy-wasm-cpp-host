@@ -28,6 +28,7 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()
                          [](const testing::TestParamInfo<std::string> &info) {
                            return info.param;
                          });
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(TestVm); // noop for engine=null
 
 TEST_P(TestVm, MallocNoHostcalls) {
   if (engine_ != "v8") {
