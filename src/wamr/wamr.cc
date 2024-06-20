@@ -47,7 +47,10 @@ struct HostFuncData {
 using HostFuncDataPtr = std::unique_ptr<HostFuncData>;
 
 wasm_engine_t *engine() {
-  static const auto engine = WasmEnginePtr(wasm_engine_new());
+  static auto engine_config = WasmConfigPtr(wasm_config_new());
+  // it is able to use wasm_config_set_xxx() to adjust wamr runtime features
+  // like: wasm_config_set_linux_perf_opt(engine_config.get(), true);
+  static const auto engine = WasmEnginePtr(wasm_engine_new_with_config(engine_config.get()));
   return engine.get();
 }
 
@@ -56,7 +59,7 @@ public:
   Wamr() = default;
 
   std::string_view getEngineName() override { return "wamr"; }
-  std::string_view getPrecompiledSectionName() override { return ""; }
+  std::string_view getPrecompiledSectionName() override { return "aot"; }
 
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
   std::unique_ptr<WasmVm> clone() override;
@@ -118,18 +121,32 @@ private:
   std::unordered_map<std::string, WasmFuncPtr> module_functions_;
 };
 
-bool Wamr::load(std::string_view bytecode, std::string_view /*precompiled*/,
+bool Wamr::load(std::string_view bytecode, std::string_view precompiled,
                 const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
   store_ = wasm_store_new(engine());
   if (store_ == nullptr) {
     return false;
   }
 
-  wasm_byte_vec_t binary = {.size = bytecode.size(),
-                            .data = (char *)bytecode.data(),
-                            .num_elems = bytecode.size(),
-                            .size_of_elem = sizeof(byte_t),
-                            .lock = nullptr};
+  wasm_byte_vec_t binary = {0};
+  if (precompiled.empty()) {
+    binary.size = bytecode.size();
+    binary.data = (char *)bytecode.data();
+    binary.num_elems = bytecode.size();
+    binary.size_of_elem = sizeof(byte_t);
+    binary.lock = nullptr;
+  } else {
+    // skip leading paddings
+    unsigned padding_count = precompiled[0];
+    precompiled.remove_prefix(padding_count + 1);
+
+    binary.size = precompiled.size();
+    binary.data = (char *)precompiled.data();
+    binary.num_elems = precompiled.size();
+    binary.size_of_elem = sizeof(byte_t);
+    binary.lock = nullptr;
+  }
+
   module_ = wasm_module_new(store_.get(), &binary);
   if (module_ == nullptr) {
     return false;
