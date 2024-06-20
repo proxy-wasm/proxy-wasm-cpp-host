@@ -33,22 +33,22 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__aho_corasick__1_0_1",
-        url = "https://crates.io/api/v1/crates/aho-corasick/1.0.1/download",
+        name = "wasmtime__aho_corasick__1_0_5",
+        url = "https://crates.io/api/v1/crates/aho-corasick/1.0.5/download",
         type = "tar.gz",
-        sha256 = "67fc08ce920c31afb70f013dcce1bfc3a3195de6a228474e45e1f145b36f8d04",
-        strip_prefix = "aho-corasick-1.0.1",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.aho-corasick-1.0.1.bazel"),
+        sha256 = "0c378d78423fdad8089616f827526ee33c19f2fddbd5de1629152c9593ba4783",
+        strip_prefix = "aho-corasick-1.0.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.aho-corasick-1.0.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__anyhow__1_0_71",
-        url = "https://crates.io/api/v1/crates/anyhow/1.0.71/download",
+        name = "wasmtime__anyhow__1_0_75",
+        url = "https://crates.io/api/v1/crates/anyhow/1.0.75/download",
         type = "tar.gz",
-        sha256 = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8",
-        strip_prefix = "anyhow-1.0.71",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.anyhow-1.0.71.bazel"),
+        sha256 = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6",
+        strip_prefix = "anyhow-1.0.75",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.anyhow-1.0.75.bazel"),
     )
 
     maybe(
@@ -63,12 +63,32 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "wasmtime__async_trait__0_1_73",
+        url = "https://crates.io/api/v1/crates/async-trait/0.1.73/download",
+        type = "tar.gz",
+        sha256 = "bc00ceb34980c03614e35a3a4e218276a0a824e911d07651cd0d858a51e8c0f0",
+        strip_prefix = "async-trait-0.1.73",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.async-trait-0.1.73.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "wasmtime__autocfg__1_1_0",
         url = "https://crates.io/api/v1/crates/autocfg/1.1.0/download",
         type = "tar.gz",
         sha256 = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa",
         strip_prefix = "autocfg-1.1.0",
         build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.autocfg-1.1.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__base64__0_21_4",
+        url = "https://crates.io/api/v1/crates/base64/0.21.4/download",
+        type = "tar.gz",
+        sha256 = "9ba43ea6f343b788c8764558649e08df62f86c6ef251fdaeb1ffd010a9ae50a2",
+        strip_prefix = "base64-0.21.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.base64-0.21.4.bazel"),
     )
 
     maybe(
@@ -93,28 +113,38 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__bitflags__2_3_1",
-        url = "https://crates.io/api/v1/crates/bitflags/2.3.1/download",
+        name = "wasmtime__bitflags__2_4_0",
+        url = "https://crates.io/api/v1/crates/bitflags/2.4.0/download",
         type = "tar.gz",
-        sha256 = "6776fc96284a0bb647b615056fc496d1fe1644a7ab01829818a6d91cae888b84",
-        strip_prefix = "bitflags-2.3.1",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.bitflags-2.3.1.bazel"),
+        sha256 = "b4682ae6287fcf752ecaabbfcc7b6f9b72aa33933dc23a554d853aea8eea8635",
+        strip_prefix = "bitflags-2.4.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.bitflags-2.4.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__bumpalo__3_13_0",
-        url = "https://crates.io/api/v1/crates/bumpalo/3.13.0/download",
+        name = "wasmtime__block_buffer__0_10_4",
+        url = "https://crates.io/api/v1/crates/block-buffer/0.10.4/download",
         type = "tar.gz",
-        sha256 = "a3e2c3daef883ecc1b5d58c15adae93470a91d425f3532ba1695849656af3fc1",
-        strip_prefix = "bumpalo-3.13.0",
+        sha256 = "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71",
+        strip_prefix = "block-buffer-0.10.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.block-buffer-0.10.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__bumpalo__3_14_0",
+        url = "https://crates.io/api/v1/crates/bumpalo/3.14.0/download",
+        type = "tar.gz",
+        sha256 = "7f30e7476521f6f8af1a1c4c0b8cc94f0bee37d91763d0ca2665f299b6cd8aec",
+        strip_prefix = "bumpalo-3.14.0",
         patches = [
             "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:bumpalo.patch",
         ],
         patch_args = [
             "-p1",
         ],
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.bumpalo-3.13.0.bazel"),
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.bumpalo-3.14.0.bazel"),
     )
 
     maybe(
@@ -129,12 +159,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__cc__1_0_79",
-        url = "https://crates.io/api/v1/crates/cc/1.0.79/download",
+        name = "wasmtime__cc__1_0_83",
+        url = "https://crates.io/api/v1/crates/cc/1.0.83/download",
         type = "tar.gz",
-        sha256 = "50d30906286121d95be3d479533b458f87493b30a4b5f79a607db8f5d11aa91f",
-        strip_prefix = "cc-1.0.79",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cc-1.0.79.bazel"),
+        sha256 = "f1174fb0b6ec23863f8b971027804a42614e347eafb0a95bf0b12cdae21fc4d0",
+        strip_prefix = "cc-1.0.83",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cc-1.0.83.bazel"),
     )
 
     maybe(
@@ -159,108 +189,118 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_bforest__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-bforest/0.96.3/download",
+        name = "wasmtime__cpufeatures__0_2_9",
+        url = "https://crates.io/api/v1/crates/cpufeatures/0.2.9/download",
         type = "tar.gz",
-        sha256 = "9c064a534a914eb6709d198525321a386dad50627aecfaf64053f369993a3e5a",
-        strip_prefix = "cranelift-bforest-0.96.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-bforest-0.96.3.bazel"),
+        sha256 = "a17b76ff3a4162b0b27f354a0c87015ddad39d35f9c0c36607a3bdd175dde1f1",
+        strip_prefix = "cpufeatures-0.2.9",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cpufeatures-0.2.9.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_codegen__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-codegen/0.96.3/download",
+        name = "wasmtime__cranelift_bforest__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-bforest/0.96.4/download",
         type = "tar.gz",
-        sha256 = "619ed4d24acef0bd58b16a1be39077c0b36c65782e6c933892439af5e799110e",
-        strip_prefix = "cranelift-codegen-0.96.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-codegen-0.96.3.bazel"),
+        sha256 = "182b82f78049f54d3aee5a19870d356ef754226665a695ce2fcdd5d55379718e",
+        strip_prefix = "cranelift-bforest-0.96.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-bforest-0.96.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_codegen_meta__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-codegen-meta/0.96.3/download",
+        name = "wasmtime__cranelift_codegen__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-codegen/0.96.4/download",
         type = "tar.gz",
-        sha256 = "c777ce22678ae1869f990b2f31e0cd7ca109049213bfc0baf3e2205a18b21ebb",
-        strip_prefix = "cranelift-codegen-meta-0.96.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-codegen-meta-0.96.3.bazel"),
+        sha256 = "e7c027bf04ecae5b048d3554deb888061bc26f426afff47bf06d6ac933dce0a6",
+        strip_prefix = "cranelift-codegen-0.96.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-codegen-0.96.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_codegen_shared__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-codegen-shared/0.96.3/download",
+        name = "wasmtime__cranelift_codegen_meta__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-codegen-meta/0.96.4/download",
         type = "tar.gz",
-        sha256 = "eb65884d17a1fa55990dd851c43c140afb4c06c3312cf42cfa1222c3b23f9561",
-        strip_prefix = "cranelift-codegen-shared-0.96.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-codegen-shared-0.96.3.bazel"),
+        sha256 = "649f70038235e4c81dba5680d7e5ae83e1081f567232425ab98b55b03afd9904",
+        strip_prefix = "cranelift-codegen-meta-0.96.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-codegen-meta-0.96.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_control__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-control/0.96.3/download",
+        name = "wasmtime__cranelift_codegen_shared__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-codegen-shared/0.96.4/download",
         type = "tar.gz",
-        sha256 = "9a0cea8abc90934d0a7ee189a29fd35fecd5c40f59ae7e6aab1805e8ab1a535e",
-        strip_prefix = "cranelift-control-0.96.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-control-0.96.3.bazel"),
+        sha256 = "7a1d1c5ee2611c6a0bdc8d42d5d3dc5ce8bf53a8040561e26e88b9b21f966417",
+        strip_prefix = "cranelift-codegen-shared-0.96.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-codegen-shared-0.96.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_entity__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-entity/0.96.3/download",
+        name = "wasmtime__cranelift_control__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-control/0.96.4/download",
         type = "tar.gz",
-        sha256 = "c2e50bebc05f2401a1320169314b62f91ad811ef20163cac00151d78e0684d4c",
-        strip_prefix = "cranelift-entity-0.96.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-entity-0.96.3.bazel"),
+        sha256 = "da66a68b1f48da863d1d53209b8ddb1a6236411d2d72a280ffa8c2f734f7219e",
+        strip_prefix = "cranelift-control-0.96.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-control-0.96.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_frontend__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-frontend/0.96.3/download",
+        name = "wasmtime__cranelift_entity__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-entity/0.96.4/download",
         type = "tar.gz",
-        sha256 = "7b82ccfe704d53f669791399d417928410785132d809ec46f5e2ce069e9d17c8",
-        strip_prefix = "cranelift-frontend-0.96.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-frontend-0.96.3.bazel"),
+        sha256 = "9bd897422dbb66621fa558f4d9209875530c53e3c8f4b13b2849fbb667c431a6",
+        strip_prefix = "cranelift-entity-0.96.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-entity-0.96.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_isle__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-isle/0.96.3/download",
+        name = "wasmtime__cranelift_frontend__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-frontend/0.96.4/download",
         type = "tar.gz",
-        sha256 = "a2515d8e7836f9198b160b2c80aaa1f586d7749d57d6065af86223fb65b7e2c3",
-        strip_prefix = "cranelift-isle-0.96.3",
+        sha256 = "05db883114c98cfcd6959f72278d2fec42e01ea6a6982cfe4f20e88eebe86653",
+        strip_prefix = "cranelift-frontend-0.96.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-frontend-0.96.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__cranelift_isle__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-isle/0.96.4/download",
+        type = "tar.gz",
+        sha256 = "84559de86e2564152c87e299c8b2559f9107e9c6d274b24ebeb04fb0a5f4abf8",
+        strip_prefix = "cranelift-isle-0.96.4",
         patches = [
             "@proxy_wasm_cpp_host//bazel/cargo/wasmtime:cranelift-isle.patch",
         ],
         patch_args = [
             "-p4",
         ],
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-isle-0.96.3.bazel"),
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-isle-0.96.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_native__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-native/0.96.3/download",
+        name = "wasmtime__cranelift_native__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-native/0.96.4/download",
         type = "tar.gz",
-        sha256 = "bcb47ffdcdac7e9fed6e4a618939773a4dc4a412fa7da9e701ae667431a10af3",
-        strip_prefix = "cranelift-native-0.96.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-native-0.96.3.bazel"),
+        sha256 = "3f40b57f187f0fe1ffaf281df4adba2b4bc623a0f6651954da9f3c184be72761",
+        strip_prefix = "cranelift-native-0.96.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-native-0.96.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__cranelift_wasm__0_96_3",
-        url = "https://crates.io/api/v1/crates/cranelift-wasm/0.96.3/download",
+        name = "wasmtime__cranelift_wasm__0_96_4",
+        url = "https://crates.io/api/v1/crates/cranelift-wasm/0.96.4/download",
         type = "tar.gz",
-        sha256 = "852390f92c3eaa457e42be44d174ff5abbbcd10062d5963bda8ffb2505e73a71",
-        strip_prefix = "cranelift-wasm-0.96.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-wasm-0.96.3.bazel"),
+        sha256 = "f3eab6084cc789b9dd0b1316241efeb2968199fee709f4bb4fe0fb0923bb468b",
+        strip_prefix = "cranelift-wasm-0.96.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.cranelift-wasm-0.96.4.bazel"),
     )
 
     maybe(
@@ -275,6 +315,56 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "wasmtime__crossbeam_channel__0_5_8",
+        url = "https://crates.io/api/v1/crates/crossbeam-channel/0.5.8/download",
+        type = "tar.gz",
+        sha256 = "a33c2bf77f2df06183c3aa30d1e96c0695a313d4f9c453cc3762a6db39f99200",
+        strip_prefix = "crossbeam-channel-0.5.8",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.crossbeam-channel-0.5.8.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__crossbeam_deque__0_8_3",
+        url = "https://crates.io/api/v1/crates/crossbeam-deque/0.8.3/download",
+        type = "tar.gz",
+        sha256 = "ce6fd6f855243022dcecf8702fef0c297d4338e226845fe067f6341ad9fa0cef",
+        strip_prefix = "crossbeam-deque-0.8.3",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.crossbeam-deque-0.8.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__crossbeam_epoch__0_9_15",
+        url = "https://crates.io/api/v1/crates/crossbeam-epoch/0.9.15/download",
+        type = "tar.gz",
+        sha256 = "ae211234986c545741a7dc064309f67ee1e5ad243d0e48335adc0484d960bcc7",
+        strip_prefix = "crossbeam-epoch-0.9.15",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.crossbeam-epoch-0.9.15.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__crossbeam_utils__0_8_16",
+        url = "https://crates.io/api/v1/crates/crossbeam-utils/0.8.16/download",
+        type = "tar.gz",
+        sha256 = "5a22b2d63d4d1dc0b7f1b6b2747dd0088008a9be28b6ddf0b1e7d335e3037294",
+        strip_prefix = "crossbeam-utils-0.8.16",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.crossbeam-utils-0.8.16.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__crypto_common__0_1_6",
+        url = "https://crates.io/api/v1/crates/crypto-common/0.1.6/download",
+        type = "tar.gz",
+        sha256 = "1bfb12502f3fc46cca1bb51ac28df9d618d813cdc3d2f25b9fe775a34af26bb3",
+        strip_prefix = "crypto-common-0.1.6",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.crypto-common-0.1.6.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "wasmtime__debugid__0_8_0",
         url = "https://crates.io/api/v1/crates/debugid/0.8.0/download",
         type = "tar.gz",
@@ -285,12 +375,42 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__either__1_8_1",
-        url = "https://crates.io/api/v1/crates/either/1.8.1/download",
+        name = "wasmtime__digest__0_10_7",
+        url = "https://crates.io/api/v1/crates/digest/0.10.7/download",
         type = "tar.gz",
-        sha256 = "7fcaabb2fef8c910e7f4c7ce9f67a1283a1715879a7c230ca9d6d1ae31f16d91",
-        strip_prefix = "either-1.8.1",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.either-1.8.1.bazel"),
+        sha256 = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292",
+        strip_prefix = "digest-0.10.7",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.digest-0.10.7.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__directories_next__2_0_0",
+        url = "https://crates.io/api/v1/crates/directories-next/2.0.0/download",
+        type = "tar.gz",
+        sha256 = "339ee130d97a610ea5a5872d2bbb130fdf68884ff09d3028b81bec8a1ac23bbc",
+        strip_prefix = "directories-next-2.0.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.directories-next-2.0.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__dirs_sys_next__0_1_2",
+        url = "https://crates.io/api/v1/crates/dirs-sys-next/0.1.2/download",
+        type = "tar.gz",
+        sha256 = "4ebda144c4fe02d1f7ea1a7d9641b6fc6b580adcfa024ae48797ecdeb6825b4d",
+        strip_prefix = "dirs-sys-next-0.1.2",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.dirs-sys-next-0.1.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__either__1_9_0",
+        url = "https://crates.io/api/v1/crates/either/1.9.0/download",
+        type = "tar.gz",
+        sha256 = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07",
+        strip_prefix = "either-1.9.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.either-1.9.0.bazel"),
     )
 
     maybe(
@@ -305,12 +425,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__errno__0_3_1",
-        url = "https://crates.io/api/v1/crates/errno/0.3.1/download",
+        name = "wasmtime__errno__0_3_3",
+        url = "https://crates.io/api/v1/crates/errno/0.3.3/download",
         type = "tar.gz",
-        sha256 = "4bcfec3a70f97c962c307b2d2c56e358cf1d00b558d74262b5f929ee8cc7e73a",
-        strip_prefix = "errno-0.3.1",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.errno-0.3.1.bazel"),
+        sha256 = "136526188508e25c6fef639d7927dfb3e0e3084488bf202267829cf7fc23dbdd",
+        strip_prefix = "errno-0.3.3",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.errno-0.3.3.bazel"),
     )
 
     maybe(
@@ -335,12 +455,22 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__form_urlencoded__1_1_0",
-        url = "https://crates.io/api/v1/crates/form_urlencoded/1.1.0/download",
+        name = "wasmtime__file_per_thread_logger__0_1_6",
+        url = "https://crates.io/api/v1/crates/file-per-thread-logger/0.1.6/download",
         type = "tar.gz",
-        sha256 = "a9c384f161156f5260c24a097c56119f9be8c798586aecc13afbcbe7b7e26bf8",
-        strip_prefix = "form_urlencoded-1.1.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.form_urlencoded-1.1.0.bazel"),
+        sha256 = "84f2e425d9790201ba4af4630191feac6dcc98765b118d4d18e91d23c2353866",
+        strip_prefix = "file-per-thread-logger-0.1.6",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.file-per-thread-logger-0.1.6.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__form_urlencoded__1_2_0",
+        url = "https://crates.io/api/v1/crates/form_urlencoded/1.2.0/download",
+        type = "tar.gz",
+        sha256 = "a62bc1cf6f830c2ec14a513a9fb124d0a213a629668a4186f329db21fe045652",
+        strip_prefix = "form_urlencoded-1.2.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.form_urlencoded-1.2.0.bazel"),
     )
 
     maybe(
@@ -365,22 +495,32 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__getrandom__0_2_9",
-        url = "https://crates.io/api/v1/crates/getrandom/0.2.9/download",
+        name = "wasmtime__generic_array__0_14_7",
+        url = "https://crates.io/api/v1/crates/generic-array/0.14.7/download",
         type = "tar.gz",
-        sha256 = "c85e1d9ab2eadba7e5040d4e09cbd6d072b76a557ad64e797c2cb9d4da21d7e4",
-        strip_prefix = "getrandom-0.2.9",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.getrandom-0.2.9.bazel"),
+        sha256 = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a",
+        strip_prefix = "generic-array-0.14.7",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.generic-array-0.14.7.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__gimli__0_27_2",
-        url = "https://crates.io/api/v1/crates/gimli/0.27.2/download",
+        name = "wasmtime__getrandom__0_2_10",
+        url = "https://crates.io/api/v1/crates/getrandom/0.2.10/download",
         type = "tar.gz",
-        sha256 = "ad0a93d233ebf96623465aad4046a8d3aa4da22d4f4beba5388838c8a434bbb4",
-        strip_prefix = "gimli-0.27.2",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.gimli-0.27.2.bazel"),
+        sha256 = "be4136b2a15dd319360be1c07d9933517ccf0be8f16bf62a3bee4f0d618df427",
+        strip_prefix = "getrandom-0.2.10",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.getrandom-0.2.10.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__gimli__0_27_3",
+        url = "https://crates.io/api/v1/crates/gimli/0.27.3/download",
+        type = "tar.gz",
+        sha256 = "b6c80984affa11d98d1b88b66ac8853f143217b399d3c74116778ff8fdb4ed2e",
+        strip_prefix = "gimli-0.27.3",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.gimli-0.27.3.bazel"),
     )
 
     maybe(
@@ -405,12 +545,22 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__hermit_abi__0_3_1",
-        url = "https://crates.io/api/v1/crates/hermit-abi/0.3.1/download",
+        name = "wasmtime__heck__0_4_1",
+        url = "https://crates.io/api/v1/crates/heck/0.4.1/download",
         type = "tar.gz",
-        sha256 = "fed44880c466736ef9a5c5b5facefb5ed0785676d0c02d612db14e54f0d84286",
-        strip_prefix = "hermit-abi-0.3.1",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.hermit-abi-0.3.1.bazel"),
+        sha256 = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8",
+        strip_prefix = "heck-0.4.1",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.heck-0.4.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__hermit_abi__0_3_2",
+        url = "https://crates.io/api/v1/crates/hermit-abi/0.3.2/download",
+        type = "tar.gz",
+        sha256 = "443144c8cdadd93ebf52ddb4056d257f5b52c04d3c804e657d19eb73fc33668b",
+        strip_prefix = "hermit-abi-0.3.2",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.hermit-abi-0.3.2.bazel"),
     )
 
     maybe(
@@ -425,12 +575,22 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__idna__0_3_0",
-        url = "https://crates.io/api/v1/crates/idna/0.3.0/download",
+        name = "wasmtime__id_arena__2_2_1",
+        url = "https://crates.io/api/v1/crates/id-arena/2.2.1/download",
         type = "tar.gz",
-        sha256 = "e14ddfc70884202db2244c223200c204c2bda1bc6e0998d11b5e024d657209e6",
-        strip_prefix = "idna-0.3.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.idna-0.3.0.bazel"),
+        sha256 = "25a2bc672d1148e28034f176e01fffebb08b35768468cc954630da77a1449005",
+        strip_prefix = "id-arena-2.2.1",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.id-arena-2.2.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__idna__0_4_0",
+        url = "https://crates.io/api/v1/crates/idna/0.4.0/download",
+        type = "tar.gz",
+        sha256 = "7d20d6b07bfbc108882d88ed8e37d39636dcc260e15e30c45e6ba089610b917c",
+        strip_prefix = "idna-0.4.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.idna-0.4.0.bazel"),
     )
 
     maybe(
@@ -455,12 +615,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__is_terminal__0_4_7",
-        url = "https://crates.io/api/v1/crates/is-terminal/0.4.7/download",
+        name = "wasmtime__is_terminal__0_4_9",
+        url = "https://crates.io/api/v1/crates/is-terminal/0.4.9/download",
         type = "tar.gz",
-        sha256 = "adcf93614601c8129ddf72e2d5633df827ba6551541c6d8c59520a371475be1f",
-        strip_prefix = "is-terminal-0.4.7",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.is-terminal-0.4.7.bazel"),
+        sha256 = "cb0889898416213fab133e1d33a0e5858a48177452750691bde3666d0fdbaf8b",
+        strip_prefix = "is-terminal-0.4.9",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.is-terminal-0.4.9.bazel"),
     )
 
     maybe(
@@ -475,22 +635,62 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__itoa__1_0_6",
-        url = "https://crates.io/api/v1/crates/itoa/1.0.6/download",
+        name = "wasmtime__itoa__1_0_9",
+        url = "https://crates.io/api/v1/crates/itoa/1.0.9/download",
         type = "tar.gz",
-        sha256 = "453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6",
-        strip_prefix = "itoa-1.0.6",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.itoa-1.0.6.bazel"),
+        sha256 = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38",
+        strip_prefix = "itoa-1.0.9",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.itoa-1.0.9.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__libc__0_2_144",
-        url = "https://crates.io/api/v1/crates/libc/0.2.144/download",
+        name = "wasmtime__ittapi__0_3_4",
+        url = "https://crates.io/api/v1/crates/ittapi/0.3.4/download",
         type = "tar.gz",
-        sha256 = "2b00cc1c228a6782d0f076e7b232802e0c5689d41bb5df366f2a6b6621cfdfe1",
-        strip_prefix = "libc-0.2.144",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.libc-0.2.144.bazel"),
+        sha256 = "41e0d0b7b3b53d92a7e8b80ede3400112a6b8b4c98d1f5b8b16bb787c780582c",
+        strip_prefix = "ittapi-0.3.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.ittapi-0.3.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__ittapi_sys__0_3_4",
+        url = "https://crates.io/api/v1/crates/ittapi-sys/0.3.4/download",
+        type = "tar.gz",
+        sha256 = "f2f8763c96e54e6d6a0dccc2990d8b5e33e3313aaeae6185921a3f4c1614a77c",
+        strip_prefix = "ittapi-sys-0.3.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.ittapi-sys-0.3.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__jobserver__0_1_26",
+        url = "https://crates.io/api/v1/crates/jobserver/0.1.26/download",
+        type = "tar.gz",
+        sha256 = "936cfd212a0155903bcbc060e316fb6cc7cbf2e1907329391ebadc1fe0ce77c2",
+        strip_prefix = "jobserver-0.1.26",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.jobserver-0.1.26.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__leb128__0_2_5",
+        url = "https://crates.io/api/v1/crates/leb128/0.2.5/download",
+        type = "tar.gz",
+        sha256 = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67",
+        strip_prefix = "leb128-0.2.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.leb128-0.2.5.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__libc__0_2_148",
+        url = "https://crates.io/api/v1/crates/libc/0.2.148/download",
+        type = "tar.gz",
+        sha256 = "9cdc71e17332e86d2e1d38c1f99edcb6288ee11b815fb1a4b049eaa2114d369b",
+        strip_prefix = "libc-0.2.148",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.libc-0.2.148.bazel"),
     )
 
     maybe(
@@ -505,12 +705,22 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__log__0_4_18",
-        url = "https://crates.io/api/v1/crates/log/0.4.18/download",
+        name = "wasmtime__linux_raw_sys__0_4_7",
+        url = "https://crates.io/api/v1/crates/linux-raw-sys/0.4.7/download",
         type = "tar.gz",
-        sha256 = "518ef76f2f87365916b142844c16d8fefd85039bc5699050210a7778ee1cd1de",
-        strip_prefix = "log-0.4.18",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.log-0.4.18.bazel"),
+        sha256 = "1a9bad9f94746442c783ca431b22403b519cd7fbeed0533fdd6328b2f2212128",
+        strip_prefix = "linux-raw-sys-0.4.7",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.linux-raw-sys-0.4.7.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__log__0_4_20",
+        url = "https://crates.io/api/v1/crates/log/0.4.20/download",
+        type = "tar.gz",
+        sha256 = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f",
+        strip_prefix = "log-0.4.20",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.log-0.4.20.bazel"),
     )
 
     maybe(
@@ -525,12 +735,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__memchr__2_5_0",
-        url = "https://crates.io/api/v1/crates/memchr/2.5.0/download",
+        name = "wasmtime__memchr__2_6_3",
+        url = "https://crates.io/api/v1/crates/memchr/2.6.3/download",
         type = "tar.gz",
-        sha256 = "2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d",
-        strip_prefix = "memchr-2.5.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.memchr-2.5.0.bazel"),
+        sha256 = "8f232d6ef707e1956a43342693d2a31e72989554d58299d7a88738cc95b0d35c",
+        strip_prefix = "memchr-2.6.3",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.memchr-2.6.3.bazel"),
     )
 
     maybe(
@@ -555,42 +765,72 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__object__0_30_3",
-        url = "https://crates.io/api/v1/crates/object/0.30.3/download",
+        name = "wasmtime__memoffset__0_9_0",
+        url = "https://crates.io/api/v1/crates/memoffset/0.9.0/download",
         type = "tar.gz",
-        sha256 = "ea86265d3d3dcb6a27fc51bd29a4bf387fae9d2986b823079d4986af253eb439",
-        strip_prefix = "object-0.30.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.object-0.30.3.bazel"),
+        sha256 = "5a634b1c61a95585bd15607c6ab0c4e5b226e695ff2800ba0cdccddf208c406c",
+        strip_prefix = "memoffset-0.9.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.memoffset-0.9.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__once_cell__1_17_2",
-        url = "https://crates.io/api/v1/crates/once_cell/1.17.2/download",
+        name = "wasmtime__num_cpus__1_16_0",
+        url = "https://crates.io/api/v1/crates/num_cpus/1.16.0/download",
         type = "tar.gz",
-        sha256 = "9670a07f94779e00908f3e686eab508878ebb390ba6e604d3a284c00e8d0487b",
-        strip_prefix = "once_cell-1.17.2",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.once_cell-1.17.2.bazel"),
+        sha256 = "4161fcb6d602d4d2081af7c3a45852d875a03dd337a6bfdd6e06407b61342a43",
+        strip_prefix = "num_cpus-1.16.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.num_cpus-1.16.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__paste__1_0_12",
-        url = "https://crates.io/api/v1/crates/paste/1.0.12/download",
+        name = "wasmtime__object__0_30_4",
+        url = "https://crates.io/api/v1/crates/object/0.30.4/download",
         type = "tar.gz",
-        sha256 = "9f746c4065a8fa3fe23974dd82f15431cc8d40779821001404d10d2e79ca7d79",
-        strip_prefix = "paste-1.0.12",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.paste-1.0.12.bazel"),
+        sha256 = "03b4680b86d9cfafba8fc491dc9b6df26b68cf40e9e6cd73909194759a63c385",
+        strip_prefix = "object-0.30.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.object-0.30.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__percent_encoding__2_2_0",
-        url = "https://crates.io/api/v1/crates/percent-encoding/2.2.0/download",
+        name = "wasmtime__once_cell__1_18_0",
+        url = "https://crates.io/api/v1/crates/once_cell/1.18.0/download",
         type = "tar.gz",
-        sha256 = "478c572c3d73181ff3c2539045f6eb99e5491218eae919370993b890cdbdd98e",
-        strip_prefix = "percent-encoding-2.2.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.percent-encoding-2.2.0.bazel"),
+        sha256 = "dd8b5dd2ae5ed71462c540258bedcb51965123ad7e7ccf4b9a8cafaa4a63576d",
+        strip_prefix = "once_cell-1.18.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.once_cell-1.18.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__paste__1_0_14",
+        url = "https://crates.io/api/v1/crates/paste/1.0.14/download",
+        type = "tar.gz",
+        sha256 = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c",
+        strip_prefix = "paste-1.0.14",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.paste-1.0.14.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__percent_encoding__2_3_0",
+        url = "https://crates.io/api/v1/crates/percent-encoding/2.3.0/download",
+        type = "tar.gz",
+        sha256 = "9b2a4787296e9989611394c33f193f676704af1686e70b8f8033ab5ba9a35a94",
+        strip_prefix = "percent-encoding-2.3.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.percent-encoding-2.3.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__pkg_config__0_3_27",
+        url = "https://crates.io/api/v1/crates/pkg-config/0.3.27/download",
+        type = "tar.gz",
+        sha256 = "26072860ba924cbfa98ea39c8c19b4dd6a4a25423dbdf219c1eca91aa0cf6964",
+        strip_prefix = "pkg-config-0.3.27",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.pkg-config-0.3.27.bazel"),
     )
 
     maybe(
@@ -605,12 +845,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__proc_macro2__1_0_59",
-        url = "https://crates.io/api/v1/crates/proc-macro2/1.0.59/download",
+        name = "wasmtime__proc_macro2__1_0_67",
+        url = "https://crates.io/api/v1/crates/proc-macro2/1.0.67/download",
         type = "tar.gz",
-        sha256 = "6aeca18b86b413c660b781aa319e4e2648a3e6f9eadc9b47e9038e6fe9f3451b",
-        strip_prefix = "proc-macro2-1.0.59",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.proc-macro2-1.0.59.bazel"),
+        sha256 = "3d433d9f1a3e8c1263d9456598b16fec66f4acc9a74dacffd35c7bb09b3a1328",
+        strip_prefix = "proc-macro2-1.0.67",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.proc-macro2-1.0.67.bazel"),
     )
 
     maybe(
@@ -625,12 +865,22 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__quote__1_0_28",
-        url = "https://crates.io/api/v1/crates/quote/1.0.28/download",
+        name = "wasmtime__pulldown_cmark__0_8_0",
+        url = "https://crates.io/api/v1/crates/pulldown-cmark/0.8.0/download",
         type = "tar.gz",
-        sha256 = "1b9ab9c7eadfd8df19006f1cf1a4aed13540ed5cbc047010ece5826e10825488",
-        strip_prefix = "quote-1.0.28",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.quote-1.0.28.bazel"),
+        sha256 = "ffade02495f22453cd593159ea2f59827aae7f53fa8323f756799b670881dcf8",
+        strip_prefix = "pulldown-cmark-0.8.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.pulldown-cmark-0.8.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__quote__1_0_33",
+        url = "https://crates.io/api/v1/crates/quote/1.0.33/download",
+        type = "tar.gz",
+        sha256 = "5267fca4496028628a95160fc423a33e8b2e6af8a5302579e322e4b520293cae",
+        strip_prefix = "quote-1.0.33",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.quote-1.0.33.bazel"),
     )
 
     maybe(
@@ -665,6 +915,46 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "wasmtime__rayon__1_7_0",
+        url = "https://crates.io/api/v1/crates/rayon/1.7.0/download",
+        type = "tar.gz",
+        sha256 = "1d2df5196e37bcc87abebc0053e20787d73847bb33134a69841207dd0a47f03b",
+        strip_prefix = "rayon-1.7.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.rayon-1.7.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__rayon_core__1_11_0",
+        url = "https://crates.io/api/v1/crates/rayon-core/1.11.0/download",
+        type = "tar.gz",
+        sha256 = "4b8f95bd6966f5c87776639160a66bd8ab9895d9d4ab01ddba9fc60661aebe8d",
+        strip_prefix = "rayon-core-1.11.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.rayon-core-1.11.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__redox_syscall__0_2_16",
+        url = "https://crates.io/api/v1/crates/redox_syscall/0.2.16/download",
+        type = "tar.gz",
+        sha256 = "fb5a58c1855b4b6819d59012155603f0b22ad30cad752600aadfcb695265519a",
+        strip_prefix = "redox_syscall-0.2.16",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.redox_syscall-0.2.16.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__redox_users__0_4_3",
+        url = "https://crates.io/api/v1/crates/redox_users/0.4.3/download",
+        type = "tar.gz",
+        sha256 = "b033d837a7cf162d7993aded9304e30a83213c648b6e389db233191f891e5c2b",
+        strip_prefix = "redox_users-0.4.3",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.redox_users-0.4.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "wasmtime__regalloc2__0_8_1",
         url = "https://crates.io/api/v1/crates/regalloc2/0.8.1/download",
         type = "tar.gz",
@@ -675,22 +965,32 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__regex__1_8_3",
-        url = "https://crates.io/api/v1/crates/regex/1.8.3/download",
+        name = "wasmtime__regex__1_9_5",
+        url = "https://crates.io/api/v1/crates/regex/1.9.5/download",
         type = "tar.gz",
-        sha256 = "81ca098a9821bd52d6b24fd8b10bd081f47d39c22778cafaa75a2857a62c6390",
-        strip_prefix = "regex-1.8.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.regex-1.8.3.bazel"),
+        sha256 = "697061221ea1b4a94a624f67d0ae2bfe4e22b8a17b6a192afb11046542cc8c47",
+        strip_prefix = "regex-1.9.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.regex-1.9.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__regex_syntax__0_7_2",
-        url = "https://crates.io/api/v1/crates/regex-syntax/0.7.2/download",
+        name = "wasmtime__regex_automata__0_3_8",
+        url = "https://crates.io/api/v1/crates/regex-automata/0.3.8/download",
         type = "tar.gz",
-        sha256 = "436b050e76ed2903236f032a59761c1eb99e1b0aead2c257922771dab1fc8c78",
-        strip_prefix = "regex-syntax-0.7.2",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.regex-syntax-0.7.2.bazel"),
+        sha256 = "c2f401f4955220693b56f8ec66ee9c78abffd8d1c4f23dc41a23839eb88f0795",
+        strip_prefix = "regex-automata-0.3.8",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.regex-automata-0.3.8.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__regex_syntax__0_7_5",
+        url = "https://crates.io/api/v1/crates/regex-syntax/0.7.5/download",
+        type = "tar.gz",
+        sha256 = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da",
+        strip_prefix = "regex-syntax-0.7.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.regex-syntax-0.7.5.bazel"),
     )
 
     maybe(
@@ -715,52 +1015,82 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__rustix__0_37_19",
-        url = "https://crates.io/api/v1/crates/rustix/0.37.19/download",
+        name = "wasmtime__rustix__0_37_23",
+        url = "https://crates.io/api/v1/crates/rustix/0.37.23/download",
         type = "tar.gz",
-        sha256 = "acf8729d8542766f1b2cf77eb034d52f40d375bb8b615d0b147089946e16613d",
-        strip_prefix = "rustix-0.37.19",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.rustix-0.37.19.bazel"),
+        sha256 = "4d69718bf81c6127a49dc64e44a742e8bb9213c0ff8869a22c308f84c1d4ab06",
+        strip_prefix = "rustix-0.37.23",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.rustix-0.37.23.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__ryu__1_0_13",
-        url = "https://crates.io/api/v1/crates/ryu/1.0.13/download",
+        name = "wasmtime__rustix__0_38_13",
+        url = "https://crates.io/api/v1/crates/rustix/0.38.13/download",
         type = "tar.gz",
-        sha256 = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041",
-        strip_prefix = "ryu-1.0.13",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.ryu-1.0.13.bazel"),
+        sha256 = "d7db8590df6dfcd144d22afd1b83b36c21a18d7cbc1dc4bb5295a8712e9eb662",
+        strip_prefix = "rustix-0.38.13",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.rustix-0.38.13.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__serde__1_0_163",
-        url = "https://crates.io/api/v1/crates/serde/1.0.163/download",
+        name = "wasmtime__ryu__1_0_15",
+        url = "https://crates.io/api/v1/crates/ryu/1.0.15/download",
         type = "tar.gz",
-        sha256 = "2113ab51b87a539ae008b5c6c02dc020ffa39afd2d83cffcb3f4eb2722cebec2",
-        strip_prefix = "serde-1.0.163",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.serde-1.0.163.bazel"),
+        sha256 = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741",
+        strip_prefix = "ryu-1.0.15",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.ryu-1.0.15.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__serde_derive__1_0_163",
-        url = "https://crates.io/api/v1/crates/serde_derive/1.0.163/download",
+        name = "wasmtime__scopeguard__1_2_0",
+        url = "https://crates.io/api/v1/crates/scopeguard/1.2.0/download",
         type = "tar.gz",
-        sha256 = "8c805777e3930c8883389c602315a24224bcc738b63905ef87cd1420353ea93e",
-        strip_prefix = "serde_derive-1.0.163",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.serde_derive-1.0.163.bazel"),
+        sha256 = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49",
+        strip_prefix = "scopeguard-1.2.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.scopeguard-1.2.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__serde_json__1_0_96",
-        url = "https://crates.io/api/v1/crates/serde_json/1.0.96/download",
+        name = "wasmtime__serde__1_0_188",
+        url = "https://crates.io/api/v1/crates/serde/1.0.188/download",
         type = "tar.gz",
-        sha256 = "057d394a50403bcac12672b2b18fb387ab6d289d957dab67dd201875391e52f1",
-        strip_prefix = "serde_json-1.0.96",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.serde_json-1.0.96.bazel"),
+        sha256 = "cf9e0fcba69a370eed61bcf2b728575f726b50b55cba78064753d708ddc7549e",
+        strip_prefix = "serde-1.0.188",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.serde-1.0.188.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__serde_derive__1_0_188",
+        url = "https://crates.io/api/v1/crates/serde_derive/1.0.188/download",
+        type = "tar.gz",
+        sha256 = "4eca7ac642d82aa35b60049a6eccb4be6be75e599bd2e9adb5f875a737654af2",
+        strip_prefix = "serde_derive-1.0.188",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.serde_derive-1.0.188.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__serde_json__1_0_107",
+        url = "https://crates.io/api/v1/crates/serde_json/1.0.107/download",
+        type = "tar.gz",
+        sha256 = "6b420ce6e3d8bd882e9b243c6eed35dbc9a6110c9769e74b584e0d68d1f20c65",
+        strip_prefix = "serde_json-1.0.107",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.serde_json-1.0.107.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__sha2__0_10_7",
+        url = "https://crates.io/api/v1/crates/sha2/0.10.7/download",
+        type = "tar.gz",
+        sha256 = "479fb9d862239e610720565ca91403019f2f00410f1864c5aa7479b950a76ed8",
+        strip_prefix = "sha2-0.10.7",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.sha2-0.10.7.bazel"),
     )
 
     maybe(
@@ -775,12 +1105,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__smallvec__1_10_0",
-        url = "https://crates.io/api/v1/crates/smallvec/1.10.0/download",
+        name = "wasmtime__smallvec__1_11_0",
+        url = "https://crates.io/api/v1/crates/smallvec/1.11.0/download",
         type = "tar.gz",
-        sha256 = "a507befe795404456341dfab10cef66ead4c041f62b8b11bbb92bffe5d0953e0",
-        strip_prefix = "smallvec-1.10.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.smallvec-1.10.0.bazel"),
+        sha256 = "62bb4feee49fdd9f707ef802e22365a35de4b7b299de4763d44bfea899442ff9",
+        strip_prefix = "smallvec-1.11.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.smallvec-1.11.0.bazel"),
     )
 
     maybe(
@@ -795,22 +1125,32 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__syn__2_0_18",
-        url = "https://crates.io/api/v1/crates/syn/2.0.18/download",
+        name = "wasmtime__syn__1_0_109",
+        url = "https://crates.io/api/v1/crates/syn/1.0.109/download",
         type = "tar.gz",
-        sha256 = "32d41677bcbe24c20c52e7c70b0d8db04134c5d1066bf98662e2871ad200ea3e",
-        strip_prefix = "syn-2.0.18",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.syn-2.0.18.bazel"),
+        sha256 = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237",
+        strip_prefix = "syn-1.0.109",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.syn-1.0.109.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__target_lexicon__0_12_7",
-        url = "https://crates.io/api/v1/crates/target-lexicon/0.12.7/download",
+        name = "wasmtime__syn__2_0_33",
+        url = "https://crates.io/api/v1/crates/syn/2.0.33/download",
         type = "tar.gz",
-        sha256 = "fd1ba337640d60c3e96bc6f0638a939b9c9a7f2c316a1598c279828b3d1dc8c5",
-        strip_prefix = "target-lexicon-0.12.7",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.target-lexicon-0.12.7.bazel"),
+        sha256 = "9caece70c63bfba29ec2fed841a09851b14a235c60010fa4de58089b6c025668",
+        strip_prefix = "syn-2.0.33",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.syn-2.0.33.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__target_lexicon__0_12_11",
+        url = "https://crates.io/api/v1/crates/target-lexicon/0.12.11/download",
+        type = "tar.gz",
+        sha256 = "9d0e916b1148c8e263850e1ebcbd046f333e0683c724876bb0da63ea4373dc8a",
+        strip_prefix = "target-lexicon-0.12.11",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.target-lexicon-0.12.11.bazel"),
     )
 
     maybe(
@@ -825,22 +1165,22 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__thiserror__1_0_40",
-        url = "https://crates.io/api/v1/crates/thiserror/1.0.40/download",
+        name = "wasmtime__thiserror__1_0_48",
+        url = "https://crates.io/api/v1/crates/thiserror/1.0.48/download",
         type = "tar.gz",
-        sha256 = "978c9a314bd8dc99be594bc3c175faaa9794be04a5a5e153caba6915336cebac",
-        strip_prefix = "thiserror-1.0.40",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.thiserror-1.0.40.bazel"),
+        sha256 = "9d6d7a740b8a666a7e828dd00da9c0dc290dff53154ea77ac109281de90589b7",
+        strip_prefix = "thiserror-1.0.48",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.thiserror-1.0.48.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__thiserror_impl__1_0_40",
-        url = "https://crates.io/api/v1/crates/thiserror-impl/1.0.40/download",
+        name = "wasmtime__thiserror_impl__1_0_48",
+        url = "https://crates.io/api/v1/crates/thiserror-impl/1.0.48/download",
         type = "tar.gz",
-        sha256 = "f9456a42c5b0d803c8cd86e73dd7cc9edd429499f37a3550d286d5e86720569f",
-        strip_prefix = "thiserror-impl-1.0.40",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.thiserror-impl-1.0.40.bazel"),
+        sha256 = "49922ecae66cc8a249b77e68d1d0623c1b2c514f0060c27cdc68bd62a1219d35",
+        strip_prefix = "thiserror-impl-1.0.48",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.thiserror-impl-1.0.48.bazel"),
     )
 
     maybe(
@@ -865,6 +1205,36 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "wasmtime__toml__0_5_11",
+        url = "https://crates.io/api/v1/crates/toml/0.5.11/download",
+        type = "tar.gz",
+        sha256 = "f4f7f0dd8d50a853a531c426359045b1998f04219d88799810762cd4ad314234",
+        strip_prefix = "toml-0.5.11",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.toml-0.5.11.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__typenum__1_16_0",
+        url = "https://crates.io/api/v1/crates/typenum/1.16.0/download",
+        type = "tar.gz",
+        sha256 = "497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba",
+        strip_prefix = "typenum-1.16.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.typenum-1.16.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__unicase__2_7_0",
+        url = "https://crates.io/api/v1/crates/unicase/2.7.0/download",
+        type = "tar.gz",
+        sha256 = "f7d2d4dafb69621809a81864c9c1b864479e1235c0dd4e199924b9742439ed89",
+        strip_prefix = "unicase-2.7.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.unicase-2.7.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "wasmtime__unicode_bidi__0_3_13",
         url = "https://crates.io/api/v1/crates/unicode-bidi/0.3.13/download",
         type = "tar.gz",
@@ -875,12 +1245,12 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__unicode_ident__1_0_9",
-        url = "https://crates.io/api/v1/crates/unicode-ident/1.0.9/download",
+        name = "wasmtime__unicode_ident__1_0_12",
+        url = "https://crates.io/api/v1/crates/unicode-ident/1.0.12/download",
         type = "tar.gz",
-        sha256 = "b15811caf2415fb889178633e7724bad2509101cde276048e013b9def5e51fa0",
-        strip_prefix = "unicode-ident-1.0.9",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.unicode-ident-1.0.9.bazel"),
+        sha256 = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b",
+        strip_prefix = "unicode-ident-1.0.12",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.unicode-ident-1.0.12.bazel"),
     )
 
     maybe(
@@ -895,22 +1265,42 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__url__2_3_1",
-        url = "https://crates.io/api/v1/crates/url/2.3.1/download",
+        name = "wasmtime__unicode_width__0_1_10",
+        url = "https://crates.io/api/v1/crates/unicode-width/0.1.10/download",
         type = "tar.gz",
-        sha256 = "0d68c799ae75762b8c3fe375feb6600ef5602c883c5d21eb51c09f22b83c4643",
-        strip_prefix = "url-2.3.1",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.url-2.3.1.bazel"),
+        sha256 = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b",
+        strip_prefix = "unicode-width-0.1.10",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.unicode-width-0.1.10.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__uuid__1_3_3",
-        url = "https://crates.io/api/v1/crates/uuid/1.3.3/download",
+        name = "wasmtime__unicode_xid__0_2_4",
+        url = "https://crates.io/api/v1/crates/unicode-xid/0.2.4/download",
         type = "tar.gz",
-        sha256 = "345444e32442451b267fc254ae85a209c64be56d2890e601a0c37ff0c3c5ecd2",
-        strip_prefix = "uuid-1.3.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.uuid-1.3.3.bazel"),
+        sha256 = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c",
+        strip_prefix = "unicode-xid-0.2.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.unicode-xid-0.2.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__url__2_4_1",
+        url = "https://crates.io/api/v1/crates/url/2.4.1/download",
+        type = "tar.gz",
+        sha256 = "143b538f18257fac9cad154828a57c6bf5157e1aa604d4816b5995bf6de87ae5",
+        strip_prefix = "url-2.4.1",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.url-2.4.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__uuid__1_4_1",
+        url = "https://crates.io/api/v1/crates/uuid/1.4.1/download",
+        type = "tar.gz",
+        sha256 = "79daa5ed5740825c40b389c5e50312b9c86df53fccd33f281df655642b43869d",
+        strip_prefix = "uuid-1.4.1",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.uuid-1.4.1.bazel"),
     )
 
     maybe(
@@ -935,6 +1325,16 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
+        name = "wasmtime__wasm_encoder__0_32_0",
+        url = "https://crates.io/api/v1/crates/wasm-encoder/0.32.0/download",
+        type = "tar.gz",
+        sha256 = "1ba64e81215916eaeb48fee292f29401d69235d62d8b8fd92a7b2844ec5ae5f7",
+        strip_prefix = "wasm-encoder-0.32.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasm-encoder-0.32.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "wasmtime__wasmparser__0_103_0",
         url = "https://crates.io/api/v1/crates/wasmparser/0.103.0/download",
         type = "tar.gz",
@@ -945,22 +1345,22 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime/9.0.3/download",
+        name = "wasmtime__wasmtime__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime/9.0.4/download",
         type = "tar.gz",
-        sha256 = "aa0f72886c3264eb639f50188d1eb98b975564130292fea8deb4facf91ca7258",
-        strip_prefix = "wasmtime-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-9.0.3.bazel"),
+        sha256 = "634357e8668774b24c80b210552f3f194e2342a065d6d83845ba22c5817d0770",
+        strip_prefix = "wasmtime-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-9.0.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime_asm_macros__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime-asm-macros/9.0.3/download",
+        name = "wasmtime__wasmtime_asm_macros__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-asm-macros/9.0.4/download",
         type = "tar.gz",
-        sha256 = "a18391ed41ca957eecdbe64c51879b75419cbc52e2d8663fe82945b28b4f19da",
-        strip_prefix = "wasmtime-asm-macros-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-asm-macros-9.0.3.bazel"),
+        sha256 = "d33c73c24ce79b0483a3b091a9acf88871f4490b88998e8974b22236264d304c",
+        strip_prefix = "wasmtime-asm-macros-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-asm-macros-9.0.4.bazel"),
     )
 
     maybe(
@@ -974,82 +1374,152 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime_cranelift__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime-cranelift/9.0.3/download",
+        name = "wasmtime__wasmtime_cache__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-cache/9.0.4/download",
         type = "tar.gz",
-        sha256 = "a2495036d05eb1e79ecf22e092eeacd279dcf24b4fcab77fb4cf8ef9bd42c3ea",
-        strip_prefix = "wasmtime-cranelift-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-cranelift-9.0.3.bazel"),
+        sha256 = "6107809b2d9f5b2fd3ddbaddb3bb92ff8048b62f4030debf1408119ffd38c6cb",
+        strip_prefix = "wasmtime-cache-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-cache-9.0.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime_cranelift_shared__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime-cranelift-shared/9.0.3/download",
+        name = "wasmtime__wasmtime_component_macro__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-component-macro/9.0.4/download",
         type = "tar.gz",
-        sha256 = "ef677f7b0d3f3b73275675486d791f1e85e7c24afe8dd367c6b9950028906330",
-        strip_prefix = "wasmtime-cranelift-shared-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-cranelift-shared-9.0.3.bazel"),
+        sha256 = "e5ba489850d9c91c6c5b9e1696ee89e7a69d9796236a005f7e9131b6746e13b6",
+        strip_prefix = "wasmtime-component-macro-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-component-macro-9.0.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime_environ__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime-environ/9.0.3/download",
+        name = "wasmtime__wasmtime_component_util__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-component-util/9.0.4/download",
         type = "tar.gz",
-        sha256 = "2d03356374ffafa881c5f972529d2bb11ce48fe2736285e2b0ad72c6d554257b",
-        strip_prefix = "wasmtime-environ-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-environ-9.0.3.bazel"),
+        sha256 = "7fa88f9e77d80f828c9d684741a9da649366c6d1cceb814755dd9cab7112d1d1",
+        strip_prefix = "wasmtime-component-util-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-component-util-9.0.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime_jit__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime-jit/9.0.3/download",
+        name = "wasmtime__wasmtime_cranelift__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-cranelift/9.0.4/download",
         type = "tar.gz",
-        sha256 = "e5374f0d2ee0069391dd9348f148802846b2b3e0af650385f9c56b3012d3c5d1",
-        strip_prefix = "wasmtime-jit-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-jit-9.0.3.bazel"),
+        sha256 = "5800616a28ed6bd5e8b99ea45646c956d798ae030494ac0689bc3e45d3b689c1",
+        strip_prefix = "wasmtime-cranelift-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-cranelift-9.0.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime_jit_debug__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime-jit-debug/9.0.3/download",
+        name = "wasmtime__wasmtime_cranelift_shared__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-cranelift-shared/9.0.4/download",
         type = "tar.gz",
-        sha256 = "102653b177225bfdd2da41cc385965d4bf6bc10cf14ec7b306bc9b015fb01c22",
-        strip_prefix = "wasmtime-jit-debug-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-jit-debug-9.0.3.bazel"),
+        sha256 = "27e4030b959ac5c5d6ee500078977e813f8768fa2b92fc12be01856cd0c76c55",
+        strip_prefix = "wasmtime-cranelift-shared-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-cranelift-shared-9.0.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime_jit_icache_coherence__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime-jit-icache-coherence/9.0.3/download",
+        name = "wasmtime__wasmtime_environ__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-environ/9.0.4/download",
         type = "tar.gz",
-        sha256 = "374ff63b3eb41db57c56682a9ef7737d2c9efa801f5dbf9da93941c9dd436a06",
-        strip_prefix = "wasmtime-jit-icache-coherence-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-jit-icache-coherence-9.0.3.bazel"),
+        sha256 = "9ec815d01a8d38aceb7ed4678f9ba551ae6b8a568a63810ac3ad9293b0fd01c8",
+        strip_prefix = "wasmtime-environ-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-environ-9.0.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime_runtime__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime-runtime/9.0.3/download",
+        name = "wasmtime__wasmtime_fiber__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-fiber/9.0.4/download",
         type = "tar.gz",
-        sha256 = "9b1b832f19099066ebd26e683121d331f12cf98f158eac0f889972854413b46f",
-        strip_prefix = "wasmtime-runtime-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-runtime-9.0.3.bazel"),
+        sha256 = "23c5127908fdf720614891ec741c13dd70c844e102caa393e2faca1ee68e9bfb",
+        strip_prefix = "wasmtime-fiber-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-fiber-9.0.4.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__wasmtime_types__9_0_3",
-        url = "https://crates.io/api/v1/crates/wasmtime-types/9.0.3/download",
+        name = "wasmtime__wasmtime_jit__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-jit/9.0.4/download",
         type = "tar.gz",
-        sha256 = "9c574221440e05bbb04efa09786d049401be2eb10081ecf43eb72fbd637bd12f",
-        strip_prefix = "wasmtime-types-9.0.3",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-types-9.0.3.bazel"),
+        sha256 = "2712eafe829778b426cad0e1769fef944898923dd29f0039e34e0d53ba72b234",
+        strip_prefix = "wasmtime-jit-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-jit-9.0.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__wasmtime_jit_debug__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-jit-debug/9.0.4/download",
+        type = "tar.gz",
+        sha256 = "65fb78eacf4a6e47260d8ef8cc81ea8ddb91397b2e848b3fb01567adebfe89b5",
+        strip_prefix = "wasmtime-jit-debug-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-jit-debug-9.0.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__wasmtime_jit_icache_coherence__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-jit-icache-coherence/9.0.4/download",
+        type = "tar.gz",
+        sha256 = "d1364900b05f7d6008516121e8e62767ddb3e176bdf4c84dfa85da1734aeab79",
+        strip_prefix = "wasmtime-jit-icache-coherence-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-jit-icache-coherence-9.0.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__wasmtime_runtime__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-runtime/9.0.4/download",
+        type = "tar.gz",
+        sha256 = "4a16ffe4de9ac9669175c0ea5c6c51ffc596dfb49320aaa6f6c57eff58cef069",
+        strip_prefix = "wasmtime-runtime-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-runtime-9.0.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__wasmtime_types__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-types/9.0.4/download",
+        type = "tar.gz",
+        sha256 = "19961c9a3b04d5e766875a5c467f6f5d693f508b3e81f8dc4a1444aa94f041c9",
+        strip_prefix = "wasmtime-types-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-types-9.0.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__wasmtime_wit_bindgen__9_0_4",
+        url = "https://crates.io/api/v1/crates/wasmtime-wit-bindgen/9.0.4/download",
+        type = "tar.gz",
+        sha256 = "421f0d16cc5c612b35ae53a0be3d3124c72296f18e5be3468263c745d56d37ab",
+        strip_prefix = "wasmtime-wit-bindgen-9.0.4",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wasmtime-wit-bindgen-9.0.4.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__wast__64_0_0",
+        url = "https://crates.io/api/v1/crates/wast/64.0.0/download",
+        type = "tar.gz",
+        sha256 = "a259b226fd6910225aa7baeba82f9d9933b6d00f2ce1b49b80fa4214328237cc",
+        strip_prefix = "wast-64.0.0",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wast-64.0.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__wat__1_0_71",
+        url = "https://crates.io/api/v1/crates/wat/1.0.71/download",
+        type = "tar.gz",
+        sha256 = "53253d920ab413fca1c7dc2161d601c79b4fdf631d0ba51dd4343bf9b556c3f6",
+        strip_prefix = "wat-1.0.71",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wat-1.0.71.bazel"),
     )
 
     maybe(
@@ -1104,80 +1574,120 @@ def wasmtime_fetch_remote_crates():
 
     maybe(
         http_archive,
-        name = "wasmtime__windows_targets__0_48_0",
-        url = "https://crates.io/api/v1/crates/windows-targets/0.48.0/download",
+        name = "wasmtime__windows_targets__0_48_5",
+        url = "https://crates.io/api/v1/crates/windows-targets/0.48.5/download",
         type = "tar.gz",
-        sha256 = "7b1eb6f0cd7c80c79759c929114ef071b87354ce476d9d94271031c0497adfd5",
-        strip_prefix = "windows-targets-0.48.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows-targets-0.48.0.bazel"),
+        sha256 = "9a2fa6e2155d7247be68c096456083145c183cbbbc2764150dda45a87197940c",
+        strip_prefix = "windows-targets-0.48.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows-targets-0.48.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__windows_aarch64_gnullvm__0_48_0",
-        url = "https://crates.io/api/v1/crates/windows_aarch64_gnullvm/0.48.0/download",
+        name = "wasmtime__windows_aarch64_gnullvm__0_48_5",
+        url = "https://crates.io/api/v1/crates/windows_aarch64_gnullvm/0.48.5/download",
         type = "tar.gz",
-        sha256 = "91ae572e1b79dba883e0d315474df7305d12f569b400fcf90581b06062f7e1bc",
-        strip_prefix = "windows_aarch64_gnullvm-0.48.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_aarch64_gnullvm-0.48.0.bazel"),
+        sha256 = "2b38e32f0abccf9987a4e3079dfb67dcd799fb61361e53e2882c3cbaf0d905d8",
+        strip_prefix = "windows_aarch64_gnullvm-0.48.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_aarch64_gnullvm-0.48.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__windows_aarch64_msvc__0_48_0",
-        url = "https://crates.io/api/v1/crates/windows_aarch64_msvc/0.48.0/download",
+        name = "wasmtime__windows_aarch64_msvc__0_48_5",
+        url = "https://crates.io/api/v1/crates/windows_aarch64_msvc/0.48.5/download",
         type = "tar.gz",
-        sha256 = "b2ef27e0d7bdfcfc7b868b317c1d32c641a6fe4629c171b8928c7b08d98d7cf3",
-        strip_prefix = "windows_aarch64_msvc-0.48.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_aarch64_msvc-0.48.0.bazel"),
+        sha256 = "dc35310971f3b2dbbf3f0690a219f40e2d9afcf64f9ab7cc1be722937c26b4bc",
+        strip_prefix = "windows_aarch64_msvc-0.48.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_aarch64_msvc-0.48.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__windows_i686_gnu__0_48_0",
-        url = "https://crates.io/api/v1/crates/windows_i686_gnu/0.48.0/download",
+        name = "wasmtime__windows_i686_gnu__0_48_5",
+        url = "https://crates.io/api/v1/crates/windows_i686_gnu/0.48.5/download",
         type = "tar.gz",
-        sha256 = "622a1962a7db830d6fd0a69683c80a18fda201879f0f447f065a3b7467daa241",
-        strip_prefix = "windows_i686_gnu-0.48.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_i686_gnu-0.48.0.bazel"),
+        sha256 = "a75915e7def60c94dcef72200b9a8e58e5091744960da64ec734a6c6e9b3743e",
+        strip_prefix = "windows_i686_gnu-0.48.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_i686_gnu-0.48.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__windows_i686_msvc__0_48_0",
-        url = "https://crates.io/api/v1/crates/windows_i686_msvc/0.48.0/download",
+        name = "wasmtime__windows_i686_msvc__0_48_5",
+        url = "https://crates.io/api/v1/crates/windows_i686_msvc/0.48.5/download",
         type = "tar.gz",
-        sha256 = "4542c6e364ce21bf45d69fdd2a8e455fa38d316158cfd43b3ac1c5b1b19f8e00",
-        strip_prefix = "windows_i686_msvc-0.48.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_i686_msvc-0.48.0.bazel"),
+        sha256 = "8f55c233f70c4b27f66c523580f78f1004e8b5a8b659e05a4eb49d4166cca406",
+        strip_prefix = "windows_i686_msvc-0.48.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_i686_msvc-0.48.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__windows_x86_64_gnu__0_48_0",
-        url = "https://crates.io/api/v1/crates/windows_x86_64_gnu/0.48.0/download",
+        name = "wasmtime__windows_x86_64_gnu__0_48_5",
+        url = "https://crates.io/api/v1/crates/windows_x86_64_gnu/0.48.5/download",
         type = "tar.gz",
-        sha256 = "ca2b8a661f7628cbd23440e50b05d705db3686f894fc9580820623656af974b1",
-        strip_prefix = "windows_x86_64_gnu-0.48.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_x86_64_gnu-0.48.0.bazel"),
+        sha256 = "53d40abd2583d23e4718fddf1ebec84dbff8381c07cae67ff7768bbf19c6718e",
+        strip_prefix = "windows_x86_64_gnu-0.48.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_x86_64_gnu-0.48.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__windows_x86_64_gnullvm__0_48_0",
-        url = "https://crates.io/api/v1/crates/windows_x86_64_gnullvm/0.48.0/download",
+        name = "wasmtime__windows_x86_64_gnullvm__0_48_5",
+        url = "https://crates.io/api/v1/crates/windows_x86_64_gnullvm/0.48.5/download",
         type = "tar.gz",
-        sha256 = "7896dbc1f41e08872e9d5e8f8baa8fdd2677f29468c4e156210174edc7f7b953",
-        strip_prefix = "windows_x86_64_gnullvm-0.48.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_x86_64_gnullvm-0.48.0.bazel"),
+        sha256 = "0b7b52767868a23d5bab768e390dc5f5c55825b6d30b86c844ff2dc7414044cc",
+        strip_prefix = "windows_x86_64_gnullvm-0.48.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_x86_64_gnullvm-0.48.5.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "wasmtime__windows_x86_64_msvc__0_48_0",
-        url = "https://crates.io/api/v1/crates/windows_x86_64_msvc/0.48.0/download",
+        name = "wasmtime__windows_x86_64_msvc__0_48_5",
+        url = "https://crates.io/api/v1/crates/windows_x86_64_msvc/0.48.5/download",
         type = "tar.gz",
-        sha256 = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a",
-        strip_prefix = "windows_x86_64_msvc-0.48.0",
-        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_x86_64_msvc-0.48.0.bazel"),
+        sha256 = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538",
+        strip_prefix = "windows_x86_64_msvc-0.48.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.windows_x86_64_msvc-0.48.5.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__wit_parser__0_7_1",
+        url = "https://crates.io/api/v1/crates/wit-parser/0.7.1/download",
+        type = "tar.gz",
+        sha256 = "5ca2581061573ef6d1754983d7a9b3ed5871ef859d52708ea9a0f5af32919172",
+        strip_prefix = "wit-parser-0.7.1",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.wit-parser-0.7.1.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__zstd__0_11_2_zstd_1_5_2",
+        url = "https://crates.io/api/v1/crates/zstd/0.11.2+zstd.1.5.2/download",
+        type = "tar.gz",
+        sha256 = "20cc960326ece64f010d2d2107537f26dc589a6573a316bd5b1dba685fa5fde4",
+        strip_prefix = "zstd-0.11.2+zstd.1.5.2",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.zstd-0.11.2+zstd.1.5.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__zstd_safe__5_0_2_zstd_1_5_2",
+        url = "https://crates.io/api/v1/crates/zstd-safe/5.0.2+zstd.1.5.2/download",
+        type = "tar.gz",
+        sha256 = "1d2a5585e04f9eea4b2a3d1eca508c4dee9592a89ef6f450c11719da0726f4db",
+        strip_prefix = "zstd-safe-5.0.2+zstd.1.5.2",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.zstd-safe-5.0.2+zstd.1.5.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "wasmtime__zstd_sys__2_0_8_zstd_1_5_5",
+        url = "https://crates.io/api/v1/crates/zstd-sys/2.0.8+zstd.1.5.5/download",
+        type = "tar.gz",
+        sha256 = "5556e6ee25d32df2586c098bbfa278803692a20d0ab9565e049480d52707ec8c",
+        strip_prefix = "zstd-sys-2.0.8+zstd.1.5.5",
+        build_file = Label("//bazel/cargo/wasmtime/remote:BUILD.zstd-sys-2.0.8+zstd.1.5.5.bazel"),
     )
