@@ -47,7 +47,10 @@ struct HostFuncData {
 using HostFuncDataPtr = std::unique_ptr<HostFuncData>;
 
 wasm_engine_t *engine() {
-  static const auto engine = WasmEnginePtr(wasm_engine_new());
+  static auto engine_config = WasmConfigPtr(wasm_config_new());
+  // it is able to use wasm_config_set_xxx() to adjust wamr runtime features
+  // like: wasm_config_set_linux_perf_opt(engine_config.get(), true);
+  static const auto engine = WasmEnginePtr(wasm_engine_new_with_config(engine_config.get()));
   return engine.get();
 }
 
@@ -130,6 +133,7 @@ bool Wamr::load(std::string_view bytecode, std::string_view /*precompiled*/,
                             .num_elems = bytecode.size(),
                             .size_of_elem = sizeof(byte_t),
                             .lock = nullptr};
+
   module_ = wasm_module_new(store_.get(), &binary);
   if (module_ == nullptr) {
     return false;
