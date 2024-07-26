@@ -19,6 +19,17 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 def proxy_wasm_cpp_host_repositories():
     # Bazel extensions.
 
+    # Update platforms for crate_universe. Can remove when we update Bazel version.
+    maybe(
+        http_archive,
+        name = "platforms",
+        urls = [
+            "https://mirror.bazel.build/github.com/bazelbuild/platforms/releases/download/0.0.10/platforms-0.0.10.tar.gz",
+            "https://github.com/bazelbuild/platforms/releases/download/0.0.10/platforms-0.0.10.tar.gz",
+        ],
+        sha256 = "218efe8ee736d26a3572663b374a253c012b716d8af0c07e842e82f238a0a7ee",
+    )
+
     maybe(
         http_archive,
         name = "bazel_skylib",
@@ -82,7 +93,16 @@ def proxy_wasm_cpp_host_repositories():
         patch_args = ["-p1"],
     )
 
-    # Core.
+    # Core deps. Try to keep up with Envoy versions:
+    # https://github.com/envoyproxy/envoy/blob/main/bazel/repository_locations.bzl
+
+    maybe(
+        http_archive,
+        name = "com_google_absl",
+        sha256 = "987ce98f02eefbaf930d6e38ab16aa05737234d7afbab2d5c4ea7adbe50c28ed",
+        strip_prefix = "abseil-cpp-20230802.1",
+        urls = ["https://github.com/abseil/abseil-cpp/archive/20230802.1.tar.gz"],
+    )
 
     maybe(
         http_archive,
