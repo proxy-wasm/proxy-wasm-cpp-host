@@ -11,7 +11,7 @@ rust_static_library(
     crate_root = "crates/c-api/src/lib.rs",
     edition = "2018",
     proc_macro_deps = [
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime_c_api_macros",
+        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime-c-api-macros",
     ],
     deps = [
         "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:anyhow",

@@ -86,9 +86,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: cargo install cargo-raze --version 0.14.1
-
     - name: Format (bazel query)
       run: |
         bazel query 'deps(//bazel/cargo/...)'
@@ -131,7 +128,7 @@ jobs:
       with:
         path: |
           ~/.cache/bazel
-        key: clang_tidy-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl', 'bazel/cargo/wasmsign/crates.bzl') }}
+        key: clang_tidy-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl', 'bazel/cargo/wasmsign/remote/crates.bzl') }}
 
     - name: Bazel build
       run: >
