@@ -26,6 +26,7 @@ exports_files(
 crates_vendor(
     name = "crates_vendor",
     cargo_lockfile = "//bazel/cargo/wasmsign:Cargo.Bazel.lock",
+    generate_binaries = True,
     generate_target_compatible_with = False,
     manifests = ["//bazel/cargo/wasmsign:Cargo.toml"],
     mode = "remote",
