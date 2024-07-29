@@ -56,7 +56,7 @@ jobs:
         echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
     - name: Format (addlicense)
-      run: addlicense -check .
+      run: addlicense -ignore "bazel/cargo/*/remote/**" -check .
 
   buildifier:
     name: check format with buildifier
@@ -78,8 +78,8 @@ jobs:
     - name: Format (buildifier)
       run: find . -name "WORKSPACE" -o -name "*BUILD*" -o -name "*.bzl" | xargs -n1 buildifier -mode=check
 
-  cargo_raze:
-    name: check format with cargo-raze
+  rules_rust:
+    name: check format with rules_rust
 
     runs-on: ubuntu-latest
 
@@ -93,14 +93,11 @@ jobs:
       run: |
         bazel query 'deps(//bazel/cargo/...)'
 
-    - name: Format (cargo raze)
-      working-directory: bazel/cargo
+    - name: Format (rules_rust)
       run: |
-        cd wasmsign && cargo raze && cd ..
-        cd wasmtime && cargo raze && cd ..
-        # Ignore manual changes in "errno" and "rustix" crates until fixed in cargo-raze.
-        # See: https://github.com/google/cargo-raze/issues/451
-        git diff --exit-code -- ':!wasmtime/remote/BUILD.errno-0.*.bazel' ':!wasmtime/remote/BUILD.rustix-0.*.bazel'
+        bazel run //bazel/cargo/wasmsign:crates_vendor
+        bazel run //bazel/cargo/wasmtime:crates_vendor
+        git diff --exit-code
 
   clang_format:
     name: check format with clang-format
