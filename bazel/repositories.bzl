@@ -82,11 +82,14 @@ def proxy_wasm_cpp_host_repositories():
         patch_args = ["-p1"],
     )
 
-    # Core deps. Try to keep up with Envoy versions:
-    # https://github.com/envoyproxy/envoy/blob/main/bazel/repository_locations.bzl
+    # Core deps. Keep them updated.
 
-    # Note: latest LTS release, ahead of Envoy to pick up a bugfix found in local fuzzing:
-    # https://github.com/abseil/abseil-cpp/commit/e7858c73279d81cbc005d9c76a385ab535520635
+    # Note: we depend on Abseil via rules_fuzzing. Remove this pin when we update that.
+    #
+    # This is the latest LTS release, which picks up:
+    # - Build fix: https://github.com/abseil/abseil-cpp/pull/1187
+    # - A bugfix found in local fuzzing:
+    #   https://github.com/abseil/abseil-cpp/commit/e7858c73279d81cbc005d9c76a385ab535520635
     maybe(
         http_archive,
         name = "com_google_absl",
