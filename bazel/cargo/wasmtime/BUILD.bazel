@@ -1,66 +1,35 @@
-"""
-@generated
-cargo-raze generated Bazel file.
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-DO NOT EDIT! Replaced on runs of cargo-raze
-"""
+load("@rules_rust//crate_universe:defs.bzl", "crates_vendor")
 
-package(default_visibility = ["//visibility:public"])
-
-licenses([
-    "notice",  # See individual crates for specific licenses
-])
-
-# Aliased targets
-alias(
-    name = "anyhow",
-    actual = "@wasmtime__anyhow__1_0_71//:anyhow",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
-    name = "env_logger",
-    actual = "@wasmtime__env_logger__0_10_0//:env_logger",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
-    name = "once_cell",
-    actual = "@wasmtime__once_cell__1_17_2//:once_cell",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
-    name = "wasmtime",
-    actual = "@wasmtime__wasmtime__9_0_3//:wasmtime",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
-    name = "wasmtime_c_api_macros",
-    actual = "@wasmtime__wasmtime_c_api_macros__0_0_0//:wasmtime_c_api_macros",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-# Export file for Stardoc support
 exports_files(
     [
-        "crates.bzl",
+        "Cargo.toml",
+        "Cargo.Bazel.lock",
     ],
-    visibility = ["//visibility:public"],
+)
+
+# Run this target to regenerate cargo_lockfile and vendor_path/*.
+# $ bazelisk run bazel/cargo/wasmtime:crates_vendor -- --repin
+crates_vendor(
+    name = "crates_vendor",
+    cargo_lockfile = ":Cargo.Bazel.lock",
+    generate_target_compatible_with = False,
+    manifests = [":Cargo.toml"],
+    mode = "remote",
+    repository_name = "cu",  # shorten generated paths for Windows...
+    tags = ["manual"],
+    vendor_path = "remote",
 )
