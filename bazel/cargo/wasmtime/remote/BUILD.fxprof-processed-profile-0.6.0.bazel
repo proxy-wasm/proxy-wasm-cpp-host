@@ -39,10 +39,10 @@ rust_library(
     ],
     version = "0.6.0",
     deps = [
-        "@crates_vendor__bitflags-2.6.0//:bitflags",
-        "@crates_vendor__debugid-0.8.0//:debugid",
-        "@crates_vendor__fxhash-0.2.1//:fxhash",
-        "@crates_vendor__serde-1.0.204//:serde",
-        "@crates_vendor__serde_json-1.0.120//:serde_json",
+        "@cu__bitflags-2.6.0//:bitflags",
+        "@cu__debugid-0.8.0//:debugid",
+        "@cu__fxhash-0.2.1//:fxhash",
+        "@cu__serde-1.0.204//:serde",
+        "@cu__serde_json-1.0.120//:serde_json",
     ],
 )

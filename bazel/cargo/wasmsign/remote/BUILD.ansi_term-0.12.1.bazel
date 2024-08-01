@@ -40,13 +40,13 @@ rust_library(
     version = "0.12.1",
     deps = select({
         "@rules_rust//rust/platform:aarch64-pc-windows-msvc": [
-            "@crates_vendor__winapi-0.3.9//:winapi",  # cfg(target_os = "windows")
+            "@cu__winapi-0.3.9//:winapi",  # cfg(target_os = "windows")
         ],
         "@rules_rust//rust/platform:i686-pc-windows-msvc": [
-            "@crates_vendor__winapi-0.3.9//:winapi",  # cfg(target_os = "windows")
+            "@cu__winapi-0.3.9//:winapi",  # cfg(target_os = "windows")
         ],
         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
-            "@crates_vendor__winapi-0.3.9//:winapi",  # cfg(target_os = "windows")
+            "@cu__winapi-0.3.9//:winapi",  # cfg(target_os = "windows")
         ],
         "//conditions:default": [],
     }),

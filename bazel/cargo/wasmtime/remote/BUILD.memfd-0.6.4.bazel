@@ -39,6 +39,6 @@ rust_library(
     ],
     version = "0.6.4",
     deps = [
-        "@crates_vendor__rustix-0.38.34//:rustix",
+        "@cu__rustix-0.38.34//:rustix",
     ],
 )

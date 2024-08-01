@@ -39,6 +39,6 @@ rust_library(
     ],
     version = "0.96.4",
     deps = [
-        "@crates_vendor__arbitrary-1.3.2//:arbitrary",
+        "@cu__arbitrary-1.3.2//:arbitrary",
     ],
 )

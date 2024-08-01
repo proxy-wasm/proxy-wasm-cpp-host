@@ -44,6 +44,6 @@ rust_library(
     ],
     version = "1.2.1",
     deps = [
-        "@crates_vendor__percent-encoding-2.3.1//:percent_encoding",
+        "@cu__percent-encoding-2.3.1//:percent_encoding",
     ],
 )

@@ -39,7 +39,7 @@ rust_library(
     ],
     version = "0.103.0",
     deps = [
-        "@crates_vendor__indexmap-1.9.3//:indexmap",
-        "@crates_vendor__url-2.5.2//:url",
+        "@cu__indexmap-1.9.3//:indexmap",
+        "@cu__url-2.5.2//:url",
     ],
 )

@@ -48,7 +48,7 @@ rust_library(
     ],
     version = "1.0.16",
     deps = [
-        "@crates_vendor__ct-codecs-1.1.1//:ct_codecs",
-        "@crates_vendor__getrandom-0.2.15//:getrandom",
+        "@cu__ct-codecs-1.1.1//:ct_codecs",
+        "@cu__getrandom-0.2.15//:getrandom",
     ],
 )

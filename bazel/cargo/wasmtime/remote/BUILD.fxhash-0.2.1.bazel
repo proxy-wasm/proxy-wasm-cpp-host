@@ -39,6 +39,6 @@ rust_library(
     ],
     version = "0.2.1",
     deps = [
-        "@crates_vendor__byteorder-1.5.0//:byteorder",
+        "@cu__byteorder-1.5.0//:byteorder",
     ],
 )

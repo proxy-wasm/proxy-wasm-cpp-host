@@ -48,8 +48,8 @@ rust_library(
     ],
     version = "0.27.3",
     deps = [
-        "@crates_vendor__fallible-iterator-0.2.0//:fallible_iterator",
-        "@crates_vendor__indexmap-1.9.3//:indexmap",
-        "@crates_vendor__stable_deref_trait-1.2.0//:stable_deref_trait",
+        "@cu__fallible-iterator-0.2.0//:fallible_iterator",
+        "@cu__indexmap-1.9.3//:indexmap",
+        "@cu__stable_deref_trait-1.2.0//:stable_deref_trait",
     ],
 )

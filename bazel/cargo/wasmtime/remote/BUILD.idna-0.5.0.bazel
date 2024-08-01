@@ -44,7 +44,7 @@ rust_library(
     ],
     version = "0.5.0",
     deps = [
-        "@crates_vendor__unicode-bidi-0.3.15//:unicode_bidi",
-        "@crates_vendor__unicode-normalization-0.1.23//:unicode_normalization",
+        "@cu__unicode-bidi-0.3.15//:unicode_bidi",
+        "@cu__unicode-normalization-0.1.23//:unicode_normalization",
     ],
 )

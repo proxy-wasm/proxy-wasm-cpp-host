@@ -46,18 +46,18 @@ rust_library(
     ],
     version = "0.96.4",
     deps = [
-        "@crates_vendor__bumpalo-3.16.0//:bumpalo",
-        "@crates_vendor__cranelift-bforest-0.96.4//:cranelift_bforest",
-        "@crates_vendor__cranelift-codegen-0.96.4//:build_script_build",
-        "@crates_vendor__cranelift-codegen-shared-0.96.4//:cranelift_codegen_shared",
-        "@crates_vendor__cranelift-control-0.96.4//:cranelift_control",
-        "@crates_vendor__cranelift-entity-0.96.4//:cranelift_entity",
-        "@crates_vendor__gimli-0.27.3//:gimli",
-        "@crates_vendor__hashbrown-0.13.2//:hashbrown",
-        "@crates_vendor__log-0.4.22//:log",
-        "@crates_vendor__regalloc2-0.8.1//:regalloc2",
-        "@crates_vendor__smallvec-1.13.2//:smallvec",
-        "@crates_vendor__target-lexicon-0.12.15//:target_lexicon",
+        "@cu__bumpalo-3.16.0//:bumpalo",
+        "@cu__cranelift-bforest-0.96.4//:cranelift_bforest",
+        "@cu__cranelift-codegen-0.96.4//:build_script_build",
+        "@cu__cranelift-codegen-shared-0.96.4//:cranelift_codegen_shared",
+        "@cu__cranelift-control-0.96.4//:cranelift_control",
+        "@cu__cranelift-entity-0.96.4//:cranelift_entity",
+        "@cu__gimli-0.27.3//:gimli",
+        "@cu__hashbrown-0.13.2//:hashbrown",
+        "@cu__log-0.4.22//:log",
+        "@cu__regalloc2-0.8.1//:regalloc2",
+        "@cu__smallvec-1.13.2//:smallvec",
+        "@cu__target-lexicon-0.12.15//:target_lexicon",
     ],
 )
 
@@ -96,8 +96,8 @@ cargo_build_script(
     version = "0.96.4",
     visibility = ["//visibility:private"],
     deps = [
-        "@crates_vendor__cranelift-codegen-meta-0.96.4//:cranelift_codegen_meta",
-        "@crates_vendor__cranelift-isle-0.96.4//:cranelift_isle",
+        "@cu__cranelift-codegen-meta-0.96.4//:cranelift_codegen_meta",
+        "@cu__cranelift-isle-0.96.4//:cranelift_isle",
     ],
 )
 

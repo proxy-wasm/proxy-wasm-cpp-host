@@ -17,7 +17,7 @@ load("@rules_rust//crate_universe/private:crates_vendor.bzl", "crates_vendor_rem
 def crate_repositories():
     maybe(
         crates_vendor_remote_repository,
-        name = "crates_vendor",
+        name = "cu",
         build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.bazel"),
         defs_module = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:defs.bzl"),
     )

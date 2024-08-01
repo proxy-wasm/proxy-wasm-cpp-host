@@ -39,6 +39,6 @@ rust_library(
     ],
     version = "0.96.4",
     deps = [
-        "@crates_vendor__cranelift-codegen-shared-0.96.4//:cranelift_codegen_shared",
+        "@cu__cranelift-codegen-shared-0.96.4//:cranelift_codegen_shared",
     ],
 )

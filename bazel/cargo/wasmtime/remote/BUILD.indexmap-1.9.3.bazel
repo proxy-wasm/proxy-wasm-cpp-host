@@ -45,9 +45,9 @@ rust_library(
     ],
     version = "1.9.3",
     deps = [
-        "@crates_vendor__hashbrown-0.12.3//:hashbrown",
-        "@crates_vendor__indexmap-1.9.3//:build_script_build",
-        "@crates_vendor__serde-1.0.204//:serde",
+        "@cu__hashbrown-0.12.3//:hashbrown",
+        "@cu__indexmap-1.9.3//:build_script_build",
+        "@cu__serde-1.0.204//:serde",
     ],
 )
 
@@ -85,7 +85,7 @@ cargo_build_script(
     version = "1.9.3",
     visibility = ["//visibility:private"],
     deps = [
-        "@crates_vendor__autocfg-1.3.0//:autocfg",
+        "@cu__autocfg-1.3.0//:autocfg",
     ],
 )
 

@@ -39,9 +39,9 @@ rust_library(
     ],
     version = "9.0.4",
     deps = [
-        "@crates_vendor__cranelift-entity-0.96.4//:cranelift_entity",
-        "@crates_vendor__serde-1.0.204//:serde",
-        "@crates_vendor__thiserror-1.0.63//:thiserror",
-        "@crates_vendor__wasmparser-0.103.0//:wasmparser",
+        "@cu__cranelift-entity-0.96.4//:cranelift_entity",
+        "@cu__serde-1.0.204//:serde",
+        "@cu__thiserror-1.0.63//:thiserror",
+        "@cu__wasmparser-0.103.0//:wasmparser",
     ],
 )

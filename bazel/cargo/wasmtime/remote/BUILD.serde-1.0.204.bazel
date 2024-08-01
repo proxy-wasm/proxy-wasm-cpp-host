@@ -37,7 +37,7 @@ rust_library(
     crate_root = "src/lib.rs",
     edition = "2018",
     proc_macro_deps = [
-        "@crates_vendor__serde_derive-1.0.204//:serde_derive",
+        "@cu__serde_derive-1.0.204//:serde_derive",
     ],
     rustc_flags = ["--cap-lints=allow"],
     tags = [
@@ -49,7 +49,7 @@ rust_library(
     ],
     version = "1.0.204",
     deps = [
-        "@crates_vendor__serde-1.0.204//:build_script_build",
+        "@cu__serde-1.0.204//:build_script_build",
     ],
 )
 

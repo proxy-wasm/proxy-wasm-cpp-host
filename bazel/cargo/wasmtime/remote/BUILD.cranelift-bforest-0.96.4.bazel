@@ -39,6 +39,6 @@ rust_library(
     ],
     version = "0.96.4",
     deps = [
-        "@crates_vendor__cranelift-entity-0.96.4//:cranelift_entity",
+        "@cu__cranelift-entity-0.96.4//:cranelift_entity",
     ],
 )

@@ -25,10 +25,11 @@ exports_files(
 # $ bazelisk run bazel/cargo/wasmtime:crates_vendor -- --repin
 crates_vendor(
     name = "crates_vendor",
-    cargo_lockfile = "//bazel/cargo/wasmtime:Cargo.Bazel.lock",
+    cargo_lockfile = ":Cargo.Bazel.lock",
     generate_target_compatible_with = False,
-    manifests = ["//bazel/cargo/wasmtime:Cargo.toml"],
+    manifests = [":Cargo.toml"],
     mode = "remote",
+    repository_name = "cu",  # shorten generated paths for Windows...
     tags = ["manual"],
-    vendor_path = "//bazel/cargo/wasmtime/remote",
+    vendor_path = "remote",
 )

@@ -42,8 +42,8 @@ rust_library(
     ],
     version = "2.5.2",
     deps = [
-        "@crates_vendor__form_urlencoded-1.2.1//:form_urlencoded",
-        "@crates_vendor__idna-0.5.0//:idna",
-        "@crates_vendor__percent-encoding-2.3.1//:percent_encoding",
+        "@cu__form_urlencoded-1.2.1//:form_urlencoded",
+        "@cu__idna-0.5.0//:idna",
+        "@cu__percent-encoding-2.3.1//:percent_encoding",
     ],
 )

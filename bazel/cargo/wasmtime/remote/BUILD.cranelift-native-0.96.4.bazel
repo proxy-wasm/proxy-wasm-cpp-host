@@ -43,14 +43,14 @@ rust_library(
     ],
     version = "0.96.4",
     deps = [
-        "@crates_vendor__cranelift-codegen-0.96.4//:cranelift_codegen",
-        "@crates_vendor__target-lexicon-0.12.15//:target_lexicon",
+        "@cu__cranelift-codegen-0.96.4//:cranelift_codegen",
+        "@cu__target-lexicon-0.12.15//:target_lexicon",
     ] + select({
         "@rules_rust//rust/platform:riscv64gc-unknown-none-elf": [
-            "@crates_vendor__libc-0.2.155//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
+            "@cu__libc-0.2.155//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
         ],
         "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
-            "@crates_vendor__libc-0.2.155//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
+            "@cu__libc-0.2.155//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
         ],
         "//conditions:default": [],
     }),

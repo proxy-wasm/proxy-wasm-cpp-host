@@ -43,9 +43,9 @@ rust_library(
     ],
     version = "0.96.4",
     deps = [
-        "@crates_vendor__cranelift-codegen-0.96.4//:cranelift_codegen",
-        "@crates_vendor__log-0.4.22//:log",
-        "@crates_vendor__smallvec-1.13.2//:smallvec",
-        "@crates_vendor__target-lexicon-0.12.15//:target_lexicon",
+        "@cu__cranelift-codegen-0.96.4//:cranelift_codegen",
+        "@cu__log-0.4.22//:log",
+        "@cu__smallvec-1.13.2//:smallvec",
+        "@cu__target-lexicon-0.12.15//:target_lexicon",
     ],
 )

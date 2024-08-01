@@ -27,13 +27,13 @@ filegroup(
 # Workspace Member Dependencies
 alias(
     name = "wasmsign",
-    actual = "@crates_vendor__wasmsign-0.1.2//:wasmsign",
+    actual = "@cu__wasmsign-0.1.2//:wasmsign",
     tags = ["manual"],
 )
 
 # Binaries
 alias(
     name = "wasmsign__wasmsign",
-    actual = "@crates_vendor__wasmsign-0.1.2//:wasmsign__bin",
+    actual = "@cu__wasmsign-0.1.2//:wasmsign__bin",
     tags = ["manual"],
 )
