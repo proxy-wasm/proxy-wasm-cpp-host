@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_python//python:pip.bzl", "pip_parse")
 load("@rules_fuzzing//fuzzing:init.bzl", "rules_fuzzing_init")
+load("@rules_python//python:pip.bzl", "pip_parse")
 
 def proxy_wasm_cpp_host_dependencies_python():
-
     # NOTE: this loads @fuzzing_py_deps via pip_parse
     rules_fuzzing_init()
 
