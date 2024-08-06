@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "bitflags",
+    name = "cranelift_frontend",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -28,6 +28,10 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "default",
+        "std",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = [
@@ -35,10 +39,16 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bitflags",
+        "crate-name=cranelift-frontend",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "2.6.0",
+    version = "0.110.1",
+    deps = [
+        "@cu__cranelift-codegen-0.110.1//:cranelift_codegen",
+        "@cu__log-0.4.22//:log",
+        "@cu__smallvec-1.13.2//:smallvec",
+        "@cu__target-lexicon-0.12.15//:target_lexicon",
+    ],
 )

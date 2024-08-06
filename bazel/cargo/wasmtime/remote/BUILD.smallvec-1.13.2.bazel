@@ -29,6 +29,7 @@ rust_library(
         ],
     ),
     crate_features = [
+        "serde",
         "union",
     ],
     crate_root = "src/lib.rs",
@@ -44,4 +45,7 @@ rust_library(
         "norustfmt",
     ],
     version = "1.13.2",
+    deps = [
+        "@cu__serde-1.0.204//:serde",
+    ],
 )

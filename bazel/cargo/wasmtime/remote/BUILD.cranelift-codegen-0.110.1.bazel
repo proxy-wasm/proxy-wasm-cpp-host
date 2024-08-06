@@ -12,7 +12,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "serde_json",
+    name = "cranelift_codegen",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -29,6 +29,13 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "gimli",
+        "host-arch",
+        "std",
+        "trace-log",
+        "unwind",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = [
@@ -36,26 +43,43 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=serde_json",
+        "crate-name=cranelift-codegen",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.120",
+    version = "0.110.1",
     deps = [
-        "@cu__itoa-1.0.11//:itoa",
-        "@cu__ryu-1.0.18//:ryu",
-        "@cu__serde-1.0.204//:serde",
-        "@cu__serde_json-1.0.120//:build_script_build",
+        "@cu__bumpalo-3.16.0//:bumpalo",
+        "@cu__cranelift-bforest-0.110.1//:cranelift_bforest",
+        "@cu__cranelift-bitset-0.110.1//:cranelift_bitset",
+        "@cu__cranelift-codegen-0.110.1//:build_script_build",
+        "@cu__cranelift-codegen-shared-0.110.1//:cranelift_codegen_shared",
+        "@cu__cranelift-control-0.110.1//:cranelift_control",
+        "@cu__cranelift-entity-0.110.1//:cranelift_entity",
+        "@cu__gimli-0.28.1//:gimli",
+        "@cu__hashbrown-0.14.5//:hashbrown",
+        "@cu__log-0.4.22//:log",
+        "@cu__regalloc2-0.9.3//:regalloc2",
+        "@cu__rustc-hash-1.1.0//:rustc_hash",
+        "@cu__smallvec-1.13.2//:smallvec",
+        "@cu__target-lexicon-0.12.15//:target_lexicon",
     ],
 )
 
 cargo_build_script(
-    name = "serde_json_bs",
+    name = "cranelift-codegen_bs",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
     ),
+    crate_features = [
+        "gimli",
+        "host-arch",
+        "std",
+        "trace-log",
+        "unwind",
+    ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
@@ -76,17 +100,21 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=serde_json",
+        "crate-name=cranelift-codegen",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.120",
+    version = "0.110.1",
     visibility = ["//visibility:private"],
+    deps = [
+        "@cu__cranelift-codegen-meta-0.110.1//:cranelift_codegen_meta",
+        "@cu__cranelift-isle-0.110.1//:cranelift_isle",
+    ],
 )
 
 alias(
     name = "build_script_build",
-    actual = ":serde_json_bs",
+    actual = ":cranelift-codegen_bs",
     tags = ["manual"],
 )

@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "bitflags",
+    name = "indexmap",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -28,6 +28,11 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "default",
+        "serde",
+        "std",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = [
@@ -35,10 +40,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bitflags",
+        "crate-name=indexmap",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "2.6.0",
+    version = "2.3.0",
+    deps = [
+        "@cu__equivalent-1.0.1//:equivalent",
+        "@cu__hashbrown-0.14.5//:hashbrown",
+        "@cu__serde-1.0.204//:serde",
+    ],
 )

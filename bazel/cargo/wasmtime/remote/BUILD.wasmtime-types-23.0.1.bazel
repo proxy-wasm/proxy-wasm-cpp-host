@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "bitflags",
+    name = "wasmtime_types",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -28,17 +28,30 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "std",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
+    proc_macro_deps = [
+        "@cu__serde_derive-1.0.204//:serde_derive",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bitflags",
+        "crate-name=wasmtime-types",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "2.6.0",
+    version = "23.0.1",
+    deps = [
+        "@cu__anyhow-1.0.86//:anyhow",
+        "@cu__cranelift-entity-0.110.1//:cranelift_entity",
+        "@cu__serde-1.0.204//:serde",
+        "@cu__smallvec-1.13.2//:smallvec",
+        "@cu__wasmparser-0.212.0//:wasmparser",
+    ],
 )

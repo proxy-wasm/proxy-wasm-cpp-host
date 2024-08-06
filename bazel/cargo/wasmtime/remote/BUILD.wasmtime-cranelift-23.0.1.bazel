@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "bitflags",
+    name = "wasmtime_cranelift",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -30,15 +30,35 @@ rust_library(
     ),
     crate_root = "src/lib.rs",
     edition = "2021",
+    proc_macro_deps = [
+        "@cu__wasmtime-versioned-export-macros-23.0.1//:wasmtime_versioned_export_macros",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bitflags",
+        "crate-name=wasmtime-cranelift",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "2.6.0",
+    version = "23.0.1",
+    deps = [
+        "@cu__anyhow-1.0.86//:anyhow",
+        "@cu__cfg-if-1.0.0//:cfg_if",
+        "@cu__cranelift-codegen-0.110.1//:cranelift_codegen",
+        "@cu__cranelift-control-0.110.1//:cranelift_control",
+        "@cu__cranelift-entity-0.110.1//:cranelift_entity",
+        "@cu__cranelift-frontend-0.110.1//:cranelift_frontend",
+        "@cu__cranelift-native-0.110.1//:cranelift_native",
+        "@cu__cranelift-wasm-0.110.1//:cranelift_wasm",
+        "@cu__gimli-0.28.1//:gimli",
+        "@cu__log-0.4.22//:log",
+        "@cu__object-0.36.2//:object",
+        "@cu__target-lexicon-0.12.15//:target_lexicon",
+        "@cu__thiserror-1.0.63//:thiserror",
+        "@cu__wasmparser-0.212.0//:wasmparser",
+        "@cu__wasmtime-environ-23.0.1//:wasmtime_environ",
+    ],
 )

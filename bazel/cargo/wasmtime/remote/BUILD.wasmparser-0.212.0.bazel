@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "bitflags",
+    name = "wasmparser",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -28,6 +28,11 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "serde",
+        "std",
+        "validate",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = [
@@ -35,10 +40,18 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bitflags",
+        "crate-name=wasmparser",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "2.6.0",
+    version = "0.212.0",
+    deps = [
+        "@cu__ahash-0.8.11//:ahash",
+        "@cu__bitflags-2.6.0//:bitflags",
+        "@cu__hashbrown-0.14.5//:hashbrown",
+        "@cu__indexmap-2.3.0//:indexmap",
+        "@cu__semver-1.0.23//:semver",
+        "@cu__serde-1.0.204//:serde",
+    ],
 )

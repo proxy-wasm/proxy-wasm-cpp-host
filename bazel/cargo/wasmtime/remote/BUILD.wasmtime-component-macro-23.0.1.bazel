@@ -7,12 +7,12 @@
 ###############################################################################
 
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
-rust_library(
-    name = "serde_json",
+rust_proc_macro(
+    name = "wasmtime_component_macro",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -36,22 +36,26 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=serde_json",
+        "crate-name=wasmtime-component-macro",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.120",
+    version = "23.0.1",
     deps = [
-        "@cu__itoa-1.0.11//:itoa",
-        "@cu__ryu-1.0.18//:ryu",
-        "@cu__serde-1.0.204//:serde",
-        "@cu__serde_json-1.0.120//:build_script_build",
+        "@cu__anyhow-1.0.86//:anyhow",
+        "@cu__proc-macro2-1.0.86//:proc_macro2",
+        "@cu__quote-1.0.36//:quote",
+        "@cu__syn-2.0.72//:syn",
+        "@cu__wasmtime-component-macro-23.0.1//:build_script_build",
+        "@cu__wasmtime-component-util-23.0.1//:wasmtime_component_util",
+        "@cu__wasmtime-wit-bindgen-23.0.1//:wasmtime_wit_bindgen",
+        "@cu__wit-parser-0.212.0//:wit_parser",
     ],
 )
 
 cargo_build_script(
-    name = "serde_json_bs",
+    name = "wasmtime-component-macro_bs",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -76,17 +80,17 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=serde_json",
+        "crate-name=wasmtime-component-macro",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.120",
+    version = "23.0.1",
     visibility = ["//visibility:private"],
 )
 
 alias(
     name = "build_script_build",
-    actual = ":serde_json_bs",
+    actual = ":wasmtime-component-macro_bs",
     tags = ["manual"],
 )

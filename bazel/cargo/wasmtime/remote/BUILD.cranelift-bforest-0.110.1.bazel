@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "bitflags",
+    name = "cranelift_bforest",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -35,10 +35,13 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bitflags",
+        "crate-name=cranelift-bforest",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "2.6.0",
+    version = "0.110.1",
+    deps = [
+        "@cu__cranelift-entity-0.110.1//:cranelift_entity",
+    ],
 )

@@ -12,7 +12,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "serde_json",
+    name = "wasmtime",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -29,33 +29,61 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "cranelift",
+        "std",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
+    proc_macro_deps = [
+        "@cu__paste-1.0.15//:paste",
+        "@cu__serde_derive-1.0.204//:serde_derive",
+        "@cu__wasmtime-versioned-export-macros-23.0.1//:wasmtime_versioned_export_macros",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=serde_json",
+        "crate-name=wasmtime",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.120",
+    version = "23.0.1",
     deps = [
-        "@cu__itoa-1.0.11//:itoa",
-        "@cu__ryu-1.0.18//:ryu",
+        "@cu__anyhow-1.0.86//:anyhow",
+        "@cu__bitflags-2.6.0//:bitflags",
+        "@cu__bumpalo-3.16.0//:bumpalo",
+        "@cu__cfg-if-1.0.0//:cfg_if",
+        "@cu__hashbrown-0.14.5//:hashbrown",
+        "@cu__indexmap-2.3.0//:indexmap",
+        "@cu__libc-0.2.155//:libc",
+        "@cu__libm-0.2.8//:libm",
+        "@cu__log-0.4.22//:log",
+        "@cu__object-0.36.2//:object",
+        "@cu__once_cell-1.19.0//:once_cell",
+        "@cu__postcard-1.0.8//:postcard",
         "@cu__serde-1.0.204//:serde",
-        "@cu__serde_json-1.0.120//:build_script_build",
+        "@cu__sptr-0.3.2//:sptr",
+        "@cu__target-lexicon-0.12.15//:target_lexicon",
+        "@cu__wasmparser-0.212.0//:wasmparser",
+        "@cu__wasmtime-23.0.1//:build_script_build",
+        "@cu__wasmtime-cranelift-23.0.1//:wasmtime_cranelift",
+        "@cu__wasmtime-environ-23.0.1//:wasmtime_environ",
     ],
 )
 
 cargo_build_script(
-    name = "serde_json_bs",
+    name = "wasmtime_bs",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
     ),
+    crate_features = [
+        "cranelift",
+        "std",
+    ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
@@ -76,17 +104,17 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=serde_json",
+        "crate-name=wasmtime",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.120",
+    version = "23.0.1",
     visibility = ["//visibility:private"],
 )
 
 alias(
     name = "build_script_build",
-    actual = ":serde_json_bs",
+    actual = ":wasmtime_bs",
     tags = ["manual"],
 )

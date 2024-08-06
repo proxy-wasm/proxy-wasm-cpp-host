@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "wasmtime-c-api-bazel"
-version = "9.0.3"
+version = "23.0.1"
 rust-version = "1.66.0"
 
 [lib]
@@ -11,5 +11,5 @@ path = "fake_lib.rs"
 env_logger = "0.10"
 anyhow = "1.0"
 once_cell = "1.12"
-wasmtime = {version = "9.0.3", default-features = false, features = ['cranelift']}
-wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v9.0.3"}
+wasmtime = {version = "23.0.1", default-features = false, features = ['cranelift']}
+wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v23.0.1"}
