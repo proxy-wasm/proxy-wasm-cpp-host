@@ -1,3 +1,6 @@
+# Disable Bzlmod
+common --noenable_bzlmod
+
 # Pass CC, CXX and PATH from the environment.
 build --action_env=CC
 build --action_env=CXX
