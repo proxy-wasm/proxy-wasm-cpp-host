@@ -279,17 +279,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install dependencies (Linux)
+      if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
+      run: sudo apt update -y && sudo apt install -y ${{ matrix.deps }}
+
     # Needed for s390x test which runs on a GHCR Docker Ubuntu image.
     - name: Login to GitHub Container Registry
+      if: startsWith(matrix.run_under, 'docker')
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Install dependencies (Linux)
-      if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
-      run: sudo apt update -y && sudo apt install -y ${{ matrix.deps }}
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
