@@ -46,14 +46,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # Needed for s390x test which runs on a GHCR Docker Ubuntu image.
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Bazel cache
       uses: PiotrSikora/cache@v2.1.7-with-skip-cache
       with:
@@ -286,6 +278,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    # Needed for s390x test which runs on a GHCR Docker Ubuntu image.
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Install dependencies (Linux)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
