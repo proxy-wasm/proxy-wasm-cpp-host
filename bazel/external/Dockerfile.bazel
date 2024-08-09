@@ -56,4 +56,6 @@ RUN apt install -y \
     git \
     python3-distutils \
     clang \
-    libstdc++6
+    libstdc++6 \
+    libssl-dev \
+    libz-dev
