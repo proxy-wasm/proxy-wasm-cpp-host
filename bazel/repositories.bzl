@@ -245,23 +245,14 @@ def proxy_wasm_cpp_host_repositories():
         url = "https://github.com/bytecodealliance/wasmtime/archive/v23.0.1.tar.gz",
     )
 
-    maybe(
-        http_archive,
-        name = "com_github_webassembly_wasm_c_api",
-        build_file = "@proxy_wasm_cpp_host//bazel/external:wasm-c-api.BUILD",
-        sha256 = "c774044f51431429e878bd1b9e2a4e38932f861f9211df72f75e9427eb6b8d32",
-        strip_prefix = "wasm-c-api-c9d31284651b975f05ac27cee0bab1377560b87e",
-        url = "https://github.com/WebAssembly/wasm-c-api/archive/c9d31284651b975f05ac27cee0bab1377560b87e.tar.gz",
-    )
-
     native.bind(
         name = "wasmtime",
-        actual = "@com_github_webassembly_wasm_c_api//:wasmtime_lib",
+        actual = "@com_github_bytecodealliance_wasmtime//:wasmtime_lib",
     )
 
     native.bind(
         name = "prefixed_wasmtime",
-        actual = "@com_github_webassembly_wasm_c_api//:prefixed_wasmtime_lib",
+        actual = "@com_github_bytecodealliance_wasmtime//:prefixed_wasmtime_lib",
     )
 
     # WAVM with dependencies.
