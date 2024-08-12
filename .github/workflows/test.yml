@@ -41,7 +41,7 @@ jobs:
   test_data:
     name: build test data
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v2
@@ -109,19 +109,19 @@ jobs:
         include:
         - name: 'NullVM on Linux/x86_64'
           engine: 'null'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=gcc
         - name: 'NullVM on Linux/x86_64 with ASan'
           engine: 'null'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang-asan-strict --define=crypto=system
         - name: 'NullVM on Linux/x86_64 with TSan'
           engine: 'null'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang-tsan
@@ -134,7 +134,7 @@ jobs:
         - name: 'V8 on Linux/x86_64'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang --define=crypto=system
@@ -142,7 +142,7 @@ jobs:
         - name: 'V8 on Linux/x86_64 with ASan'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang-asan
@@ -150,7 +150,7 @@ jobs:
         - name: 'V8 on Linux/x86_64 with TSan'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang-tsan
@@ -158,7 +158,7 @@ jobs:
         - name: 'V8 on Linux/x86_64 with GCC'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=gcc
@@ -166,7 +166,7 @@ jobs:
         - name: 'V8 on Linux/aarch64'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: aarch64
           action: test
           targets: -//test/fuzz/...
@@ -183,7 +183,7 @@ jobs:
         - name: 'WAMR interp on Linux/x86_64'
           engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang
@@ -196,7 +196,7 @@ jobs:
         - name: 'WAMR jit on Linux/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang
@@ -212,7 +212,7 @@ jobs:
         - name: 'WasmEdge on Linux/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang
@@ -225,21 +225,21 @@ jobs:
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang -c opt
         - name: 'Wasmtime on Linux/x86_64 with ASan'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang-asan-strict --define=crypto=system
         - name: 'Wasmtime on Linux/aarch64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: aarch64
           action: build
           flags: --config=zig-cc-linux-aarch64
@@ -247,12 +247,12 @@ jobs:
         - name: 'Wasmtime on Linux/s390x'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: s390x
           action: test
           flags: --config=clang --test_timeout=1800
           # s390x build-tools image built from bazel/external/Dockerfile.bazel
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x ghcr.io/proxy-wasm/build-tools:ubuntu-20.04-bazel-6.5.0
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x ghcr.io/proxy-wasm/build-tools:ubuntu-22.04-bazel-6.5.0
           cache: true
         - name: 'Wasmtime on macOS/x86_64'
           engine: 'wasmtime'
@@ -270,7 +270,7 @@ jobs:
         - name: 'WAVM on Linux/x86_64'
           engine: 'wavm'
           repo: 'com_github_wavm_wavm'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=clang
