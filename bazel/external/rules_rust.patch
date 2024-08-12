@@ -1,3 +1,4 @@
+# https://github.com/bazelbuild/rules_rust/pull/1315
 diff --git a/rust/private/rustc.bzl b/rust/private/rustc.bzl
 index bfd96ed9..d7e38658 100644
 --- a/rust/private/rustc.bzl

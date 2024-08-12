@@ -2,7 +2,7 @@
 edition = "2021"
 name = "wasmtime-c-api-bazel"
 version = "23.0.1"
-rust-version = "1.66.0"
+rust-version = "1.79.0"
 
 [lib]
 path = "fake_lib.rs"
