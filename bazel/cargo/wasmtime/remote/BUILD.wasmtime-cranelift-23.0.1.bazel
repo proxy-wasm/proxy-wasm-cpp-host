@@ -28,6 +28,9 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "gc",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     proc_macro_deps = [

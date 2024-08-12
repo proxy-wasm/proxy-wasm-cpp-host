@@ -31,6 +31,8 @@ rust_library(
     ),
     crate_features = [
         "cranelift",
+        "gc",
+        "runtime",
         "std",
     ],
     crate_root = "src/lib.rs",
@@ -65,13 +67,113 @@ rust_library(
         "@cu__once_cell-1.19.0//:once_cell",
         "@cu__postcard-1.0.8//:postcard",
         "@cu__serde-1.0.204//:serde",
+        "@cu__smallvec-1.13.2//:smallvec",
         "@cu__sptr-0.3.2//:sptr",
         "@cu__target-lexicon-0.12.15//:target_lexicon",
         "@cu__wasmparser-0.212.0//:wasmparser",
         "@cu__wasmtime-23.0.1//:build_script_build",
+        "@cu__wasmtime-asm-macros-23.0.1//:wasmtime_asm_macros",
         "@cu__wasmtime-cranelift-23.0.1//:wasmtime_cranelift",
         "@cu__wasmtime-environ-23.0.1//:wasmtime_environ",
-    ],
+        "@cu__wasmtime-jit-icache-coherence-23.0.1//:wasmtime_jit_icache_coherence",
+        "@cu__wasmtime-slab-23.0.1//:wasmtime_slab",
+    ] + select({
+        "@rules_rust//rust/platform:aarch64-apple-darwin": [
+            "@cu__mach2-0.4.2//:mach2",  # cfg(target_os = "macos")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-apple-ios": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-apple-ios-sim": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-fuchsia": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-linux-android": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-pc-windows-msvc": [
+            "@cu__windows-sys-0.52.0//:windows_sys",  # cfg(target_os = "windows")
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
+            "@cu__memfd-0.6.4//:memfd",  # cfg(target_os = "linux")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
+            "@cu__memfd-0.6.4//:memfd",  # cfg(target_os = "linux")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
+            "@cu__memfd-0.6.4//:memfd",  # cfg(target_os = "linux")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:armv7-linux-androideabi": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi": [
+            "@cu__memfd-0.6.4//:memfd",  # cfg(target_os = "linux")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:i686-apple-darwin": [
+            "@cu__mach2-0.4.2//:mach2",  # cfg(target_os = "macos")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:i686-linux-android": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:i686-pc-windows-msvc": [
+            "@cu__windows-sys-0.52.0//:windows_sys",  # cfg(target_os = "windows")
+        ],
+        "@rules_rust//rust/platform:i686-unknown-freebsd": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:i686-unknown-linux-gnu": [
+            "@cu__memfd-0.6.4//:memfd",  # cfg(target_os = "linux")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:powerpc-unknown-linux-gnu": [
+            "@cu__memfd-0.6.4//:memfd",  # cfg(target_os = "linux")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
+            "@cu__memfd-0.6.4//:memfd",  # cfg(target_os = "linux")
+            "@cu__psm-0.1.21//:psm",  # cfg(target_arch = "s390x")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-apple-darwin": [
+            "@cu__mach2-0.4.2//:mach2",  # cfg(target_os = "macos")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-apple-ios": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-fuchsia": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-linux-android": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
+            "@cu__windows-sys-0.52.0//:windows_sys",  # cfg(target_os = "windows")
+        ],
+        "@rules_rust//rust/platform:x86_64-unknown-freebsd": [
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
+            "@cu__memfd-0.6.4//:memfd",  # cfg(target_os = "linux")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
+            "@cu__memfd-0.6.4//:memfd",  # cfg(target_os = "linux")
+            "@cu__rustix-0.38.34//:rustix",  # cfg(unix)
+        ],
+        "//conditions:default": [],
+    }),
 )
 
 cargo_build_script(
@@ -82,6 +184,8 @@ cargo_build_script(
     ),
     crate_features = [
         "cranelift",
+        "gc",
+        "runtime",
         "std",
     ],
     crate_name = "build_script_build",
@@ -99,6 +203,9 @@ cargo_build_script(
         ],
     ),
     edition = "2021",
+    proc_macro_deps = [
+        "@cu__wasmtime-versioned-export-macros-23.0.1//:wasmtime_versioned_export_macros",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -111,6 +218,9 @@ cargo_build_script(
     ],
     version = "23.0.1",
     visibility = ["//visibility:private"],
+    deps = [
+        "@cu__cc-1.1.7//:cc",
+    ],
 )
 
 alias(

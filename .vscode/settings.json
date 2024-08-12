@@ -1,0 +1,6 @@
+{
+  "bsv.cc.compdb.targets": [
+    "//:lib",
+    "//:wasmtime_lib"
+  ]
+}
