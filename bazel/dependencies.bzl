@@ -27,6 +27,7 @@ def proxy_wasm_cpp_host_dependencies():
     python_register_toolchains(
         name = "python_3_9",
         python_version = "3.9",
+        ignore_root_user_error = True,  # for docker run
     )
 
     rust_repositories()
