@@ -1,5 +1,5 @@
-load("@rules_rust//rust:defs.bzl", "rust_static_library")
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_rust//rust:defs.bzl", "rust_static_library")
 
 licenses(["notice"])  # Apache 2
 
