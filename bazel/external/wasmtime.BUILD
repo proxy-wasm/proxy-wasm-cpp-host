@@ -5,17 +5,10 @@ licenses(["notice"])  # Apache 2
 
 package(default_visibility = ["//visibility:public"])
 
-genrule(
-    name = "wasm-c-api-gen",
-    srcs = ["crates/c-api/include/wasm.h"],
-    outs = ["include/wasm.h"],
-    cmd = "cp $< $@",
-)
-
 cc_library(
     name = "wasmtime_lib",
     hdrs = [
-        "include/wasm.h",
+        "crates/c-api/include/wasm.h",
     ],
     deps = [
         ":rust_c_api",
