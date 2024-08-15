@@ -161,13 +161,12 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         git_repository,
         name = "v8",
-        # 10.7.193.13
-        commit = "6c8b357a84847a479cd329478522feefc1c3195a",
+        # 12.7.224.18
+        commit = "503eb7e9a50b0211f8db54ea362ea06ef56c940d",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1664374400 +0000",
+        shallow_since = "1722877350 -0400",
         patches = [
             "@proxy_wasm_cpp_host//bazel/external:v8.patch",
-            "@proxy_wasm_cpp_host//bazel/external:v8_include.patch",
         ],
         patch_args = ["-p1"],
     )
@@ -175,20 +174,6 @@ def proxy_wasm_cpp_host_repositories():
     native.bind(
         name = "wee8",
         actual = "@v8//:wee8",
-    )
-
-    maybe(
-        new_git_repository,
-        name = "com_googlesource_chromium_base_trace_event_common",
-        build_file = "@v8//:bazel/BUILD.trace_event_common",
-        commit = "521ac34ebd795939c7e16b37d9d3ddb40e8ed556",
-        remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
-        shallow_since = "1662508800 +0000",
-    )
-
-    native.bind(
-        name = "base_trace_event_common",
-        actual = "@com_googlesource_chromium_base_trace_event_common//:trace_event_common",
     )
 
     # WAMR with dependencies.
