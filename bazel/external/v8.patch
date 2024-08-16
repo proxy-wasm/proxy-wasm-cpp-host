@@ -9,7 +9,7 @@
 # 6. Compile v8 with -Wno-deprecated-declarations
 
 diff --git a/BUILD.bazel b/BUILD.bazel
-index 30be47fa333..093599d47df 100644
+index 30be47fa333..23cfc9c4754 100644
 --- a/BUILD.bazel
 +++ b/BUILD.bazel
 @@ -220,7 +220,7 @@ v8_int(
@@ -21,25 +21,35 @@ index 30be47fa333..093599d47df 100644
  )
  
  # Default setting for v8_enable_pointer_compression.
-@@ -3698,13 +3698,14 @@ filegroup(
+@@ -3698,14 +3698,22 @@ filegroup(
  
  v8_library(
    name = "lib_fp16",
 -  srcs = ["third_party/fp16/src/include/fp16.h"],
-+  srcs = ["@fp16//:include/fp16.h"],
-   hdrs = [
+-  hdrs = [
 -    "third_party/fp16/src/include/fp16/fp16.h",
 -    "third_party/fp16/src/include/fp16/bitcasts.h",
++  hdrs = ["@fp16//:include/fp16.h"],
++  srcs = [],
++  include_prefix = "third_party/fp16/src",
++  deps = [
++    "lib_fp16_includes",
+   ],
+-  includes = [
+-    "third_party/fp16/src/include",
++)
++
++v8_library(
++  name = "lib_fp16_includes",
++  hdrs = [
 +    "@fp16//:include/fp16/fp16.h",
 +    "@fp16//:include/fp16/bitcasts.h",
    ],
-+  include_prefix = "third_party/fp16/src",
-   includes = [
--    "third_party/fp16/src/include",
-+    "@fp16//:include",
-   ],
++  srcs = [],
++  strip_include_prefix = "include",
  )
  
+ filegroup(
 diff --git a/bazel/defs.bzl b/bazel/defs.bzl
 index 520a311595e..64b4928abe5 100644
 --- a/bazel/defs.bzl
