@@ -90,16 +90,18 @@ def proxy_wasm_cpp_host_repositories():
         url = "https://github.com/bazelbuild/rules_python/releases/download/0.34.0/rules_python-0.34.0.tar.gz",
     )
 
+    # Keep at 0.42 one because https://github.com/bazelbuild/rules_rust/issues/2665
+    # manifests at 0.43
     maybe(
         http_archive,
         name = "rules_rust",
-        sha256 = "e3fe2a255589d128c5e59e407ee57c832533f25ce14cc23605d368cf507ce08d",
-        strip_prefix = "rules_rust-0.24.1",
+        integrity = "sha256-JLN47ZcAbx9wEr5Jiib4HduZATGLiDgK7oUi/fvotzU=",
         # NOTE: Update Rust version in bazel/dependencies.bzl.
-        url = "https://github.com/bazelbuild/rules_rust/archive/0.24.1.tar.gz",
+        url = "https://github.com/bazelbuild/rules_rust/releases/download/0.42.1/rules_rust-v0.42.1.tar.gz",
         patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
         patch_args = ["-p1"],
     )
+
 
     # Core deps. Keep them updated.
 
