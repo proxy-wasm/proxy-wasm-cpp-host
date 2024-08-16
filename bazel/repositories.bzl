@@ -196,6 +196,14 @@ def proxy_wasm_cpp_host_repositories():
         actual = "@com_google_absl//absl/container:flat_hash_set",
     )
 
+    maybe(
+        git_repository,
+        name = "fp16",
+        commit = "0a92994d729ff76a58f692d3028ca1b64b145d91",
+        build_file_content = "exports_files(glob([\"**\"]))",
+        remote = "https://chromium.googlesource.com/external/github.com/Maratyszcza/FP16.git",
+    )
+
     # WAMR with dependencies.
 
     maybe(
