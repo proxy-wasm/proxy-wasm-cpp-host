@@ -6,6 +6,9 @@ build --action_env=CC
 build --action_env=CXX
 build --action_env=PATH
 
+# Tolerate deprecation warnings in v8
+build --per_file_copt='external/v8/.*@-Wno-deprecated-declarations'
+
 # Use Clang compiler.
 build:clang --action_env=BAZEL_COMPILER=clang
 build:clang --action_env=CC=clang
