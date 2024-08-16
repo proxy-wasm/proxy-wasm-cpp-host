@@ -176,6 +176,26 @@ def proxy_wasm_cpp_host_repositories():
         actual = "@v8//:wee8",
     )
 
+    native.bind(
+        name = "absl_optional",
+        actual = "@com_google_absl//absl/types:optional",
+    )
+
+    native.bind(
+        name = "absl_btree",
+        actual = "@com_google_absl//absl/container:btree",
+    )
+
+    native.bind(
+        name = "absl_flat_hash_map",
+        actual = "@com_google_absl//absl/container:flat_hash_map",
+    )
+
+    native.bind(
+        name = "absl_flat_hash_set",
+        actual = "@com_google_absl//absl/container:flat_hash_set",
+    )
+
     # WAMR with dependencies.
 
     maybe(
