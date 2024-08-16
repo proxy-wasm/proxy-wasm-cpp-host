@@ -11,17 +11,18 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
-# licenses([
-#     "TODO",  # MIT OR Apache-2.0
-# ])
-
 rust_library(
     name = "thiserror",
-    srcs = glob(["**/*.rs"]),
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = False,
+    ),
     compile_data = glob(
         include = ["**"],
+        allow_empty = True,
         exclude = [
             "**/* *",
+            ".tmp_git_root/**/*",
             "BUILD",
             "BUILD.bazel",
             "WORKSPACE",
@@ -33,7 +34,9 @@ rust_library(
     proc_macro_deps = [
         "@cu__thiserror-impl-1.0.63//:thiserror_impl",
     ],
-    rustc_flags = ["--cap-lints=allow"],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
     tags = [
         "cargo-bazel",
         "crate-name=thiserror",
@@ -48,14 +51,19 @@ rust_library(
 )
 
 cargo_build_script(
-    name = "thiserror_build_script",
-    srcs = glob(["**/*.rs"]),
+    name = "thiserror_bs",
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = False,
+    ),
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
         include = ["**"],
+        allow_empty = True,
         exclude = [
             "**/* *",
+            ".tmp_git_root/**/*",
             "BUILD",
             "BUILD.bazel",
             "WORKSPACE",
@@ -79,6 +87,6 @@ cargo_build_script(
 
 alias(
     name = "build_script_build",
-    actual = "thiserror_build_script",
+    actual = ":thiserror_bs",
     tags = ["manual"],
 )

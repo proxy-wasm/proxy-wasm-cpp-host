@@ -102,7 +102,6 @@ def proxy_wasm_cpp_host_repositories():
         patch_args = ["-p1"],
     )
 
-
     # Core deps. Keep them updated.
 
     # Note: we depend on Abseil via rules_fuzzing. Remove this pin when we update that.

@@ -12,11 +12,16 @@ package(default_visibility = ["//visibility:public"])
 
 rust_proc_macro(
     name = "wasmtime_c_api_macros",
-    srcs = glob(["**/*.rs"]),
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = False,
+    ),
     compile_data = glob(
         include = ["**"],
+        allow_empty = True,
         exclude = [
             "**/* *",
+            ".tmp_git_root/**/*",
             "BUILD",
             "BUILD.bazel",
             "WORKSPACE",
@@ -25,7 +30,9 @@ rust_proc_macro(
     ),
     crate_root = "src/lib.rs",
     edition = "2021",
-    rustc_flags = ["--cap-lints=allow"],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
     tags = [
         "cargo-bazel",
         "crate-name=wasmtime-c-api-macros",
