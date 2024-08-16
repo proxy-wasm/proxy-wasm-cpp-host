@@ -6,6 +6,7 @@
 # 4. Tweak where v8 looks for its fp16 dependency, since it isn't downloaded by
 #    gn.
 # 5. Set torque generator path to location where Bazel can find outputs.
+# 6. Compile v8 with -Wno-deprecated-declarations
 
 diff --git a/BUILD.bazel b/BUILD.bazel
 index 30be47fa333..093599d47df 100644
@@ -40,50 +41,29 @@ index 30be47fa333..093599d47df 100644
  )
  
 diff --git a/bazel/defs.bzl b/bazel/defs.bzl
-index 520a311595e..06cc7806203 100644
+index 520a311595e..64b4928abe5 100644
 --- a/bazel/defs.bzl
 +++ b/bazel/defs.bzl
-@@ -6,8 +6,10 @@
- This module contains helper functions to compile V8.
- """
- 
--FlagInfo = provider("The value of an option.",
--fields = ["value"])
-+FlagInfo = provider(
-+    "The value of an option.",
-+    fields = ["value"],
-+)
- 
- def _options_impl(ctx):
-     return FlagInfo(value = ctx.build_setting_value)
-@@ -109,7 +111,7 @@ def _default_args():
-                 "-Werror",
-                 "-Wextra",
-                 "-Wno-unneeded-internal-declaration",
--                "-Wno-unknown-warning-option", # b/330781959
-+                "-Wno-unknown-warning-option",  # b/330781959
-                 "-Wno-cast-function-type-mismatch",  # b/330781959
-                 "-Wno-bitwise-instead-of-logical",
-                 "-Wno-builtin-assume-aligned-alignment",
-@@ -160,7 +162,7 @@ def _default_args():
-                 "-fno-integrated-as",
+@@ -102,7 +102,9 @@ def _default_args():
              ],
              "//conditions:default": [],
--        }) +  select({
-+        }) + select({
-             "@v8//bazel/config:is_opt_android": [
-                 "-fvisibility=hidden",
-                 "-fvisibility-inlines-hidden",
-@@ -192,7 +194,7 @@ ENABLE_I18N_SUPPORT_DEFINES = [
- ]
- 
- def _should_emit_noicu_and_icu(noicu_srcs, noicu_deps, noicu_defines, icu_srcs, icu_deps, icu_defines):
--     return noicu_srcs != [] or noicu_deps != [] or noicu_defines != [] or icu_srcs != [] or icu_deps != [] or icu_defines != []
-+    return noicu_srcs != [] or noicu_deps != [] or noicu_defines != [] or icu_srcs != [] or icu_deps != [] or icu_defines != []
- 
- # buildifier: disable=function-docstring
- def v8_binary(
-@@ -316,7 +318,7 @@ def v8_library(
+         }),
+-        copts = select({
++        copts = [
++            "-Wno-deprecated-declarations",
++        ] + select({
+             "@v8//bazel/config:is_posix": [
+                 "-fPIC",
+                 "-fno-strict-aliasing",
+@@ -131,7 +133,6 @@ def _default_args():
+                 "-Wno-array-bounds",
+                 "-Wno-class-memaccess",
+                 "-Wno-comments",
+-                "-Wno-deprecated-declarations",
+                 "-Wno-implicit-fallthrough",
+                 "-Wno-int-in-bool-context",
+                 "-Wno-maybe-uninitialized",
+@@ -316,7 +317,7 @@ def v8_library(
  # split the set of outputs by using OutputGroupInfo, that way we do not need to
  # run the torque generator twice.
  def _torque_files_impl(ctx):
@@ -92,20 +72,7 @@ index 520a311595e..06cc7806203 100644
  
      # Arguments
      args = []
-@@ -408,9 +410,9 @@ def v8_torque_files(name, noicu_srcs, icu_srcs, args, definition_extras, initial
-         }),
-     )
- 
--def _v8_target_cpu_transition_impl(settings,
--                                   attr, # @unused
--                                  ):
-+def _v8_target_cpu_transition_impl(
-+        settings,
-+        attr):  # @unused
-     # Check for an existing v8_target_cpu flag.
-     if "@v8//bazel/config:v8_target_cpu" in settings:
-         if settings["@v8//bazel/config:v8_target_cpu"] != "none":
-@@ -480,6 +482,9 @@ _v8_mksnapshot = rule(
+@@ -480,6 +481,9 @@ _v8_mksnapshot = rule(
              cfg = "exec",
          ),
          "target_os": attr.string(mandatory = True),
@@ -115,17 +82,6 @@ index 520a311595e..06cc7806203 100644
          "prefix": attr.string(mandatory = True),
          "suffix": attr.string(mandatory = True),
      },
-@@ -529,8 +534,8 @@ def _json(kv_pairs):
- 
- def build_config_content(cpu, icu):
-     arch = cpu
--    if cpu == 'x86':
--        arch = 'ia32'
-+    if cpu == "x86":
-+        arch = "ia32"
-     return _json([
-         ("arch", arch),
-         ("asan", "false"),
 diff --git a/bazel/v8-non-pointer-compression.bzl b/bazel/v8-non-pointer-compression.bzl
 index 8c929454840..57336154cf7 100644
 --- a/bazel/v8-non-pointer-compression.bzl
