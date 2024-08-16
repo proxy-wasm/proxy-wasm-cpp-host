@@ -1,5 +1,8 @@
 # 1. Disable pointer compression (limits the maximum number of WasmVMs).
 # 2. Don't expose Wasm C API (only Wasm C++ API).
+# 3. Revert v8 commit b26554ec368e9553782012c96aa5e99b163eaff2, which removed
+#    use of _allowlist_function_transition from v8 bazel/defs.bzl, since it is
+#    still required by the version of Bazel we currently use (6.5.0).
 
 diff --git a/BUILD.bazel b/BUILD.bazel
 index 30be47fa333..d03d1e4d522 100644
@@ -14,6 +17,42 @@ index 30be47fa333..d03d1e4d522 100644
  )
  
  # Default setting for v8_enable_pointer_compression.
+diff --git a/bazel/defs.bzl b/bazel/defs.bzl
+index 520a311595e..246c4ecf27a 100644
+--- a/bazel/defs.bzl
++++ b/bazel/defs.bzl
+@@ -480,6 +480,9 @@ _v8_mksnapshot = rule(
+             cfg = "exec",
+         ),
+         "target_os": attr.string(mandatory = True),
++        "_allowlist_function_transition": attr.label(
++            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
++        ),
+         "prefix": attr.string(mandatory = True),
+         "suffix": attr.string(mandatory = True),
+     },
+diff --git a/bazel/v8-non-pointer-compression.bzl b/bazel/v8-non-pointer-compression.bzl
+index 8c929454840..57336154cf7 100644
+--- a/bazel/v8-non-pointer-compression.bzl
++++ b/bazel/v8-non-pointer-compression.bzl
+@@ -47,6 +47,17 @@ v8_binary_non_pointer_compression = rule(
+         # Note specificaly how it's configured with v8_target_cpu_transition, which
+         # ensures that setting propagates down the graph.
+         "binary": attr.label(cfg = v8_disable_pointer_compression),
++        # This is a stock Bazel requirement for any rule that uses Starlark
++        # transitions. It's okay to copy the below verbatim for all such rules.
++        #
++        # The purpose of this requirement is to give the ability to restrict
++        # which packages can invoke these rules, since Starlark transitions
++        # make much larger graphs possible that can have memory and performance
++        # consequences for your build. The whitelist defaults to "everything".
++        # But you can redefine it more strictly if you feel that's prudent.
++        "_allowlist_function_transition": attr.label(
++            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
++        ),
+     },
+     # Making this executable means it works with "$ bazel run".
+     executable = True,
 diff --git a/src/wasm/c-api.cc b/src/wasm/c-api.cc
 index 2d6d0f6c270..61d071acd52 100644
 --- a/src/wasm/c-api.cc
