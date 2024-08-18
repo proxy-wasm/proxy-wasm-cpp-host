@@ -139,11 +139,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "com_google_googletest",
-        sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
-        strip_prefix = "googletest-release-1.10.0",
-        urls = ["https://github.com/google/googletest/archive/release-1.10.0.tar.gz"],
-        patches = ["@proxy_wasm_cpp_host//bazel/external:googletest.patch"],
-        patch_args = ["-p1"],
+        sha256 = "7b42b4d6ed48810c5362c265a17faebe90dc2373c885e5216439d37927f02926",
+        strip_prefix = "googletest-1.15.2",
+        urls = ["https://github.com/google/googletest/archive/refs/tags/v1.15.2.tar.gz"],
     )
 
     # NullVM dependencies.
