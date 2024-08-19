@@ -11,17 +11,18 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
-# licenses([
-#     "TODO",  # Apache-2.0 WITH LLVM-exception
-# ])
-
 rust_library(
     name = "wasmtime",
-    srcs = glob(["**/*.rs"]),
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = False,
+    ),
     compile_data = glob(
         include = ["**"],
+        allow_empty = True,
         exclude = [
             "**/* *",
+            ".tmp_git_root/**/*",
             "BUILD",
             "BUILD.bazel",
             "WORKSPACE",
@@ -36,7 +37,9 @@ rust_library(
     proc_macro_deps = [
         "@cu__paste-1.0.15//:paste",
     ],
-    rustc_flags = ["--cap-lints=allow"],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
     tags = [
         "cargo-bazel",
         "crate-name=wasmtime",
@@ -81,8 +84,11 @@ rust_library(
 )
 
 cargo_build_script(
-    name = "wasmtime_build_script",
-    srcs = glob(["**/*.rs"]),
+    name = "wasmtime_bs",
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = False,
+    ),
     crate_features = [
         "cranelift",
     ],
@@ -90,8 +96,10 @@ cargo_build_script(
     crate_root = "build.rs",
     data = glob(
         include = ["**"],
+        allow_empty = True,
         exclude = [
             "**/* *",
+            ".tmp_git_root/**/*",
             "BUILD",
             "BUILD.bazel",
             "WORKSPACE",
@@ -115,6 +123,6 @@ cargo_build_script(
 
 alias(
     name = "build_script_build",
-    actual = "wasmtime_build_script",
+    actual = ":wasmtime_bs",
     tags = ["manual"],
 )
