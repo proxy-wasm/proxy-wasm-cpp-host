@@ -10,17 +10,18 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
-# licenses([
-#     "TODO",  # MIT
-# ])
-
 rust_library(
     name = "is_terminal",
-    srcs = glob(["**/*.rs"]),
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = False,
+    ),
     compile_data = glob(
         include = ["**"],
+        allow_empty = True,
         exclude = [
             "**/* *",
+            ".tmp_git_root/**/*",
             "BUILD",
             "BUILD.bazel",
             "WORKSPACE",
@@ -29,7 +30,9 @@ rust_library(
     ),
     crate_root = "src/lib.rs",
     edition = "2018",
-    rustc_flags = ["--cap-lints=allow"],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
     tags = [
         "cargo-bazel",
         "crate-name=is-terminal",
@@ -58,6 +61,12 @@ rust_library(
             "@cu__windows-sys-0.52.0//:windows_sys",  # cfg(windows)
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
+            "@cu__libc-0.2.155//:libc",  # cfg(any(unix, target_os = "wasi"))
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
+            "@cu__libc-0.2.155//:libc",  # cfg(any(unix, target_os = "wasi"))
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [
             "@cu__libc-0.2.155//:libc",  # cfg(any(unix, target_os = "wasi"))
         ],
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
@@ -112,6 +121,9 @@ rust_library(
             "@cu__libc-0.2.155//:libc",  # cfg(any(unix, target_os = "wasi"))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
+            "@cu__libc-0.2.155//:libc",  # cfg(any(unix, target_os = "wasi"))
+        ],
+        "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
             "@cu__libc-0.2.155//:libc",  # cfg(any(unix, target_os = "wasi"))
         ],
         "//conditions:default": [],

@@ -37,9 +37,9 @@ def proxy_wasm_cpp_host_dependencies():
         extra_target_triples = [
             "aarch64-unknown-linux-gnu",
             "wasm32-unknown-unknown",
-            "wasm32-wasi",
+            "wasm32-wasi",  # TODO: Change to wasm32-wasip1 once https://github.com/bazelbuild/rules_rust/issues/2782 is fixed
         ],
-        version = "1.68.0",
+        version = "1.77.2",
     )
     rust_repository_set(
         name = "rust_linux_s390x",
@@ -48,7 +48,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasi",
         ],
-        version = "1.68.0",
+        version = "1.77.2",
     )
     crate_universe_dependencies(bootstrap = True)
 

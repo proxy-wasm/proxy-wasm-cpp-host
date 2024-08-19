@@ -1,13 +1,13 @@
 # https://github.com/bazelbuild/rules_rust/pull/1315
 
 diff --git a/rust/private/rustc.bzl b/rust/private/rustc.bzl
-index 6cdbefeb..284d4afa 100644
+index bfd96ed9..d7e38658 100644
 --- a/rust/private/rustc.bzl
 +++ b/rust/private/rustc.bzl
-@@ -1024,7 +1024,7 @@ def rustc_compile_action(
-         ),
-     ]
- 
+@@ -1507,7 +1507,7 @@ def rustc_compile_action(
+         })
+         crate_info = rust_common.create_crate_info(**crate_info_dict)
+
 -    if crate_info.type in ["staticlib", "cdylib"]:
 +    if crate_info.type in ["staticlib", "cdylib"] and not out_binary:
          # These rules are not supposed to be depended on by other rust targets, and

@@ -11,17 +11,18 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
-# licenses([
-#     "TODO",  # Apache-2.0 WITH LLVM-exception
-# ])
-
 rust_library(
     name = "wasmtime_runtime",
-    srcs = glob(["**/*.rs"]),
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = False,
+    ),
     compile_data = glob(
         include = ["**"],
+        allow_empty = True,
         exclude = [
             "**/* *",
+            ".tmp_git_root/**/*",
             "BUILD",
             "BUILD.bazel",
             "WORKSPACE",
@@ -33,7 +34,9 @@ rust_library(
     proc_macro_deps = [
         "@cu__paste-1.0.15//:paste",
     ],
-    rustc_flags = ["--cap-lints=allow"],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
     tags = [
         "cargo-bazel",
         "crate-name=wasmtime-runtime",
@@ -76,6 +79,12 @@ rust_library(
             "@cu__windows-sys-0.48.0//:windows_sys",  # cfg(target_os = "windows")
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
+            "@cu__rustix-0.37.27//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
+            "@cu__rustix-0.37.27//:rustix",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [
             "@cu__rustix-0.37.27//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
@@ -131,19 +140,27 @@ rust_library(
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
             "@cu__rustix-0.37.27//:rustix",  # cfg(unix)
         ],
+        "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
+            "@cu__rustix-0.37.27//:rustix",  # cfg(unix)
+        ],
         "//conditions:default": [],
     }),
 )
 
 cargo_build_script(
-    name = "wasmtime-runtime_build_script",
-    srcs = glob(["**/*.rs"]),
+    name = "wasmtime-runtime_bs",
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = False,
+    ),
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
         include = ["**"],
+        allow_empty = True,
         exclude = [
             "**/* *",
+            ".tmp_git_root/**/*",
             "BUILD",
             "BUILD.bazel",
             "WORKSPACE",
@@ -170,6 +187,6 @@ cargo_build_script(
 
 alias(
     name = "build_script_build",
-    actual = "wasmtime-runtime_build_script",
+    actual = ":wasmtime-runtime_bs",
     tags = ["manual"],
 )
