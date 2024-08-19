@@ -10,17 +10,18 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
-# licenses([
-#     "TODO",  # MIT
-# ])
-
 rust_library(
     name = "clap",
-    srcs = glob(["**/*.rs"]),
+    srcs = glob(
+        include = ["**/*.rs"],
+        allow_empty = False,
+    ),
     compile_data = glob(
         include = ["**"],
+        allow_empty = True,
         exclude = [
             "**/* *",
+            ".tmp_git_root/**/*",
             "BUILD",
             "BUILD.bazel",
             "WORKSPACE",
@@ -38,7 +39,9 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     edition = "2018",
-    rustc_flags = ["--cap-lints=allow"],
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
     tags = [
         "cargo-bazel",
         "crate-name=clap",
@@ -71,6 +74,12 @@ rust_library(
             "@cu__ansi_term-0.12.1//:ansi_term",  # cfg(not(windows))
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
+            "@cu__ansi_term-0.12.1//:ansi_term",  # cfg(not(windows))
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
+            "@cu__ansi_term-0.12.1//:ansi_term",  # cfg(not(windows))
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [
             "@cu__ansi_term-0.12.1//:ansi_term",  # cfg(not(windows))
         ],
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
@@ -134,6 +143,9 @@ rust_library(
             "@cu__ansi_term-0.12.1//:ansi_term",  # cfg(not(windows))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
+            "@cu__ansi_term-0.12.1//:ansi_term",  # cfg(not(windows))
+        ],
+        "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
             "@cu__ansi_term-0.12.1//:ansi_term",  # cfg(not(windows))
         ],
         "@rules_rust//rust/platform:x86_64-unknown-none": [

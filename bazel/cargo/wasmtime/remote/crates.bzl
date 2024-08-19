@@ -15,6 +15,11 @@ load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:defs.bzl", _crate_reposi
 load("@rules_rust//crate_universe/private:crates_vendor.bzl", "crates_vendor_remote_repository")
 
 def crate_repositories():
+    """Generates repositories for vendored crates.
+
+    Returns:
+      A list of repos visible to the module through the module extension.
+    """
     maybe(
         crates_vendor_remote_repository,
         name = "cu",
@@ -22,4 +27,6 @@ def crate_repositories():
         defs_module = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:defs.bzl"),
     )
 
-    _crate_repositories()
+    direct_deps = [struct(repo = "cu", is_dev_dep = False)]
+    direct_deps.extend(_crate_repositories())
+    return direct_deps
