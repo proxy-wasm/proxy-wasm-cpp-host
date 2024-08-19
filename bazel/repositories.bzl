@@ -132,6 +132,8 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "89792fc1abca331f29f99870476a04146de5e82ff903bdffca90e6729c1f2470",
         strip_prefix = "proxy-wasm-cpp-sdk-95bb82ce45c41d9100fd1ec15d2ffc67f7f3ceee",
         urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/95bb82ce45c41d9100fd1ec15d2ffc67f7f3ceee.tar.gz"],
+        patches = ["@proxy_wasm_cpp_host//bazel/external:proxy_wasm_cpp_sdk.patch"],
+        patch_args = ["-p1"],
     )
 
     # Test dependencies.
