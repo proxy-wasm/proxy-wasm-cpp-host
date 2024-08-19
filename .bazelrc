@@ -65,6 +65,7 @@ build:clang-tidy --output_groups=report
 build:gcc --action_env=BAZEL_COMPILER=gcc
 build:gcc --action_env=CC=gcc
 build:gcc --action_env=CXX=g++
+build:gcc --copt -Wno-invalid-offsetof
 
 # Use Zig C/C++ compiler.
 build:zig-cc --incompatible_enable_cc_toolchain_resolution
