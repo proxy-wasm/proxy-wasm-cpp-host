@@ -6,12 +6,12 @@
 #     bazel run @//bazel/cargo/wasmtime:crates_vendor
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
+load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
-rust_proc_macro(
-    name = "wasmtime_versioned_export_macros",
+rust_library(
+    name = "cranelift_bforest",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -35,15 +35,13 @@ rust_proc_macro(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=wasmtime-versioned-export-macros",
+        "crate-name=cranelift-bforest",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "23.0.1",
+    version = "0.111.0",
     deps = [
-        "@cu__proc-macro2-1.0.86//:proc_macro2",
-        "@cu__quote-1.0.36//:quote",
-        "@cu__syn-2.0.72//:syn",
+        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
     ],
 )

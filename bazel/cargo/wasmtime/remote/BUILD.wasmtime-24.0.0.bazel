@@ -40,7 +40,7 @@ rust_library(
     proc_macro_deps = [
         "@cu__paste-1.0.15//:paste",
         "@cu__serde_derive-1.0.204//:serde_derive",
-        "@cu__wasmtime-versioned-export-macros-23.0.1//:wasmtime_versioned_export_macros",
+        "@cu__wasmtime-versioned-export-macros-24.0.0//:wasmtime_versioned_export_macros",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -52,7 +52,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "23.0.1",
+    version = "24.0.0",
     deps = [
         "@cu__anyhow-1.0.86//:anyhow",
         "@cu__bitflags-2.6.0//:bitflags",
@@ -69,14 +69,14 @@ rust_library(
         "@cu__serde-1.0.204//:serde",
         "@cu__smallvec-1.13.2//:smallvec",
         "@cu__sptr-0.3.2//:sptr",
-        "@cu__target-lexicon-0.12.15//:target_lexicon",
-        "@cu__wasmparser-0.212.0//:wasmparser",
-        "@cu__wasmtime-23.0.1//:build_script_build",
-        "@cu__wasmtime-asm-macros-23.0.1//:wasmtime_asm_macros",
-        "@cu__wasmtime-cranelift-23.0.1//:wasmtime_cranelift",
-        "@cu__wasmtime-environ-23.0.1//:wasmtime_environ",
-        "@cu__wasmtime-jit-icache-coherence-23.0.1//:wasmtime_jit_icache_coherence",
-        "@cu__wasmtime-slab-23.0.1//:wasmtime_slab",
+        "@cu__target-lexicon-0.12.16//:target_lexicon",
+        "@cu__wasmparser-0.215.0//:wasmparser",
+        "@cu__wasmtime-24.0.0//:build_script_build",
+        "@cu__wasmtime-asm-macros-24.0.0//:wasmtime_asm_macros",
+        "@cu__wasmtime-cranelift-24.0.0//:wasmtime_cranelift",
+        "@cu__wasmtime-environ-24.0.0//:wasmtime_environ",
+        "@cu__wasmtime-jit-icache-coherence-24.0.0//:wasmtime_jit_icache_coherence",
+        "@cu__wasmtime-slab-24.0.0//:wasmtime_slab",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@cu__mach2-0.4.2//:mach2",  # cfg(target_os = "macos")
@@ -204,7 +204,7 @@ cargo_build_script(
     ),
     edition = "2021",
     proc_macro_deps = [
-        "@cu__wasmtime-versioned-export-macros-23.0.1//:wasmtime_versioned_export_macros",
+        "@cu__wasmtime-versioned-export-macros-24.0.0//:wasmtime_versioned_export_macros",
     ],
     rustc_flags = [
         "--cap-lints=allow",
@@ -216,7 +216,7 @@ cargo_build_script(
         "noclippy",
         "norustfmt",
     ],
-    version = "23.0.1",
+    version = "24.0.0",
     visibility = ["//visibility:private"],
     deps = [
         "@cu__cc-1.1.7//:cc",

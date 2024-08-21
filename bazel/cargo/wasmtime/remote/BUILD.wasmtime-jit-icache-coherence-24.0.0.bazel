@@ -40,7 +40,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "23.0.1",
+    version = "24.0.0",
     deps = [
         "@cu__anyhow-1.0.86//:anyhow",
         "@cu__cfg-if-1.0.0//:cfg_if",

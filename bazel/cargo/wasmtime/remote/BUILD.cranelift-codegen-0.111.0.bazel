@@ -12,7 +12,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "target_lexicon",
+    name = "cranelift_codegen",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -30,34 +30,55 @@ rust_library(
         ],
     ),
     crate_features = [
-        "default",
+        "gimli",
+        "host-arch",
+        "std",
+        "trace-log",
+        "unwind",
     ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=target-lexicon",
+        "crate-name=cranelift-codegen",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.12.15",
+    version = "0.111.0",
     deps = [
-        "@cu__target-lexicon-0.12.15//:build_script_build",
+        "@cu__bumpalo-3.16.0//:bumpalo",
+        "@cu__cranelift-bforest-0.111.0//:cranelift_bforest",
+        "@cu__cranelift-bitset-0.111.0//:cranelift_bitset",
+        "@cu__cranelift-codegen-0.111.0//:build_script_build",
+        "@cu__cranelift-codegen-shared-0.111.0//:cranelift_codegen_shared",
+        "@cu__cranelift-control-0.111.0//:cranelift_control",
+        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
+        "@cu__gimli-0.29.0//:gimli",
+        "@cu__hashbrown-0.14.5//:hashbrown",
+        "@cu__log-0.4.22//:log",
+        "@cu__regalloc2-0.9.3//:regalloc2",
+        "@cu__rustc-hash-1.1.0//:rustc_hash",
+        "@cu__smallvec-1.13.2//:smallvec",
+        "@cu__target-lexicon-0.12.16//:target_lexicon",
     ],
 )
 
 cargo_build_script(
-    name = "target-lexicon_bs",
+    name = "cranelift-codegen_bs",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
     ),
     crate_features = [
-        "default",
+        "gimli",
+        "host-arch",
+        "std",
+        "trace-log",
+        "unwind",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -73,23 +94,27 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2018",
+    edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=target-lexicon",
+        "crate-name=cranelift-codegen",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.12.15",
+    version = "0.111.0",
     visibility = ["//visibility:private"],
+    deps = [
+        "@cu__cranelift-codegen-meta-0.111.0//:cranelift_codegen_meta",
+        "@cu__cranelift-isle-0.111.0//:cranelift_isle",
+    ],
 )
 
 alias(
     name = "build_script_build",
-    actual = ":target-lexicon_bs",
+    actual = ":cranelift-codegen_bs",
     tags = ["manual"],
 )

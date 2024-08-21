@@ -6,12 +6,12 @@
 #     bazel run @//bazel/cargo/wasmtime:crates_vendor
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
+load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
 
-rust_proc_macro(
-    name = "wasmtime_c_api_macros",
+rust_library(
+    name = "wasmtime_types",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -28,21 +28,30 @@ rust_proc_macro(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "std",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
+    proc_macro_deps = [
+        "@cu__serde_derive-1.0.204//:serde_derive",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=wasmtime-c-api-macros",
+        "crate-name=wasmtime-types",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "23.0.1",
+    version = "24.0.0",
     deps = [
-        "@cu__proc-macro2-1.0.86//:proc_macro2",
-        "@cu__quote-1.0.36//:quote",
+        "@cu__anyhow-1.0.86//:anyhow",
+        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
+        "@cu__serde-1.0.204//:serde",
+        "@cu__smallvec-1.13.2//:smallvec",
+        "@cu__wasmparser-0.215.0//:wasmparser",
     ],
 )

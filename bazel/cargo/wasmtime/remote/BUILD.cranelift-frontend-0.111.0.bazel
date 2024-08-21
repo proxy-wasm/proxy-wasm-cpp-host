@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "wasmparser",
+    name = "cranelift_frontend",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -29,9 +29,8 @@ rust_library(
         ],
     ),
     crate_features = [
-        "serde",
+        "default",
         "std",
-        "validate",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -40,18 +39,16 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=wasmparser",
+        "crate-name=cranelift-frontend",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.212.0",
+    version = "0.111.0",
     deps = [
-        "@cu__ahash-0.8.11//:ahash",
-        "@cu__bitflags-2.6.0//:bitflags",
-        "@cu__hashbrown-0.14.5//:hashbrown",
-        "@cu__indexmap-2.3.0//:indexmap",
-        "@cu__semver-1.0.23//:semver",
-        "@cu__serde-1.0.204//:serde",
+        "@cu__cranelift-codegen-0.111.0//:cranelift_codegen",
+        "@cu__log-0.4.22//:log",
+        "@cu__smallvec-1.13.2//:smallvec",
+        "@cu__target-lexicon-0.12.16//:target_lexicon",
     ],
 )

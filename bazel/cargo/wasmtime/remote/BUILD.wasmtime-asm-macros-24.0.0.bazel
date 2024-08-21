@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "cranelift_codegen_shared",
+    name = "wasmtime_asm_macros",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -35,10 +35,13 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-codegen-shared",
+        "crate-name=wasmtime-asm-macros",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.110.1",
+    version = "24.0.0",
+    deps = [
+        "@cu__cfg-if-1.0.0//:cfg_if",
+    ],
 )

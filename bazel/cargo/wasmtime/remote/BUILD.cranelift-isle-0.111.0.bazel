@@ -12,7 +12,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "cranelift_codegen",
+    name = "cranelift_isle",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -30,11 +30,7 @@ rust_library(
         ],
     ),
     crate_features = [
-        "gimli",
-        "host-arch",
-        "std",
-        "trace-log",
-        "unwind",
+        "default",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -43,42 +39,25 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-codegen",
+        "crate-name=cranelift-isle",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.110.1",
+    version = "0.111.0",
     deps = [
-        "@cu__bumpalo-3.16.0//:bumpalo",
-        "@cu__cranelift-bforest-0.110.1//:cranelift_bforest",
-        "@cu__cranelift-bitset-0.110.1//:cranelift_bitset",
-        "@cu__cranelift-codegen-0.110.1//:build_script_build",
-        "@cu__cranelift-codegen-shared-0.110.1//:cranelift_codegen_shared",
-        "@cu__cranelift-control-0.110.1//:cranelift_control",
-        "@cu__cranelift-entity-0.110.1//:cranelift_entity",
-        "@cu__gimli-0.28.1//:gimli",
-        "@cu__hashbrown-0.14.5//:hashbrown",
-        "@cu__log-0.4.22//:log",
-        "@cu__regalloc2-0.9.3//:regalloc2",
-        "@cu__rustc-hash-1.1.0//:rustc_hash",
-        "@cu__smallvec-1.13.2//:smallvec",
-        "@cu__target-lexicon-0.12.15//:target_lexicon",
+        "@cu__cranelift-isle-0.111.0//:build_script_build",
     ],
 )
 
 cargo_build_script(
-    name = "cranelift-codegen_bs",
+    name = "cranelift-isle_bs",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
     ),
     crate_features = [
-        "gimli",
-        "host-arch",
-        "std",
-        "trace-log",
-        "unwind",
+        "default",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -100,21 +79,17 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-codegen",
+        "crate-name=cranelift-isle",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.110.1",
+    version = "0.111.0",
     visibility = ["//visibility:private"],
-    deps = [
-        "@cu__cranelift-codegen-meta-0.110.1//:cranelift_codegen_meta",
-        "@cu__cranelift-isle-0.110.1//:cranelift_isle",
-    ],
 )
 
 alias(
     name = "build_script_build",
-    actual = ":cranelift-codegen_bs",
+    actual = ":cranelift-isle_bs",
     tags = ["manual"],
 )

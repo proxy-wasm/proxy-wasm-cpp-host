@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "cranelift_wasm",
+    name = "wasmtime_environ",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -29,30 +29,40 @@ rust_library(
         ],
     ),
     crate_features = [
-        "default",
+        "compile",
+        "gc",
         "std",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
+    proc_macro_deps = [
+        "@cu__serde_derive-1.0.204//:serde_derive",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-wasm",
+        "crate-name=wasmtime-environ",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.110.1",
+    version = "24.0.0",
     deps = [
-        "@cu__cranelift-codegen-0.110.1//:cranelift_codegen",
-        "@cu__cranelift-entity-0.110.1//:cranelift_entity",
-        "@cu__cranelift-frontend-0.110.1//:cranelift_frontend",
-        "@cu__itertools-0.12.1//:itertools",
+        "@cu__anyhow-1.0.86//:anyhow",
+        "@cu__cranelift-bitset-0.111.0//:cranelift_bitset",
+        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
+        "@cu__gimli-0.29.0//:gimli",
+        "@cu__indexmap-2.3.0//:indexmap",
         "@cu__log-0.4.22//:log",
-        "@cu__smallvec-1.13.2//:smallvec",
-        "@cu__wasmparser-0.212.0//:wasmparser",
-        "@cu__wasmtime-types-23.0.1//:wasmtime_types",
+        "@cu__object-0.36.2//:object",
+        "@cu__postcard-1.0.8//:postcard",
+        "@cu__serde-1.0.204//:serde",
+        "@cu__target-lexicon-0.12.16//:target_lexicon",
+        "@cu__wasm-encoder-0.215.0//:wasm_encoder",
+        "@cu__wasmparser-0.215.0//:wasmparser",
+        "@cu__wasmprinter-0.215.0//:wasmprinter",
+        "@cu__wasmtime-types-24.0.0//:wasmtime_types",
     ],
 )

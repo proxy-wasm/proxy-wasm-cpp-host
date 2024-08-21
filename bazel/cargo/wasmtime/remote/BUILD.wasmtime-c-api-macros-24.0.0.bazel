@@ -6,12 +6,12 @@
 #     bazel run @//bazel/cargo/wasmtime:crates_vendor
 ###############################################################################
 
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
-rust_library(
-    name = "cranelift_native",
+rust_proc_macro(
+    name = "wasmtime_c_api_macros",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -28,10 +28,6 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-        "std",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = [
@@ -39,22 +35,14 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-native",
+        "crate-name=wasmtime-c-api-macros",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.110.1",
+    version = "24.0.0",
     deps = [
-        "@cu__cranelift-codegen-0.110.1//:cranelift_codegen",
-        "@cu__target-lexicon-0.12.15//:target_lexicon",
-    ] + select({
-        "@rules_rust//rust/platform:riscv64gc-unknown-none-elf": [
-            "@cu__libc-0.2.155//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
-        ],
-        "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
-            "@cu__libc-0.2.155//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
-        ],
-        "//conditions:default": [],
-    }),
+        "@cu__proc-macro2-1.0.86//:proc_macro2",
+        "@cu__quote-1.0.36//:quote",
+    ],
 )

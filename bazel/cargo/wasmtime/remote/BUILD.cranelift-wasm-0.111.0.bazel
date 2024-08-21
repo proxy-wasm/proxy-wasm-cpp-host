@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "wasmtime_wit_bindgen",
+    name = "cranelift_wasm",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -28,6 +28,10 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "default",
+        "std",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = [
@@ -35,16 +39,20 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=wasmtime-wit-bindgen",
+        "crate-name=cranelift-wasm",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "23.0.1",
+    version = "0.111.0",
     deps = [
-        "@cu__anyhow-1.0.86//:anyhow",
-        "@cu__heck-0.4.1//:heck",
-        "@cu__indexmap-2.3.0//:indexmap",
-        "@cu__wit-parser-0.212.0//:wit_parser",
+        "@cu__cranelift-codegen-0.111.0//:cranelift_codegen",
+        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
+        "@cu__cranelift-frontend-0.111.0//:cranelift_frontend",
+        "@cu__itertools-0.12.1//:itertools",
+        "@cu__log-0.4.22//:log",
+        "@cu__smallvec-1.13.2//:smallvec",
+        "@cu__wasmparser-0.215.0//:wasmparser",
+        "@cu__wasmtime-types-24.0.0//:wasmtime_types",
     ],
 )

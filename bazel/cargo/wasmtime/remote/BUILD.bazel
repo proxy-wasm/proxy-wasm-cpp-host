@@ -51,12 +51,12 @@ alias(
 
 alias(
     name = "wasmtime",
-    actual = "@cu__wasmtime-23.0.1//:wasmtime",
+    actual = "@cu__wasmtime-24.0.0//:wasmtime",
     tags = ["manual"],
 )
 
 alias(
     name = "wasmtime-c-api-macros",
-    actual = "@cu__wasmtime-c-api-macros-23.0.1//:wasmtime_c_api_macros",
+    actual = "@cu__wasmtime-c-api-macros-24.0.0//:wasmtime_c_api_macros",
     tags = ["manual"],
 )

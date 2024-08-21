@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "cranelift_bitset",
+    name = "wasmtime_component_util",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -28,26 +28,17 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "enable-serde",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
-    proc_macro_deps = [
-        "@cu__serde_derive-1.0.204//:serde_derive",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-bitset",
+        "crate-name=wasmtime-component-util",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.110.1",
-    deps = [
-        "@cu__serde-1.0.204//:serde",
-    ],
+    version = "24.0.0",
 )

@@ -7,12 +7,12 @@
 ###############################################################################
 
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
-rust_library(
-    name = "cranelift_isle",
+rust_proc_macro(
+    name = "wasmtime_component_macro",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -29,9 +29,6 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = [
@@ -39,26 +36,30 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-isle",
+        "crate-name=wasmtime-component-macro",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.110.1",
+    version = "24.0.0",
     deps = [
-        "@cu__cranelift-isle-0.110.1//:build_script_build",
+        "@cu__anyhow-1.0.86//:anyhow",
+        "@cu__proc-macro2-1.0.86//:proc_macro2",
+        "@cu__quote-1.0.36//:quote",
+        "@cu__syn-2.0.72//:syn",
+        "@cu__wasmtime-component-macro-24.0.0//:build_script_build",
+        "@cu__wasmtime-component-util-24.0.0//:wasmtime_component_util",
+        "@cu__wasmtime-wit-bindgen-24.0.0//:wasmtime_wit_bindgen",
+        "@cu__wit-parser-0.215.0//:wit_parser",
     ],
 )
 
 cargo_build_script(
-    name = "cranelift-isle_bs",
+    name = "wasmtime-component-macro_bs",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
     ),
-    crate_features = [
-        "default",
-    ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
@@ -79,17 +80,17 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-isle",
+        "crate-name=wasmtime-component-macro",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.110.1",
+    version = "24.0.0",
     visibility = ["//visibility:private"],
 )
 
 alias(
     name = "build_script_build",
-    actual = ":cranelift-isle_bs",
+    actual = ":wasmtime-component-macro_bs",
     tags = ["manual"],
 )

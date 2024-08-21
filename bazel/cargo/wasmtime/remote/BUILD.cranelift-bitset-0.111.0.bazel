@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "cranelift_entity",
+    name = "cranelift_bitset",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -30,8 +30,6 @@ rust_library(
     ),
     crate_features = [
         "enable-serde",
-        "serde",
-        "serde_derive",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -43,14 +41,13 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-entity",
+        "crate-name=cranelift-bitset",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.110.1",
+    version = "0.111.0",
     deps = [
-        "@cu__cranelift-bitset-0.110.1//:cranelift_bitset",
         "@cu__serde-1.0.204//:serde",
     ],
 )

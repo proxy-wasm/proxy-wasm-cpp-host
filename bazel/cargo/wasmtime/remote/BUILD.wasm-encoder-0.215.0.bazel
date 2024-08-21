@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "wit_parser",
+    name = "wasm_encoder",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -30,29 +30,18 @@ rust_library(
     ),
     crate_root = "src/lib.rs",
     edition = "2021",
-    proc_macro_deps = [
-        "@cu__serde_derive-1.0.204//:serde_derive",
-    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=wit-parser",
+        "crate-name=wasm-encoder",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.212.0",
+    version = "0.215.0",
     deps = [
-        "@cu__anyhow-1.0.86//:anyhow",
-        "@cu__id-arena-2.2.1//:id_arena",
-        "@cu__indexmap-2.3.0//:indexmap",
-        "@cu__log-0.4.22//:log",
-        "@cu__semver-1.0.23//:semver",
-        "@cu__serde-1.0.204//:serde",
-        "@cu__serde_json-1.0.120//:serde_json",
-        "@cu__unicode-xid-0.2.4//:unicode_xid",
-        "@cu__wasmparser-0.212.0//:wasmparser",
+        "@cu__leb128-0.2.5//:leb128",
     ],
 )
