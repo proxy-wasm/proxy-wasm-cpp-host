@@ -260,9 +260,23 @@ jobs:
           os: macos-13
           arch: x86_64
           action: test
-        - name: 'Wasmtime on Windows/x86_64'
-          engine: 'wasmtime'
-          repo: 'com_github_bytecodealliance_wasmtime'
+        - name: 'WAVM on Windows/x86_64'
+          engine: 'wavm'
+          repo: 'com_github_wavm_wavm'
+          os: windows-2019
+          arch: x86_64
+          action: test
+          targets: -//test/fuzz/...
+        - name: 'WAMR on Windows/x86_64'
+          engine: 'wamr'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
+          os: windows-2019
+          arch: x86_64
+          action: test
+          targets: -//test/fuzz/...
+        - name: 'WasmEdge on Windows/x86_64'
+          engine: 'wasmedge'
+          repo: 'com_github_wasmedge_wasmedge'
           os: windows-2019
           arch: x86_64
           action: test
