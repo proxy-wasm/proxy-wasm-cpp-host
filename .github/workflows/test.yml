@@ -260,6 +260,13 @@ jobs:
           os: macos-13
           arch: x86_64
           action: test
+        - name: 'Wasmtime on Windows/x86_64'
+          engine: 'wasmtime'
+          repo: 'com_github_bytecodealliance_wasmtime'
+          os: windows-2019
+          arch: x86_64
+          action: test
+          targets: -//test/fuzz/...
         - name: 'WAVM on Windows/x86_64'
           engine: 'wavm'
           repo: 'com_github_wavm_wavm'
@@ -267,8 +274,15 @@ jobs:
           arch: x86_64
           action: test
           targets: -//test/fuzz/...
-        - name: 'WAMR on Windows/x86_64'
-          engine: 'wamr'
+        - name: 'WAMR JIT on Windows/x86_64'
+          engine: 'wamr-jit'
+          repo: 'com_github_bytecodealliance_wasm_micro_runtime'
+          os: windows-2019
+          arch: x86_64
+          action: test
+          targets: -//test/fuzz/...
+        - name: 'WAMR Interp on Windows/x86_64'
+          engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: windows-2019
           arch: x86_64

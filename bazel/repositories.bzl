@@ -69,9 +69,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_foreign_cc",
-        sha256 = "bcd0c5f46a49b85b384906daae41d277b3dc0ff27c7c752cc51e43048a58ec83",
-        strip_prefix = "rules_foreign_cc-0.7.1",
-        url = "https://github.com/bazelbuild/rules_foreign_cc/archive/0.7.1.tar.gz",
+        sha256 = "a2e6fb56e649c1ee79703e99aa0c9d13c6cc53c8d7a0cbb8797ab2888bbc99a3",
+        strip_prefix = "rules_foreign_cc-0.12.0",
+        url = "https://github.com/bazelbuild/rules_foreign_cc/archive/0.12.0.tar.gz",
     )
 
     maybe(
