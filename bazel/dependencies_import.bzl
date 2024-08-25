@@ -13,12 +13,10 @@
 # limitations under the License.
 
 load("@fuzzing_py_deps//:requirements.bzl", pip_fuzzing_dependencies = "install_deps")
-load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
 load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
 load("@v8_python_deps//:requirements.bzl", pip_v8_dependencies = "install_deps")
 
 def proxy_wasm_cpp_host_dependencies_import():
-    rules_foreign_cc_dependencies()
     rules_fuzzing_dependencies()
 
     pip_fuzzing_dependencies()
