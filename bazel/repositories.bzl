@@ -16,7 +16,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_r
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
 
-def proxy_wasm_cpp_host_repositories():
+def proxy_wasm_cpp_host_base_repositories():
     # Bazel extensions.
 
     # Update platforms for crate_universe. Can remove when we update Bazel version.
@@ -157,6 +157,7 @@ def proxy_wasm_cpp_host_repositories():
         url = "https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protobuf-all-3.17.3.tar.gz",
     )
 
+def proxy_wasm_cpp_host_engine_repositories():
     # V8 with dependencies.
 
     maybe(
