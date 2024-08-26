@@ -88,4 +88,3 @@ build:windows --cxxopt="/std:c++17"
 # Enable symlinks and runfiles on Windows (enabled by default on other platforms).
 startup --windows_enable_symlinks
 build:windows --enable_runfiles
-build:windows --output_user_root=C:/_bzl
