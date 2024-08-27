@@ -38,6 +38,12 @@ alias(
 )
 
 alias(
+    name = "env_logger",
+    actual = "@cu__env_logger-0.10.2//:env_logger",
+    tags = ["manual"],
+)
+
+alias(
     name = "log",
     actual = "@cu__log-0.4.22//:log",
     tags = ["manual"],

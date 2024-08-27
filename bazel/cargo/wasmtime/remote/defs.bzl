@@ -297,6 +297,7 @@ _NORMAL_DEPENDENCIES = {
     "bazel/cargo/wasmtime": {
         _COMMON_CONDITION: {
             "anyhow": Label("@cu__anyhow-1.0.86//:anyhow"),
+            "env_logger": Label("@cu__env_logger-0.10.2//:env_logger"),
             "log": Label("@cu__log-0.4.22//:log"),
             "once_cell": Label("@cu__once_cell-1.19.0//:once_cell"),
             "tracing": Label("@cu__tracing-0.1.40//:tracing"),
@@ -391,6 +392,7 @@ _CONDITIONS = {
     "cfg(any(target_arch = \"s390x\", target_arch = \"riscv64\"))": ["@rules_rust//rust/platform:riscv64gc-unknown-none-elf", "@rules_rust//rust/platform:s390x-unknown-linux-gnu"],
     "cfg(any(target_os = \"linux\", target_os = \"macos\", target_os = \"freebsd\", target_os = \"android\"))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-linux-android", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu", "@rules_rust//rust/platform:arm-unknown-linux-gnueabi", "@rules_rust//rust/platform:armv7-linux-androideabi", "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi", "@rules_rust//rust/platform:i686-apple-darwin", "@rules_rust//rust/platform:i686-linux-android", "@rules_rust//rust/platform:i686-unknown-freebsd", "@rules_rust//rust/platform:i686-unknown-linux-gnu", "@rules_rust//rust/platform:powerpc-unknown-linux-gnu", "@rules_rust//rust/platform:s390x-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-linux-android", "@rules_rust//rust/platform:x86_64-unknown-freebsd", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu"],
     "cfg(any(target_os = \"macos\", target_os = \"ios\"))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-apple-ios", "@rules_rust//rust/platform:aarch64-apple-ios-sim", "@rules_rust//rust/platform:i686-apple-darwin", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-apple-ios"],
+    "cfg(any(unix, target_os = \"wasi\"))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-apple-ios", "@rules_rust//rust/platform:aarch64-apple-ios-sim", "@rules_rust//rust/platform:aarch64-fuchsia", "@rules_rust//rust/platform:aarch64-linux-android", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu", "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710", "@rules_rust//rust/platform:arm-unknown-linux-gnueabi", "@rules_rust//rust/platform:armv7-linux-androideabi", "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi", "@rules_rust//rust/platform:i686-apple-darwin", "@rules_rust//rust/platform:i686-linux-android", "@rules_rust//rust/platform:i686-unknown-freebsd", "@rules_rust//rust/platform:i686-unknown-linux-gnu", "@rules_rust//rust/platform:powerpc-unknown-linux-gnu", "@rules_rust//rust/platform:s390x-unknown-linux-gnu", "@rules_rust//rust/platform:wasm32-wasi", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-apple-ios", "@rules_rust//rust/platform:x86_64-fuchsia", "@rules_rust//rust/platform:x86_64-linux-android", "@rules_rust//rust/platform:x86_64-unknown-freebsd", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu"],
     "cfg(not(all(target_arch = \"arm\", target_os = \"none\")))": ["@rules_rust//rust/platform:aarch64-apple-darwin", "@rules_rust//rust/platform:aarch64-apple-ios", "@rules_rust//rust/platform:aarch64-apple-ios-sim", "@rules_rust//rust/platform:aarch64-fuchsia", "@rules_rust//rust/platform:aarch64-linux-android", "@rules_rust//rust/platform:aarch64-pc-windows-msvc", "@rules_rust//rust/platform:aarch64-unknown-linux-gnu", "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu", "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710", "@rules_rust//rust/platform:arm-unknown-linux-gnueabi", "@rules_rust//rust/platform:armv7-linux-androideabi", "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi", "@rules_rust//rust/platform:i686-apple-darwin", "@rules_rust//rust/platform:i686-linux-android", "@rules_rust//rust/platform:i686-pc-windows-msvc", "@rules_rust//rust/platform:i686-unknown-freebsd", "@rules_rust//rust/platform:i686-unknown-linux-gnu", "@rules_rust//rust/platform:powerpc-unknown-linux-gnu", "@rules_rust//rust/platform:riscv32imc-unknown-none-elf", "@rules_rust//rust/platform:riscv64gc-unknown-none-elf", "@rules_rust//rust/platform:s390x-unknown-linux-gnu", "@rules_rust//rust/platform:wasm32-unknown-unknown", "@rules_rust//rust/platform:wasm32-wasi", "@rules_rust//rust/platform:x86_64-apple-darwin", "@rules_rust//rust/platform:x86_64-apple-ios", "@rules_rust//rust/platform:x86_64-fuchsia", "@rules_rust//rust/platform:x86_64-linux-android", "@rules_rust//rust/platform:x86_64-pc-windows-msvc", "@rules_rust//rust/platform:x86_64-unknown-freebsd", "@rules_rust//rust/platform:x86_64-unknown-linux-gnu", "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu", "@rules_rust//rust/platform:x86_64-unknown-none"],
     "cfg(target_arch = \"s390x\")": ["@rules_rust//rust/platform:s390x-unknown-linux-gnu"],
     "cfg(target_os = \"hermit\")": [],
@@ -442,6 +444,16 @@ def crate_repositories():
         urls = ["https://static.crates.io/crates/ahash/0.8.11/download"],
         strip_prefix = "ahash-0.8.11",
         build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.ahash-0.8.11.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__aho-corasick-1.1.3",
+        sha256 = "8e60d3430d3a69478ad0993f19238d2df97c507009a52b3c10addcd7f6bcb916",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/aho-corasick/1.1.3/download"],
+        strip_prefix = "aho-corasick-1.1.3",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.aho-corasick-1.1.3.bazel"),
     )
 
     maybe(
@@ -656,6 +668,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "cu__env_logger-0.10.2",
+        sha256 = "4cd405aab171cb85d6735e5c8d9db038c17d3ca007a4d2c25f337935c3d90580",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/env_logger/0.10.2/download"],
+        strip_prefix = "env_logger-0.10.2",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.env_logger-0.10.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "cu__equivalent-1.0.1",
         sha256 = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5",
         type = "tar.gz",
@@ -726,6 +748,26 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "cu__hermit-abi-0.3.9",
+        sha256 = "d231dfb89cfffdbc30e7fc41579ed6066ad03abda9e567ccafae602b97ec5024",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/hermit-abi/0.3.9/download"],
+        strip_prefix = "hermit-abi-0.3.9",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.hermit-abi-0.3.9.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__humantime-2.1.0",
+        sha256 = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/humantime/2.1.0/download"],
+        strip_prefix = "humantime-2.1.0",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.humantime-2.1.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "cu__id-arena-2.2.1",
         sha256 = "25a2bc672d1148e28034f176e01fffebb08b35768468cc954630da77a1449005",
         type = "tar.gz",
@@ -742,6 +784,16 @@ def crate_repositories():
         urls = ["https://static.crates.io/crates/indexmap/2.3.0/download"],
         strip_prefix = "indexmap-2.3.0",
         build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.indexmap-2.3.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__is-terminal-0.4.12",
+        sha256 = "f23ff5ef2b80d608d61efee834934d862cd92461afc0560dedf493e4c033738b",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/is-terminal/0.4.12/download"],
+        strip_prefix = "is-terminal-0.4.12",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.is-terminal-0.4.12.bazel"),
     )
 
     maybe(
@@ -932,6 +984,36 @@ def crate_repositories():
         urls = ["https://static.crates.io/crates/regalloc2/0.9.3/download"],
         strip_prefix = "regalloc2-0.9.3",
         build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.regalloc2-0.9.3.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__regex-1.10.5",
+        sha256 = "b91213439dad192326a0d7c6ee3955910425f441d7038e0d6933b0aec5c4517f",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/regex/1.10.5/download"],
+        strip_prefix = "regex-1.10.5",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.regex-1.10.5.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__regex-automata-0.4.7",
+        sha256 = "38caf58cc5ef2fed281f89292ef23f6365465ed9a41b7a7754eb4e26496c92df",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/regex-automata/0.4.7/download"],
+        strip_prefix = "regex-automata-0.4.7",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.regex-automata-0.4.7.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__regex-syntax-0.8.4",
+        sha256 = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/regex-syntax/0.8.4/download"],
+        strip_prefix = "regex-syntax-0.8.4",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.regex-syntax-0.8.4.bazel"),
     )
 
     maybe(
@@ -1446,6 +1528,7 @@ def crate_repositories():
 
     return [
         struct(repo = "cu__anyhow-1.0.86", is_dev_dep = False),
+        struct(repo = "cu__env_logger-0.10.2", is_dev_dep = False),
         struct(repo = "cu__log-0.4.22", is_dev_dep = False),
         struct(repo = "cu__once_cell-1.19.0", is_dev_dep = False),
         struct(repo = "cu__tracing-0.1.40", is_dev_dep = False),

@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "log",
+    name = "regex_automata",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -29,7 +29,19 @@ rust_library(
         ],
     ),
     crate_features = [
+        "alloc",
+        "dfa-onepass",
+        "hybrid",
+        "meta",
+        "nfa-backtrack",
+        "nfa-pikevm",
+        "nfa-thompson",
+        "perf-inline",
+        "perf-literal",
+        "perf-literal-multisubstring",
+        "perf-literal-substring",
         "std",
+        "syntax",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -38,10 +50,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=log",
+        "crate-name=regex-automata",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.4.22",
+    version = "0.4.7",
+    deps = [
+        "@cu__aho-corasick-1.1.3//:aho_corasick",
+        "@cu__memchr-2.7.4//:memchr",
+        "@cu__regex-syntax-0.8.4//:regex_syntax",
+    ],
 )
