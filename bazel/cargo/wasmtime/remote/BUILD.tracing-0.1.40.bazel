@@ -11,7 +11,7 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 package(default_visibility = ["//visibility:public"])
 
 rust_library(
-    name = "env_logger",
+    name = "tracing",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = False,
@@ -29,30 +29,29 @@ rust_library(
         ],
     ),
     crate_features = [
-        "auto-color",
-        "color",
+        "attributes",
         "default",
-        "humantime",
-        "regex",
+        "std",
+        "tracing-attributes",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2018",
+    proc_macro_deps = [
+        "@cu__tracing-attributes-0.1.27//:tracing_attributes",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=env_logger",
+        "crate-name=tracing",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.10.2",
+    version = "0.1.40",
     deps = [
-        "@cu__humantime-2.1.0//:humantime",
-        "@cu__is-terminal-0.4.12//:is_terminal",
-        "@cu__log-0.4.22//:log",
-        "@cu__regex-1.10.5//:regex",
-        "@cu__termcolor-1.4.1//:termcolor",
+        "@cu__pin-project-lite-0.2.14//:pin_project_lite",
+        "@cu__tracing-core-0.1.32//:tracing_core",
     ],
 )
