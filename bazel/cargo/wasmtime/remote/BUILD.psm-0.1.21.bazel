@@ -81,7 +81,7 @@ cargo_build_script(
     version = "0.1.21",
     visibility = ["//visibility:private"],
     deps = [
-        "@cu__cc-1.1.6//:cc",
+        "@cu__cc-1.1.7//:cc",
     ],
 )
 

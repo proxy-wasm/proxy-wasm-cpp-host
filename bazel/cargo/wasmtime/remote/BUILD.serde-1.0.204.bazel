@@ -30,7 +30,7 @@ rust_library(
         ],
     ),
     crate_features = [
-        "default",
+        "alloc",
         "derive",
         "serde_derive",
         "std",
@@ -63,7 +63,7 @@ cargo_build_script(
         allow_empty = False,
     ),
     crate_features = [
-        "default",
+        "alloc",
         "derive",
         "serde_derive",
         "std",

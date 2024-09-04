@@ -48,23 +48,11 @@ rust_library(
         "@rules_rust//rust/platform:aarch64-linux-android": [
             "extra_traits",  # aarch64-linux-android
         ],
-        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "extra_traits",  # aarch64-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
-            "extra_traits",  # aarch64-unknown-nixos-gnu
-        ],
         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [
             "extra_traits",  # aarch64-unknown-nto-qnx710
         ],
-        "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
-            "extra_traits",  # arm-unknown-linux-gnueabi
-        ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
             "extra_traits",  # armv7-linux-androideabi
-        ],
-        "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi": [
-            "extra_traits",  # armv7-unknown-linux-gnueabi
         ],
         "@rules_rust//rust/platform:i686-apple-darwin": [
             "extra_traits",  # i686-apple-darwin
@@ -75,32 +63,11 @@ rust_library(
         "@rules_rust//rust/platform:i686-unknown-freebsd": [
             "extra_traits",  # i686-unknown-freebsd
         ],
-        "@rules_rust//rust/platform:i686-unknown-linux-gnu": [
-            "extra_traits",  # i686-unknown-linux-gnu
-        ],
         "@rules_rust//rust/platform:powerpc-unknown-linux-gnu": [
             "extra_traits",  # powerpc-unknown-linux-gnu
         ],
-        "@rules_rust//rust/platform:riscv32imc-unknown-none-elf": [
-            "extra_traits",  # riscv32imc-unknown-none-elf
-        ],
-        "@rules_rust//rust/platform:riscv64gc-unknown-none-elf": [
-            "extra_traits",  # riscv64gc-unknown-none-elf
-        ],
         "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
             "extra_traits",  # s390x-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:thumbv7em-none-eabi": [
-            "extra_traits",  # thumbv7em-none-eabi
-        ],
-        "@rules_rust//rust/platform:thumbv8m.main-none-eabi": [
-            "extra_traits",  # thumbv8m.main-none-eabi
-        ],
-        "@rules_rust//rust/platform:wasm32-unknown-unknown": [
-            "extra_traits",  # wasm32-unknown-unknown
-        ],
-        "@rules_rust//rust/platform:wasm32-wasi": [
-            "extra_traits",  # wasm32-wasi
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
             "extra_traits",  # x86_64-apple-darwin
@@ -116,15 +83,6 @@ rust_library(
         ],
         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [
             "extra_traits",  # x86_64-unknown-freebsd
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "extra_traits",  # x86_64-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
-            "extra_traits",  # x86_64-unknown-nixos-gnu
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-none": [
-            "extra_traits",  # x86_64-unknown-none
         ],
         "//conditions:default": [],
     }),
@@ -171,23 +129,11 @@ cargo_build_script(
         "@rules_rust//rust/platform:aarch64-linux-android": [
             "extra_traits",  # aarch64-linux-android
         ],
-        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "extra_traits",  # aarch64-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
-            "extra_traits",  # aarch64-unknown-nixos-gnu
-        ],
         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [
             "extra_traits",  # aarch64-unknown-nto-qnx710
         ],
-        "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
-            "extra_traits",  # arm-unknown-linux-gnueabi
-        ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
             "extra_traits",  # armv7-linux-androideabi
-        ],
-        "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi": [
-            "extra_traits",  # armv7-unknown-linux-gnueabi
         ],
         "@rules_rust//rust/platform:i686-apple-darwin": [
             "extra_traits",  # i686-apple-darwin
@@ -198,32 +144,11 @@ cargo_build_script(
         "@rules_rust//rust/platform:i686-unknown-freebsd": [
             "extra_traits",  # i686-unknown-freebsd
         ],
-        "@rules_rust//rust/platform:i686-unknown-linux-gnu": [
-            "extra_traits",  # i686-unknown-linux-gnu
-        ],
         "@rules_rust//rust/platform:powerpc-unknown-linux-gnu": [
             "extra_traits",  # powerpc-unknown-linux-gnu
         ],
-        "@rules_rust//rust/platform:riscv32imc-unknown-none-elf": [
-            "extra_traits",  # riscv32imc-unknown-none-elf
-        ],
-        "@rules_rust//rust/platform:riscv64gc-unknown-none-elf": [
-            "extra_traits",  # riscv64gc-unknown-none-elf
-        ],
         "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
             "extra_traits",  # s390x-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:thumbv7em-none-eabi": [
-            "extra_traits",  # thumbv7em-none-eabi
-        ],
-        "@rules_rust//rust/platform:thumbv8m.main-none-eabi": [
-            "extra_traits",  # thumbv8m.main-none-eabi
-        ],
-        "@rules_rust//rust/platform:wasm32-unknown-unknown": [
-            "extra_traits",  # wasm32-unknown-unknown
-        ],
-        "@rules_rust//rust/platform:wasm32-wasi": [
-            "extra_traits",  # wasm32-wasi
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
             "extra_traits",  # x86_64-apple-darwin
@@ -239,15 +164,6 @@ cargo_build_script(
         ],
         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [
             "extra_traits",  # x86_64-unknown-freebsd
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "extra_traits",  # x86_64-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
-            "extra_traits",  # x86_64-unknown-nixos-gnu
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-none": [
-            "extra_traits",  # x86_64-unknown-none
         ],
         "//conditions:default": [],
     }),

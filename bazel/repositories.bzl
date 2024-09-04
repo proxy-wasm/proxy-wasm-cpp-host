@@ -240,28 +240,19 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "917da461249b11a3176a39573723f78c627259576d0ca10b00d6e7f7fa047081",
-        strip_prefix = "wasmtime-9.0.3",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v9.0.3.tar.gz",
-    )
-
-    maybe(
-        http_archive,
-        name = "com_github_webassembly_wasm_c_api",
-        build_file = "@proxy_wasm_cpp_host//bazel/external:wasm-c-api.BUILD",
-        sha256 = "c774044f51431429e878bd1b9e2a4e38932f861f9211df72f75e9427eb6b8d32",
-        strip_prefix = "wasm-c-api-c9d31284651b975f05ac27cee0bab1377560b87e",
-        url = "https://github.com/WebAssembly/wasm-c-api/archive/c9d31284651b975f05ac27cee0bab1377560b87e.tar.gz",
+        sha256 = "2ccb49bb3bfa4d86907ad4c80d1147aef6156c7b6e3f7f14ed02a39de9761155",
+        strip_prefix = "wasmtime-24.0.0",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v24.0.0.tar.gz",
     )
 
     native.bind(
         name = "wasmtime",
-        actual = "@com_github_webassembly_wasm_c_api//:wasmtime_lib",
+        actual = "@com_github_bytecodealliance_wasmtime//:wasmtime_lib",
     )
 
     native.bind(
         name = "prefixed_wasmtime",
-        actual = "@com_github_webassembly_wasm_c_api//:prefixed_wasmtime_lib",
+        actual = "@com_github_bytecodealliance_wasmtime//:prefixed_wasmtime_lib",
     )
 
     # WAVM with dependencies.
