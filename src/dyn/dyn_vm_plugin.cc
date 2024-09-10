@@ -125,8 +125,7 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
     *f = nullptr;
     return;
   }
-  auto target_func =
-      reinterpret_cast<void (*)(uint64_t, uint64_t, uint64_t)>(target);
+  auto target_func = reinterpret_cast<void (*)(uint64_t, uint64_t, uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1,
                                           proxy_wasm::Word w2, proxy_wasm::Word w3) {
     proxy_wasm::SaveRestoreContext saved_context(context);
@@ -184,8 +183,7 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
     *f = nullptr;
     return;
   }
-  auto target_func =
-      reinterpret_cast<uint64_t (*)(uint64_t, uint64_t)>(target);
+  auto target_func = reinterpret_cast<uint64_t (*)(uint64_t, uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1,
                                           proxy_wasm::Word w2) {
     proxy_wasm::SaveRestoreContext saved_context(context);
@@ -204,8 +202,7 @@ void DynVmPlugin::getFunction(std::string_view function_name, proxy_wasm::WasmCa
     *f = nullptr;
     return;
   }
-  auto target_func =
-      reinterpret_cast<uint64_t (*)(uint64_t, uint64_t, uint64_t)>(target);
+  auto target_func = reinterpret_cast<uint64_t (*)(uint64_t, uint64_t, uint64_t)>(target);
   *f = [this, target_func, function_name](proxy_wasm::ContextBase *context, proxy_wasm::Word w1,
                                           proxy_wasm::Word w2, proxy_wasm::Word w3) {
     proxy_wasm::SaveRestoreContext saved_context(context);

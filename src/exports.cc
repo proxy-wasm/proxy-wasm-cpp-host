@@ -48,6 +48,7 @@ ContextBase *contextOrEffectiveContextRoot() {
   return nullptr;
 };
 
+// Gets any currently executing Wasm call context, including a thread-sharable limited context.
 ContextBase *getLimitedContext() {
   if (limited_context_ != nullptr) {
     return limited_context_;
