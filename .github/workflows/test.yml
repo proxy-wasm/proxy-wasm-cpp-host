@@ -75,7 +75,7 @@ jobs:
         done
 
     - name: Upload test data
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: test_data
         path: bazel-bin/test/test_data/*.wasm
@@ -306,7 +306,7 @@ jobs:
           ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.engine }}-${{ steps.cache-key.outputs.uniq }}-
 
     - name: Download test data
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: test_data
         path: test/test_data/
