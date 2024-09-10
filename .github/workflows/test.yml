@@ -115,7 +115,7 @@ jobs:
           flags: --config=gcc
         - name: 'DynVM on Linux/x86_64'
           engine: 'dyn'
-          os: ubuntu-20.04
+          os: ubuntu-22.04
           arch: x86_64
           action: test
           flags: --config=gcc
