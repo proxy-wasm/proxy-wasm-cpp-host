@@ -261,6 +261,15 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
     abi_version_ = AbiVersion::ProxyWasm_0_2_1;
     return true;
   }
+  if (wasm_vm_->getEngineName() == "dyn") {
+    auto ok = wasm_vm_->load(code, {}, {});
+    if (!ok) {
+      fail(FailState::UnableToInitializeCode, "Failed to load DynVM plugin");
+      return false;
+    }
+    abi_version_ = AbiVersion::ProxyWasm_0_2_1;
+    return true;
+  }
 
   // Verify signature.
   std::string message;
