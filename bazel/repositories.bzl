@@ -133,6 +133,8 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "89792fc1abca331f29f99870476a04146de5e82ff903bdffca90e6729c1f2470",
         strip_prefix = "proxy-wasm-cpp-sdk-95bb82ce45c41d9100fd1ec15d2ffc67f7f3ceee",
         urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/95bb82ce45c41d9100fd1ec15d2ffc67f7f3ceee.tar.gz"],
+        patches = ["@proxy_wasm_cpp_host//bazel/external:proxy_wasm_cpp_sdk.patch"],
+        patch_args = ["-p1"],
     )
 
     # Test dependencies.
@@ -140,11 +142,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "com_google_googletest",
-        sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
-        strip_prefix = "googletest-release-1.10.0",
-        urls = ["https://github.com/google/googletest/archive/release-1.10.0.tar.gz"],
-        patches = ["@proxy_wasm_cpp_host//bazel/external:googletest.patch"],
-        patch_args = ["-p1"],
+        sha256 = "7b42b4d6ed48810c5362c265a17faebe90dc2373c885e5216439d37927f02926",
+        strip_prefix = "googletest-1.15.2",
+        urls = ["https://github.com/google/googletest/archive/refs/tags/v1.15.2.tar.gz"],
     )
 
     # NullVM dependencies.
@@ -162,13 +162,12 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         git_repository,
         name = "v8",
-        # 10.7.193.13
-        commit = "6c8b357a84847a479cd329478522feefc1c3195a",
+        # 12.7.224.18
+        commit = "503eb7e9a50b0211f8db54ea362ea06ef56c940d",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1664374400 +0000",
+        shallow_since = "1722877350 -0400",
         patches = [
             "@proxy_wasm_cpp_host//bazel/external:v8.patch",
-            "@proxy_wasm_cpp_host//bazel/external:v8_include.patch",
         ],
         patch_args = ["-p1"],
     )
@@ -178,18 +177,32 @@ def proxy_wasm_cpp_host_repositories():
         actual = "@v8//:wee8",
     )
 
-    maybe(
-        new_git_repository,
-        name = "com_googlesource_chromium_base_trace_event_common",
-        build_file = "@v8//:bazel/BUILD.trace_event_common",
-        commit = "521ac34ebd795939c7e16b37d9d3ddb40e8ed556",
-        remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
-        shallow_since = "1662508800 +0000",
+    native.bind(
+        name = "absl_optional",
+        actual = "@com_google_absl//absl/types:optional",
     )
 
     native.bind(
-        name = "base_trace_event_common",
-        actual = "@com_googlesource_chromium_base_trace_event_common//:trace_event_common",
+        name = "absl_btree",
+        actual = "@com_google_absl//absl/container:btree",
+    )
+
+    native.bind(
+        name = "absl_flat_hash_map",
+        actual = "@com_google_absl//absl/container:flat_hash_map",
+    )
+
+    native.bind(
+        name = "absl_flat_hash_set",
+        actual = "@com_google_absl//absl/container:flat_hash_set",
+    )
+
+    maybe(
+        git_repository,
+        name = "fp16",
+        commit = "0a92994d729ff76a58f692d3028ca1b64b145d91",
+        build_file_content = "exports_files(glob([\"**\"]))",
+        remote = "https://chromium.googlesource.com/external/github.com/Maratyszcza/FP16.git",
     )
 
     # WAMR with dependencies.
