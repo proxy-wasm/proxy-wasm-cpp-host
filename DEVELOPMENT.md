@@ -9,4 +9,3 @@ The following command can be used to generate the `compile_commands.json` file:
 ```
 BAZEL_BUILD_OPTION_LIST="--define=engine=multi" ./tools/gen_compilation_database.py --include_all //test/... //:lib
 ```
-
