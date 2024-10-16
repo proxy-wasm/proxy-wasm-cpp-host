@@ -45,6 +45,31 @@ namespace proxy_wasm {
 std::vector<std::string> getWasmEngines();
 std::string readTestWasmFile(const std::string &filename);
 
+namespace internal {
+
+template <typename... Args> struct Stringify {
+  static void convert(std::ostream &out) {}
+};
+
+template <typename... Args> void stringify_impl(std::ostream &out, Args... args) {
+  Stringify<Args...>::convert(out, std::forward<Args>(args)...);
+}
+
+template <typename A, typename... Args> struct Stringify<A, Args...> {
+  static void convert(std::ostream &out, A arg, Args... args) {
+    out << arg;
+    stringify_impl(out, std::forward<Args>(args)...);
+  }
+};
+
+} // namespace internal
+
+template <typename... Args> std::string stringify(Args... args) {
+  std::ostringstream out(std::ostringstream::ate);
+  internal::stringify_impl(out, std::forward<Args>(args)...);
+  return out.str();
+}
+
 class TestIntegration : public WasmVmIntegration {
 public:
   ~TestIntegration() override = default;
@@ -131,6 +156,15 @@ public:
     return std::chrono::duration_cast<std::chrono::nanoseconds>(
                std::chrono::steady_clock::now().time_since_epoch())
         .count();
+  }
+
+  WasmResult sendLocalResponse(uint32_t response_code, std::string_view /*unused*/,
+                               Pairs /*unused*/, GrpcStatusCode /*unused*/,
+                               std::string_view /*unused*/) override {
+    if (response_code >= 200 && response_code < 300) {
+      return WasmResult::Ok;
+    }
+    return WasmResult::Unimplemented;
   }
 
 private:

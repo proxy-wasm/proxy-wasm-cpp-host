@@ -157,5 +157,39 @@ TEST_P(TestVm, RandomTooLarge) {
   EXPECT_TRUE(context->isLogged("random_get(66560) failed."));
 }
 
+TEST_P(TestVm, SendLocalResponse) {
+  auto source = readTestWasmFile("local_response.wasm");
+  ASSERT_FALSE(source.empty());
+  auto wasm = TestWasm(std::move(vm_));
+  ASSERT_TRUE(wasm.load(source, false));
+  ASSERT_TRUE(wasm.initialize());
+
+  auto *context = dynamic_cast<TestContext *>(wasm.vm_context());
+
+  // We first try the negative case - proxy_send_local_response fails
+  WasmCallVoid<0> run_fail;
+  wasm.wasm_vm()->getFunction("run_fail", &run_fail);
+  ASSERT_TRUE(run_fail != nullptr);
+  run_fail(context);
+
+  // We expect application to log whatever status
+  // proxy_send_local_response returns.
+  EXPECT_TRUE(context->isLogged(stringify("proxy_send_local_response returned ",
+                                          static_cast<uint32_t>(WasmResult::Unimplemented))));
+  // When we fail to send local response we don't pause processing.
+  EXPECT_FALSE(context->wasm()->isNextIterationStopped());
+
+  // Then we try the positive case - proxy_send_local_response succeeds
+  WasmCallVoid<0> run_success;
+  wasm.wasm_vm()->getFunction("run_success", &run_success);
+  ASSERT_TRUE(run_success != nullptr);
+  run_success(context);
+
+  EXPECT_TRUE(context->isLogged(
+      stringify("proxy_send_local_response returned ", static_cast<uint32_t>(WasmResult::Ok))));
+  // When we succeed to send local response we stop processing.
+  EXPECT_TRUE(context->wasm()->isNextIterationStopped());
+}
+
 } // namespace
 } // namespace proxy_wasm

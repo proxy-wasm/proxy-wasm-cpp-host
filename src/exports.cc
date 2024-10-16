@@ -153,8 +153,25 @@ Word send_local_response(Word response_code, Word response_code_details_ptr,
     return WasmResult::InvalidMemoryAccess;
   }
   auto additional_headers = PairsUtil::toPairs(additional_response_header_pairs.value());
-  context->sendLocalResponse(response_code, body.value(), std::move(additional_headers),
-                             grpc_status, details.value());
+  auto status = context->sendLocalResponse(
+      response_code, body.value(), std::move(additional_headers), grpc_status, details.value());
+  // Only stop processing if we actually triggered local response.
+  //
+  // For context, Envoy sends local replies through the filter chain,
+  // so wasm filter can be called to handle a local reply that the
+  // filter itself triggered.
+  //
+  // Normally that is not an issue, unless wasm filter calls
+  // proxy_send_local_response again (which they probably shouldn't).
+  // In this case, no new local response will be generated and
+  // sendLocalResponse will fail.
+  //
+  // If at this point we stop processing, we end up in a situation when
+  // no response was sent, even though we tried twice, and the connection
+  // is stuck, because processing is stopped.
+  if (status != WasmResult::Ok) {
+    return status;
+  }
   context->wasm()->stopNextIteration(true);
   return WasmResult::Ok;
 }

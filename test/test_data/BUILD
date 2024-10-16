@@ -80,6 +80,12 @@ wasm_rust_binary(
     wasi = True,
 )
 
+wasm_rust_binary(
+    name = "local_response.wasm",
+    srcs = ["local_response.rs"],
+    wasi = True,
+)
+
 proxy_wasm_cc_binary(
     name = "canary_check.wasm",
     srcs = ["canary_check.cc"],
