@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <cassert>
 #include <deque>
 #include <map>
 #include <memory>
@@ -312,21 +313,31 @@ void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
   }
 }
 
-// Empty headers/trailers have zero size.
-template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
-
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_stream) {
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
-  if (!wasm_->on_request_headers_abi_01_ && !wasm_->on_request_headers_abi_02_) {
+  if (!wasm_->on_request_headers_abi_01_ && !wasm_->on_request_headers_) {
     return FilterHeadersStatus::Continue;
   }
   DeferAfterCallActions actions(this);
-  const auto result = wasm_->on_request_headers_abi_01_
-                          ? wasm_->on_request_headers_abi_01_(this, id_, headers)
-                          : wasm_->on_request_headers_abi_02_(this, id_, headers,
-                                                              static_cast<uint32_t>(end_of_stream));
+
+  AbiVersion wasm_abi_version = wasm_->abi_version_;
+  uint64_t result{};
+  switch (wasm_abi_version) {
+  case AbiVersion::ProxyWasm_0_1_0:
+    result = wasm_->on_request_headers_abi_01_(this, id_, headers);
+    break;
+  case AbiVersion::ProxyWasm_0_2_0:
+  case AbiVersion::ProxyWasm_0_2_1:
+  case AbiVersion::ProxyWasm_0_3_0:
+    result = wasm_->on_request_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
+    break;
+  case AbiVersion::Unknown:
+    assert(false); // Should never reach here.
+    return FilterHeadersStatus::Continue;
+  }
+
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
-  return convertVmCallResultToFilterHeadersStatus(result);
+  return convertVmCallResultToFilterHeadersStatus(result, wasm_abi_version);
 }
 
 FilterDataStatus ContextBase::onRequestBody(uint32_t body_length, bool end_of_stream) {
@@ -365,16 +376,29 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
 
 FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of_stream) {
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
-  if (!wasm_->on_response_headers_abi_01_ && !wasm_->on_response_headers_abi_02_) {
+  if (!wasm_->on_response_headers_abi_01_ && !wasm_->on_response_headers_) {
     return FilterHeadersStatus::Continue;
   }
   DeferAfterCallActions actions(this);
-  const auto result = wasm_->on_response_headers_abi_01_
-                          ? wasm_->on_response_headers_abi_01_(this, id_, headers)
-                          : wasm_->on_response_headers_abi_02_(
-                                this, id_, headers, static_cast<uint32_t>(end_of_stream));
+
+  AbiVersion wasm_abi_version = wasm_->abi_version_;
+  uint64_t result{};
+  switch (wasm_abi_version) {
+  case AbiVersion::ProxyWasm_0_1_0:
+    result = wasm_->on_response_headers_abi_01_(this, id_, headers);
+    break;
+  case AbiVersion::ProxyWasm_0_2_0:
+  case AbiVersion::ProxyWasm_0_2_1:
+  case AbiVersion::ProxyWasm_0_3_0:
+    result = wasm_->on_response_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
+    break;
+  case AbiVersion::Unknown:
+    assert(false); // Should never reach here.
+    return FilterHeadersStatus::Continue;
+  }
+
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
-  return convertVmCallResultToFilterHeadersStatus(result);
+  return convertVmCallResultToFilterHeadersStatus(result, wasm_abi_version);
 }
 
 FilterDataStatus ContextBase::onResponseBody(uint32_t body_length, bool end_of_stream) {
@@ -488,12 +512,16 @@ WasmResult ContextBase::setTimerPeriod(std::chrono::milliseconds period,
   return WasmResult::Ok;
 }
 
-FilterHeadersStatus ContextBase::convertVmCallResultToFilterHeadersStatus(uint64_t result) {
+FilterHeadersStatus ContextBase::convertVmCallResultToFilterHeadersStatus(uint64_t result,
+                                                                          AbiVersion abi_version) {
   if (wasm()->isNextIterationStopped() ||
       result > static_cast<uint64_t>(FilterHeadersStatus::StopAllIterationAndWatermark)) {
     return FilterHeadersStatus::StopAllIterationAndWatermark;
   }
-  if (result == static_cast<uint64_t>(FilterHeadersStatus::StopIteration)) {
+
+  // Only Proxy-WASM 0.2.1 and earlier convert StopIteration to StopAllIterationAndWatermark.
+  if (abi_version < AbiVersion::ProxyWasm_0_3_0 &&
+      result == static_cast<uint64_t>(FilterHeadersStatus::StopIteration)) {
     // Always convert StopIteration (pause processing headers, but continue processing body)
     // to StopAllIterationAndWatermark (pause all processing), since the former breaks all
     // assumptions about HTTP processing.

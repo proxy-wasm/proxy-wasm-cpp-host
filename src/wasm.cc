@@ -31,6 +31,7 @@
 #include "include/proxy-wasm/bytecode_util.h"
 #include "include/proxy-wasm/signature_util.h"
 #include "include/proxy-wasm/vm_id_handle.h"
+#include "include/proxy-wasm/wasm_vm.h"
 #include "src/hash.h"
 
 namespace proxy_wasm {
@@ -150,6 +151,10 @@ void WasmBase::registerCallbacks() {
     _REGISTER_PROXY(continue_stream);
     _REGISTER_PROXY(close_stream);
     _REGISTER_PROXY(get_log_level);
+  } else if (abiVersion() == AbiVersion::ProxyWasm_0_3_0) {
+    _REGISTER_PROXY(continue_stream);
+    _REGISTER_PROXY(close_stream);
+    _REGISTER_PROXY(get_log_level);
   }
 #undef _REGISTER_PROXY
 
@@ -197,8 +202,12 @@ void WasmBase::getFunctions() {
     _GET_PROXY_ABI(on_response_headers, _abi_01);
   } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0 ||
              abiVersion() == AbiVersion::ProxyWasm_0_2_1) {
-    _GET_PROXY_ABI(on_request_headers, _abi_02);
-    _GET_PROXY_ABI(on_response_headers, _abi_02);
+    _GET_PROXY(on_request_headers);
+    _GET_PROXY(on_response_headers);
+    _GET_PROXY(on_foreign_function);
+  } else if (abiVersion() == AbiVersion::ProxyWasm_0_3_0) {
+    _GET_PROXY(on_request_headers);
+    _GET_PROXY(on_response_headers);
     _GET_PROXY(on_foreign_function);
   }
 #undef _GET_PROXY_ABI
