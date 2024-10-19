@@ -322,18 +322,13 @@ FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_
 
   AbiVersion wasm_abi_version = wasm_->abi_version_;
   uint64_t result{};
-  switch (wasm_abi_version) {
-  case AbiVersion::ProxyWasm_0_1_0:
+
+  if (wasm_->abi_version_ == AbiVersion::ProxyWasm_0_1_0) {
+    // For ProxyWasm_0_1_0.
     result = wasm_->on_request_headers_abi_01_(this, id_, headers);
-    break;
-  case AbiVersion::ProxyWasm_0_2_0:
-  case AbiVersion::ProxyWasm_0_2_1:
-  case AbiVersion::ProxyWasm_0_3_0:
+  } else {
+    // For ProxyWasm_0_2_0, ProxyWasm_0_2_1, or ProxyWasm_0_3_0.
     result = wasm_->on_request_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
-    break;
-  case AbiVersion::Unknown:
-    assert(false); // Should never reach here.
-    return FilterHeadersStatus::Continue;
   }
 
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
@@ -383,18 +378,13 @@ FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of
 
   AbiVersion wasm_abi_version = wasm_->abi_version_;
   uint64_t result{};
-  switch (wasm_abi_version) {
-  case AbiVersion::ProxyWasm_0_1_0:
+
+  if (wasm_->abi_version_ == AbiVersion::ProxyWasm_0_1_0) {
+    // For ProxyWasm_0_1_0.
     result = wasm_->on_response_headers_abi_01_(this, id_, headers);
-    break;
-  case AbiVersion::ProxyWasm_0_2_0:
-  case AbiVersion::ProxyWasm_0_2_1:
-  case AbiVersion::ProxyWasm_0_3_0:
+  } else {
+    // For ProxyWasm_0_2_0, ProxyWasm_0_2_1, or ProxyWasm_0_3_0.
     result = wasm_->on_response_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
-    break;
-  case AbiVersion::Unknown:
-    assert(false); // Should never reach here.
-    return FilterHeadersStatus::Continue;
   }
 
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);

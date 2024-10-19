@@ -31,6 +31,7 @@ struct NullPluginRegistry {
   void (*proxy_abi_version_0_1_0_)() = nullptr;
   void (*proxy_abi_version_0_2_0_)() = nullptr;
   void (*proxy_abi_version_0_2_1_)() = nullptr;
+  void (*proxy_abi_version_0_3_0_)() = nullptr;
   void (*proxy_on_log_)(uint32_t context_id) = nullptr;
   uint32_t (*proxy_validate_configuration_)(uint32_t root_context_id,
                                             uint32_t plugin_configuration_size) = nullptr;
