@@ -321,15 +321,10 @@ FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_
   DeferAfterCallActions actions(this);
 
   AbiVersion wasm_abi_version = wasm_->abi_version_;
-  uint64_t result{};
-
-  if (wasm_->abi_version_ == AbiVersion::ProxyWasm_0_1_0) {
-    // For ProxyWasm_0_1_0.
-    result = wasm_->on_request_headers_abi_01_(this, id_, headers);
-  } else {
-    // For ProxyWasm_0_2_0, ProxyWasm_0_2_1, or ProxyWasm_0_3_0.
-    result = wasm_->on_request_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
-  }
+  const uint64_t result =
+      wasm_->on_request_headers_abi_01_
+          ? wasm_->on_request_headers_abi_01_(this, id_, headers)
+          : wasm_->on_request_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
 
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
   return convertVmCallResultToFilterHeadersStatus(result, wasm_abi_version);
@@ -377,15 +372,10 @@ FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of
   DeferAfterCallActions actions(this);
 
   AbiVersion wasm_abi_version = wasm_->abi_version_;
-  uint64_t result{};
-
-  if (wasm_->abi_version_ == AbiVersion::ProxyWasm_0_1_0) {
-    // For ProxyWasm_0_1_0.
-    result = wasm_->on_response_headers_abi_01_(this, id_, headers);
-  } else {
-    // For ProxyWasm_0_2_0, ProxyWasm_0_2_1, or ProxyWasm_0_3_0.
-    result = wasm_->on_response_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
-  }
+  const uint64_t result =
+      wasm_->on_response_headers_abi_01_
+          ? wasm_->on_response_headers_abi_01_(this, id_, headers)
+          : wasm_->on_response_headers_(this, id_, headers, static_cast<uint32_t>(end_of_stream));
 
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
   return convertVmCallResultToFilterHeadersStatus(result, wasm_abi_version);
