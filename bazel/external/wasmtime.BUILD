@@ -21,7 +21,7 @@ genrule(
         "crates/c-api/include/wasm.h",
     ],
     outs = [
-        "include/prefixed_wasm.h",
+        "crates/c-api/include/prefixed_wasm.h",
     ],
     cmd = """
         sed -e 's/\\ wasm_/\\ wasmtime_wasm_/g' \
