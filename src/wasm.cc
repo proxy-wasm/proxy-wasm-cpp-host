@@ -31,6 +31,7 @@
 #include "include/proxy-wasm/bytecode_util.h"
 #include "include/proxy-wasm/signature_util.h"
 #include "include/proxy-wasm/vm_id_handle.h"
+#include "include/proxy-wasm/wasm_vm.h"
 #include "src/hash.h"
 
 namespace proxy_wasm {
@@ -139,14 +140,18 @@ void WasmBase::registerCallbacks() {
   FOR_ALL_HOST_FUNCTIONS(_REGISTER_PROXY);
 
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
+    // For ProxyWasm_0_1_0.
     _REGISTER_PROXY(get_configuration);
     _REGISTER_PROXY(continue_request);
     _REGISTER_PROXY(continue_response);
     _REGISTER_PROXY(clear_route_cache);
   } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0) {
+    // For ProxyWasm_0_2_0.
     _REGISTER_PROXY(continue_stream);
     _REGISTER_PROXY(close_stream);
-  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_1) {
+  } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_1 ||
+             abiVersion() == AbiVersion::ProxyWasm_0_3_0) {
+    // For ProxyWasm_0_2_1 or ProxyWasm_0_3_0.
     _REGISTER_PROXY(continue_stream);
     _REGISTER_PROXY(close_stream);
     _REGISTER_PROXY(get_log_level);
@@ -193,12 +198,15 @@ void WasmBase::getFunctions() {
   FOR_ALL_MODULE_FUNCTIONS(_GET_PROXY);
 
   if (abiVersion() == AbiVersion::ProxyWasm_0_1_0) {
+    // For ProxyWasm_0_1_0.
     _GET_PROXY_ABI(on_request_headers, _abi_01);
     _GET_PROXY_ABI(on_response_headers, _abi_01);
   } else if (abiVersion() == AbiVersion::ProxyWasm_0_2_0 ||
-             abiVersion() == AbiVersion::ProxyWasm_0_2_1) {
-    _GET_PROXY_ABI(on_request_headers, _abi_02);
-    _GET_PROXY_ABI(on_response_headers, _abi_02);
+             abiVersion() == AbiVersion::ProxyWasm_0_2_1 ||
+             abiVersion() == AbiVersion::ProxyWasm_0_3_0) {
+    // For ProxyWasm_0_2_0, ProxyWasm_0_2_1, or ProxyWasm_0_3_0.
+    _GET_PROXY(on_request_headers);
+    _GET_PROXY(on_response_headers);
     _GET_PROXY(on_foreign_function);
   }
 #undef _GET_PROXY_ABI
