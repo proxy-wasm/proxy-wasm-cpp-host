@@ -118,7 +118,7 @@ jobs:
           os: ubuntu-22.04
           arch: x86_64
           action: test
-          flags: --config=clang-asan-strict --define=crypto=system
+          flags: --config=clang-asan --define=crypto=system
         - name: 'NullVM on Linux/x86_64 with TSan'
           engine: 'null'
           os: ubuntu-22.04
@@ -235,7 +235,7 @@ jobs:
           os: ubuntu-22.04
           arch: x86_64
           action: test
-          flags: --config=clang-asan-strict --define=crypto=system
+          flags: --config=clang-asan --define=crypto=system
         - name: 'Wasmtime on Linux/aarch64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'

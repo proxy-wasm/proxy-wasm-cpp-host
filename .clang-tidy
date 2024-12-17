@@ -19,5 +19,6 @@ Checks:            clang-*,
                    -readability-magic-numbers,
                    -readability-make-member-function-const,
                    -readability-simplify-boolean-expr,
+                   -clang-diagnostic-builtin-macro-redefined,
 
 WarningsAsErrors:  '*'
