@@ -1,0 +1,33 @@
+# Address g++ -std=c++20 variadic template compilation issue:
+# https://github.com/proxy-wasm/proxy-wasm-cpp-host/pull/411#issuecomment-2295429152
+
+diff --git a/proxy_wasm_api.h b/proxy_wasm_api.h
+index 166b49c..263d2b9 100644
+--- a/proxy_wasm_api.h
++++ b/proxy_wasm_api.h
+@@ -1207,7 +1207,7 @@ struct SimpleHistogram {
+ template <typename... Tags> struct Counter : public MetricBase {
+   static Counter<Tags...> *New(std::string_view name, MetricTagDescriptor<Tags>... fieldnames);
+ 
+-  Counter<Tags...>(std::string_view name, MetricTagDescriptor<Tags>... descriptors)
++  Counter(std::string_view name, MetricTagDescriptor<Tags>... descriptors)
+       : Counter<Tags...>(std::string(name), std::vector<MetricTag>({toMetricTag(descriptors)...})) {
+   }
+ 
+@@ -1256,7 +1256,7 @@ inline Counter<Tags...> *Counter<Tags...>::New(std::string_view name,
+ template <typename... Tags> struct Gauge : public MetricBase {
+   static Gauge<Tags...> *New(std::string_view name, MetricTagDescriptor<Tags>... fieldnames);
+ 
+-  Gauge<Tags...>(std::string_view name, MetricTagDescriptor<Tags>... descriptors)
++  Gauge(std::string_view name, MetricTagDescriptor<Tags>... descriptors)
+       : Gauge<Tags...>(std::string(name), std::vector<MetricTag>({toMetricTag(descriptors)...})) {}
+ 
+   SimpleGauge resolve(Tags... f) {
+@@ -1302,6 +1302,6 @@ inline Gauge<Tags...> *Gauge<Tags...>::New(std::string_view name,
+ template <typename... Tags> struct Histogram : public MetricBase {
+   static Histogram<Tags...> *New(std::string_view name, MetricTagDescriptor<Tags>... fieldnames);
+ 
+-  Histogram<Tags...>(std::string_view name, MetricTagDescriptor<Tags>... descriptors)
++  Histogram(std::string_view name, MetricTagDescriptor<Tags>... descriptors)
+       : Histogram<Tags...>(std::string(name),
+                            std::vector<MetricTag>({toMetricTag(descriptors)...})) {}
