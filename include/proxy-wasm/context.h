@@ -28,6 +28,7 @@
 
 #include "include/proxy-wasm/sdk.h"
 #include "include/proxy-wasm/context_interface.h"
+#include "include/proxy-wasm/wasm_vm.h"
 
 namespace proxy_wasm {
 
@@ -399,7 +400,7 @@ protected:
 
 private:
   // helper functions
-  FilterHeadersStatus convertVmCallResultToFilterHeadersStatus(uint64_t result);
+  FilterHeadersStatus convertVmCallResultToFilterHeadersStatus(uint64_t result, AbiVersion version);
   FilterDataStatus convertVmCallResultToFilterDataStatus(uint64_t result);
   FilterTrailersStatus convertVmCallResultToFilterTrailersStatus(uint64_t result);
   FilterMetadataStatus convertVmCallResultToFilterMetadataStatus(uint64_t result);
