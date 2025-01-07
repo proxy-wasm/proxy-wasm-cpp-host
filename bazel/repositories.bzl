@@ -118,13 +118,23 @@ def proxy_wasm_cpp_host_repositories():
         urls = ["https://github.com/abseil/abseil-cpp/releases/download/20240722.0/abseil-cpp-20240722.0.tar.gz"],
     )
 
+    # Required for boringssl. Boringssl has migrated to bzlmod and does not have a `dependencies` bzl function.
+    maybe(
+        http_archive,
+        name = "rules_license",
+        sha256 = "26d4021f6898e23b82ef953078389dd49ac2b5618ac564ade4ef87cced147b38",
+        urls = [
+            "https://github.com/bazelbuild/rules_license/releases/download/1.0.0/rules_license-1.0.0.tar.gz",
+        ],
+    )
+
     maybe(
         http_archive,
         name = "boringssl",
-        # 2023-08-28 (master-with-bazel)
-        sha256 = "f1f421738e9ba39dd88daf8cf3096ddba9c53e2b6b41b32fff5a3ff82f4cd162",
-        strip_prefix = "boringssl-45cf810dbdbd767f09f8cb0b0fcccd342c39041f",
-        urls = ["https://github.com/google/boringssl/archive/45cf810dbdbd767f09f8cb0b0fcccd342c39041f.tar.gz"],
+        # 2025-01-06 (master-with-bazel)
+        sha256 = "58dc95e4144320d1b77fc1dd6ef3e833ee9032e1021e1ff40f14fea229dacb74",
+        strip_prefix = "boringssl-e168d25f4bfb75e661170839fc4b17eeb1c77306",
+        urls = ["https://github.com/google/boringssl/archive/e168d25f4bfb75e661170839fc4b17eeb1c77306.tar.gz"],
     )
 
     maybe(
