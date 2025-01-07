@@ -34,18 +34,18 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "bazel_skylib",
         urls = [
-            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
-            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
+            "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.7.1/bazel-skylib-1.7.1.tar.gz",
+            "https://github.com/bazelbuild/bazel-skylib/releases/download/1.7.1/bazel-skylib-1.7.1.tar.gz",
         ],
-        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
+        sha256 = "bc283cdfcd526a52c3201279cda4bc298652efa898b10b4db0837dc51652756f",
     )
 
     maybe(
         http_archive,
         name = "rules_cc",
-        sha256 = "2037875b9a4456dce4a79d112a8ae885bbc4aad968e6587dca6e64f3a0900cdf",
-        strip_prefix = "rules_cc-0.0.9",
-        urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz"],
+        sha256 = "abc605dd850f813bb37004b77db20106a19311a96b2da1c92b789da529d28fe1",
+        strip_prefix = "rules_cc-0.0.17",
+        urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.17/rules_cc-0.0.17.tar.gz"],
     )
 
     maybe(
@@ -90,14 +90,12 @@ def proxy_wasm_cpp_host_repositories():
         url = "https://github.com/bazelbuild/rules_python/releases/download/0.34.0/rules_python-0.34.0.tar.gz",
     )
 
-    # Keep at 0.42 one because https://github.com/bazelbuild/rules_rust/issues/2665
-    # manifests at 0.43
     maybe(
         http_archive,
         name = "rules_rust",
-        integrity = "sha256-JLN47ZcAbx9wEr5Jiib4HduZATGLiDgK7oUi/fvotzU=",
+        sha256 = "f1306aac0b258b790df01ad9abc6abb0df0b65416c74b4ef27f4aab298780a64",
         # NOTE: Update Rust version in bazel/dependencies.bzl.
-        url = "https://github.com/bazelbuild/rules_rust/releases/download/0.42.1/rules_rust-v0.42.1.tar.gz",
+        url = "https://github.com/bazelbuild/rules_rust/releases/download/0.56.0/rules_rust-0.56.0.tar.gz",
         patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
         patch_args = ["-p1"],
     )
@@ -113,26 +111,36 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "com_google_absl",
-        sha256 = "733726b8c3a6d39a4120d7e45ea8b41a434cdacde401cba500f14236c49b39dc",
-        strip_prefix = "abseil-cpp-20240116.2",
-        urls = ["https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz"],
+        sha256 = "f50e5ac311a81382da7fa75b97310e4b9006474f9560ac46f54a9967f07d4ae3",
+        strip_prefix = "abseil-cpp-20240722.0",
+        urls = ["https://github.com/abseil/abseil-cpp/releases/download/20240722.0/abseil-cpp-20240722.0.tar.gz"],
+    )
+
+    # Required for boringssl. Boringssl has migrated to bzlmod and does not have a `dependencies` bzl function.
+    maybe(
+        http_archive,
+        name = "rules_license",
+        sha256 = "26d4021f6898e23b82ef953078389dd49ac2b5618ac564ade4ef87cced147b38",
+        urls = [
+            "https://github.com/bazelbuild/rules_license/releases/download/1.0.0/rules_license-1.0.0.tar.gz",
+        ],
     )
 
     maybe(
         http_archive,
         name = "boringssl",
-        # 2023-08-28 (master-with-bazel)
-        sha256 = "f1f421738e9ba39dd88daf8cf3096ddba9c53e2b6b41b32fff5a3ff82f4cd162",
-        strip_prefix = "boringssl-45cf810dbdbd767f09f8cb0b0fcccd342c39041f",
-        urls = ["https://github.com/google/boringssl/archive/45cf810dbdbd767f09f8cb0b0fcccd342c39041f.tar.gz"],
+        # 2025-01-06 (master-with-bazel)
+        sha256 = "58dc95e4144320d1b77fc1dd6ef3e833ee9032e1021e1ff40f14fea229dacb74",
+        strip_prefix = "boringssl-e168d25f4bfb75e661170839fc4b17eeb1c77306",
+        urls = ["https://github.com/google/boringssl/archive/e168d25f4bfb75e661170839fc4b17eeb1c77306.tar.gz"],
     )
 
     maybe(
         http_archive,
         name = "proxy_wasm_cpp_sdk",
-        sha256 = "89792fc1abca331f29f99870476a04146de5e82ff903bdffca90e6729c1f2470",
-        strip_prefix = "proxy-wasm-cpp-sdk-95bb82ce45c41d9100fd1ec15d2ffc67f7f3ceee",
-        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/95bb82ce45c41d9100fd1ec15d2ffc67f7f3ceee.tar.gz"],
+        sha256 = "4cdbee65d7c3c491ba42dcc3b201144ac781031f8b1e40cb0b9244ffca9c5d3e",
+        strip_prefix = "proxy-wasm-cpp-sdk-a982ad089d1962f1b92f4343c910c0be6b6e6280",
+        urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/a982ad089d1962f1b92f4343c910c0be6b6e6280.tar.gz"],
     )
 
     # Compile DB dependencies.
@@ -149,11 +157,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "com_google_googletest",
-        sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
-        strip_prefix = "googletest-release-1.10.0",
-        urls = ["https://github.com/google/googletest/archive/release-1.10.0.tar.gz"],
-        patches = ["@proxy_wasm_cpp_host//bazel/external:googletest.patch"],
-        patch_args = ["-p1"],
+        sha256 = "7b42b4d6ed48810c5362c265a17faebe90dc2373c885e5216439d37927f02926",
+        strip_prefix = "googletest-1.15.2",
+        urls = ["https://github.com/google/googletest/releases/download/v1.15.2/googletest-1.15.2.tar.gz"],
     )
 
     # NullVM dependencies.
@@ -161,9 +167,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "77ad26d3f65222fd96ccc18b055632b0bfedf295cb748b712a98ba1ac0b704b2",
-        strip_prefix = "protobuf-3.17.3",
-        url = "https://github.com/protocolbuffers/protobuf/releases/download/v3.17.3/protobuf-all-3.17.3.tar.gz",
+        sha256 = "63150aba23f7a90fd7d87bdf514e459dd5fe7023fdde01b56ac53335df64d4bd",
+        strip_prefix = "protobuf-29.2",
+        url = "https://github.com/protocolbuffers/protobuf/releases/download/v29.2/protobuf-29.2.tar.gz",
     )
 
     # V8 with dependencies.
@@ -207,10 +213,10 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasm_micro_runtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr.BUILD",
-        # WAMR-2.1.1
-        sha256 = "a0824762abbcbb3dd6b7bb07530f198ece5d792a12a879bc2a99100590fdb151",
-        strip_prefix = "wasm-micro-runtime-WAMR-2.1.1",
-        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/refs/tags/WAMR-2.1.1.zip",
+        # WAMR-2.2.0
+        sha256 = "93b6ba03f681e061967106046b1908631ee705312b9a6410f3baee7af7c6aac9",
+        strip_prefix = "wasm-micro-runtime-WAMR-2.2.0",
+        url = "https://github.com/bytecodealliance/wasm-micro-runtime/archive/refs/tags/WAMR-2.2.0.tar.gz",
     )
 
     native.bind(
@@ -249,9 +255,9 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "2ccb49bb3bfa4d86907ad4c80d1147aef6156c7b6e3f7f14ed02a39de9761155",
-        strip_prefix = "wasmtime-24.0.0",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v24.0.0.tar.gz",
+        sha256 = "17850ca356fce6ea8bcd3847692b3233588ddf32ff31fcccac67ad06bcac0a3a",
+        strip_prefix = "wasmtime-25.0.3",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v25.0.3.tar.gz",
     )
 
     native.bind(
