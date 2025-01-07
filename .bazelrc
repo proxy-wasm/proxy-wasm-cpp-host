@@ -1,6 +1,9 @@
 # Disable Bzlmod
 common --noenable_bzlmod
 
+# Work around https://github.com/bazelbuild/rules_rust/issues/2665
+common --incompatible_merge_fixed_and_default_shell_env
+
 # Pass CC, CXX and PATH from the environment.
 build --action_env=CC
 build --action_env=CXX
