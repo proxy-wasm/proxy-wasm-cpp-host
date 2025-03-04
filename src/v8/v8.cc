@@ -140,13 +140,13 @@ private:
 
 static std::string printValue(const wasm::Val &value) {
   switch (value.kind()) {
-  case wasm::I32:
+  case wasm::ValKind::I32:
     return std::to_string(value.get<uint32_t>());
-  case wasm::I64:
+  case wasm::ValKind::I64:
     return std::to_string(value.get<uint64_t>());
-  case wasm::F32:
+  case wasm::ValKind::F32:
     return std::to_string(value.get<float>());
-  case wasm::F64:
+  case wasm::ValKind::F64:
     return std::to_string(value.get<double>());
   default:
     return "unknown";
@@ -170,17 +170,17 @@ static std::string printValues(const wasm::Val values[], size_t size) {
 
 static const char *printValKind(wasm::ValKind kind) {
   switch (kind) {
-  case wasm::I32:
+  case wasm::ValKind::I32:
     return "i32";
-  case wasm::I64:
+  case wasm::ValKind::I64:
     return "i64";
-  case wasm::F32:
+  case wasm::ValKind::F32:
     return "f32";
-  case wasm::F64:
+  case wasm::ValKind::F64:
     return "f64";
-  case wasm::ANYREF:
+  case wasm::ValKind::ANYREF:
     return "anyref";
-  case wasm::FUNCREF:
+  case wasm::ValKind::FUNCREF:
     return "funcref";
   default:
     return "unknown";
@@ -229,11 +229,11 @@ template <typename T> wasm::Val makeVal(T t) { return wasm::Val::make(t); }
 template <> wasm::Val makeVal(Word t) { return wasm::Val::make(static_cast<uint32_t>(t.u64_)); }
 
 template <typename T> constexpr auto convertArgToValKind();
-template <> constexpr auto convertArgToValKind<Word>() { return wasm::I32; };
-template <> constexpr auto convertArgToValKind<uint32_t>() { return wasm::I32; };
-template <> constexpr auto convertArgToValKind<int64_t>() { return wasm::I64; };
-template <> constexpr auto convertArgToValKind<uint64_t>() { return wasm::I64; };
-template <> constexpr auto convertArgToValKind<double>() { return wasm::F64; };
+template <> constexpr auto convertArgToValKind<Word>() { return wasm::ValKind::I32; };
+template <> constexpr auto convertArgToValKind<uint32_t>() { return wasm::ValKind::I32; };
+template <> constexpr auto convertArgToValKind<int64_t>() { return wasm::ValKind::I64; };
+template <> constexpr auto convertArgToValKind<uint64_t>() { return wasm::ValKind::I64; };
+template <> constexpr auto convertArgToValKind<double>() { return wasm::ValKind::F64; };
 
 template <typename T, std::size_t... I>
 constexpr auto convertArgsTupleToValTypesImpl(std::index_sequence<I...> /*comptime*/) {
@@ -352,7 +352,7 @@ bool V8::link(std::string_view /*debug_name*/) {
 
     switch (import_type->kind()) {
 
-    case wasm::EXTERN_FUNC: {
+    case wasm::ExternKind::EXTERN_FUNC: {
       auto it = host_functions_.find(std::string(module) + "." + std::string(name));
       if (it == host_functions_.end()) {
         fail(FailState::UnableToInitializeCode,
@@ -375,7 +375,7 @@ bool V8::link(std::string_view /*debug_name*/) {
       imports.push_back(func);
     } break;
 
-    case wasm::EXTERN_GLOBAL: {
+    case wasm::ExternKind::EXTERN_GLOBAL: {
       // TODO(PiotrSikora): add support when/if needed.
       fail(FailState::UnableToInitializeCode,
            "Failed to load Wasm module due to a missing import: " + std::string(module) + "." +
@@ -383,7 +383,7 @@ bool V8::link(std::string_view /*debug_name*/) {
       return false;
     } break;
 
-    case wasm::EXTERN_MEMORY: {
+    case wasm::ExternKind::EXTERN_MEMORY: {
       assert(memory_ == nullptr);
       auto type = wasm::MemoryType::make(import_type->memory()->limits());
       if (type == nullptr) {
@@ -396,7 +396,7 @@ bool V8::link(std::string_view /*debug_name*/) {
       imports.push_back(memory_.get());
     } break;
 
-    case wasm::EXTERN_TABLE: {
+    case wasm::ExternKind::EXTERN_TABLE: {
       assert(table_ == nullptr);
       auto type =
           wasm::TableType::make(wasm::ValType::make(import_type->table()->element()->kind()),
@@ -435,16 +435,16 @@ bool V8::link(std::string_view /*debug_name*/) {
 
     switch (export_type->kind()) {
 
-    case wasm::EXTERN_FUNC: {
+    case wasm::ExternKind::EXTERN_FUNC: {
       assert(export_item->func() != nullptr);
       module_functions_.insert_or_assign(std::string(name), export_item->func()->copy());
     } break;
 
-    case wasm::EXTERN_GLOBAL: {
+    case wasm::ExternKind::EXTERN_GLOBAL: {
       // TODO(PiotrSikora): add support when/if needed.
     } break;
 
-    case wasm::EXTERN_MEMORY: {
+    case wasm::ExternKind::EXTERN_MEMORY: {
       assert(export_item->memory() != nullptr);
       assert(memory_ == nullptr);
       memory_ = exports[i]->memory()->copy();
@@ -453,7 +453,7 @@ bool V8::link(std::string_view /*debug_name*/) {
       }
     } break;
 
-    case wasm::EXTERN_TABLE: {
+    case wasm::ExternKind::EXTERN_TABLE: {
       // TODO(PiotrSikora): add support when/if needed.
     } break;
     }
