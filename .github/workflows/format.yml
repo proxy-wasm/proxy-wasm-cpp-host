@@ -41,7 +41,7 @@ jobs:
   addlicense:
     name: verify licenses
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -61,7 +61,7 @@ jobs:
   buildifier:
     name: check format with buildifier
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -81,7 +81,7 @@ jobs:
   rules_rust:
     name: check format with rules_rust
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -99,7 +99,7 @@ jobs:
   clang_format:
     name: check format with clang-format
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -115,7 +115,7 @@ jobs:
   clang_tidy:
     name: check format with clang-tidy
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
