@@ -364,7 +364,11 @@ FilterMetadataStatus ContextBase::onRequestMetadata(uint32_t elements) {
 }
 
 FilterHeadersStatus ContextBase::onResponseHeaders(uint32_t headers, bool end_of_stream) {
-  CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
+  // This callback may be called when WASM encountered fatal failure on earlier
+  // stages of request processing. In that case we are may be in process of
+  // sending local reply due to failStream() call.
+  // We must not block it to prevent request hang.
+  CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::Continue);
   if (!wasm_->on_response_headers_abi_01_ && !wasm_->on_response_headers_abi_02_) {
     return FilterHeadersStatus::Continue;
   }
