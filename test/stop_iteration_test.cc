@@ -54,10 +54,9 @@ TEST_P(TestVm, AllowOnRequestHeadersStopIteration) {
     auto wasm_handle = std::make_shared<WasmHandleBase>(wasm);
     auto plugin_handle = std::make_shared<PluginHandleBase>(wasm_handle, plugin);
     auto stream_context = TestContext(wasm.get(), root_context->id(), plugin_handle);
-    stream_context.set_allow_on_request_headers_stop_iteration(true);
     stream_context.onCreate();
     EXPECT_EQ(stream_context.onRequestHeaders(/*headers=*/0, /*end_of_stream=*/false),
-              FilterHeadersStatus::StopIteration);
+              FilterHeadersStatus::StopAllIterationAndWatermark);
     stream_context.onResponseHeaders(/*headers=*/0, /*end_of_stream=*/false);
     stream_context.onDone();
     stream_context.onDelete();
