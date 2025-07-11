@@ -133,6 +133,21 @@ cc_test(
 )
 
 cc_test(
+    name = "stop_iteration_test",
+    srcs = ["stop_iteration_test.cc"],
+    data = [
+        "//test/test_data:stop_iteration.wasm",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "security_test",
     srcs = ["security_test.cc"],
     data = [

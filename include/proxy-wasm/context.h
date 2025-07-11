@@ -397,6 +397,13 @@ protected:
   bool destroyed_ = false;
   bool stream_failed_ = false; // Set true after failStream is called in case of VM failure.
 
+  // If true, convertVmCallResultToFilterHeadersStatus() propagates
+  // FilterHeadersStatus::StopIteration unmodified to callers. If false, it
+  // translates FilterHeaderStatus::StopIteration to
+  // FilterHeadersStatus::StopAllIterationAndWatermark, which is the default
+  // behavior for v0.2.* of the Proxy-Wasm ABI.
+  bool allow_on_request_headers_stop_iteration_ = false;
+
 private:
   // helper functions
   FilterHeadersStatus convertVmCallResultToFilterHeadersStatus(uint64_t result);
