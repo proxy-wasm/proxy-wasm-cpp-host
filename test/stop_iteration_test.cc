@@ -40,11 +40,9 @@ TEST_P(TestVm, AllowOnHeadersStopIteration) {
       /*engine=*/wasm->wasm_vm()->getEngineName(), /*plugin_config=*/"",
       /*fail_open=*/false, /*key=*/"");
 
-  // Create root context, call onStart().
+  // Create root context, call onStart() and onConfigure()
   ContextBase *root_context = wasm->start(plugin);
   ASSERT_TRUE(root_context != nullptr);
-
-  // On the root context, call onConfigure().
   ASSERT_TRUE(wasm->configure(root_context, plugin));
 
   // By default, stream context onRequestHeaders and onResponseHeaders
