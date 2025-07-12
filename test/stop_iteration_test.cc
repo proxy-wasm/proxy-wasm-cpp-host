@@ -24,7 +24,7 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()
                          });
 
 // TestVm is parameterized for each engine and creates a VM on construction.
-TEST_P(TestVm, AllowOnRequestHeadersStopIteration) {
+TEST_P(TestVm, AllowOnHeadersStopIteration) {
   // Read the wasm source.
   auto source = readTestWasmFile("stop_iteration.wasm");
   ASSERT_FALSE(source.empty());
@@ -47,8 +47,8 @@ TEST_P(TestVm, AllowOnRequestHeadersStopIteration) {
   // On the root context, call onConfigure().
   ASSERT_TRUE(wasm->configure(root_context, plugin));
 
-  // By default, stream context onRequestHeaders translates
-  // FilterHeadersStatus::StopIteration to
+  // By default, stream context onRequestHeaders and onResponseHeaders
+  // translates FilterHeadersStatus::StopIteration to
   // FilterHeadersStatus::StopAllIterationAndWatermark.
   {
     auto wasm_handle = std::make_shared<WasmHandleBase>(wasm);
@@ -57,7 +57,8 @@ TEST_P(TestVm, AllowOnRequestHeadersStopIteration) {
     stream_context.onCreate();
     EXPECT_EQ(stream_context.onRequestHeaders(/*headers=*/0, /*end_of_stream=*/false),
               FilterHeadersStatus::StopAllIterationAndWatermark);
-    stream_context.onResponseHeaders(/*headers=*/0, /*end_of_stream=*/false);
+    EXPECT_EQ(stream_context.onResponseHeaders(/*headers=*/0, /*end_of_stream=*/false),
+              FilterHeadersStatus::StopAllIterationAndWatermark);
     stream_context.onDone();
     stream_context.onDelete();
   }
@@ -68,11 +69,12 @@ TEST_P(TestVm, AllowOnRequestHeadersStopIteration) {
     auto wasm_handle = std::make_shared<WasmHandleBase>(wasm);
     auto plugin_handle = std::make_shared<PluginHandleBase>(wasm_handle, plugin);
     auto stream_context = TestContext(wasm.get(), root_context->id(), plugin_handle);
-    stream_context.set_allow_on_request_headers_stop_iteration(true);
+    stream_context.set_allow_on_headers_stop_iteration(true);
     stream_context.onCreate();
     EXPECT_EQ(stream_context.onRequestHeaders(/*headers=*/0, /*end_of_stream=*/false),
               FilterHeadersStatus::StopIteration);
-    stream_context.onResponseHeaders(/*headers=*/0, /*end_of_stream=*/false);
+    EXPECT_EQ(stream_context.onResponseHeaders(/*headers=*/0, /*end_of_stream=*/false),
+              FilterHeadersStatus::StopIteration);
     stream_context.onDone();
     stream_context.onDelete();
   }

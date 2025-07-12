@@ -402,7 +402,7 @@ protected:
   // translates FilterHeaderStatus::StopIteration to
   // FilterHeadersStatus::StopAllIterationAndWatermark, which is the default
   // behavior for v0.2.* of the Proxy-Wasm ABI.
-  bool allow_on_request_headers_stop_iteration_ = false;
+  bool allow_on_headers_stop_iteration_ = false;
 
 private:
   // helper functions

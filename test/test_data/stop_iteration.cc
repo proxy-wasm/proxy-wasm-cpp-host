@@ -21,6 +21,10 @@ public:
   FilterHeadersStatus onRequestHeaders(uint32_t headers, bool end_of_stream) override {
     return FilterHeadersStatus::StopIteration;
   }
+
+  FilterHeadersStatus onResponseHeaders(uint32_t headers, bool end_of_stream) override {
+    return FilterHeadersStatus::StopIteration;
+  }
 };
 
 static RegisterContextFactory register_StaticContext(CONTEXT_FACTORY(StopIterationContext),

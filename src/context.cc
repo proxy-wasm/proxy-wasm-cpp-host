@@ -494,7 +494,7 @@ FilterHeadersStatus ContextBase::convertVmCallResultToFilterHeadersStatus(uint64
     return FilterHeadersStatus::StopAllIterationAndWatermark;
   }
   if (result == static_cast<uint64_t>(FilterHeadersStatus::StopIteration) &&
-      !allow_on_request_headers_stop_iteration_) {
+      !allow_on_headers_stop_iteration_) {
     // Default behavior for Proxy-Wasm 0.2.* ABI is to translate StopIteration
     // (pause processing headers, but continue processing body) to
     // StopAllIterationAndWatermark (pause all processing), as described in
