@@ -133,9 +133,7 @@ public:
         .count();
   }
 
-  void set_allow_on_headers_stop_iteration(bool allow) {
-    allow_on_headers_stop_iteration_ = allow;
-  }
+  void set_allow_on_headers_stop_iteration(bool allow) { allow_on_headers_stop_iteration_ = allow; }
 
 private:
   std::string log_;
