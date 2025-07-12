@@ -31,6 +31,8 @@ on:
   schedule:
     - cron: '0 0 * * *'
 
+  workflow_dispatch:
+
 concurrency:
 
   group: ${{ github.head_ref || github.run_id }}-${{ github.workflow }}
@@ -41,7 +43,7 @@ jobs:
   addlicense:
     name: verify licenses
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v2
@@ -61,7 +63,7 @@ jobs:
   buildifier:
     name: check format with buildifier
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v2
@@ -99,7 +101,7 @@ jobs:
   clang_format:
     name: check format with clang-format
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v2
@@ -115,7 +117,7 @@ jobs:
   clang_tidy:
     name: check format with clang-tidy
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v2
