@@ -31,6 +31,8 @@ on:
   schedule:
     - cron: '0 0 * * *'
 
+  workflow_dispatch:
+
 concurrency:
 
   group: ${{ github.head_ref || github.run_id }}-${{ github.workflow }}
@@ -127,7 +129,7 @@ jobs:
           flags: --config=clang-tsan
         - name: 'NullVM on Windows/x86_64'
           engine: 'null'
-          os: windows-2019
+          os: windows-2022
           arch: x86_64
           action: test
           targets: -//test/fuzz/...
