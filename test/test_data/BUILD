@@ -89,3 +89,8 @@ proxy_wasm_cc_binary(
     name = "http_logging.wasm",
     srcs = ["http_logging.cc"],
 )
+
+proxy_wasm_cc_binary(
+    name = "stop_iteration.wasm",
+    srcs = ["stop_iteration.cc"],
+)
