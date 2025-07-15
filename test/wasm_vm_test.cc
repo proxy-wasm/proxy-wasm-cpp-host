@@ -35,8 +35,6 @@ TEST_P(TestVm, Basic) {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::NotCloneable);
   } else if (engine_ == "wasmtime" || engine_ == "v8" || engine_ == "wamr") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::CompiledBytecode);
-  } else if (engine_ == "wavm") {
-    EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::InstantiatedModule);
   } else {
     FAIL();
   }
@@ -93,10 +91,6 @@ TEST_P(TestVm, Clone) {
 
 TEST_P(TestVm, CloneUntilOutOfMemory) {
   if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
-    return;
-  }
-  if (engine_ == "wavm") {
-    // TODO(PiotrSikora): Figure out why this fails on the CI.
     return;
   }
 

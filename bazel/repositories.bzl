@@ -263,30 +263,3 @@ def proxy_wasm_cpp_host_repositories():
         name = "prefixed_wasmtime",
         actual = "@com_github_bytecodealliance_wasmtime//:prefixed_wasmtime_lib",
     )
-
-    # WAVM with dependencies.
-
-    maybe(
-        http_archive,
-        name = "com_github_wavm_wavm",
-        build_file = "@proxy_wasm_cpp_host//bazel/external:wavm.BUILD",
-        sha256 = "7cfa3d7334c96f89553bb44eeee736a192826a78b4db114042d38d6882748f5b",
-        strip_prefix = "WAVM-nightly-2022-05-14",
-        url = "https://github.com/WAVM/WAVM/archive/refs/tags/nightly/2022-05-14.tar.gz",
-    )
-
-    native.bind(
-        name = "wavm",
-        actual = "@com_github_wavm_wavm//:wavm_lib",
-    )
-
-    maybe(
-        http_archive,
-        name = "llvm",
-        build_file = "@proxy_wasm_cpp_host//bazel/external:llvm.BUILD",
-        sha256 = "7d9a8405f557cefc5a21bf5672af73903b64749d9bc3a50322239f56f34ffddf",
-        strip_prefix = "llvm-12.0.1.src",
-        url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.1/llvm-12.0.1.src.tar.xz",
-        patches = ["@proxy_wasm_cpp_host//bazel/external:llvm.patch"],
-        patch_args = ["-p1"],
-    )

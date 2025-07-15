@@ -262,14 +262,6 @@ jobs:
           os: macos-13
           arch: x86_64
           action: test
-        - name: 'WAVM on Linux/x86_64'
-          engine: 'wavm'
-          repo: 'com_github_wavm_wavm'
-          os: ubuntu-22.04
-          arch: x86_64
-          action: test
-          flags: --config=clang
-          cache: true
 
     steps:
     - uses: actions/checkout@v2

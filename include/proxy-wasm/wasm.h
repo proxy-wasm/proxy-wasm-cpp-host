@@ -373,7 +373,7 @@ protected:
 using PluginHandleFactory = std::function<std::shared_ptr<PluginHandleBase>(
     std::shared_ptr<WasmHandleBase> base_wasm, std::shared_ptr<PluginBase> plugin)>;
 
-// Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wavm' by cloning or by
+// Get an existing ThreadLocal VM matching 'vm_id' or create one using 'base_wasm' by cloning or by
 // using it it as a template.
 std::shared_ptr<PluginHandleBase> getOrCreateThreadLocalPlugin(
     const std::shared_ptr<WasmHandleBase> &base_handle, const std::shared_ptr<PluginBase> &plugin,

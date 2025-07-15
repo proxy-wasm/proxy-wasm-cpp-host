@@ -53,12 +53,6 @@ TEST_P(TestVm, BadSignature) {
 }
 
 TEST_P(TestVm, StraceLogLevel) {
-  if (engine_ == "wavm") {
-    // TODO(mathetake): strace is yet to be implemented for WAVM.
-    // See https://github.com/proxy-wasm/proxy-wasm-cpp-host/issues/120.
-    return;
-  }
-
   auto source = readTestWasmFile("clock.wasm");
   ASSERT_FALSE(source.empty());
   auto wasm = TestWasm(std::move(vm_));
@@ -134,11 +128,7 @@ TEST_P(TestVm, WasmMemoryLimit) {
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: infinite_memory failed"));
   // Trap message
-  if (engine_ == "wavm") {
-    EXPECT_TRUE(host->isErrorLogged("wavm.reachedUnreachable"));
-  } else {
-    EXPECT_TRUE(host->isErrorLogged("unreachable"));
-  }
+  EXPECT_TRUE(host->isErrorLogged("unreachable"));
   // Backtrace
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
@@ -163,11 +153,7 @@ TEST_P(TestVm, Trap) {
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: trigger failed"));
   // Trap message
-  if (engine_ == "wavm") {
-    EXPECT_TRUE(host->isErrorLogged("wavm.reachedUnreachable"));
-  } else {
-    EXPECT_TRUE(host->isErrorLogged("unreachable"));
-  }
+  EXPECT_TRUE(host->isErrorLogged("unreachable"));
   // Backtrace
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
@@ -192,11 +178,7 @@ TEST_P(TestVm, Trap2) {
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: trigger2 failed"));
   // Trap message
-  if (engine_ == "wavm") {
-    EXPECT_TRUE(host->isErrorLogged("wavm.reachedUnreachable"));
-  } else {
-    EXPECT_TRUE(host->isErrorLogged("unreachable"));
-  }
+  EXPECT_TRUE(host->isErrorLogged("unreachable"));
   // Backtrace
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
