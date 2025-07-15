@@ -1,13 +1,14 @@
 # 1. Disable pointer compression (limits the maximum number of WasmVMs).
 # 2. Don't expose Wasm C API (only Wasm C++ API).
-# 3. Fix gcc build error by disabling nonnull warning.
-# 4. Allow compiling v8 on macOS 10.15 to 13.0. TODO(dio): Will remove this patch when https://bugs.chromium.org/p/v8/issues/detail?id=13428 is fixed.
+# 3. Revert v8 commit b26554ec368e9553782012c96aa5e99b163eaff2, which removed
+#    use of _allowlist_function_transition from v8 bazel/defs.bzl, since it is
+#    still required by the version of Bazel we currently use (6.5.0).
 
 diff --git a/BUILD.bazel b/BUILD.bazel
-index 4e89f90e7e..3fcb38b3f3 100644
+index 3f5a87d054e..0a693b7ee10 100644
 --- a/BUILD.bazel
 +++ b/BUILD.bazel
-@@ -157,7 +157,7 @@ v8_int(
+@@ -292,7 +292,7 @@ v8_int(
  # If no explicit value for v8_enable_pointer_compression, we set it to 'none'.
  v8_string(
      name = "v8_enable_pointer_compression",
@@ -16,45 +17,11 @@ index 4e89f90e7e..3fcb38b3f3 100644
  )
  
  # Default setting for v8_enable_pointer_compression.
-diff --git a/bazel/defs.bzl b/bazel/defs.bzl
-index e957c0fad3..063627b72b 100644
---- a/bazel/defs.bzl
-+++ b/bazel/defs.bzl
-@@ -131,6 +131,10 @@ def _default_args():
-                 "-Wno-redundant-move",
-                 "-Wno-return-type",
-                 "-Wno-stringop-overflow",
-+                "-Wno-nonnull",
-+                "-Wno-error=pessimizing-move",
-+                "-Wno-error=dangling-reference",
-+                "-Wno-error=dangling-pointer=",
-                 # Use GNU dialect, because GCC doesn't allow using
-                 # ##__VA_ARGS__ when in standards-conforming mode.
-                 "-std=gnu++17",
-@@ -151,6 +152,18 @@ def _default_args():
-                 "-fno-integrated-as",
-             ],
-             "//conditions:default": [],
-+        }) + select({
-+            "@v8//bazel/config:is_macos": [
-+                # The clang available on macOS catalina has a warning that isn't clean on v8 code.
-+                "-Wno-range-loop-analysis",
-+
-+                # To supress warning on deprecated declaration on v8 code. For example:
-+                # external/v8/src/base/platform/platform-darwin.cc:56:22: 'getsectdatafromheader_64'
-+                # is deprecated: first deprecated in macOS 13.0.
-+                # https://bugs.chromium.org/p/v8/issues/detail?id=13428.
-+                "-Wno-deprecated-declarations",
-+            ],
-+            "//conditions:default": [],
-         }),
-         includes = ["include"],
-         linkopts = select({
 diff --git a/src/wasm/c-api.cc b/src/wasm/c-api.cc
-index 4473e205c0..65a6ec7e1d 100644
+index 05e4029f183..d705be96a16 100644
 --- a/src/wasm/c-api.cc
 +++ b/src/wasm/c-api.cc
-@@ -2247,6 +2247,8 @@ auto Instance::exports() const -> ownvec<Extern> {
+@@ -2472,6 +2472,8 @@ WASM_EXPORT auto Instance::exports() const -> ownvec<Extern> {
  
  }  // namespace wasm
  
@@ -63,7 +30,7 @@ index 4473e205c0..65a6ec7e1d 100644
  // BEGIN FILE wasm-c.cc
  
  extern "C" {
-@@ -3274,3 +3276,5 @@ wasm_instance_t* wasm_frame_instance(const wasm_frame_t* frame) {
+@@ -3518,3 +3520,5 @@ wasm_instance_t* wasm_frame_instance(const wasm_frame_t* frame) {
  #undef WASM_DEFINE_SHARABLE_REF
  
  }  // extern "C"
