@@ -192,4 +192,7 @@ public:
   std::string engine_;
 };
 
+// TODO: remove when #412 is fixed.
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(TestVm);
+
 } // namespace proxy_wasm
