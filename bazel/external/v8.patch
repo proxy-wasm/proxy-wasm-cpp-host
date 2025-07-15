@@ -17,6 +17,42 @@ index 3f5a87d054e..0a693b7ee10 100644
  )
  
  # Default setting for v8_enable_pointer_compression.
+diff --git a/bazel/defs.bzl b/bazel/defs.bzl
+index 0539ea176ac..14d7ace5e59 100644
+--- a/bazel/defs.bzl
++++ b/bazel/defs.bzl
+@@ -485,6 +485,9 @@ _v8_mksnapshot = rule(
+             cfg = "exec",
+         ),
+         "target_os": attr.string(mandatory = True),
++        "_allowlist_function_transition": attr.label(
++            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
++        ),
+         "prefix": attr.string(mandatory = True),
+         "suffix": attr.string(mandatory = True),
+     },
+diff --git a/bazel/v8-non-pointer-compression.bzl b/bazel/v8-non-pointer-compression.bzl
+index 8c929454840..57336154cf7 100644
+--- a/bazel/v8-non-pointer-compression.bzl
++++ b/bazel/v8-non-pointer-compression.bzl
+@@ -47,6 +47,17 @@ v8_binary_non_pointer_compression = rule(
+         # Note specificaly how it's configured with v8_target_cpu_transition, which
+         # ensures that setting propagates down the graph.
+         "binary": attr.label(cfg = v8_disable_pointer_compression),
++        # This is a stock Bazel requirement for any rule that uses Starlark
++        # transitions. It's okay to copy the below verbatim for all such rules.
++        #
++        # The purpose of this requirement is to give the ability to restrict
++        # which packages can invoke these rules, since Starlark transitions
++        # make much larger graphs possible that can have memory and performance
++        # consequences for your build. The whitelist defaults to "everything".
++        # But you can redefine it more strictly if you feel that's prudent.
++        "_allowlist_function_transition": attr.label(
++            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
++        ),
+     },
+     # Making this executable means it works with "$ bazel run".
+     executable = True,
 diff --git a/src/wasm/c-api.cc b/src/wasm/c-api.cc
 index 05e4029f183..d705be96a16 100644
 --- a/src/wasm/c-api.cc
