@@ -80,10 +80,10 @@ build:zig-cc-linux-aarch64 --test_env=QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
 
 build --enable_platform_specific_config
 
-# Use C++17.
-build:linux --cxxopt=-std=c++17
-build:macos --cxxopt=-std=c++17
-build:windows --cxxopt="/std:c++17"
+# Use C++20.
+build:linux --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
+build:macos --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
+build:windows --cxxopt="/std:c++20" --host_cxxopt="/std:c++20"
 
 # Enable symlinks and runfiles on Windows (enabled by default on other platforms).
 startup --windows_enable_symlinks
