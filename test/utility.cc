@@ -32,9 +32,6 @@ std::vector<std::string> getWasmEngines() {
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
     "wasmtime",
 #endif
-#if defined(PROXY_WASM_HOST_ENGINE_WAVM)
-    "wavm",
-#endif
     ""
   };
   engines.pop_back();

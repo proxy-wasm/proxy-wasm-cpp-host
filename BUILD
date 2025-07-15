@@ -19,7 +19,6 @@ load(
     "proxy_wasm_select_engine_wamr",
     "proxy_wasm_select_engine_wasmedge",
     "proxy_wasm_select_engine_wasmtime",
-    "proxy_wasm_select_engine_wavm",
 )
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
@@ -282,34 +281,6 @@ cc_library(
 )
 
 cc_library(
-    name = "wavm_lib",
-    srcs = [
-        "src/wavm/wavm.cc",
-    ],
-    hdrs = ["include/proxy-wasm/wavm.h"],
-    copts = [
-        "-DWAVM_API=",
-        "-Wno-non-virtual-dtor",
-        "-Wno-old-style-cast",
-    ],
-    defines = [
-        "PROXY_WASM_HAS_RUNTIME_WAVM",
-        "PROXY_WASM_HOST_ENGINE_WAVM",
-    ],
-    linkopts = select({
-        "@platforms//os:macos": [],
-        "@platforms//os:windows": [],
-        "//conditions:default": [
-            "-ldl",
-        ],
-    }),
-    deps = [
-        ":wasm_vm_headers",
-        "//external:wavm",
-    ],
-)
-
-cc_library(
     name = "lib",
     deps = [
         ":base_lib",
@@ -324,7 +295,5 @@ cc_library(
     ) + proxy_wasm_select_engine_wasmtime(
         [":wasmtime_lib"],
         [":prefixed_wasmtime_lib"],
-    ) + proxy_wasm_select_engine_wavm(
-        [":wavm_lib"],
     ),
 )

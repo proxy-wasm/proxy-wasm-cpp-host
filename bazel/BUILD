@@ -47,11 +47,6 @@ config_setting(
 )
 
 config_setting(
-    name = "engine_wavm",
-    values = {"define": "engine=wavm"},
-)
-
-config_setting(
     name = "multiengine",
     values = {"define": "engine=multi"},
 )

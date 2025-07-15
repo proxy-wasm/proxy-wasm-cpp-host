@@ -27,9 +27,6 @@
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
 #include "include/proxy-wasm/v8.h"
 #endif
-#if defined(PROXY_WASM_HOST_ENGINE_WAVM)
-#include "include/proxy-wasm/wavm.h"
-#endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
 #include "include/proxy-wasm/wasmtime.h"
 #endif
@@ -171,10 +168,6 @@ public:
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
     } else if (engine == "v8") {
       vm = proxy_wasm::createV8Vm();
-#endif
-#if defined(PROXY_WASM_HOST_ENGINE_WAVM)
-    } else if (engine == "wavm") {
-      vm = proxy_wasm::createWavmVm();
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
     } else if (engine == "wasmtime") {
