@@ -43,7 +43,7 @@ jobs:
   test_data:
     name: build test data
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -111,19 +111,19 @@ jobs:
         include:
         - name: 'NullVM on Linux/x86_64'
           engine: 'null'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=gcc
         - name: 'NullVM on Linux/x86_64 with ASan'
           engine: 'null'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang-asan --define=crypto=system
         - name: 'NullVM on Linux/x86_64 with TSan'
           engine: 'null'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang-tsan
@@ -136,7 +136,7 @@ jobs:
         - name: 'V8 on Linux/x86_64'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang --define=crypto=system
@@ -144,7 +144,7 @@ jobs:
         - name: 'V8 on Linux/x86_64 with ASan'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang-asan
@@ -152,7 +152,7 @@ jobs:
         - name: 'V8 on Linux/x86_64 with TSan'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang-tsan
@@ -160,7 +160,7 @@ jobs:
         - name: 'V8 on Linux/x86_64 with GCC'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=gcc
@@ -168,7 +168,7 @@ jobs:
         - name: 'V8 on Linux/aarch64'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: aarch64
           action: test
           targets: -//test/fuzz/...
@@ -185,7 +185,7 @@ jobs:
         - name: 'WAMR interp on Linux/x86_64'
           engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang
@@ -198,11 +198,11 @@ jobs:
         - name: 'WAMR jit on Linux/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang
-          deps: lld-12
+          deps: lld-18
           cache: true
         - name: 'WAMR jit on macOS/x86_64'
           engine: 'wamr-jit'
@@ -214,7 +214,7 @@ jobs:
         - name: 'WasmEdge on Linux/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang
@@ -227,21 +227,21 @@ jobs:
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang -c opt
         - name: 'Wasmtime on Linux/x86_64 with ASan'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: x86_64
           action: test
           flags: --config=clang-asan --define=crypto=system
         - name: 'Wasmtime on Linux/aarch64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: aarch64
           action: build
           flags: --config=zig-cc-linux-aarch64
@@ -249,7 +249,7 @@ jobs:
         - name: 'Wasmtime on Linux/s390x'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-22.04
+          os: ubuntu-24.04
           arch: s390x
           action: test
           flags: --config=clang --test_timeout=1800

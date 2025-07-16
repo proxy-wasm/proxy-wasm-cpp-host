@@ -10,6 +10,7 @@ build --action_env=PATH
 build:clang --action_env=BAZEL_COMPILER=clang
 build:clang --action_env=CC=clang
 build:clang --action_env=CXX=clang++
+build:clang --copt -Wno-pragma-once-outside-header --cxxopt -Wno-pragma-once-outside-header
 
 # Common flags for Clang sanitizers.
 build:clang-xsan --config=clang
