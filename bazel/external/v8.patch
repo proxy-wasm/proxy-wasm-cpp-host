@@ -20,11 +20,14 @@ diff --git a/bazel/defs.bzl b/bazel/defs.bzl
 index e957c0fad3..063627b72b 100644
 --- a/bazel/defs.bzl
 +++ b/bazel/defs.bzl
-@@ -131,6 +131,7 @@ def _default_args():
+@@ -131,6 +131,10 @@ def _default_args():
                  "-Wno-redundant-move",
                  "-Wno-return-type",
                  "-Wno-stringop-overflow",
 +                "-Wno-nonnull",
++                "-Wno-error=pessimizing-move",
++                "-Wno-error=dangling-reference",
++                "-Wno-error=dangling-pointer=",
                  # Use GNU dialect, because GCC doesn't allow using
                  # ##__VA_ARGS__ when in standards-conforming mode.
                  "-std=gnu++17",
