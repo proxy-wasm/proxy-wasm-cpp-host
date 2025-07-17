@@ -21,19 +21,18 @@ std::string TestContext::global_log_;
 std::vector<std::string> getWasmEngines() {
   std::vector<std::string> engines = {
 #if defined(PROXY_WASM_HOST_ENGINE_V8)
-    "v8",
+      "v8",
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
-    "wamr",
+      "wamr",
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMEDGE)
-    "wasmedge",
+      "wasmedge",
 #endif
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
-    "wasmtime",
+      "wasmtime",
 #endif
-    ""
-  };
+      ""};
   engines.pop_back();
   return engines;
 }

@@ -26,7 +26,6 @@
 #include <utility>
 #include <vector>
 
-#include "include/proxy-wasm/null_plugin.h"
 #include "include/proxy-wasm/null_vm.h"
 #include "include/proxy-wasm/wasm.h"
 

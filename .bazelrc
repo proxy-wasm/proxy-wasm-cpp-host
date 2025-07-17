@@ -10,6 +10,7 @@ build --action_env=PATH
 build:clang --action_env=BAZEL_COMPILER=clang
 build:clang --action_env=CC=clang
 build:clang --action_env=CXX=clang++
+build:clang --copt -Wno-pragma-once-outside-header --cxxopt -Wno-pragma-once-outside-header
 
 # Common flags for Clang sanitizers.
 build:clang-xsan --config=clang
@@ -80,10 +81,10 @@ build:zig-cc-linux-aarch64 --test_env=QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
 
 build --enable_platform_specific_config
 
-# Use C++17.
-build:linux --cxxopt=-std=c++17
-build:macos --cxxopt=-std=c++17
-build:windows --cxxopt="/std:c++17"
+# Use C++20.
+build:linux --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
+build:macos --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
+build:windows --cxxopt="/std:c++20" --host_cxxopt="/std:c++20"
 
 # Enable symlinks and runfiles on Windows (enabled by default on other platforms).
 startup --windows_enable_symlinks

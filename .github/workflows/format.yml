@@ -43,7 +43,7 @@ jobs:
   addlicense:
     name: verify licenses
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
   buildifier:
     name: check format with buildifier
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
@@ -101,29 +101,29 @@ jobs:
   clang_format:
     name: check format with clang-format
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Install dependencies (Linux)
-      run: sudo apt update -y && sudo apt install -y clang-format-12
+      run: sudo apt update -y && sudo apt install -y clang-format-18
 
     - name: Format (clang-format)
       run: |
-        find . -name "*.h" -o -name "*.cc" -o -name "*.proto" | grep -v ".pb." | xargs -n1 clang-format-12 -i
+        find . -name "*.h" -o -name "*.cc" -o -name "*.proto" | grep -v ".pb." | xargs -n1 clang-format-18 -i
         git diff --exit-code
 
   clang_tidy:
     name: check format with clang-tidy
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Install dependencies (Linux)
-      run: sudo apt update -y && sudo apt install -y clang-tidy-12 lld-12 && sudo ln -sf /usr/bin/lld-12 /usr/bin/lld
+      run: sudo apt update -y && sudo apt install -y clang-tidy-18 lld-18 && sudo ln -sf /usr/bin/lld-18 /usr/bin/lld
 
     - name: Bazel cache
       uses: PiotrSikora/cache@v2.1.7-with-skip-cache
