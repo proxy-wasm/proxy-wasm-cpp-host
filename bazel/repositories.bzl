@@ -177,6 +177,64 @@ def proxy_wasm_cpp_host_repositories():
             "@proxy_wasm_cpp_host//bazel/external:v8.patch",
         ],
         patch_args = ["-p1"],
+        patch_cmds = [
+            "find ./src ./include -type f -exec sed -i 's!#include \"third_party/simdutf/simdutf.h\"!#include \"simdutf.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i 's!#include \"third_party/fp16/src/include/fp16.h\"!#include \"fp16.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i 's!#include \"third_party/dragonbox/src/include/dragonbox/dragonbox.h\"!#include \"dragonbox/dragonbox.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i 's!#include \"third_party/fast_float/src/include/fast_float/!#include \"fast_float/!' {} \\;",
+        ],
+        repo_mapping = {
+            "@abseil-cpp": "@com_google_absl",
+        },
+    )
+
+    maybe(
+        http_archive,
+        name = "highway",
+        urls = [
+            "https://github.com/google/highway/archive/refs/tags/1.2.0.tar.gz",
+        ],
+        strip_prefix = "highway-1.2.0",
+    )
+
+    maybe(
+        http_archive,
+        name = "fast_float",
+        urls = [
+            "https://github.com/fastfloat/fast_float/archive/refs/tags/v7.0.0.tar.gz",
+        ],
+        strip_prefix = "fast_float-7.0.0",
+    )
+
+    maybe(
+        http_archive,
+        name = "dragonbox",
+        urls = [
+            "https://github.com/jk-jeon/dragonbox/archive/6c7c925b571d54486b9ffae8d9d18a822801cbda.zip",
+        ],
+        strip_prefix = "dragonbox-6c7c925b571d54486b9ffae8d9d18a822801cbda",
+        sha256 = "2f10448d665355b41f599e869ac78803f82f13b070ce7ef5ae7b5cceb8a178f3",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:dragonbox.BUILD",
+    )
+
+    maybe(
+        http_archive,
+        name = "fp16",
+        urls = [
+            "https://github.com/Maratyszcza/FP16/archive/0a92994d729ff76a58f692d3028ca1b64b145d91.zip",
+        ],
+        strip_prefix = "FP16-0a92994d729ff76a58f692d3028ca1b64b145d91",
+        sha256 = "e66e65515fa09927b348d3d584c68be4215cfe664100d01c9dbc7655a5716d70",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:fp16.BUILD",
+    )
+
+    maybe(
+        http_archive,
+        name = "simdutf",
+        urls = [
+            "https://github.com/simdutf/simdutf/releases/download/v7.3.0/singleheader.zip",
+        ],
+        build_file = "@proxy_wasm_cpp_host//bazel/external:simdutf.BUILD",
     )
 
     native.bind(
