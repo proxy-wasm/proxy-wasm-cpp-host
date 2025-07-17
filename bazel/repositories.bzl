@@ -60,10 +60,18 @@ def proxy_wasm_cpp_host_repositories():
 
     maybe(
         http_archive,
-        name = "bazel-zig-cc",
-        sha256 = "ff89e0220c72cdc774e451a35e5c3b9f1593d0df71341844b2108c181ac0eef9",
-        strip_prefix = "hermetic_cc_toolchain-0.4.4",
-        url = "https://github.com/uber/hermetic_cc_toolchain/archive/refs/tags/v0.4.4.tar.gz",
+        name = "envoy_toolshed",
+        sha256 = "e2252e46e64417d5cedd9f1eb34a622bce5e13b43837e5fe051c83066b0a400b",
+        strip_prefix = "toolshed-bazel-bins-v0.1.13/bazel",
+        url = "https://github.com/envoyproxy/toolshed/archive/refs/tags/bazel-bins-v0.1.13.tar.gz",
+    )
+    maybe(
+        http_archive,
+        name = "toolchains_llvm",
+        sha256 = "b7cd301ef7b0ece28d20d3e778697a5e3b81828393150bed04838c0c52963a01",
+        strip_prefix = "toolchains_llvm-0.10.3",
+        canonical_id = "v0.10.3",
+        url = "https://github.com/grailbio/bazel-toolchain/releases/download/0.10.3/toolchains_llvm-0.10.3.tar.gz",
     )
 
     maybe(
@@ -191,6 +199,7 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "highway",
+        sha256 = "7e0be78b8318e8bdbf6fa545d2ecb4c90f947df03f7aadc42c1967f019e63343",
         urls = [
             "https://github.com/google/highway/archive/refs/tags/1.2.0.tar.gz",
         ],
@@ -200,6 +209,7 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "fast_float",
+        sha256 = "d2a08e722f461fe699ba61392cd29e6b23be013d0f56e50c7786d0954bffcb17",
         urls = [
             "https://github.com/fastfloat/fast_float/archive/refs/tags/v7.0.0.tar.gz",
         ],
@@ -231,6 +241,7 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "simdutf",
+        sha256 = "512374f8291d3daf102ccd0ad223b1a8318358f7c1295efd4d9a3abbb8e4b6ff",
         urls = [
             "https://github.com/simdutf/simdutf/releases/download/v7.3.0/singleheader.zip",
         ],

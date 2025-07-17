@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel-zig-cc//toolchain:defs.bzl", zig_register_toolchains = "register_toolchains")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+load("@envoy_toolshed//sysroot:sysroot.bzl", "setup_sysroots")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign/remote:crates.bzl", wasmsign_crate_repositories = "crate_repositories")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:crates.bzl", wasmtime_crate_repositories = "crate_repositories")
 load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
 load("@rules_rust//crate_universe:repositories.bzl", "crate_universe_dependencies")
 load("@rules_rust//rust:repositories.bzl", "rust_repositories", "rust_repository_set")
+load("@toolchains_llvm//toolchain:deps.bzl", "bazel_toolchain_dependencies")
+load("@toolchains_llvm//toolchain:rules.bzl", "llvm_toolchain")
 
 def proxy_wasm_cpp_host_dependencies():
     # Bazel extensions.
@@ -52,14 +54,32 @@ def proxy_wasm_cpp_host_dependencies():
     )
     crate_universe_dependencies(bootstrap = True)
 
-    zig_register_toolchains(
-        version = "0.9.1",
-        url_format = "https://ziglang.org/download/{version}/zig-{host_platform}-{version}.tar.xz",
-        host_platform_sha256 = {
-            "linux-aarch64": "5d99a39cded1870a3fa95d4de4ce68ac2610cca440336cfd252ffdddc2b90e66",
-            "linux-x86_64": "be8da632c1d3273f766b69244d80669fe4f5e27798654681d77c992f17c237d7",
-            "macos-aarch64": "8c473082b4f0f819f1da05de2dbd0c1e891dff7d85d2c12b6ee876887d438287",
-            "macos-x86_64": "2d94984972d67292b55c1eb1c00de46580e9916575d083003546e9a01166754c",
+    setup_sysroots()
+    bazel_toolchain_dependencies()
+    llvm_toolchain(
+        name = "llvm_toolchain",
+        llvm_version = "18.1.8",
+        sha256 = {
+            "linux-x86_64": "54ec30358afcc9fb8aa74307db3046f5187f9fb89fb37064cdde906e062ebf36",
+        },
+        strip_prefix = {
+            "linux-x86_64": "clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04",
+        },
+        urls = {
+            "linux-x86_64": [
+                "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz",
+            ],
+        },
+    )
+
+    llvm_toolchain(
+        name = "llvm_aarch64",
+        llvm_version = "18.1.8",
+        toolchain_roots = {
+            "": "@llvm_toolchain_llvm//",
+        },
+        sysroot = {
+          "linux-aarch64": "@sysroot_linux_arm64//:sysroot",
         },
     )
 
