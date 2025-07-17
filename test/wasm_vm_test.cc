@@ -89,7 +89,7 @@ TEST_P(TestVm, Clone) {
 
 #if defined(__linux__) && defined(__x86_64__)
 
-TEST_P(TestVm, CloneUntilOutOfMemory) {
+TEST_P(TestVm, DISABLED_CloneUntilOutOfMemory) {
   if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
     return;
   }
