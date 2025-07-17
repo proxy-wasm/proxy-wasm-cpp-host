@@ -343,7 +343,8 @@ bool V8::link(std::string_view /*debug_name*/) {
   assert(module_ != nullptr);
 
   const auto import_types = module_.get()->imports();
-  wasm::vec<wasm::Extern *> imports = wasm::vec<wasm::Extern*>::make_uninitialized(import_types.size());
+  wasm::vec<wasm::Extern *> imports =
+      wasm::vec<wasm::Extern *>::make_uninitialized(import_types.size());
 
   for (size_t i = 0; i < import_types.size(); i++) {
     std::string_view module(import_types[i]->module().get(), import_types[i]->module().size());
@@ -527,7 +528,8 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
                                    convertArgsTupleToValTypes<std::tuple<>>());
   auto func = wasm::Func::make(
       store_.get(), type.get(),
-      [](void *data, const wasm::vec<wasm::Val>& params, wasm::vec<wasm::Val>&  /*results*/) -> wasm::own<wasm::Trap> {
+      [](void *data, const wasm::vec<wasm::Val> &params,
+         wasm::vec<wasm::Val> & /*results*/) -> wasm::own<wasm::Trap> {
         auto *func_data = reinterpret_cast<FuncData *>(data);
         const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
         if (log) {
@@ -563,7 +565,8 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
                                    convertArgsTupleToValTypes<std::tuple<R>>());
   auto func = wasm::Func::make(
       store_.get(), type.get(),
-      [](void *data, const wasm::vec<wasm::Val>& params, wasm::vec<wasm::Val>& results) -> wasm::own<wasm::Trap> {
+      [](void *data, const wasm::vec<wasm::Val> &params,
+         wasm::vec<wasm::Val> &results) -> wasm::own<wasm::Trap> {
         auto *func_data = reinterpret_cast<FuncData *>(data);
         const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
         if (log) {
