@@ -140,20 +140,20 @@ private:
 
 static std::string printValue(const wasm::Val &value) {
   switch (value.kind()) {
-  case wasm::I32:
+  case wasm::ValKind::I32:
     return std::to_string(value.get<uint32_t>());
-  case wasm::I64:
+  case wasm::ValKind::I64:
     return std::to_string(value.get<uint64_t>());
-  case wasm::F32:
+  case wasm::ValKind::F32:
     return std::to_string(value.get<float>());
-  case wasm::F64:
+  case wasm::ValKind::F64:
     return std::to_string(value.get<double>());
   default:
     return "unknown";
   }
 }
 
-static std::string printValues(const wasm::Val values[], size_t size) {
+static std::string printValues(const wasm::vec<wasm::Val> &values, size_t size) {
   if (size == 0) {
     return "";
   }
@@ -170,17 +170,17 @@ static std::string printValues(const wasm::Val values[], size_t size) {
 
 static const char *printValKind(wasm::ValKind kind) {
   switch (kind) {
-  case wasm::I32:
+  case wasm::ValKind::I32:
     return "i32";
-  case wasm::I64:
+  case wasm::ValKind::I64:
     return "i64";
-  case wasm::F32:
+  case wasm::ValKind::F32:
     return "f32";
-  case wasm::F64:
+  case wasm::ValKind::F64:
     return "f64";
-  case wasm::ANYREF:
-    return "anyref";
-  case wasm::FUNCREF:
+  case wasm::ValKind::EXTERNREF:
+    return "externref";
+  case wasm::ValKind::FUNCREF:
     return "funcref";
   default:
     return "unknown";
@@ -229,11 +229,11 @@ template <typename T> wasm::Val makeVal(T t) { return wasm::Val::make(t); }
 template <> wasm::Val makeVal(Word t) { return wasm::Val::make(static_cast<uint32_t>(t.u64_)); }
 
 template <typename T> constexpr auto convertArgToValKind();
-template <> constexpr auto convertArgToValKind<Word>() { return wasm::I32; };
-template <> constexpr auto convertArgToValKind<uint32_t>() { return wasm::I32; };
-template <> constexpr auto convertArgToValKind<int64_t>() { return wasm::I64; };
-template <> constexpr auto convertArgToValKind<uint64_t>() { return wasm::I64; };
-template <> constexpr auto convertArgToValKind<double>() { return wasm::F64; };
+template <> constexpr auto convertArgToValKind<Word>() { return wasm::ValKind::I32; };
+template <> constexpr auto convertArgToValKind<uint32_t>() { return wasm::ValKind::I32; };
+template <> constexpr auto convertArgToValKind<int64_t>() { return wasm::ValKind::I64; };
+template <> constexpr auto convertArgToValKind<uint64_t>() { return wasm::ValKind::I64; };
+template <> constexpr auto convertArgToValKind<double>() { return wasm::ValKind::F64; };
 
 template <typename T, std::size_t... I>
 constexpr auto convertArgsTupleToValTypesImpl(std::index_sequence<I...> /*comptime*/) {
@@ -343,7 +343,7 @@ bool V8::link(std::string_view /*debug_name*/) {
   assert(module_ != nullptr);
 
   const auto import_types = module_.get()->imports();
-  std::vector<const wasm::Extern *> imports;
+  wasm::vec<wasm::Extern *> imports = wasm::vec<wasm::Extern*>::make_uninitialized(import_types.size());
 
   for (size_t i = 0; i < import_types.size(); i++) {
     std::string_view module(import_types[i]->module().get(), import_types[i]->module().size());
@@ -352,7 +352,7 @@ bool V8::link(std::string_view /*debug_name*/) {
 
     switch (import_type->kind()) {
 
-    case wasm::EXTERN_FUNC: {
+    case wasm::ExternKind::FUNC: {
       auto it = host_functions_.find(std::string(module) + "." + std::string(name));
       if (it == host_functions_.end()) {
         fail(FailState::UnableToInitializeCode,
@@ -372,10 +372,10 @@ bool V8::link(std::string_view /*debug_name*/) {
                  printValTypes(func->type()->results()));
         return false;
       }
-      imports.push_back(func);
+      imports[i] = func;
     } break;
 
-    case wasm::EXTERN_GLOBAL: {
+    case wasm::ExternKind::GLOBAL: {
       // TODO(PiotrSikora): add support when/if needed.
       fail(FailState::UnableToInitializeCode,
            "Failed to load Wasm module due to a missing import: " + std::string(module) + "." +
@@ -383,7 +383,7 @@ bool V8::link(std::string_view /*debug_name*/) {
       return false;
     } break;
 
-    case wasm::EXTERN_MEMORY: {
+    case wasm::ExternKind::MEMORY: {
       assert(memory_ == nullptr);
       auto type = wasm::MemoryType::make(import_type->memory()->limits());
       if (type == nullptr) {
@@ -393,10 +393,10 @@ bool V8::link(std::string_view /*debug_name*/) {
       if (memory_ == nullptr) {
         return false;
       }
-      imports.push_back(memory_.get());
+      imports[i] = memory_.get();
     } break;
 
-    case wasm::EXTERN_TABLE: {
+    case wasm::ExternKind::TABLE: {
       assert(table_ == nullptr);
       auto type =
           wasm::TableType::make(wasm::ValType::make(import_type->table()->element()->kind()),
@@ -408,16 +408,12 @@ bool V8::link(std::string_view /*debug_name*/) {
       if (table_ == nullptr) {
         return false;
       }
-      imports.push_back(table_.get());
+      imports[i] = table_.get();
     } break;
     }
   }
 
-  if (import_types.size() != imports.size()) {
-    return false;
-  }
-
-  instance_ = wasm::Instance::make(store_.get(), module_.get(), imports.data());
+  instance_ = wasm::Instance::make(store_.get(), module_.get(), imports);
   if (instance_ == nullptr) {
     fail(FailState::UnableToInitializeCode, "Failed to create new Wasm instance");
     return false;
@@ -435,16 +431,16 @@ bool V8::link(std::string_view /*debug_name*/) {
 
     switch (export_type->kind()) {
 
-    case wasm::EXTERN_FUNC: {
+    case wasm::ExternKind::FUNC: {
       assert(export_item->func() != nullptr);
       module_functions_.insert_or_assign(std::string(name), export_item->func()->copy());
     } break;
 
-    case wasm::EXTERN_GLOBAL: {
+    case wasm::ExternKind::GLOBAL: {
       // TODO(PiotrSikora): add support when/if needed.
     } break;
 
-    case wasm::EXTERN_MEMORY: {
+    case wasm::ExternKind::MEMORY: {
       assert(export_item->memory() != nullptr);
       assert(memory_ == nullptr);
       memory_ = exports[i]->memory()->copy();
@@ -453,7 +449,7 @@ bool V8::link(std::string_view /*debug_name*/) {
       }
     } break;
 
-    case wasm::EXTERN_TABLE: {
+    case wasm::ExternKind::TABLE: {
       // TODO(PiotrSikora): add support when/if needed.
     } break;
     }
@@ -531,7 +527,7 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
                                    convertArgsTupleToValTypes<std::tuple<>>());
   auto func = wasm::Func::make(
       store_.get(), type.get(),
-      [](void *data, const wasm::Val params[], wasm::Val /*results*/[]) -> wasm::own<wasm::Trap> {
+      [](void *data, const wasm::vec<wasm::Val>& params, wasm::vec<wasm::Val>&  /*results*/) -> wasm::own<wasm::Trap> {
         auto *func_data = reinterpret_cast<FuncData *>(data);
         const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
         if (log) {
@@ -567,7 +563,7 @@ void V8::registerHostFunctionImpl(std::string_view module_name, std::string_view
                                    convertArgsTupleToValTypes<std::tuple<R>>());
   auto func = wasm::Func::make(
       store_.get(), type.get(),
-      [](void *data, const wasm::Val params[], wasm::Val results[]) -> wasm::own<wasm::Trap> {
+      [](void *data, const wasm::vec<wasm::Val>& params, wasm::vec<wasm::Val>& results) -> wasm::own<wasm::Trap> {
         auto *func_data = reinterpret_cast<FuncData *>(data);
         const bool log = func_data->vm_->cmpLogLevel(LogLevel::trace);
         if (log) {
@@ -621,20 +617,21 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
     const bool log = cmpLogLevel(LogLevel::trace);
     SaveRestoreContext saved_context(context);
     wasm::own<wasm::Trap> trap = nullptr;
+    wasm::vec<wasm::Val> results = wasm::vec<wasm::Val>::make_uninitialized();
 
     // Workaround for MSVC++ not supporting zero-sized arrays.
     if constexpr (sizeof...(args) > 0) {
-      wasm::Val params[] = {makeVal(args)...};
+      wasm::vec<wasm::Val> params = wasm::vec<wasm::Val>::make(makeVal(args)...);
       if (log) {
         integration()->trace("[host->vm] " + std::string(function_name) + "(" +
                              printValues(params, sizeof...(Args)) + ")");
       }
-      trap = func->call(params, nullptr);
+      trap = func->call(params, results);
     } else {
       if (log) {
         integration()->trace("[host->vm] " + std::string(function_name) + "()");
       }
-      trap = func->call(nullptr, nullptr);
+      trap = func->call(wasm::vec<wasm::Val>::make_uninitialized(), results);
     }
 
     if (trap) {
@@ -671,12 +668,12 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
   *function = [func, function_name, this](ContextBase *context, Args... args) -> R {
     const bool log = cmpLogLevel(LogLevel::trace);
     SaveRestoreContext saved_context(context);
-    wasm::Val results[1];
+    wasm::vec<wasm::Val> results = wasm::vec<wasm::Val>::make_uninitialized(1);
     wasm::own<wasm::Trap> trap = nullptr;
 
     // Workaround for MSVC++ not supporting zero-sized arrays.
     if constexpr (sizeof...(args) > 0) {
-      wasm::Val params[] = {makeVal(args)...};
+      wasm::vec<wasm::Val> params = wasm::vec<wasm::Val>::make(makeVal(args)...);
       if (log) {
         integration()->trace("[host->vm] " + std::string(function_name) + "(" +
                              printValues(params, sizeof...(Args)) + ")");
@@ -686,7 +683,7 @@ void V8::getModuleFunctionImpl(std::string_view function_name,
       if (log) {
         integration()->trace("[host->vm] " + std::string(function_name) + "()");
       }
-      trap = func->call(nullptr, results);
+      trap = func->call(wasm::vec<wasm::Val>::make_uninitialized(), results);
     }
 
     if (trap) {
