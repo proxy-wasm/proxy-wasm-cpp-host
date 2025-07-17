@@ -102,7 +102,7 @@ TEST_P(TestVm, TerminateExecution) {
   // Check integration logs.
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: infinite_loop failed"));
-  EXPECT_TRUE(host->isErrorLogged("termination_exception"));
+  EXPECT_TRUE(host->isErrorLogged("TerminationException"));
 }
 
 TEST_P(TestVm, WasmMemoryLimit) {
