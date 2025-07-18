@@ -181,6 +181,7 @@ jobs:
           os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm-macos-amd64
           cache: true
         - name: 'WAMR interp on Linux/x86_64'
           engine: 'wamr-interp'
