@@ -58,28 +58,35 @@ def proxy_wasm_cpp_host_dependencies():
     bazel_toolchain_dependencies()
     llvm_toolchain(
         name = "llvm_toolchain",
-        llvm_version = "18.1.8",
+        llvm_version = "19.1.0",
         sha256 = {
-            "linux-x86_64": "54ec30358afcc9fb8aa74307db3046f5187f9fb89fb37064cdde906e062ebf36",
+            "linux-x86_64": "cee77d641690466a193d9b88c89705de1c02bbad46bde6a3b126793c0a0f2923",
+            "linux-aarch64": "7bb54afd330fe1a1c2d4c593fa1e2dbe2abd9bf34fb3597994ff41e443cf144b",
+            "darwin-aarch64": "9da86f64a99f5ce9b679caf54e938736ca269c5e069d0c94ad08b995c5f25c16",
+            "darwin-x86_64": "264f2f1e8b67f066749349ae8b4943d346cd44e099464164ef21b42a57663540",
         },
         strip_prefix = {
-            "linux-x86_64": "clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04",
+            "linux-x86_64": "LLVM-19.1.0-Linux-X64",
+            "linux-aarch64": "clang+llvm-19.1.0-aarch64-linux-gnu",
+            "darwin-aarch64": "LLVM-19.1.0-macOS-ARM64",
+            "darwin-x86_64": "LLVM-19.1.0-macOS-X64",
         },
         urls = {
-            "linux-x86_64": [
-                "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-linux-gnu-ubuntu-18.04.tar.xz",
-            ],
+            "linux-x86_64": ["https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.0/LLVM-19.1.0-Linux-X64.tar.xz"],
+            "linux-aarch64": ["https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.0/clang+llvm-19.1.0-aarch64-linux-gnu.tar.xz"],
+            "darwin-aarch64": ["https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.0/LLVM-19.1.0-macOS-ARM64.tar.xz"],
+            "darwin-x86_64": ["https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.0/LLVM-19.1.0-macOS-X64.tar.xz"],
         },
     )
 
     llvm_toolchain(
         name = "llvm_aarch64",
-        llvm_version = "18.1.8",
+        llvm_version = "19.1.0",
         toolchain_roots = {
             "": "@llvm_toolchain_llvm//",
         },
         sysroot = {
-          "linux-aarch64": "@sysroot_linux_arm64//:sysroot",
+            "linux-aarch64": "@sysroot_linux_arm64//:sysroot",
         },
     )
 

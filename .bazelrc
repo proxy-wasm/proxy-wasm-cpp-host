@@ -67,19 +67,17 @@ build:gcc --action_env=BAZEL_COMPILER=gcc
 build:gcc --action_env=CC=gcc
 build:gcc --action_env=CXX=g++
 
-# Use Zig C/C++ compiler.
-build:zig-cc --incompatible_enable_cc_toolchain_resolution
-build:zig-cc --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
-build:zig-cc --extra_toolchains @llvm_toolchain//:cc-toolchain-x86_64-linux
-build:zig-cc --extra_toolchains @llvm_aarch64//:cc-toolchain-aarch64-linux
-build:zig-cc --extra_toolchains @emsdk//emscripten_toolchain:cc-toolchain-wasm
-build:zig-cc --host_copt=-fno-sanitize=undefined
+# Use vendored LLVM C/C++ compiler.
+build:hermetic-llvm --incompatible_enable_cc_toolchain_resolution
+build:hermetic-llvm --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build:hermetic-llvm --extra_toolchains @llvm_toolchain//:cc-toolchain-x86_64-linux
+build:hermetic-llvm --extra_toolchains @llvm_aarch64//:cc-toolchain-aarch64-linux
+build:hermetic-llvm --extra_toolchains @emsdk//emscripten_toolchain:cc-toolchain-wasm
 
-# Use Zig C/C++ compiler (cross-compile to Linux/aarch64).
-build:zig-cc-linux-aarch64 --config=zig-cc
-#build:zig-cc-linux-aarch64 --platforms @zig_sdk//platform:linux_arm64
-build:zig-cc-linux-aarch64 --platforms @toolchains_llvm//platforms:linux-aarch64
-build:zig-cc-linux-aarch64 --cxxopt --gcc-install-dir=external/sysroot_linux_arm64/usr/lib/gcc/aarch64-linux-gnu/13/
+# Use vendored LLVM C/C++ compiler (cross-compile to Linux/aarch64).
+build:linux-aarch64-cross --config=hermetic-llvm
+build:linux-aarch64-cross --platforms @toolchains_llvm//platforms:linux-aarch64
+build:linux-aarch64-cross --cxxopt --gcc-install-dir=external/sysroot_linux_arm64/usr/lib/gcc/aarch64-linux-gnu/13/
 
 build --enable_platform_specific_config
 
@@ -88,10 +86,6 @@ build:linux --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
 build:macos --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
 build:windows --cxxopt="/std:c++20" --host_cxxopt="/std:c++20"
 
-# For Zig C/C++ compiler.
-build:linux --sandbox_add_mount_pair=/tmp
-build:macos --sandbox_add_mount_pair=/var/tmp
-build:windows --sandbox_add_mount_pair=C:\Temp
 
 # Enable symlinks and runfiles on Windows (enabled by default on other platforms).
 startup --windows_enable_symlinks
