@@ -195,7 +195,6 @@ jobs:
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: macos-13
           arch: x86_64
-          flags: --config=hermetic-llvm-macos-x86_64
           action: test
         - name: 'WAMR jit on Linux/x86_64'
           engine: 'wamr-jit'
@@ -212,7 +211,6 @@ jobs:
           os: macos-13
           arch: x86_64
           action: test
-          flags: --config=hermetic-llvm-macos-x86_64
           cache: true
         - name: 'WasmEdge on Linux/x86_64'
           engine: 'wasmedge'
@@ -226,7 +224,6 @@ jobs:
           repo: 'com_github_wasmedge_wasmedge'
           os: macos-13
           arch: x86_64
-          flags: --config=hermetic-llvm-macos-x86_64
           action: test
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
@@ -265,7 +262,6 @@ jobs:
           repo: 'com_github_bytecodealliance_wasmtime'
           os: macos-13
           arch: x86_64
-          flags: --config=hermetic-llvm-macos-x86_64
           action: test
 
     steps:
