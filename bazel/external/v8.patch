@@ -1,7 +1,7 @@
 From bc2a85e39fd55879b9baed51429c08b27d5514c8 Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 16:55:02 -0400
-Subject: [PATCH 1/6] Disable pointer compression
+Subject: [PATCH 1/7] Disable pointer compression
 
 Pointer compression limits the maximum number of WasmVMs.
 
@@ -30,7 +30,7 @@ index 3f5a87d054e..0a693b7ee10 100644
 From 61898e9a63ac89a37261c081b84714cfc400a4b1 Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 16:56:31 -0400
-Subject: [PATCH 2/6] Restore _allowlist_function_transition
+Subject: [PATCH 2/7] Restore _allowlist_function_transition
 
 Reverts v8 commit b26554ec368e9553782012c96aa5e99b163eaff2, which removed use of
 _allowlist_function_transition from v8 bazel/defs.bzl, since it is still required
@@ -85,7 +85,7 @@ index 8c929454840..57336154cf7 100644
 From 4a6e7158fd4ca48c75c8e33ea15760c9beea1d2f Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 16:56:52 -0400
-Subject: [PATCH 3/6] Don't expose Wasm C API (only Wasm C++ API).
+Subject: [PATCH 3/7] Don't expose Wasm C API (only Wasm C++ API).
 
 Signed-off-by: Matt Leon <mattleon@google.com>
 ---
@@ -118,7 +118,7 @@ index 05e4029f183..d705be96a16 100644
 From 7b593eb8086dcfe9012d4fa694d622f21dadb731 Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 16:58:02 -0400
-Subject: [PATCH 4/6] Stub out fast_float for bazel-supplied version
+Subject: [PATCH 4/7] Stub out fast_float for bazel-supplied version
 
 Signed-off-by: Matt Leon <mattleon@google.com>
 ---
@@ -145,7 +145,7 @@ index 0a693b7ee10..eafd9dad20c 100644
 From b442d34b12dd513946f509d9db86839ce8aa4d7f Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 20:04:05 -0400
-Subject: [PATCH 5/6] Stub out vendored dependencies for bazel-sourced versions
+Subject: [PATCH 5/7] Stub out vendored dependencies for bazel-sourced versions
 
 Signed-off-by: Matt Leon <mattleon@google.com>
 ---
@@ -177,7 +177,7 @@ index eafd9dad20c..ce36666e36e 100644
 From e0b8f32cc057a3c0875437d5d54d012cabcab458 Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 20:29:10 -0400
-Subject: [PATCH 6/6] Add build flags to make V8 compile with GCC
+Subject: [PATCH 6/7] Add build flags to make V8 compile with GCC
 
 Signed-off-by: Matt Leon <mattleon@google.com>
 ---
@@ -198,6 +198,149 @@ index 14d7ace5e59..c7a48d4e805 100644
                  "-isystem .",
              ],
              "//conditions:default": [],
+-- 
+2.50.0.727.gbf7dc18ff4-goog
+
+
+From 7ce2d6bd14b338ab91a8636a8694b9ef180b2f90 Mon Sep 17 00:00:00 2001
+From: Matt Leon <mattleon@google.com>
+Date: Fri, 18 Jul 2025 17:28:42 -0400
+Subject: [PATCH 7/7] Hack out atomic simd support in V8.
+
+Atomic simdutf requires __cpp_lib_atomic_ref >= 201806, which is only
+supported in clang libc++ 19+. The version of LLVM used in Envoy as of
+2025-07-18 is libc++ 18, so this is not supported.
+
+The simdutf documentation indicates this atomic form is not tested and
+is not recommended for use:
+https://github.com/simdutf/simdutf/blob/5d1b6248f29a8ed0eb90f79be268be41730e39f8/include/simdutf/implementation.h#L3066-L3068
+
+In addition, this is in the implementation of a JS array buffer. Since
+proxy-wasm-cpp-host does not make use of JS array buffers or shared
+memory between web workers, we're stubbing it out.
+
+Mostly reverts
+https://github.com/v8/v8/commit/6d6c1e680c7b8ea5f62a76e9c3d88d3fb0a88df0.
+
+Signed-off-by: Matt Leon <mattleon@google.com>
+---
+ bazel/defs.bzl                       |  2 +-
+ src/builtins/builtins-typed-array.cc |  8 ++++++++
+ src/objects/simd.cc                  | 10 ++++++++++
+ 3 files changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/bazel/defs.bzl b/bazel/defs.bzl
+index c7a48d4e805..a73b3812882 100644
+--- a/bazel/defs.bzl
++++ b/bazel/defs.bzl
+@@ -180,7 +180,7 @@ def _default_args():
+                 "Advapi32.lib",
+             ],
+             "@v8//bazel/config:is_macos": ["-pthread"],
+-            "//conditions:default": ["-Wl,--no-as-needed -ldl -latomic -pthread"],
++            "//conditions:default": ["-Wl,--no-as-needed -ldl -pthread"],
+         }) + select({
+             ":should_add_rdynamic": ["-rdynamic"],
+             "//conditions:default": [],
+diff --git a/src/builtins/builtins-typed-array.cc b/src/builtins/builtins-typed-array.cc
+index 918cb873481..bc933e8dc1d 100644
+--- a/src/builtins/builtins-typed-array.cc
++++ b/src/builtins/builtins-typed-array.cc
+@@ -520,17 +520,21 @@ simdutf::result ArrayBufferSetFromBase64(
+     DirectHandle<JSTypedArray> typed_array, size_t& output_length) {
+   output_length = array_length;
+   simdutf::result simd_result;
++#ifdef WANT_ATOMIC_REF
+   if (typed_array->buffer()->is_shared()) {
+     simd_result = simdutf::atomic_base64_to_binary_safe(
+         reinterpret_cast<const T>(input_vector), input_length,
+         reinterpret_cast<char*>(typed_array->DataPtr()), output_length,
+         alphabet, last_chunk_handling, /*decode_up_to_bad_char*/ true);
+   } else {
++#endif
+     simd_result = simdutf::base64_to_binary_safe(
+         reinterpret_cast<const T>(input_vector), input_length,
+         reinterpret_cast<char*>(typed_array->DataPtr()), output_length,
+         alphabet, last_chunk_handling, /*decode_up_to_bad_char*/ true);
++#ifdef WANT_ATOMIC_REF
+   }
++#endif
+ 
+   return simd_result;
+ }
+@@ -833,15 +837,19 @@ BUILTIN(Uint8ArrayPrototypeToBase64) {
+     // 11. Return CodePointsToString(outAscii).
+ 
+     size_t simd_result_size;
++#ifdef WANT_ATOMIC_REF
+     if (uint8array->buffer()->is_shared()) {
+       simd_result_size = simdutf::atomic_binary_to_base64(
+           std::bit_cast<const char*>(uint8array->DataPtr()), length,
+           reinterpret_cast<char*>(output->GetChars(no_gc)), alphabet);
+     } else {
++#endif
+       simd_result_size = simdutf::binary_to_base64(
+           std::bit_cast<const char*>(uint8array->DataPtr()), length,
+           reinterpret_cast<char*>(output->GetChars(no_gc)), alphabet);
++#ifdef WANT_ATOMIC_REF
+     }
++#endif
+     DCHECK_EQ(simd_result_size, output_length);
+     USE(simd_result_size);
+   }
+diff --git a/src/objects/simd.cc b/src/objects/simd.cc
+index 0ef570ceb7d..9217fa76072 100644
+--- a/src/objects/simd.cc
++++ b/src/objects/simd.cc
+@@ -477,6 +477,7 @@ void Uint8ArrayToHexSlow(const char* bytes, size_t length,
+   }
+ }
+ 
++#ifdef WANT_ATOMIC_REF
+ void AtomicUint8ArrayToHexSlow(const char* bytes, size_t length,
+                                DirectHandle<SeqOneByteString> string_output) {
+   int index = 0;
+@@ -492,6 +493,7 @@ void AtomicUint8ArrayToHexSlow(const char* bytes, size_t length,
+     index += 2;
+   }
+ }
++#endif
+ 
+ inline uint16_t ByteToHex(uint8_t byte) {
+   const uint16_t correction = (('a' - '0' - 10) << 8) + ('a' - '0' - 10);
+@@ -645,11 +647,15 @@ Tagged<Object> Uint8ArrayToHex(const char* bytes, size_t length, bool is_shared,
+   }
+ #endif
+ 
++#ifdef WANT_ATOMIC_REF
+   if (is_shared) {
+     AtomicUint8ArrayToHexSlow(bytes, length, string_output);
+   } else {
++#endif
+     Uint8ArrayToHexSlow(bytes, length, string_output);
++#ifdef WANT_ATOMIC_REF
+   }
++#endif
+   return *string_output;
+ }
+ 
+@@ -1082,12 +1088,16 @@ bool ArrayBufferFromHex(const base::Vector<T>& input_vector, bool is_shared,
+   for (uint32_t i = 0; i < output_length * 2; i += 2) {
+     result = HandleRemainingHexValues(input_vector, i);
+     if (result.has_value()) {
++#ifdef WANT_ATOMIC_REF
+       if (is_shared) {
+         std::atomic_ref<uint8_t>(buffer[index++])
+             .store(result.value(), std::memory_order_relaxed);
+       } else {
++#endif
+         buffer[index++] = result.value();
++#ifdef WANT_ATOMIC_REF
+       }
++#endif
+     } else {
+       return false;
+     }
 -- 
 2.50.0.727.gbf7dc18ff4-goog
 
