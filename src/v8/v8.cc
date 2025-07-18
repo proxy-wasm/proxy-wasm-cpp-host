@@ -706,9 +706,6 @@ void V8::terminate() {
   auto *store_impl = reinterpret_cast<wasm::StoreImpl *>(store_.get());
   auto *isolate = store_impl->isolate();
   isolate->TerminateExecution();
-  while (isolate->IsExecutionTerminating()) {
-    std::this_thread::yield();
-  }
 }
 
 std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {
