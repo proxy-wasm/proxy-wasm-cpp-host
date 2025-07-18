@@ -78,6 +78,8 @@ build:hermetic-llvm --extra_toolchains @emsdk//emscripten_toolchain:cc-toolchain
 build:linux-aarch64-cross --config=hermetic-llvm
 build:linux-aarch64-cross --platforms @toolchains_llvm//platforms:linux-aarch64
 build:linux-aarch64-cross --cxxopt --gcc-install-dir=external/sysroot_linux_arm64/usr/lib/gcc/aarch64-linux-gnu/13/
+build:linux-aarch64-cross --test_env=QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
+build:linux-aarch64-cross --run_under=qemu-aarch64-static
 
 build --enable_platform_specific_config
 
