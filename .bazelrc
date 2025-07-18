@@ -67,17 +67,33 @@ build:gcc --action_env=BAZEL_COMPILER=gcc
 build:gcc --action_env=CC=gcc
 build:gcc --action_env=CXX=g++
 
-# Use Zig C/C++ compiler.
-build:zig-cc --incompatible_enable_cc_toolchain_resolution
-build:zig-cc --extra_toolchains @zig_sdk//:aarch64-linux-gnu.2.28_toolchain
-build:zig-cc --extra_toolchains @zig_sdk//:x86_64-linux-gnu.2.28_toolchain
-build:zig-cc --host_copt=-fno-sanitize=undefined
+build:hermetic --incompatible_enable_cc_toolchain_resolution
+build:hermetic --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build:hermetic --extra_toolchains @emsdk//emscripten_toolchain:cc-toolchain-wasm
 
-# Use Zig C/C++ compiler (cross-compile to Linux/aarch64).
-build:zig-cc-linux-aarch64 --config=zig-cc
-build:zig-cc-linux-aarch64 --platforms @zig_sdk//:linux_aarch64_platform
-build:zig-cc-linux-aarch64 --run_under=qemu-aarch64-static
-build:zig-cc-linux-aarch64 --test_env=QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
+# Use vendored LLVM C/C++ compiler.
+build:hermetic-llvm --config=hermetic
+build:hermetic-llvm --extra_toolchains @llvm_toolchain//:cc-toolchain-x86_64-linux
+
+build:hermetic-llvm-macos-x86_64 --config=hermetic
+build:hermetic-llvm-macos-x86_64 --extra_toolchains @llvm_toolchain//:cc-toolchain-x86_64-darwin
+# Below flags mitigate https://github.com/bazel-contrib/toolchains_llvm/pull/229.
+build:hermetic-llvm-macos-x86_64 --features=-libtool
+
+build:hermetic-llvm --incompatible_enable_cc_toolchain_resolution
+build:hermetic-llvm --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build:hermetic-llvm --extra_toolchains @llvm_toolchain//:cc-toolchain-x86_64-linux
+build:hermetic-llvm --extra_toolchains @llvm_aarch64//:cc-toolchain-aarch64-linux
+build:hermetic-llvm --extra_toolchains @emsdk//emscripten_toolchain:cc-toolchain-wasm
+
+# Use vendored LLVM C/C++ compiler (cross-compile to Linux/aarch64).
+build:linux-aarch64-cross --config=hermetic-llvm
+build:linux-aarch64-cross --extra_toolchains @llvm_aarch64//:cc-toolchain-aarch64-linux
+build:linux-aarch64-cross --platforms @toolchains_llvm//platforms:linux-aarch64
+build:linux-aarch64-cross --cxxopt --gcc-install-dir=external/sysroot_linux_arm64/usr/lib/gcc/aarch64-linux-gnu/13/
+# Below 2 flags allow tests to be run after cross-compiling.
+build:linux-aarch64-cross --test_env=QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
+build:linux-aarch64-cross --run_under=qemu-aarch64-static
 
 build --enable_platform_specific_config
 
@@ -85,6 +101,7 @@ build --enable_platform_specific_config
 build:linux --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
 build:macos --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
 build:windows --cxxopt="/std:c++20" --host_cxxopt="/std:c++20"
+
 
 # Enable symlinks and runfiles on Windows (enabled by default on other platforms).
 startup --windows_enable_symlinks
