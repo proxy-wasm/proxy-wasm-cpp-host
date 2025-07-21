@@ -168,12 +168,10 @@ jobs:
         - name: 'V8 on Linux/aarch64'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-arm
           arch: aarch64
           action: test
           targets: -//test/fuzz/...
-          flags: --config=linux-aarch64-cross --@v8//bazel/config:v8_target_cpu=arm64
-          deps: qemu-user-static libc6-arm64-cross
           cache: true
         - name: 'V8 on macOS/x86_64'
           engine: 'v8'
