@@ -172,7 +172,7 @@ jobs:
           arch: aarch64
           action: test
           targets: -//test/fuzz/...
-          flags: --config=zig-cc-linux-aarch64 --@v8//bazel/config:v8_target_cpu=arm64
+          flags: --config=linux-aarch64-cross --@v8//bazel/config:v8_target_cpu=arm64
           deps: qemu-user-static libc6-arm64-cross
           cache: true
         - name: 'V8 on macOS/x86_64'
@@ -181,6 +181,7 @@ jobs:
           os: macos-13
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm-macos-x86_64
           cache: true
         - name: 'WAMR interp on Linux/x86_64'
           engine: 'wamr-interp'
@@ -244,7 +245,7 @@ jobs:
           os: ubuntu-24.04
           arch: aarch64
           action: build
-          flags: --config=zig-cc-linux-aarch64
+          flags: --config=linux-aarch64-cross
           deps: qemu-user-static libc6-arm64-cross
         - name: 'Wasmtime on Linux/s390x'
           engine: 'wasmtime'

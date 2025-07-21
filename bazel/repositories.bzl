@@ -60,10 +60,18 @@ def proxy_wasm_cpp_host_repositories():
 
     maybe(
         http_archive,
-        name = "bazel-zig-cc",
-        sha256 = "ff89e0220c72cdc774e451a35e5c3b9f1593d0df71341844b2108c181ac0eef9",
-        strip_prefix = "hermetic_cc_toolchain-0.4.4",
-        url = "https://github.com/uber/hermetic_cc_toolchain/archive/refs/tags/v0.4.4.tar.gz",
+        name = "envoy_toolshed",
+        sha256 = "e2252e46e64417d5cedd9f1eb34a622bce5e13b43837e5fe051c83066b0a400b",
+        strip_prefix = "toolshed-bazel-bins-v0.1.13/bazel",
+        url = "https://github.com/envoyproxy/toolshed/archive/refs/tags/bazel-bins-v0.1.13.tar.gz",
+    )
+    maybe(
+        http_archive,
+        name = "toolchains_llvm",
+        sha256 = "b7cd301ef7b0ece28d20d3e778697a5e3b81828393150bed04838c0c52963a01",
+        strip_prefix = "toolchains_llvm-0.10.3",
+        canonical_id = "v0.10.3",
+        url = "https://github.com/grailbio/bazel-toolchain/releases/download/0.10.3/toolchains_llvm-0.10.3.tar.gz",
     )
 
     maybe(
