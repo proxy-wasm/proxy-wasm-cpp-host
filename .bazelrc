@@ -67,33 +67,14 @@ build:gcc --action_env=BAZEL_COMPILER=gcc
 build:gcc --action_env=CC=gcc
 build:gcc --action_env=CXX=g++
 
-build:hermetic --incompatible_enable_cc_toolchain_resolution
-build:hermetic --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
-build:hermetic --extra_toolchains @emsdk//emscripten_toolchain:cc-toolchain-wasm
-
-# Use vendored LLVM C/C++ compiler.
-build:hermetic-llvm --config=hermetic
-build:hermetic-llvm --extra_toolchains @llvm_toolchain//:cc-toolchain-x86_64-linux
-
-build:hermetic-llvm-macos-x86_64 --config=hermetic
-build:hermetic-llvm-macos-x86_64 --extra_toolchains @llvm_toolchain//:cc-toolchain-x86_64-darwin
-# Below flags mitigate https://github.com/bazel-contrib/toolchains_llvm/pull/229.
-build:hermetic-llvm-macos-x86_64 --features=-libtool
-
 build:hermetic-llvm --incompatible_enable_cc_toolchain_resolution
 build:hermetic-llvm --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
-build:hermetic-llvm --extra_toolchains @llvm_toolchain//:cc-toolchain-x86_64-linux
-build:hermetic-llvm --extra_toolchains @llvm_aarch64//:cc-toolchain-aarch64-linux
 build:hermetic-llvm --extra_toolchains @emsdk//emscripten_toolchain:cc-toolchain-wasm
 
-# Use vendored LLVM C/C++ compiler (cross-compile to Linux/aarch64).
-build:linux-aarch64-cross --config=hermetic-llvm
-build:linux-aarch64-cross --extra_toolchains @llvm_aarch64//:cc-toolchain-aarch64-linux
-build:linux-aarch64-cross --platforms @toolchains_llvm//platforms:linux-aarch64
-build:linux-aarch64-cross --cxxopt --gcc-install-dir=external/sysroot_linux_arm64/usr/lib/gcc/aarch64-linux-gnu/13/
-# Below 2 flags allow tests to be run after cross-compiling.
-build:linux-aarch64-cross --test_env=QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/
-build:linux-aarch64-cross --run_under=qemu-aarch64-static
+build:hermetic-llvm-macos --config=hermetic-llvm
+# Below flags mitigate https://github.com/bazel-contrib/toolchains_llvm/pull/229.
+build:hermetic-llvm-macos --features=-libtool
+build:hermetic-llvm-macos --features=-supports_dynamic_linker
 
 build --enable_platform_specific_config
 
