@@ -13,7 +13,8 @@
 # limitations under the License.
 
 load("@proxy_wasm_cpp_host//bazel:select.bzl", "proxy_wasm_select_engine_null")
-load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//bazel:cc_defs.bzl", "cc_test")
 
 licenses(["notice"])  # Apache 2
 
