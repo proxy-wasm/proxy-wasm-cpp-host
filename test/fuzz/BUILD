@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_fuzzing//fuzzing:cc_defs.bzl", "cc_fuzz_test")
+load("//bazel:cc_defs.bzl", "cc_fuzz_test")
 
 licenses(["notice"])  # Apache 2
 

@@ -60,10 +60,18 @@ def proxy_wasm_cpp_host_repositories():
 
     maybe(
         http_archive,
-        name = "bazel-zig-cc",
-        sha256 = "ff89e0220c72cdc774e451a35e5c3b9f1593d0df71341844b2108c181ac0eef9",
-        strip_prefix = "hermetic_cc_toolchain-0.4.4",
-        url = "https://github.com/uber/hermetic_cc_toolchain/archive/refs/tags/v0.4.4.tar.gz",
+        name = "envoy_toolshed",
+        sha256 = "e2252e46e64417d5cedd9f1eb34a622bce5e13b43837e5fe051c83066b0a400b",
+        strip_prefix = "toolshed-bazel-bins-v0.1.13/bazel",
+        url = "https://github.com/envoyproxy/toolshed/archive/refs/tags/bazel-bins-v0.1.13.tar.gz",
+    )
+    maybe(
+        http_archive,
+        name = "toolchains_llvm",
+        sha256 = "b7cd301ef7b0ece28d20d3e778697a5e3b81828393150bed04838c0c52963a01",
+        strip_prefix = "toolchains_llvm-0.10.3",
+        canonical_id = "v0.10.3",
+        url = "https://github.com/grailbio/bazel-toolchain/releases/download/0.10.3/toolchains_llvm-0.10.3.tar.gz",
     )
 
     maybe(
@@ -169,34 +177,89 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         git_repository,
         name = "v8",
-        # 10.7.193.13
-        commit = "6c8b357a84847a479cd329478522feefc1c3195a",
+        # 13.8.258.26
+        commit = "de9d0f8b56ae61896e4d2ac577fc589efb14f87d",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1664374400 +0000",
+        shallow_since = "1752074621 -0400",
         patches = [
             "@proxy_wasm_cpp_host//bazel/external:v8.patch",
-            "@proxy_wasm_cpp_host//bazel/external:v8_include.patch",
         ],
         patch_args = ["-p1"],
+        patch_cmds = [
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/simdutf/simdutf.h\"!#include \"simdutf.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fp16/src/include/fp16.h\"!#include \"fp16.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/dragonbox/src/include/dragonbox/dragonbox.h\"!#include \"dragonbox/dragonbox.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fast_float/src/include/fast_float/!#include \"fast_float/!' {} \\;",
+        ],
+        repo_mapping = {
+            "@abseil-cpp": "@com_google_absl",
+        },
+    )
+
+    maybe(
+        http_archive,
+        name = "highway",
+        sha256 = "7e0be78b8318e8bdbf6fa545d2ecb4c90f947df03f7aadc42c1967f019e63343",
+        urls = [
+            "https://github.com/google/highway/archive/refs/tags/1.2.0.tar.gz",
+        ],
+        strip_prefix = "highway-1.2.0",
+    )
+
+    maybe(
+        http_archive,
+        name = "fast_float",
+        sha256 = "d2a08e722f461fe699ba61392cd29e6b23be013d0f56e50c7786d0954bffcb17",
+        urls = [
+            "https://github.com/fastfloat/fast_float/archive/refs/tags/v7.0.0.tar.gz",
+        ],
+        strip_prefix = "fast_float-7.0.0",
+    )
+
+    maybe(
+        http_archive,
+        name = "dragonbox",
+        urls = [
+            "https://github.com/jk-jeon/dragonbox/archive/6c7c925b571d54486b9ffae8d9d18a822801cbda.zip",
+        ],
+        strip_prefix = "dragonbox-6c7c925b571d54486b9ffae8d9d18a822801cbda",
+        sha256 = "2f10448d665355b41f599e869ac78803f82f13b070ce7ef5ae7b5cceb8a178f3",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:dragonbox.BUILD",
+    )
+
+    maybe(
+        http_archive,
+        name = "fp16",
+        urls = [
+            "https://github.com/Maratyszcza/FP16/archive/0a92994d729ff76a58f692d3028ca1b64b145d91.zip",
+        ],
+        strip_prefix = "FP16-0a92994d729ff76a58f692d3028ca1b64b145d91",
+        sha256 = "e66e65515fa09927b348d3d584c68be4215cfe664100d01c9dbc7655a5716d70",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:fp16.BUILD",
+    )
+
+    maybe(
+        http_archive,
+        name = "simdutf",
+        sha256 = "512374f8291d3daf102ccd0ad223b1a8318358f7c1295efd4d9a3abbb8e4b6ff",
+        urls = [
+            "https://github.com/simdutf/simdutf/releases/download/v7.3.0/singleheader.zip",
+        ],
+        build_file = "@proxy_wasm_cpp_host//bazel/external:simdutf.BUILD",
+    )
+
+    maybe(
+        http_archive,
+        name = "intel_ittapi",
+        strip_prefix = "ittapi-a3911fff01a775023a06af8754f9ec1e5977dd97",
+        sha256 = "1d0dddfc5abb786f2340565c82c6edd1cff10c917616a18ce62ee0b94dbc2ed4",
+        urls = ["https://github.com/intel/ittapi/archive/a3911fff01a775023a06af8754f9ec1e5977dd97.tar.gz"],
+        build_file = "@proxy_wasm_cpp_host//bazel/external:intel_ittapi.BUILD",
     )
 
     native.bind(
         name = "wee8",
         actual = "@v8//:wee8",
-    )
-
-    maybe(
-        new_git_repository,
-        name = "com_googlesource_chromium_base_trace_event_common",
-        build_file = "@v8//:bazel/BUILD.trace_event_common",
-        commit = "521ac34ebd795939c7e16b37d9d3ddb40e8ed556",
-        remote = "https://chromium.googlesource.com/chromium/src/base/trace_event/common.git",
-        shallow_since = "1662508800 +0000",
-    )
-
-    native.bind(
-        name = "base_trace_event_common",
-        actual = "@com_googlesource_chromium_base_trace_event_common//:trace_event_common",
     )
 
     # WAMR with dependencies.

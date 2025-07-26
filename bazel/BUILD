@@ -68,3 +68,5 @@ selects.config_setting_group(
         ":linux_s390x",
     ],
 )
+
+exports_files(["tsan_suppressions.txt"])
