@@ -48,12 +48,26 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Bazel cache
-      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
+    - name: set cache name
+      id: vars
+      # The cache tag consists of the following parts:
+      # * test-deps-bazel-cache- prefix
+      # * hash of WORKSPACE, .bazelrc, and .bazelversion, which is
+      #   purely to differentiate caches for substantial changes in bazel.
+      # * github.sha, which is the commit hash of the commit used to generate
+      #   the cache entry.
+      run: echo "CACHE_TAG=test-deps-bazel-cache-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion') }}" >> "$GITHUB_OUTPUT"
+
+    - name: bazel cache
+      uses: actions/cache/restore@v3
       with:
-        path: |
-          ~/.cache/bazel
-        key: test_data-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl', 'bazel/cargo/wasmsign/crates.bzl') }}
+        path: /tmp/bazel/cache
+        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
+        restore-keys: |
+          ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
+          ${{ steps.vars.outputs.CACHE_TAG }}-
+          test-deps-bazel-cache-${{ matrix.name }}-
+          test-deps-bazel-cache-
 
     - name: Bazel build
       run: >
@@ -61,6 +75,7 @@ jobs:
         --verbose_failures
         --test_output=errors
         --config=clang
+        --disk_cache /tmp/bazel/cache
         -c opt
         $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
         $(bazel query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
@@ -84,19 +99,12 @@ jobs:
         if-no-files-found: error
         retention-days: 3
 
-    - name: Skip Bazel cache update
-      if: ${{ github.ref != 'refs/heads/main' }}
-      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
-
-    - name: Cleanup Bazel cache
-      if: ${{ github.ref == 'refs/heads/main' }}
-      run: |
-        export OUTPUT=$(bazel info output_base)
-        # Distfiles for Rust toolchains (350 MiB).
-        rm -rf ${OUTPUT}/external/rust_*/*.tar.gz
-        # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
-        rm -rf $(bazel info repository_cache)
-        rm -rf $(bazel info install_base)
+    - name: save bazel cache
+      uses: actions/cache/save@v3
+      if: always()
+      with:
+        path: /tmp/bazel/cache
+        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
 
   build:
     name: ${{ matrix.action }} with ${{ matrix.name }}
@@ -282,21 +290,27 @@ jobs:
       if: startsWith(matrix.run_under, 'docker')
       run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-    - name: Set cache key
-      if: ${{ matrix.cache }}
-      run: echo "::set-output name=uniq::$(bazel query --output build //external:${{ matrix.repo }} | grep -E 'sha256|commit' | cut -d\" -f2)-$(echo ${{ matrix.flags }} | sha256sum)"
-      id: cache-key
+    - name: set cache name
+      id: vars
+      # The cache tag consists of the following parts:
+      # * bazel-cache- prefix
+      # * matrix.name, which separates the cache for each build type.
+      # * hash of WORKSPACE, .bazelrc, and .bazelversion, which is
+      #   purely to differentiate caches for substantial changes in bazel.
+      # * github.sha, which is the commit hash of the commit used to generate
+      #   the cache entry.
+      run: echo "CACHE_TAG=bazel-cache-${{ matrix.name }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion') }}" >> "$GITHUB_OUTPUT"
 
-    - name: Bazel cache
-      if: ${{ matrix.cache }}
-      uses: PiotrSikora/cache@v2.1.7-with-skip-cache
+    - name: bazel cache
+      uses: actions/cache/restore@v3
       with:
-        path: |
-          ~/.cache/bazel
-          /private/var/tmp/_bazel_runner/
-        key: ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.engine }}-${{ steps.cache-key.outputs.uniq }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion', 'bazel/dependencies.bzl', 'bazel/repositories.bzl') }}
+        path: /tmp/bazel/cache
+        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
         restore-keys: |
-          ${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.engine }}-${{ steps.cache-key.outputs.uniq }}-
+          ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
+          ${{ steps.vars.outputs.CACHE_TAG }}-
+          bazel-cache-${{ matrix.name }}-
+          bazel-cache-
 
     - name: Download test data
       uses: actions/download-artifact@v4
@@ -321,6 +335,7 @@ jobs:
         --verbose_failures
         --test_output=errors
         --define engine=${{ matrix.engine }}
+        --disk_cache /tmp/bazel/cache
         ${{ matrix.flags }}
         -- //test/... ${{ matrix.targets }}
 
@@ -332,38 +347,15 @@ jobs:
         --verbose_failures
         --test_output=errors
         --define engine=${{ matrix.engine }}
+        --disk_cache /tmp/bazel/cache
         ${{ matrix.flags }}
         --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
         //test:signature_util_test
 
-    - name: Skip Bazel cache update
-      if: ${{ matrix.cache && github.ref != 'refs/heads/main' }}
-      run: echo "CACHE_SKIP_SAVE=true" >> $GITHUB_ENV
+    - name: save bazel cache
+      uses: actions/cache/save@v3
+      if: always()
+      with:
+        path: /tmp/bazel/cache
+        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
 
-    - name: Cleanup Bazel cache
-      if: ${{ matrix.cache && github.ref == 'refs/heads/main' }}
-      run: |
-        export OUTPUT=$(${{ matrix.run_under }} bazel info output_base)
-        echo "===== BEFORE ====="
-        du -s ${OUTPUT}/external/* $(dirname ${OUTPUT})/* | sort -rn | head -20
-        # BoringSSL's test data (90 MiB).
-        rm -rf ${OUTPUT}/external/boringssl/crypto_test_data.cc
-        rm -rf ${OUTPUT}/external/boringssl/src/crypto/*/test/
-        rm -rf ${OUTPUT}/external/boringssl/src/third_party/wycheproof_testvectors/
-        # LLVM's tests (500 MiB).
-        rm -rf ${OUTPUT}/external/llvm*/test/
-        # V8's tests (100 MiB).
-        if [ -d "${OUTPUT}/external/v8/test/torque" ]; then
-          mv ${OUTPUT}/external/v8/test/torque ${OUTPUT}/external/v8/test_torque
-          rm -rf ${OUTPUT}/external/v8/test/*
-          mv ${OUTPUT}/external/v8/test_torque ${OUTPUT}/external/v8/test/torque
-        fi
-        # Unnecessary CMake tools (65 MiB).
-        rm -rf ${OUTPUT}/external/cmake-*/bin/{ccmake,cmake-gui,cpack,ctest}
-        # Distfiles for Rust toolchains (350 MiB).
-        rm -rf ${OUTPUT}/external/rust_*/*.tar.gz
-        # Bazel's repository cache (650-800 MiB) and install base (155 MiB).
-        rm -rf ${OUTPUT}/../cache
-        rm -rf ${OUTPUT}/../install
-        echo "===== AFTER ====="
-        du -s ${OUTPUT}/external/* $(dirname ${OUTPUT})/* | sort -rn | head -20
