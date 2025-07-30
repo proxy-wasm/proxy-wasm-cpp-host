@@ -54,34 +54,18 @@ public:
   WasmBase(const std::shared_ptr<WasmHandleBase> &base_wasm_handle, const WasmVmFactory &factory);
   virtual ~WasmBase();
 
-#ifdef PROXY_WASM_CPP_HOST_MORE_VIRTUAL_METHODS
   virtual bool load(const std::string &code, bool allow_precompiled = false);
   virtual bool initialize();
   virtual void startVm(ContextBase *root_context);
   virtual bool configure(ContextBase *root_context, std::shared_ptr<PluginBase> plugin);
-#else
-  bool load(const std::string &code, bool allow_precompiled = false);
-  bool initialize();
-  void startVm(ContextBase *root_context);
-  bool configure(ContextBase *root_context, std::shared_ptr<PluginBase> plugin);
-#endif
   // Returns the root ContextBase or nullptr if onStart returns false.
-#ifdef PROXY_WASM_CPP_HOST_MORE_VIRTUAL_METHODS
   virtual ContextBase *start(const std::shared_ptr<PluginBase> &plugin);
-#else
-  ContextBase *start(const std::shared_ptr<PluginBase> &plugin);
-#endif
 
   std::string_view vm_id() const { return vm_id_; }
   std::string_view vm_key() const { return vm_key_; }
   WasmVm *wasm_vm() const { return wasm_vm_.get(); }
-#ifdef PROXY_WASM_CPP_HOST_MORE_VIRTUAL_METHODS
   virtual ContextBase *vm_context() const { return vm_context_.get(); }
   virtual ContextBase *getRootContext(const std::shared_ptr<PluginBase> &plugin, bool allow_closed);
-#else
-  ContextBase *vm_context() const { return vm_context_.get(); }
-  ContextBase *getRootContext(const std::shared_ptr<PluginBase> &plugin, bool allow_closed);
-#endif
   ContextBase *getContext(uint32_t id) {
     auto it = contexts_.find(id);
     if (it != contexts_.end())
@@ -337,23 +321,14 @@ using WasmHandleCloneFactory =
 class WasmHandleBase : public std::enable_shared_from_this<WasmHandleBase> {
 public:
   explicit WasmHandleBase(std::shared_ptr<WasmBase> wasm_base) : wasm_base_(wasm_base) {}
-#ifdef PROXY_WASM_CPP_HOST_MORE_VIRTUAL_METHODS
   virtual ~WasmHandleBase() {
-#else
-  ~WasmHandleBase() {
-#endif
     if (wasm_base_) {
       wasm_base_->startShutdown();
     }
   }
 
-#ifdef PROXY_WASM_CPP_HOST_MORE_VIRTUAL_METHODS
   virtual bool canary(const std::shared_ptr<PluginBase> &plugin,
                       const WasmHandleCloneFactory &clone_factory);
-#else
-  bool canary(const std::shared_ptr<PluginBase> &plugin,
-              const WasmHandleCloneFactory &clone_factory);
-#endif
 
   void kill() { wasm_base_ = nullptr; }
 
@@ -381,11 +356,7 @@ public:
   explicit PluginHandleBase(std::shared_ptr<WasmHandleBase> wasm_handle,
                             std::shared_ptr<PluginBase> plugin)
       : plugin_(plugin), wasm_handle_(wasm_handle) {}
-#ifdef PROXY_WASM_CPP_HOST_MORE_VIRTUAL_METHODS
   virtual ~PluginHandleBase() {
-#else
-  ~PluginHandleBase() {
-#endif
     if (wasm_handle_) {
       wasm_handle_->wasm()->startShutdown(plugin_->key());
     }
