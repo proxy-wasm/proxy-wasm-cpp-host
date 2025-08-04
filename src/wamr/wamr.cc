@@ -89,6 +89,8 @@ public:
 
   void terminate() override {}
   bool usesWasmByteOrder() override { return true; }
+  
+  void warm() override {}
 
 private:
   template <typename... Args>

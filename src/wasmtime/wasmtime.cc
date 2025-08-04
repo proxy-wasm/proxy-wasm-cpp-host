@@ -80,6 +80,7 @@ public:
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
 #undef _GET_MODULE_FUNCTION
+  
 private:
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
@@ -99,6 +100,8 @@ private:
 
   void terminate() override {}
   bool usesWasmByteOrder() override { return true; }
+
+  void warm() override {}
 
   WasmStorePtr store_;
   WasmModulePtr module_;
