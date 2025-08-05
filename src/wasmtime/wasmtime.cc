@@ -100,6 +100,8 @@ private:
   void terminate() override {}
   bool usesWasmByteOrder() override { return true; }
 
+  void warm() override {}
+
   WasmStorePtr store_;
   WasmModulePtr module_;
   WasmSharedModulePtr shared_module_;

@@ -284,6 +284,8 @@ private:
   void terminate() override {}
   bool usesWasmByteOrder() override { return true; }
 
+  void warm() override {}
+
   WasmEdgeLoaderPtr loader_;
   WasmEdgeValidatorPtr validator_;
   WasmEdgeExecutorPtr executor_;
