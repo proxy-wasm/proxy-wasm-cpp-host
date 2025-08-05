@@ -18,6 +18,7 @@
 
 namespace proxy_wasm {
 
+bool initWasmtimeEngine();
 std::unique_ptr<WasmVm> createWasmtimeVm();
 
 } // namespace proxy_wasm
