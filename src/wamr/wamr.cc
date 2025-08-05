@@ -90,6 +90,8 @@ public:
   void terminate() override {}
   bool usesWasmByteOrder() override { return true; }
 
+  void warm() override {}
+
 private:
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
