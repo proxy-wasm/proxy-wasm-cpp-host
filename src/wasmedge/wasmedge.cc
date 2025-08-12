@@ -329,7 +329,7 @@ bool WasmEdge::link(std::string_view /*debug_name*/) {
 
   // Create store and register imports.
   initStore();
-  
+
   if (store_ == nullptr) {
     return false;
   }
