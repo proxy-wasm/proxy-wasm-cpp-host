@@ -317,13 +317,19 @@ bool WasmEdge::load(std::string_view bytecode, std::string_view /*precompiled*/,
   return true;
 }
 
+void WasmEdge::initStore() {
+  if (store_ != nullptr) {
+    return;
+  }
+  store_ = WasmEdge_StoreCreate();
+}
+
 bool WasmEdge::link(std::string_view /*debug_name*/) {
   assert(ast_module_ != nullptr);
 
   // Create store and register imports.
-  if (store_ == nullptr) {
-    store_ = WasmEdge_StoreCreate();
-  }
+  initStore();
+  
   if (store_ == nullptr) {
     return false;
   }
@@ -612,7 +618,11 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
   };
 }
 
+void WasmEdge::warm() { initStore(); }
+
 } // namespace WasmEdge
+
+bool initWasmEdgeEngine() { return wasmedge::engine() != nullptr; }
 
 std::unique_ptr<WasmVm> createWasmEdgeVm() { return std::make_unique<WasmEdge::WasmEdge>(); }
 

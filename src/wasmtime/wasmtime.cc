@@ -103,6 +103,9 @@ private:
 
   void warm() override {}
 
+  // Initialize the V8 engine and store if necessary.
+  void initStore();
+
   WasmStorePtr store_;
   WasmModulePtr module_;
   WasmSharedModulePtr shared_module_;
@@ -114,9 +117,15 @@ private:
   std::unordered_map<std::string, WasmFuncPtr> module_functions_;
 };
 
+void Wasmtime::initStore() {
+  if (store_ != nullptr) {
+    return;
+  }
+  store_ = wasm_store_new(engine());
+
 bool Wasmtime::load(std::string_view bytecode, std::string_view /*precompiled*/,
                     const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
-  store_ = wasm_store_new(engine());
+  initStore();
   if (store_ == nullptr) {
     return false;
   }
@@ -696,7 +705,11 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
   };
 };
 
+void Wasmtime::warm() { initStore(); }
+
 } // namespace wasmtime
+
+bool initWasmtimeEngine() { return wasmtime::engine() != nullptr; }
 
 std::unique_ptr<WasmVm> createWasmtimeVm() { return std::make_unique<wasmtime::Wasmtime>(); }
 
