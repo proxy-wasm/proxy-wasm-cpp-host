@@ -118,10 +118,10 @@ private:
 };
 
 void Wasmtime::initStore() {
-  if (store_ != nullptr)
+  if (store_ != nullptr) {
     return;
-}
-store_ = wasm_store_new(engine());
+  }
+  store_ = wasm_store_new(engine());
 }
 
 bool Wasmtime::load(std::string_view bytecode, std::string_view /*precompiled*/,
