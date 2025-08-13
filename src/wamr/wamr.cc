@@ -90,7 +90,7 @@ public:
   void terminate() override {}
   bool usesWasmByteOrder() override { return true; }
 
-  void warm() override {}
+  void warm() override;
 
 private:
   template <typename... Args>
@@ -108,6 +108,9 @@ private:
   template <typename R, typename... Args>
   void getModuleFunctionImpl(std::string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
+
+  // Initialize the Wamr store if necessary.
+  void initStore();
 
   WasmStorePtr store_;
   WasmModulePtr module_;
@@ -710,7 +713,7 @@ void Wamr::warm() { initStore(); }
 
 } // namespace wamr
 
- bool initWamrEngine() { return wamr::engine() != nullptr; }
+bool initWamrEngine() { return wamr::engine() != nullptr; }
 
 std::unique_ptr<WasmVm> createWamrVm() { return std::make_unique<wamr::Wamr>(); }
 
