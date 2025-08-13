@@ -103,6 +103,8 @@ public:
   void terminate() override;
   bool usesWasmByteOrder() override { return true; }
 
+  void warm() override;
+
 private:
   wasm::own<wasm::Trap> trap(std::string message);
 
@@ -123,6 +125,9 @@ private:
   template <typename R, typename... Args>
   void getModuleFunctionImpl(std::string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
+
+  // Initialize the V8 engine and store if necessary.
+  void initStore();
 
   wasm::own<wasm::Store> store_;
   wasm::own<wasm::Module> module_;
@@ -260,9 +265,16 @@ template <typename T, typename U> constexpr T convertValTypesToArgsTuple(const U
 
 // V8 implementation.
 
+void V8::initStore() {
+  if (store_ != nullptr) {
+    return;
+  }
+  store_ = wasm::Store::make(engine());
+}
+
 bool V8::load(std::string_view bytecode, std::string_view precompiled,
               const std::unordered_map<uint32_t, std::string> &function_names) {
-  store_ = wasm::Store::make(engine());
+  initStore();
   if (store_ == nullptr) {
     return false;
   }
@@ -708,6 +720,8 @@ void V8::terminate() {
   isolate->TerminateExecution();
 }
 
+void V8::warm() { initStore(); }
+
 std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::Trap> trap) {
   auto message = "Function: " + std::string(function_name) + " failed: ";
   message += std::string(trap->message().get(), trap->message().size());
@@ -740,6 +754,8 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
 }
 
 } // namespace v8
+
+bool initV8Engine() { return v8::engine() != nullptr; }
 
 std::unique_ptr<WasmVm> createV8Vm() { return std::make_unique<v8::V8>(); }
 
