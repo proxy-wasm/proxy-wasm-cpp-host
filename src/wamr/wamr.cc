@@ -121,9 +121,16 @@ private:
   std::unordered_map<std::string, WasmFuncPtr> module_functions_;
 };
 
+void Wamr::initStore() {
+  if (store_ != nullptr) {
+    return;
+  }
+  store_ = wasm_store_new(engine());
+}
+
 bool Wamr::load(std::string_view bytecode, std::string_view precompiled,
                 const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
-  store_ = wasm_store_new(engine());
+  initStore();
   if (store_ == nullptr) {
     return false;
   }
@@ -699,9 +706,11 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
   };
 };
 
+void Wamr::warm() { initStore(); }
+
 } // namespace wamr
 
-bool initWamrEngine() { return wamr::engine() != nullptr; }
+ bool initWamrEngine() { return wamr::engine() != nullptr; }
 
 std::unique_ptr<WasmVm> createWamrVm() { return std::make_unique<wamr::Wamr>(); }
 
