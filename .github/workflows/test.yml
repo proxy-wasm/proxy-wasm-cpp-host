@@ -99,6 +99,15 @@ jobs:
         if-no-files-found: error
         retention-days: 3
 
+    - name: remove unaccessed files from cache
+      shell: bash
+      run: >
+        find /tmp/bazel/cache
+        -type f
+        -name '*'
+        -amin +360
+        -exec rm {} \;
+
     - name: save bazel cache
       uses: actions/cache/save@v3
       if: always()
@@ -351,6 +360,15 @@ jobs:
         ${{ matrix.flags }}
         --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
         //test:signature_util_test
+
+    - name: remove unaccessed files from cache
+      shell: bash
+      run: >
+        find /tmp/bazel/cache
+        -type f
+        -name '*'
+        -amin +360
+        -exec rm {} \;
 
     - name: save bazel cache
       uses: actions/cache/save@v3
