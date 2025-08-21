@@ -63,8 +63,16 @@ TEST_P(TestVm, Init) {
   std::cout << "\"cold\" engine time: " << cold << "ns" << std::endl;
   std::cout << "\"warm\" engine time: " << warm << "ns" << std::endl;
 
+  // Default warm time in nanoseconds.
+  int warm_time_ns_limit = 10000;
+
+#if defined(__linux__) && defined(__s390x__)
+  // Linux 390x is significantly slower, so we use a more lenient limit.
+  warm_time_ns_limit = 75000;
+#endif
+
   // Verify that getting a "warm" engine takes less than 10us.
-  EXPECT_LE(warm, 10000);
+  EXPECT_LE(warm, warm_time_ns_limit);
 
   // Verify that getting a "warm" engine takes at least 50x less time than getting a "cold" one.
   EXPECT_LE(warm * 50, cold);
