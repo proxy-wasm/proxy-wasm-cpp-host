@@ -310,7 +310,7 @@ public:
 
   bool isFailed() { return failed_ != FailState::Ok; }
   void fail(FailState fail_state, std::string_view message) {
-    integration()->error(message);
+    integration()->error("Plugin Crash: " + message);
     failed_ = fail_state;
     for (auto &callback : fail_callbacks_) {
       callback(fail_state);
