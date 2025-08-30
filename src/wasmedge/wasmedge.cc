@@ -264,6 +264,9 @@ public:
   };
   FOR_ALL_WASM_VM_EXPORTS(_GET_MODULE_FUNCTION)
 #undef _GET_MODULE_FUNCTION
+
+  void warm() override;
+
 private:
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
@@ -283,6 +286,9 @@ private:
 
   void terminate() override {}
   bool usesWasmByteOrder() override { return true; }
+
+  // Initialize the WasmEdge store if necessary.
+  void initStore();
 
   WasmEdgeLoaderPtr loader_;
   WasmEdgeValidatorPtr validator_;
@@ -314,13 +320,18 @@ bool WasmEdge::load(std::string_view bytecode, std::string_view /*precompiled*/,
   return true;
 }
 
+void WasmEdge::initStore() {
+  if (store_ != nullptr) {
+    return;
+  }
+  store_ = WasmEdge_StoreCreate();
+}
+
 bool WasmEdge::link(std::string_view /*debug_name*/) {
   assert(ast_module_ != nullptr);
 
   // Create store and register imports.
-  if (store_ == nullptr) {
-    store_ = WasmEdge_StoreCreate();
-  }
+  initStore();
   if (store_ == nullptr) {
     return false;
   }
@@ -608,6 +619,8 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
     return ret;
   };
 }
+
+void WasmEdge::warm() { initStore(); }
 
 } // namespace WasmEdge
 

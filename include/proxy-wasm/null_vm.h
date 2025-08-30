@@ -63,6 +63,8 @@ struct NullVm : public WasmVm {
   void terminate() override {}
   bool usesWasmByteOrder() override { return false; }
 
+  void warm() override {}
+
   std::string plugin_name_;
   std::unique_ptr<NullVmPlugin> plugin_;
 };

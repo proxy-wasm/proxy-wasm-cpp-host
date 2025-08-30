@@ -90,6 +90,8 @@ public:
   void terminate() override {}
   bool usesWasmByteOrder() override { return true; }
 
+  void warm() override;
+
 private:
   template <typename... Args>
   void registerHostFunctionImpl(std::string_view module_name, std::string_view function_name,
@@ -107,6 +109,9 @@ private:
   void getModuleFunctionImpl(std::string_view function_name,
                              std::function<R(ContextBase *, Args...)> *function);
 
+  // Initialize the Wamr store if necessary.
+  void initStore();
+
   WasmStorePtr store_;
   WasmModulePtr module_;
   WasmSharedModulePtr shared_module_;
@@ -119,9 +124,16 @@ private:
   std::unordered_map<std::string, WasmFuncPtr> module_functions_;
 };
 
+void Wamr::initStore() {
+  if (store_ != nullptr) {
+    return;
+  }
+  store_ = wasm_store_new(engine());
+}
+
 bool Wamr::load(std::string_view bytecode, std::string_view precompiled,
                 const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
-  store_ = wasm_store_new(engine());
+  initStore();
   if (store_ == nullptr) {
     return false;
   }
@@ -697,7 +709,11 @@ void Wamr::getModuleFunctionImpl(std::string_view function_name,
   };
 };
 
+void Wamr::warm() { initStore(); }
+
 } // namespace wamr
+
+bool initWamrEngine() { return wamr::engine() != nullptr; }
 
 std::unique_ptr<WasmVm> createWamrVm() { return std::make_unique<wamr::Wamr>(); }
 
