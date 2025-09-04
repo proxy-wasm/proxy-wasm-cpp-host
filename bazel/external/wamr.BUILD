@@ -69,7 +69,7 @@ cmake(
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": ["-ldl"],
         "//conditions:default": [],
     }),
-    out_static_libs = ["libvmlib.a"],
+    out_static_libs = ["libiwasm.a"],
     deps = select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": ["@llvm-15_0_7//:llvm_wamr_lib"],
         "//conditions:default": [],
