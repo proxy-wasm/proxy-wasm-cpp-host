@@ -15,6 +15,7 @@
 
 #include "include/proxy-wasm/pairs_util.h"
 
+#include <cstdint>
 #include <cstring>
 #include <string_view>
 #include <vector>
@@ -24,6 +25,23 @@
 #include "include/proxy-wasm/word.h"
 
 namespace proxy_wasm {
+
+namespace {
+
+// Read trivially copyable type from char buffer and return value. Does not
+// check if char buffer is large enough to contain instance of `T`.
+template <typename T> inline T unalignedLoad(const char *buffer) {
+  // Checking for undefined behaviour wrt std::memcpy.
+  static_assert(std::is_trivially_copyable_v<T>,
+                "type must be trivially copyable to use std::memcpy");
+  T result;
+  // Use std::memcpy to get around strict type aliasing rules.
+  std::memcpy(&result, buffer, sizeof(T));
+
+  return result;
+}
+
+} // namespace
 
 using Sizes = std::vector<std::pair<uint32_t, uint32_t>>;
 
@@ -113,10 +131,13 @@ Pairs PairsUtil::toPairs(std::string_view buffer) {
   if (pos + sizeof(uint32_t) > end) {
     return {};
   }
-  uint32_t num_pairs = wasmtoh(*reinterpret_cast<const uint32_t *>(pos),
-                               contextOrEffectiveContext() != nullptr
-                                   ? contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder()
-                                   : false);
+
+  // clang complains that this is unused when the wasmtoh macro drops its
+  // second argument on non-big-endian platforms.
+  [[maybe_unused]] const bool uses_wasm_byte_order =
+      contextOrEffectiveContext() != nullptr &&
+      contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder();
+  uint32_t num_pairs = wasmtoh(unalignedLoad<uint32_t>(pos), uses_wasm_byte_order);
   pos += sizeof(uint32_t);
 
   // Check if we're not going to exceed the limit.
@@ -135,20 +156,14 @@ Pairs PairsUtil::toPairs(std::string_view buffer) {
     if (pos + sizeof(uint32_t) > end) {
       return {};
     }
-    s.first = wasmtoh(*reinterpret_cast<const uint32_t *>(pos),
-                      contextOrEffectiveContext() != nullptr
-                          ? contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder()
-                          : false);
+    s.first = wasmtoh(unalignedLoad<uint32_t>(pos), uses_wasm_byte_order);
     pos += sizeof(uint32_t);
 
     // Read value length.
     if (pos + sizeof(uint32_t) > end) {
       return {};
     }
-    s.second = wasmtoh(*reinterpret_cast<const uint32_t *>(pos),
-                       contextOrEffectiveContext() != nullptr
-                           ? contextOrEffectiveContext()->wasmVm()->usesWasmByteOrder()
-                           : false);
+    s.second = wasmtoh(unalignedLoad<uint32_t>(pos), uses_wasm_byte_order);
     pos += sizeof(uint32_t);
   }
 
