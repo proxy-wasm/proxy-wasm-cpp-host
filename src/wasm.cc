@@ -393,11 +393,39 @@ void WasmBase::startVm(ContextBase *root_context) {
              "wasi_unstable.fd_prestat_dir_name", "wasi_snapshot_preview1.fd_prestat_dir_name",
              // time
              "wasi_unstable.clock_time_get", "wasi_snapshot_preview1.clock_time_get",
+             "wasi_unstable.clock_res_get", "wasi_snapshot_preview1.clock_res_get",
              // random
              "wasi_unstable.random_get", "wasi_snapshot_preview1.random_get",
              // Go runtime initialization
              "wasi_unstable.fd_fdstat_get", "wasi_snapshot_preview1.fd_fdstat_get",
-             "wasi_unstable.fd_fdstat_set_flags", "wasi_snapshot_preview1.fd_fdstat_set_flags"});
+             "wasi_unstable.fd_fdstat_set_flags", "wasi_snapshot_preview1.fd_fdstat_set_flags",
+             "wasi_unstable.fd_fdstat_set_rights", "wasi_snapshot_preview1.fd_fdstat_set_rights",
+             "wasi_unstable.path_filestat_get", "wasi_snapshot_preview1.path_filestat_get",
+             "wasi_unstable.fd_filestat_get", "wasi_snapshot_preview1.fd_filestat_get",
+             "wasi_unstable.fd_filestat_set_size", "wasi_snapshot_preview1.fd_filestat_set_size",
+             "wasi_unstable.fd_filestat_set_times", "wasi_snapshot_preview1.fd_filestat_set_times",
+             "wasi_unstable.fd_advise", "wasi_snapshot_preview1.fd_advise",
+             "wasi_unstable.fd_allocate", "wasi_snapshot_preview1.fd_allocate",
+             "wasi_unstable.fd_datasync", "wasi_snapshot_preview1.fd_datasync",
+             "wasi_unstable.fd_pread", "wasi_snapshot_preview1.fd_pread",
+             "wasi_unstable.fd_pwrite", "wasi_snapshot_preview1.fd_pwrite",
+             "wasi_unstable.fd_readdir", "wasi_snapshot_preview1.fd_readdir",
+             "wasi_unstable.fd_renumber", "wasi_snapshot_preview1.fd_renumber",
+             "wasi_unstable.fd_sync", "wasi_snapshot_preview1.fd_sync",
+             "wasi_unstable.fd_tell", "wasi_snapshot_preview1.fd_tell",
+             "wasi_unstable.path_create_directory", "wasi_snapshot_preview1.path_create_directory",
+             "wasi_unstable.path_filestat_set_times", "wasi_snapshot_preview1.path_filestat_set_times",
+             "wasi_unstable.path_link", "wasi_snapshot_preview1.path_link",
+             "wasi_unstable.path_readlink", "wasi_snapshot_preview1.path_readlink",
+             "wasi_unstable.path_remove_directory", "wasi_snapshot_preview1.path_remove_directory",
+             "wasi_unstable.path_rename", "wasi_snapshot_preview1.path_rename",
+             "wasi_unstable.path_symlink", "wasi_snapshot_preview1.path_symlink",
+             "wasi_unstable.path_unlink_file", "wasi_snapshot_preview1.path_unlink_file",
+             "wasi_unstable.poll_oneoff", "wasi_snapshot_preview1.poll_oneoff",
+             "wasi_unstable.sock_accept", "wasi_snapshot_preview1.sock_accept",
+             "wasi_unstable.sock_recv", "wasi_snapshot_preview1.sock_recv",
+             "wasi_unstable.sock_send", "wasi_snapshot_preview1.sock_send",
+             "wasi_unstable.sock_shutdown", "wasi_snapshot_preview1.sock_shutdown"});
   if (_initialize_) {
     // WASI reactor.
     _initialize_(root_context);
