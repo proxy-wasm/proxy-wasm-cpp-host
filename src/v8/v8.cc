@@ -28,9 +28,9 @@
 
 #include "include/v8-version.h"
 #include "include/v8.h"
-#include "third_party/absl/strings/str_format.h"
-#include "third_party/proxy_wasm_cpp_host/include/proxy-wasm/limits.h"
-#include "third_party/v8/include/v8-initialization.h"
+#include "absl/strings/str_format.h"
+#include "include/proxy-wasm/limits.h"
+#include "include/v8-initialization.h"
 #include "src/wasm/c-api.h"
 #include "wasm-api/wasm.hh"
 
