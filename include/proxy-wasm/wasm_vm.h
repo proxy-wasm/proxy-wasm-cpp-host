@@ -310,7 +310,11 @@ public:
 
   bool isFailed() { return failed_ != FailState::Ok; }
   void fail(FailState fail_state, std::string_view message) {
-    integration()->error("Plugin Crash: " + message);
+    if (fail_state == FailState::RuntimeError) {
+      integration()->error(std::string(PluginCrashPrefix) + std::string(message));
+    } else {
+      integration()->error(message);
+    }
     failed_ = fail_state;
     for (auto &callback : fail_callbacks_) {
       callback(fail_state);
@@ -340,6 +344,7 @@ protected:
   std::vector<std::function<void(FailState)>> fail_callbacks_;
 
 private:
+  static constexpr std::string_view PluginCrashPrefix = "Plugin crash: ";
   bool restricted_callback_{false};
   std::unordered_set<std::string> allowed_hostcalls_{};
 };
