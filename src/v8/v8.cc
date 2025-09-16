@@ -42,9 +42,9 @@ wasm::Engine *engine() {
   static wasm::own<wasm::Engine> engine;
 
   std::call_once(init, []() {
-    std::string args =
-        absl::StrFormat("--wasm_max_mem_pages=%u", PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES /
-                                                       PROXY_WASM_HOST_WASM_MEMORY_PAGE_SIZE_BYTES);
+    std::string args = absl::StrFormat("--wasm_max_mem_pages=%u --no-liftoff",
+                                       PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES /
+                                           PROXY_WASM_HOST_WASM_MEMORY_PAGE_SIZE_BYTES);
     ::v8::V8::SetFlagsFromString(args.c_str(), args.size());
     ::v8::V8::EnableWebAssemblyTrapHandler(true);
 
