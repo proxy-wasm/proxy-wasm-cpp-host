@@ -308,6 +308,11 @@ public:
    */
   virtual bool usesWasmByteOrder() = 0;
 
+  /**
+   * Warm the VM such as engine and runtime.
+   */
+  virtual void warm() = 0;
+
   bool isFailed() { return failed_ != FailState::Ok; }
   void fail(FailState fail_state, std::string_view message) {
     if (fail_state == FailState::RuntimeError) {

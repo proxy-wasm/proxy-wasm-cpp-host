@@ -30,6 +30,54 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()
                            return info.param;
                          });
 
+TEST_P(TestVm, Init) {
+  std::chrono::time_point<std::chrono::steady_clock> time2;
+
+  auto time1 = std::chrono::steady_clock::now();
+  if (engine_ == "v8") {
+#if defined(PROXY_WASM_HOST_ENGINE_V8)
+    EXPECT_TRUE(proxy_wasm::initV8Engine());
+    time2 = std::chrono::steady_clock::now();
+    EXPECT_TRUE(proxy_wasm::initV8Engine());
+#endif
+  } else if (engine_ == "wamr") {
+#if defined(PROXY_WASM_HOST_ENGINE_WAMR)
+    EXPECT_TRUE(proxy_wasm::initWamrEngine());
+    time2 = std::chrono::steady_clock::now();
+    EXPECT_TRUE(proxy_wasm::initWamrEngine());
+#endif
+  } else if (engine_ == "wasmtime") {
+#if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
+    EXPECT_TRUE(proxy_wasm::initWasmtimeEngine());
+    time2 = std::chrono::steady_clock::now();
+    EXPECT_TRUE(proxy_wasm::initWasmtimeEngine());
+#endif
+  } else {
+    return;
+  }
+  auto time3 = std::chrono::steady_clock::now();
+
+  auto cold = std::chrono::duration_cast<std::chrono::nanoseconds>(time2 - time1).count();
+  auto warm = std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count();
+
+  std::cout << "\"cold\" engine time: " << cold << "ns" << std::endl;
+  std::cout << "\"warm\" engine time: " << warm << "ns" << std::endl;
+
+  // Default warm time in nanoseconds.
+  int warm_time_ns_limit = 10000;
+
+#if defined(__linux__) && defined(__s390x__)
+  // Linux 390x is significantly slower, so we use a more lenient limit.
+  warm_time_ns_limit = 75000;
+#endif
+
+  // Verify that getting a "warm" engine takes less than 10us.
+  EXPECT_LE(warm, warm_time_ns_limit);
+
+  // Verify that getting a "warm" engine takes at least 50x less time than getting a "cold" one.
+  EXPECT_LE(warm * 50, cold);
+}
+
 TEST_P(TestVm, Basic) {
   if (engine_ == "wasmedge") {
     EXPECT_EQ(vm_->cloneable(), proxy_wasm::Cloneable::NotCloneable);
