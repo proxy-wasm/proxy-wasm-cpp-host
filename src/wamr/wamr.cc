@@ -713,8 +713,6 @@ void Wamr::warm() { initStore(); }
 
 } // namespace wamr
 
-bool initWamrEngine() { return wamr::engine() != nullptr; }
-
 std::unique_ptr<WasmVm> createWamrVm() { return std::make_unique<wamr::Wamr>(); }
 
 } // namespace proxy_wasm

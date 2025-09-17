@@ -710,8 +710,6 @@ void Wasmtime::warm() { initStore(); }
 
 } // namespace wasmtime
 
-bool initWasmtimeEngine() { return wasmtime::engine() != nullptr; }
-
 std::unique_ptr<WasmVm> createWasmtimeVm() { return std::make_unique<wasmtime::Wasmtime>(); }
 
 } // namespace proxy_wasm

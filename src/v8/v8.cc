@@ -755,8 +755,6 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
 
 } // namespace v8
 
-bool initV8Engine() { return v8::engine() != nullptr; }
-
 std::unique_ptr<WasmVm> createV8Vm() { return std::make_unique<v8::V8>(); }
 
 } // namespace proxy_wasm

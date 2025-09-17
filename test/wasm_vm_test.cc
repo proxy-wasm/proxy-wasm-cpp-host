@@ -31,37 +31,17 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()
                          });
 
 TEST_P(TestVm, Init) {
-  std::chrono::time_point<std::chrono::steady_clock> time2;
-
   auto time1 = std::chrono::steady_clock::now();
-  if (engine_ == "v8") {
-#if defined(PROXY_WASM_HOST_ENGINE_V8)
-    EXPECT_TRUE(proxy_wasm::initV8Engine());
-    time2 = std::chrono::steady_clock::now();
-    EXPECT_TRUE(proxy_wasm::initV8Engine());
-#endif
-  } else if (engine_ == "wamr") {
-#if defined(PROXY_WASM_HOST_ENGINE_WAMR)
-    EXPECT_TRUE(proxy_wasm::initWamrEngine());
-    time2 = std::chrono::steady_clock::now();
-    EXPECT_TRUE(proxy_wasm::initWamrEngine());
-#endif
-  } else if (engine_ == "wasmtime") {
-#if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
-    EXPECT_TRUE(proxy_wasm::initWasmtimeEngine());
-    time2 = std::chrono::steady_clock::now();
-    EXPECT_TRUE(proxy_wasm::initWasmtimeEngine());
-#endif
-  } else {
-    return;
-  }
+  vm_->warm();
+  auto time2 = std::chrono::steady_clock::now();
+  vm_->warm();
   auto time3 = std::chrono::steady_clock::now();
 
   auto cold = std::chrono::duration_cast<std::chrono::nanoseconds>(time2 - time1).count();
   auto warm = std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count();
 
-  std::cout << "\"cold\" engine time: " << cold << "ns" << std::endl;
-  std::cout << "\"warm\" engine time: " << warm << "ns" << std::endl;
+  std::cout << "[" << engine_ << "] \"cold\" engine time: " << cold << "ns" << std::endl;
+  std::cout << "[" << engine_ << "] \"warm\" engine time: " << warm << "ns" << std::endl;
 
   // Default warm time in nanoseconds.
   int warm_time_ns_limit = 10000;
@@ -75,6 +55,12 @@ TEST_P(TestVm, Init) {
   EXPECT_LE(warm, warm_time_ns_limit);
 
   // Verify that getting a "warm" engine takes at least 50x less time than getting a "cold" one.
+  // We skip NullVM because warm() is a noop, and we skip wasmedge because its engine is initialized
+  // in the constructor vs. on cold start.
+  if (engine_ == "null" || engine_ == "wasmedge") {
+    std::cout << "Skipping warm() performance assertions for NullVm." << std::endl;
+    return;
+  }
   EXPECT_LE(warm * 50, cold);
 }
 
