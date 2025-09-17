@@ -43,6 +43,7 @@ wasm::Engine *engine() {
   static wasm::own<wasm::Engine> engine;
 
   std::call_once(init, []() {
+    // Disable the Liftoff compiler to force optimized JIT up-front.
     std::string args = absl::StrFormat("--wasm_max_mem_pages=%u --no-liftoff",
                                        PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES /
                                            PROXY_WASM_HOST_WASM_MEMORY_PAGE_SIZE_BYTES);
