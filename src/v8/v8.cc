@@ -26,11 +26,12 @@
 #include <utility>
 #include <vector>
 
+#include "include/proxy-wasm/limits.h"
+
+#include "absl/strings/str_format.h"
+#include "include/v8-initialization.h"
 #include "include/v8-version.h"
 #include "include/v8.h"
-#include "absl/strings/str_format.h"
-#include "include/proxy-wasm/limits.h"
-#include "include/v8-initialization.h"
 #include "src/wasm/c-api.h"
 #include "wasm-api/wasm.hh"
 
