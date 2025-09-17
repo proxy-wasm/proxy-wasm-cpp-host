@@ -21,7 +21,6 @@
 
 namespace proxy_wasm {
 
-bool initV8Engine();
 std::unique_ptr<WasmVm> createV8Vm();
 
 } // namespace proxy_wasm
