@@ -170,6 +170,7 @@ Word wasi_unstable_path_remove_directory(Word, Word, Word);
 Word wasi_unstable_path_rename(Word, Word, Word, Word, Word);
 Word wasi_unstable_path_symlink(Word, Word, Word, Word);
 Word wasi_unstable_path_unlink_file(Word, Word, Word);
+Word wasi_unstable_path_filestat_get(Word fd, Word flags, Word path, Word path_len, Word buf);
 Word wasi_unstable_sock_accept(Word, Word, Word);
 Word wasi_unstable_sock_recv(Word, Word, Word, Word, Word, Word);
 Word wasi_unstable_sock_send(Word, Word, Word, Word, Word);
@@ -177,7 +178,6 @@ Word wasi_unstable_sock_shutdown(Word, Word);
 Word wasi_unstable_random_get(Word, Word);
 Word pthread_equal(Word left, Word right);
 void emscripten_notify_memory_growth(Word);
-Word wasi_unstable_path_filestat_get(Word fd, Word flags, Word path, Word path_len, Word buf);
 
 // Support for embedders, not exported to Wasm.
 
