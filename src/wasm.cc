@@ -382,6 +382,8 @@ void WasmBase::startVm(ContextBase *root_context) {
              "env.proxy_log",
              // logging (stdout/stderr)
              "wasi_unstable.fd_write", "wasi_snapshot_preview1.fd_write",
+             // emscripten
+             "env.emscripten_notify_memory_growth",
              // args
              "wasi_unstable.args_sizes_get", "wasi_snapshot_preview1.args_sizes_get",
              "wasi_unstable.args_get", "wasi_snapshot_preview1.args_get",
