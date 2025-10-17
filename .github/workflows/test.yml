@@ -43,7 +43,7 @@ jobs:
   test_data:
     name: build test data
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-16core
 
     steps:
     - uses: actions/checkout@v2
@@ -128,19 +128,19 @@ jobs:
         include:
         - name: 'NullVM on Linux/x86_64'
           engine: 'null'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=gcc
         - name: 'NullVM on Linux/x86_64 with ASan'
           engine: 'null'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=clang-asan --define=crypto=system
         - name: 'NullVM on Linux/x86_64 with TSan'
           engine: 'null'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=clang-tsan
@@ -153,7 +153,7 @@ jobs:
         - name: 'V8 on Linux/x86_64'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=hermetic-llvm --define=crypto=system
@@ -161,7 +161,7 @@ jobs:
         - name: 'V8 on Linux/x86_64 with ASan'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=hermetic-llvm --config=clang-asan
@@ -169,7 +169,7 @@ jobs:
         - name: 'V8 on Linux/x86_64 with TSan'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=hermetic-llvm --config=clang-tsan
@@ -177,7 +177,7 @@ jobs:
         - name: 'V8 on Linux/x86_64 with GCC'
           engine: 'v8'
           repo: 'v8'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=gcc
@@ -202,7 +202,7 @@ jobs:
         - name: 'WAMR interp on Linux/x86_64'
           engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=clang
@@ -215,7 +215,7 @@ jobs:
         - name: 'WAMR jit on Linux/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=clang
@@ -231,14 +231,14 @@ jobs:
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=clang -c opt
         - name: 'Wasmtime on Linux/x86_64 with ASan'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: x86_64
           action: test
           flags: --config=clang-asan --define=crypto=system
@@ -252,7 +252,7 @@ jobs:
         - name: 'Wasmtime on Linux/s390x'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: ubuntu-24.04
+          os: ubuntu-24.04-16core
           arch: s390x
           action: test
           flags: --config=clang --test_timeout=1800
