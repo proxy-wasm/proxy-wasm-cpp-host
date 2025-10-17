@@ -30,9 +30,6 @@
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
 #include "include/proxy-wasm/wasmtime.h"
 #endif
-#if defined(PROXY_WASM_HOST_ENGINE_WASMEDGE)
-#include "include/proxy-wasm/wasmedge.h"
-#endif
 #if defined(PROXY_WASM_HOST_ENGINE_WAMR)
 #include "include/proxy-wasm/wamr.h"
 #endif

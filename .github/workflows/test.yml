@@ -228,19 +228,6 @@ jobs:
           arch: x86_64
           action: test
           cache: true
-        - name: 'WasmEdge on Linux/x86_64'
-          engine: 'wasmedge'
-          repo: 'com_github_wasmedge_wasmedge'
-          os: ubuntu-24.04
-          arch: x86_64
-          action: test
-          flags: --config=clang
-        - name: 'WasmEdge on macOS/x86_64'
-          engine: 'wasmedge'
-          repo: 'com_github_wasmedge_wasmedge'
-          os: macos-13
-          arch: x86_64
-          action: test
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
