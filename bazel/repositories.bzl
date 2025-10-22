@@ -288,22 +288,6 @@ def proxy_wasm_cpp_host_repositories():
         url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/llvm-project-15.0.7.src.tar.xz",
     )
 
-    # WasmEdge with dependencies.
-
-    maybe(
-        http_archive,
-        name = "com_github_wasmedge_wasmedge",
-        build_file = "@proxy_wasm_cpp_host//bazel/external:wasmedge.BUILD",
-        sha256 = "7ab8a0df37c8d282ecff72d0f0bff8db63fd92df1645d5a014a9dbed4b7f9025",
-        strip_prefix = "WasmEdge-proxy-wasm-0.13.1",
-        url = "https://github.com/WasmEdge/WasmEdge/archive/refs/tags/proxy-wasm/0.13.1.tar.gz",
-    )
-
-    native.bind(
-        name = "wasmedge",
-        actual = "@com_github_wasmedge_wasmedge//:wasmedge_lib",
-    )
-
     # Wasmtime with dependencies.
 
     maybe(
