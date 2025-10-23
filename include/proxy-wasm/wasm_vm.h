@@ -114,23 +114,31 @@ using WasmCallback_WWmW = Word (*)(Word, uint64_t, Word);
 using WasmCallback_WWWWWWllWW = Word (*)(Word, Word, Word, Word, Word, int64_t, int64_t, Word,
                                          Word);
 using WasmCallback_dd = double (*)(double);
+// Additional callback types for new WASI functions
+using WasmCallback_WWWWmm = Word (*)(Word, Word, Word, Word, uint64_t, uint64_t);
+using WasmCallback_WWWWmmW = Word (*)(Word, Word, Word, Word, uint64_t, uint64_t, Word);
+using WasmCallback_WWmm = Word (*)(Word, uint64_t, uint64_t);
+using WasmCallback_WWmmW = Word (*)(Word, uint64_t, uint64_t, Word);
+using WasmCallback_WWWWmW = Word (*)(Word, Word, Word, uint64_t, Word);
 
 #define FOR_ALL_WASM_VM_IMPORTS(_f)                                                                \
   _f(proxy_wasm::WasmCallbackVoid<0>) _f(proxy_wasm::WasmCallbackVoid<1>)                          \
       _f(proxy_wasm::WasmCallbackVoid<2>) _f(proxy_wasm::WasmCallbackVoid<3>)                      \
           _f(proxy_wasm::WasmCallbackVoid<4>) _f(proxy_wasm::WasmCallbackWord<0>)                  \
               _f(proxy_wasm::WasmCallbackWord<1>) _f(proxy_wasm::WasmCallbackWord<2>)              \
-                  _f(proxy_wasm::WasmCallbackWord<3>) _f(proxy_wasm::WasmCallbackWord<4>)          \
-                      _f(proxy_wasm::WasmCallbackWord<5>) _f(proxy_wasm::WasmCallbackWord<6>)      \
-                          _f(proxy_wasm::WasmCallbackWord<7>) _f(proxy_wasm::WasmCallbackWord<8>)  \
-                              _f(proxy_wasm::WasmCallbackWord<9>)                                  \
-                                  _f(proxy_wasm::WasmCallbackWord<10>)                             \
-                                      _f(proxy_wasm::WasmCallbackWord<12>)                         \
-                                          _f(proxy_wasm::WasmCallback_WWl)                         \
-                                              _f(proxy_wasm::WasmCallback_WWlWW)                   \
-                                                  _f(proxy_wasm::WasmCallback_WWm)                 \
-                                                      _f(proxy_wasm::WasmCallback_WWmW)            \
-                                                          _f(proxy_wasm::WasmCallback_WWWWWWllWW)  \
+                  _f(proxy_wasm::WasmCallbackWord<3>) _f(proxy_wasm::WasmCallbackWord<4>) _f(      \
+                      proxy_wasm::WasmCallbackWord<5>) _f(proxy_wasm::WasmCallbackWord<6>)         \
+                      _f(proxy_wasm::WasmCallbackWord<7>) _f(proxy_wasm::WasmCallbackWord<8>) _f(  \
+                          proxy_wasm::WasmCallbackWord<9>) _f(proxy_wasm::WasmCallbackWord<10>)    \
+                          _f(proxy_wasm::WasmCallbackWord<12>) _f(proxy_wasm::WasmCallback_WWl)    \
+                              _f(proxy_wasm::WasmCallback_WWlWW) _f(proxy_wasm::WasmCallback_WWm)  \
+                                  _f(proxy_wasm::WasmCallback_WWmW)                                \
+                                      _f(proxy_wasm::WasmCallback_WWWWWWllWW)                      \
+                                          _f(proxy_wasm::WasmCallback_WWWWmm)                      \
+                                              _f(proxy_wasm::WasmCallback_WWWWmmW)                 \
+                                                  _f(proxy_wasm::WasmCallback_WWmm)                \
+                                                      _f(proxy_wasm::WasmCallback_WWmmW)           \
+                                                          _f(proxy_wasm::WasmCallback_WWWWmW)      \
                                                               _f(proxy_wasm::WasmCallback_dd)
 
 enum class Cloneable {
