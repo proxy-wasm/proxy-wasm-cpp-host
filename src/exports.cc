@@ -669,6 +669,11 @@ Word wasi_unstable_fd_prestat_dir_name(Word /*fd*/, Word /*path_ptr*/, Word /*pa
   return 52; // __WASI_ERRNO_ENOSYS
 }
 
+//__wasi_errno_t __wasi_fd_filestat_get(__wasi_fd_t fd,__wasi_filestat_t *retptr0)
+Word wasi_unstable_fd_filestat_get(Word /*fd*/, Word /*buf_ptr*/) {
+  return 8; // __WASI_ERRNO_BADF
+}
+
 // Implementation of writev-like() syscall that redirects stdout/stderr to Envoy
 // logs.
 Word writevImpl(Word fd, Word iovs, Word iovs_len, Word *nwritten_ptr) {
@@ -757,6 +762,14 @@ Word wasi_unstable_fd_close(Word /*fd*/) {
   auto *context = contextOrEffectiveContext();
   context->error("wasi_unstable fd_close");
   return 0;
+}
+
+// __wasi_errno_t __wasi_path_filestat_get(__wasi_fd_t fd,__wasi_lookupflags_t flags,const char
+// *path,size_t path_len,__wasi_filestat_t *buf);
+
+Word wasi_unstable_path_filestat_get(Word /*fd*/, Word /*flags*/, Word /*path*/, Word /*path_len*/,
+                                     Word /*buf*/) {
+  return 58; // __WASI_ENOTSUP
 }
 
 // __wasi_errno_t __wasi_fd_fdstat_get(__wasi_fd_t fd, __wasi_fdstat_t *stat)
@@ -872,6 +885,375 @@ Word wasi_unstable_clock_time_get(Word clock_id, uint64_t /*precision*/,
   return 0; // __WASI_ESUCCESS
 }
 
+// __wasi_errno_t __wasi_clock_res_get(__wasi_clockid_t id, __wasi_timestamp_t *retptr0);
+Word wasi_unstable_clock_res_get(Word clock_id, Word result_resolution_uint64_ptr) {
+  uint64_t result = 0;
+  auto *context = contextOrEffectiveContext();
+
+  switch (clock_id) {
+  case 0 /* realtime */:
+  case 1 /* monotonic */:
+    // Return 1 nanosecond as the resolution for both realtime and monotonic clocks
+    // This is a reasonable default for most systems
+    result = 1;
+    break;
+  default:
+    // process_cputime_id and thread_cputime_id are not supported yet.
+    return 58; // __WASI_ENOTSUP
+  }
+
+  if (!context->wasm()->setDatatype(result_resolution_uint64_ptr, result)) {
+    return 21; // __WASI_EFAULT
+  }
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_fd_advise(__wasi_fd_t fd, __wasi_filesize_t offset, __wasi_filesize_t len,
+// __wasi_advice_t advice);
+Word wasi_unstable_fd_advise(Word fd, uint64_t offset, uint64_t len, Word advice) {
+  // fd_advise is used to provide advice about the expected behavior of the application with respect
+  // to a file. Since we don't have a real file system in proxy-wasm, we can just return success
+  // without doing anything. This is similar to how other file-related functions are implemented in
+  // this codebase.
+
+  // We could check if fd is valid (e.g., stdout/stderr), but since this is just a hint and not
+  // required for correctness, we'll just return success for any fd.
+
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_fd_allocate(__wasi_fd_t fd, __wasi_filesize_t offset, __wasi_filesize_t
+// len);
+Word wasi_unstable_fd_allocate(Word fd, uint64_t offset, uint64_t len) {
+  // fd_allocate is used to ensure that space is allocated for a file.
+  // Since we don't have a real file system in proxy-wasm, we can just return success without doing
+  // anything. This is similar to how other file-related functions are implemented in this codebase.
+
+  // We only support stdout and stderr in proxy-wasm, which don't need allocation
+  if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
+    return 8; // __WASI_ERRNO_BADF - Bad file descriptor
+  }
+
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_fd_datasync(__wasi_fd_t fd);
+Word wasi_unstable_fd_datasync(Word fd) {
+  // fd_datasync is used to synchronize the data of a file to disk.
+  // Since we don't have a real file system in proxy-wasm, we can just return success for
+  // stdout/stderr and an error for other file descriptors.
+
+  // We only support stdout and stderr in proxy-wasm
+  if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
+    return 8; // __WASI_ERRNO_BADF - Bad file descriptor
+  }
+
+  // For stdout and stderr, there's no need to sync as they're handled by the host system
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_fd_fdstat_set_rights(__wasi_fd_t fd, __wasi_rights_t fs_rights_base,
+// __wasi_rights_t fs_rights_inheriting);
+Word wasi_unstable_fd_fdstat_set_rights(Word fd, uint64_t fs_rights_base,
+                                        uint64_t fs_rights_inheriting) {
+  // fd_fdstat_set_rights is used to adjust the rights associated with a file descriptor.
+  // Since we don't have a real file system in proxy-wasm, we can just return success for
+  // stdout/stderr and an error for other file descriptors.
+
+  // We only support stdout and stderr in proxy-wasm
+  if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
+    return 8; // __WASI_ERRNO_BADF - Bad file descriptor
+  }
+
+  // For stdout and stderr, we don't actually change any rights, but we can pretend it succeeded
+  // This is similar to how other file-related functions are implemented in this codebase
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_fd_filestat_set_size(__wasi_fd_t fd, __wasi_filesize_t size);
+Word wasi_unstable_fd_filestat_set_size(Word fd, uint64_t size) {
+  // fd_filestat_set_size is used to adjust the size of a file, similar to ftruncate.
+  // Since we don't have a real file system in proxy-wasm, we can just return success for
+  // stdout/stderr and an error for other file descriptors.
+
+  // We only support stdout and stderr in proxy-wasm
+  if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
+    return 8; // __WASI_ERRNO_BADF - Bad file descriptor
+  }
+
+  // For stdout and stderr, we don't actually change any size, but we can pretend it succeeded
+  // This is similar to how other file-related functions are implemented in this codebase
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_fd_filestat_set_times(__wasi_fd_t fd, __wasi_timestamp_t atim,
+// __wasi_timestamp_t mtim, __wasi_fstflags_t fst_flags);
+Word wasi_unstable_fd_filestat_set_times(Word fd, uint64_t atim, uint64_t mtim, Word fst_flags) {
+  // fd_filestat_set_times is used to set the access and modification times of a file.
+  // Since we don't have a real file system in proxy-wasm, we can just return success for
+  // stdout/stderr and an error for other file descriptors.
+
+  // We only support stdout and stderr in proxy-wasm
+  if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
+    return 8; // __WASI_ERRNO_BADF - Bad file descriptor
+  }
+
+  // For stdout and stderr, we don't actually change any times, but we can pretend it succeeded
+  // This is similar to how other file-related functions are implemented in this codebase
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_fd_pread(__wasi_fd_t fd, const __wasi_iovec_t *iovs, size_t iovs_len,
+// __wasi_filesize_t offset, __wasi_size_t *retptr0);
+Word wasi_unstable_fd_pread(Word fd, Word iovs_ptr, Word iovs_len, uint64_t offset,
+                            Word nread_ptr) {
+  // fd_pread is used to read from a file descriptor at a given offset.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+  // This is similar to how fd_read is implemented in this codebase.
+
+  // We don't support reading from any files in proxy-wasm
+  return 52; // __WASI_ERRNO_ENOSYS - Function not implemented
+}
+
+// __wasi_errno_t __wasi_fd_pwrite(__wasi_fd_t fd, const __wasi_ciovec_t *iovs, size_t iovs_len,
+// __wasi_filesize_t offset, __wasi_size_t *retptr0);
+Word wasi_unstable_fd_pwrite(Word fd, Word iovs_ptr, Word iovs_len, uint64_t offset,
+                             Word nwritten_ptr) {
+  auto *context = contextOrEffectiveContext();
+
+  // fd_pwrite is used to write to a file descriptor at a given offset.
+  // In proxy-wasm, we only support writing to stdout and stderr, and we don't support offsets.
+  // We'll implement this similar to fd_write but return an error for non-stdout/stderr fds.
+
+  // Check if fd is stdout or stderr
+  if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
+    return 8; // __WASI_ERRNO_BADF - Bad file descriptor
+  }
+
+  // For stdout and stderr, we'll just ignore the offset and write the data
+  // This is similar to how fd_write is implemented in this codebase
+  Word nwritten(0);
+  auto result = writevImpl(fd, iovs_ptr, iovs_len, &nwritten);
+  if (result != 0) { // __WASI_ESUCCESS
+    return result;
+  }
+
+  if (!context->wasmVm()->setWord(nwritten_ptr, Word(nwritten))) {
+    return 21; // __WASI_EFAULT
+  }
+
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_fd_readdir(__wasi_fd_t fd, uint8_t *buf, __wasi_size_t buf_len,
+// __wasi_dircookie_t cookie, __wasi_size_t *retptr0);
+Word wasi_unstable_fd_readdir(Word fd, Word buf_ptr, Word buf_len, uint64_t cookie,
+                              Word nread_ptr) {
+  auto *context = contextOrEffectiveContext();
+
+  // fd_readdir is used to read directory entries from a directory.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  // Set the number of bytes read to 0
+  if (!context->wasmVm()->setWord(nread_ptr, Word(0))) {
+    return 21; // __WASI_EFAULT
+  }
+
+  // Return ENOTDIR (Not a directory) error
+  return 20; // __WASI_ENOTDIR
+}
+
+// __wasi_errno_t __wasi_fd_renumber(__wasi_fd_t fd, __wasi_fd_t to);
+Word wasi_unstable_fd_renumber(Word fd, Word to) {
+  // fd_renumber is used to atomically replace a file descriptor by renumbering another file
+  // descriptor. In proxy-wasm, we only support stdout and stderr, which are fixed file descriptors.
+
+  // Check if both file descriptors are valid (stdout or stderr)
+  if ((fd != 1 /* stdout */ && fd != 2 /* stderr */) ||
+      (to != 1 /* stdout */ && to != 2 /* stderr */)) {
+    return 8; // __WASI_ERRNO_BADF - Bad file descriptor
+  }
+
+  // We don't actually support renumbering stdout and stderr, so return an error
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_fd_sync(__wasi_fd_t fd);
+Word wasi_unstable_fd_sync(Word fd) {
+  // fd_sync is used to synchronize a file's in-core state with the storage device.
+  // Since we don't have a real file system in proxy-wasm, we can just return success for
+  // stdout/stderr and an error for other file descriptors.
+
+  // We only support stdout and stderr in proxy-wasm
+  if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
+    return 8; // __WASI_ERRNO_BADF - Bad file descriptor
+  }
+
+  // For stdout and stderr, there's no need to sync as they're handled by the host system
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_fd_tell(__wasi_fd_t fd, __wasi_filesize_t *retptr0);
+Word wasi_unstable_fd_tell(Word fd, Word retptr0) {
+  auto *context = contextOrEffectiveContext();
+
+  // fd_tell is used to get the current offset of a file descriptor.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  // We only support stdout and stderr in proxy-wasm, which don't support seeking
+  if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
+    return 8; // __WASI_ERRNO_BADF - Bad file descriptor
+  }
+
+  // For stdout and stderr, we'll just return 0 as the offset
+  if (!context->wasm()->setDatatype(retptr0, uint64_t(0))) {
+    return 21; // __WASI_EFAULT
+  }
+
+  return 0; // __WASI_ESUCCESS
+}
+
+// __wasi_errno_t __wasi_path_create_directory(__wasi_fd_t fd, const char *path);
+Word wasi_unstable_path_create_directory(Word fd, Word path_ptr, Word path_len) {
+  // path_create_directory is used to create a directory.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_path_filestat_set_times(__wasi_fd_t fd, __wasi_lookupflags_t flags, const
+// char *path, __wasi_timestamp_t atim, __wasi_timestamp_t mtim, __wasi_fstflags_t fst_flags);
+Word wasi_unstable_path_filestat_set_times(Word fd, Word flags, Word path_ptr, Word path_len,
+                                           uint64_t atim, uint64_t mtim, Word fst_flags) {
+  // path_filestat_set_times is used to set the access and modification times of a file by path.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_path_link(__wasi_fd_t old_fd, __wasi_lookupflags_t old_flags, const char
+// *old_path, __wasi_fd_t new_fd, const char *new_path);
+Word wasi_unstable_path_link(Word old_fd, Word old_flags, Word old_path_ptr, Word old_path_len,
+                             Word new_fd, Word new_path_ptr) {
+  // path_link is used to create a hard link.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_path_readlink(__wasi_fd_t fd, const char *path, uint8_t *buf, __wasi_size_t
+// buf_len, __wasi_size_t *retptr0);
+Word wasi_unstable_path_readlink(Word fd, Word path_ptr, Word path_len, Word buf_ptr, Word buf_len,
+                                 Word retptr0) {
+  auto *context = contextOrEffectiveContext();
+
+  // path_readlink is used to read the contents of a symbolic link.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  // Set the number of bytes read to 0
+  if (!context->wasmVm()->setWord(retptr0, Word(0))) {
+    return 21; // __WASI_EFAULT
+  }
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_path_remove_directory(__wasi_fd_t fd, const char *path);
+Word wasi_unstable_path_remove_directory(Word fd, Word path_ptr, Word path_len) {
+  // path_remove_directory is used to remove a directory.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_path_rename(__wasi_fd_t fd, const char *old_path, __wasi_fd_t new_fd, const
+// char *new_path);
+Word wasi_unstable_path_rename(Word fd, Word old_path_ptr, Word old_path_len, Word new_fd,
+                               Word new_path_ptr, Word new_path_len) {
+  // path_rename is used to rename a file or directory.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_path_symlink(const char *old_path, __wasi_fd_t fd, const char *new_path);
+Word wasi_unstable_path_symlink(Word old_path_ptr, Word old_path_len, Word fd, Word new_path_ptr) {
+  // path_symlink is used to create a symbolic link.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_path_unlink_file(__wasi_fd_t fd, const char *path);
+Word wasi_unstable_path_unlink_file(Word fd, Word path_ptr, Word path_len) {
+  // path_unlink_file is used to unlink a file.
+  // Since we don't have a real file system in proxy-wasm, we can just return an error.
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_sock_accept(__wasi_fd_t fd, __wasi_fdflags_t flags, __wasi_fd_t *retptr0);
+Word wasi_unstable_sock_accept(Word fd, Word flags, Word retptr0) {
+  auto *context = contextOrEffectiveContext();
+
+  // sock_accept is used to accept a new connection on a socket.
+  // Since we don't have socket support in proxy-wasm, we can just return an error.
+
+  // Set the returned file descriptor to an invalid value
+  if (!context->wasm()->setDatatype(retptr0, uint32_t(0))) {
+    return 21; // __WASI_EFAULT
+  }
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_sock_recv(__wasi_fd_t fd, const __wasi_iovec_t *ri_data, size_t
+// ri_data_len, __wasi_riflags_t ri_flags, __wasi_size_t *retptr0, __wasi_roflags_t *retptr1);
+Word wasi_unstable_sock_recv(Word fd, Word ri_data_ptr, Word ri_data_len, Word ri_flags,
+                             Word retptr0, Word retptr1) {
+  auto *context = contextOrEffectiveContext();
+
+  // sock_recv is used to receive data from a socket.
+  // Since we don't have socket support in proxy-wasm, we can just return an error.
+
+  // Set the number of bytes received to 0
+  if (!context->wasmVm()->setWord(retptr0, Word(0))) {
+    return 21; // __WASI_EFAULT
+  }
+
+  // Set the output flags to 0
+  if (!context->wasm()->setDatatype(retptr1, uint16_t(0))) {
+    return 21; // __WASI_EFAULT
+  }
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_sock_send(__wasi_fd_t fd, const __wasi_ciovec_t *si_data, size_t
+// si_data_len, __wasi_siflags_t si_flags, __wasi_size_t *retptr0);
+Word wasi_unstable_sock_send(Word fd, Word si_data_ptr, Word si_data_len, Word si_flags,
+                             Word retptr0) {
+  auto *context = contextOrEffectiveContext();
+
+  // sock_send is used to send data on a socket.
+  // Since we don't have socket support in proxy-wasm, we can just return an error.
+
+  // Set the number of bytes sent to 0
+  if (!context->wasmVm()->setWord(retptr0, Word(0))) {
+    return 21; // __WASI_EFAULT
+  }
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
+// __wasi_errno_t __wasi_sock_shutdown(__wasi_fd_t fd, __wasi_sdflags_t how);
+Word wasi_unstable_sock_shutdown(Word fd, Word how) {
+  // sock_shutdown is used to shut down part of a full-duplex connection.
+  // Since we don't have socket support in proxy-wasm, we can just return an error.
+
+  return 58; // __WASI_ENOTSUP - Not supported
+}
+
 // __wasi_errno_t __wasi_random_get(uint8_t *buf, size_t buf_len);
 Word wasi_unstable_random_get(Word result_buf_ptr, Word buf_len) {
   if (buf_len > PROXY_WASM_HOST_WASI_RANDOM_GET_MAX_SIZE_BYTES) {
@@ -900,8 +1282,15 @@ Word wasi_unstable_sched_yield() {
 // __wasi_errno_t __wasi_poll_oneoff(const __wasi_subscription_t *in, __wasi_event_t *out,
 // __wasi_size_t nsubscriptions, __wasi_size_t *nevents)
 Word wasi_unstable_poll_oneoff(Word /*in*/, Word /*out*/, Word /*nsubscriptions*/,
-                               Word /*nevents_ptr*/) {
-  return 52; // __WASI_ERRNO_ENOSYS
+                               Word nevents_ptr) {
+  auto *context = contextOrEffectiveContext();
+
+  // Since we are not performing event polling, directly set nevents to 0
+  if (!context->wasmVm()->setWord(nevents_ptr, Word(0))) {
+    return 21; // __WASI_EFAULT - If there is a failure setting memory
+  }
+
+  return 0; // __WASI_ESUCCESS
 }
 
 // void __wasi_proc_exit(__wasi_exitcode_t rval);
