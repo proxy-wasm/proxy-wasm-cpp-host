@@ -378,8 +378,7 @@ ContextBase *WasmBase::getRootContext(const std::shared_ptr<PluginBase> &plugin,
 void WasmBase::startVm(ContextBase *root_context) {
   // wasi_snapshot_preview1.clock_time_get
   wasm_vm_->setRestrictedCallback(
-      true, {
-             // emscripten
+      true, {// emscripten
              "env.emscripten_notify_memory_growth",
              // logging (Proxy-Wasm)
              "env.proxy_log",
