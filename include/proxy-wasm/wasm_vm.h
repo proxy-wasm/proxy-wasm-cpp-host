@@ -149,6 +149,8 @@ struct WasmVmIntegration {
   virtual WasmVmIntegration *clone() = 0;
   virtual proxy_wasm::LogLevel getLogLevel() = 0;
   virtual void error(std::string_view message) = 0;
+  // Allow integrations to handle specific FailStates differently.
+  virtual void error(FailState fail_state, std::string_view message) { error(message); }
   virtual void trace(std::string_view message) = 0;
   // Get a NullVm implementation of a function.
   // @param function_name is the name of the function with the implementation specific prefix.
@@ -315,11 +317,7 @@ public:
 
   bool isFailed() { return failed_ != FailState::Ok; }
   void fail(FailState fail_state, std::string_view message) {
-    if (fail_state == FailState::RuntimeError) {
-      integration()->error(std::string(PluginCrashPrefix) + std::string(message));
-    } else {
-      integration()->error(message);
-    }
+    integration()->error(fail_state, message);
     failed_ = fail_state;
     for (auto &callback : fail_callbacks_) {
       callback(fail_state);
@@ -349,7 +347,6 @@ protected:
   std::vector<std::function<void(FailState)>> fail_callbacks_;
 
 private:
-  static constexpr std::string_view PluginCrashPrefix = "Plugin crash: ";
   bool restricted_callback_{false};
   std::unordered_set<std::string> allowed_hostcalls_{};
 };
