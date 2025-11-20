@@ -55,10 +55,9 @@ TEST_P(TestVm, Init) {
   EXPECT_LE(warm, warm_time_ns_limit);
 
   // Verify that getting a "warm" engine takes at least 50x less time than getting a "cold" one.
-  // We skip NullVM because warm() is a noop, and we skip wasmedge because its engine is initialized
-  // in the constructor vs. on cold start.
-  if (engine_ == "null" || engine_ == "wasmedge") {
-    std::cout << "Skipping warm() performance assertions for " << engine_ << "." << std::endl;
+  // We skip NullVM because warm() is a noop.
+  if (engine_ == "null") {
+    std::cout << "Skipping warm() performance assertions for NullVM." << std::endl;
     return;
   }
   EXPECT_LE(warm * 50, cold);
