@@ -302,6 +302,7 @@ private:
 
 bool WasmEdge::load(std::string_view bytecode, std::string_view /*precompiled*/,
                     const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
+  initStore();
   WasmEdge_ASTModuleContext *mod = nullptr;
   WasmEdge_Result res = WasmEdge_LoaderParseFromBuffer(
       loader_.get(), &mod, reinterpret_cast<const uint8_t *>(bytecode.data()), bytecode.size());
