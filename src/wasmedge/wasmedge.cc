@@ -225,9 +225,6 @@ using HostModuleDataPtr = std::unique_ptr<HostModuleData>;
 class WasmEdge : public WasmVm {
 public:
   WasmEdge() {
-    loader_ = WasmEdge_LoaderCreate(nullptr);
-    validator_ = WasmEdge_ValidatorCreate(nullptr);
-    executor_ = WasmEdge_ExecutorCreate(nullptr, nullptr);
     store_ = nullptr;
     ast_module_ = nullptr;
     module_ = nullptr;
@@ -305,6 +302,7 @@ private:
 
 bool WasmEdge::load(std::string_view bytecode, std::string_view /*precompiled*/,
                     const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
+  initStore();
   WasmEdge_ASTModuleContext *mod = nullptr;
   WasmEdge_Result res = WasmEdge_LoaderParseFromBuffer(
       loader_.get(), &mod, reinterpret_cast<const uint8_t *>(bytecode.data()), bytecode.size());
@@ -324,6 +322,9 @@ void WasmEdge::initStore() {
   if (store_ != nullptr) {
     return;
   }
+  loader_ = WasmEdge_LoaderCreate(nullptr);
+  validator_ = WasmEdge_ValidatorCreate(nullptr);
+  executor_ = WasmEdge_ExecutorCreate(nullptr, nullptr);
   store_ = WasmEdge_StoreCreate();
 }
 
