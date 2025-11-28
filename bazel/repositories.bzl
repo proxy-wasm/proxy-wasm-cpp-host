@@ -143,13 +143,15 @@ def proxy_wasm_cpp_host_repositories():
         urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/7465dee8b2953beebff99f6dc3720ad0c79bab99.tar.gz"],
     )
 
-    # Compile DB dependencies.
     maybe(
         http_archive,
-        name = "bazel_compdb",
-        sha256 = "acd2a9eaf49272bb1480c67d99b82662f005b596a8c11739046a4220ec73c4da",
-        strip_prefix = "bazel-compilation-database-40864791135333e1446a04553b63cbe744d358d0",
-        url = "https://github.com/grailbio/bazel-compilation-database/archive/40864791135333e1446a04553b63cbe744d358d0.tar.gz",
+        name = "hedron_compile_commands",
+        urls = [
+            "https://github.com/hedronvision/bazel-compile-commands-extractor/archive/0e990032f3c5a866e72615cf67e5ce22186dcb97.tar.gz",
+        ],
+        strip_prefix = "bazel-compile-commands-extractor-0e990032f3c5a866e72615cf67e5ce22186dcb97",
+        # SHA256 of the tarball (computed from upstream tag/commit).
+        sha256 = "2b3ee8bba2df4542a508b0289727b031427162b4cd381850f89b406445c17578",
     )
 
     # Test dependencies.

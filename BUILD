@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@hedron_compile_commands//:refresh_compile_commands.bzl", "refresh_compile_commands")
 load(
     "@proxy_wasm_cpp_host//bazel:select.bzl",
     "proxy_wasm_select_engine_null",
@@ -31,6 +32,21 @@ exports_files(["LICENSE"])
 filegroup(
     name = "clang_tidy_config",
     data = [".clang-tidy"],
+)
+
+# Convenience target to refresh `compile_commands.json` for the workspace.
+# Adjust `targets` to what you work on frequently. Using `//:lib` here makes
+# the extractor gather commands for the main library; change to `//...` or a
+# dict of targets with flags if you prefer.
+refresh_compile_commands(
+    name = "refresh_compile_commands",
+    # Align with DEVELOPMENT.md example: include tests and the main lib.
+    # Accepts a string, list, or dict (target->flags). A list will be converted
+    # to a dict by the macro.
+    targets = [
+        "//test/...",
+        "//:lib",
+    ],
 )
 
 cc_library(

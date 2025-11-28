@@ -35,18 +35,48 @@ def generate_compilation_database(args):
 
     source_dir_targets = args.bazel_targets
 
-    subprocess.check_call(["bazel", *bazel_startup_options, "build"] + bazel_options + [
-        "--aspects=@bazel_compdb//:aspects.bzl%compilation_database_aspect",
-        "--output_groups=compdb_files,header_files"
-    ] + source_dir_targets)
+    # Build the list of runtime flags (those accepted by the extractor script)
+    runtime_flags = []
+    if args.include_external:
+        runtime_flags.append("--include_external")
+    if args.include_genfiles:
+        runtime_flags.append("--include_genfiles")
+    if args.include_headers:
+        runtime_flags.append("--include_headers")
+    if args.include_all:
+        runtime_flags.append("--include_all")
+    if args.system_clang:
+        runtime_flags.append("--system-clang")
 
-    execroot = subprocess.check_output(
-        ["bazel", *bazel_startup_options, "info", *bazel_options,
-         "execution_root"]).decode().strip()
+    # Invoke the external Hedron extractor directly and forward both runtime
+    # flags and any positional Bazel targets to it. The extractor is expected
+    # to accept these arguments; this keeps the wrapper simple and makes the
+    # user-visible behavior consistent: calling the Python script is equivalent
+    # to running the external extractor with the same arguments.
+    try:
+        subprocess.check_call([
+            "bazel", *bazel_startup_options, "run", *bazel_options,
+            "@hedron_compile_commands//:refresh_all", "--"
+        ] + runtime_flags + source_dir_targets)
+    except subprocess.CalledProcessError as e:
+        print("ERROR: external Hedron extractor failed to run; please ensure @hedron_compile_commands is available and the provided arguments are valid for the extractor.")
+        raise e
 
+    # The extractor writes a single `compile_commands.json` into the workspace
+    # root. Prefer that file; fall back to searching the execroot for legacy
+    # `*.compile_commands.json` files if the extractor didn't produce one.
     db_entries = []
-    for db in Path(execroot).glob('**/*.compile_commands.json'):
-        db_entries.extend(json.loads(db.read_text()))
+    # Ensure we always have execroot available for any `__EXEC_ROOT__` markers.
+    execroot = subprocess.check_output(
+        ["bazel", *bazel_startup_options, "info", *bazel_options, "execution_root"]
+    ).decode().strip()
+
+    cc_path = Path("compile_commands.json")
+    if cc_path.exists():
+        db_entries = json.loads(cc_path.read_text())
+    else:
+        for db in Path(execroot).glob('**/*.compile_commands.json'):
+            db_entries.extend(json.loads(db.read_text()))
 
     def replace_execroot_marker(db_entry):
         if 'directory' in db_entry and db_entry['directory'] == '__EXEC_ROOT__':
