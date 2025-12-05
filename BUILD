@@ -186,7 +186,6 @@ cc_library(
     name = "wasmtime_lib",
     srcs = [
         "src/common/types.h",
-        "src/wasmtime/types.h",
         "src/wasmtime/wasmtime.cc",
     ],
     hdrs = ["include/proxy-wasm/wasmtime.h"],
@@ -197,6 +196,7 @@ cc_library(
         "PROXY_WASM_HAS_RUNTIME_WASMTIME",
         "PROXY_WASM_HOST_ENGINE_WASMTIME",
     ],
+    includes = ["@com_github_bytecodealliance_wasmtime//:wasmtime_lib"],
     # See: https://bytecodealliance.github.io/wasmtime/c-api/
     linkopts = select({
         "@platforms//os:macos": [],
@@ -221,65 +221,6 @@ cc_library(
     ],
 )
 
-genrule(
-    name = "prefixed_wasmtime_sources",
-    srcs = [
-        "src/wasmtime/types.h",
-        "src/wasmtime/wasmtime.cc",
-    ],
-    outs = [
-        "src/wasmtime/prefixed_types.h",
-        "src/wasmtime/prefixed_wasmtime.cc",
-    ],
-    cmd = """
-        for file in $(SRCS); do
-           sed -e 's/wasm_/wasmtime_wasm_/g' \
-               -e 's/include\\/wasm.h/include\\/prefixed_wasm.h/g' \
-               -e 's/wasmtime\\/types.h/wasmtime\\/prefixed_types.h/g' \
-           $$file >$(@D)/$$(dirname $$file)/prefixed_$$(basename $$file)
-        done
-        """,
-)
-
-cc_library(
-    name = "prefixed_wasmtime_lib",
-    srcs = [
-        "src/common/types.h",
-        "src/wasmtime/prefixed_types.h",
-        "src/wasmtime/prefixed_wasmtime.cc",
-    ],
-    hdrs = ["include/proxy-wasm/wasmtime.h"],
-    copts = [
-        "-DWASM_API_EXTERN=",
-    ],
-    defines = [
-        "PROXY_WASM_HAS_RUNTIME_WASMTIME",
-        "PROXY_WASM_HOST_ENGINE_WASMTIME",
-    ],
-    # See: https://bytecodealliance.github.io/wasmtime/c-api/
-    linkopts = select({
-        "@platforms//os:macos": [],
-        "@platforms//os:windows": [
-            "ws2_32.lib",
-            "advapi32.lib",
-            "userenv.lib",
-            "ntdll.lib",
-            "shell32.lib",
-            "ole32.lib",
-            "bcrypt.lib",
-        ],
-        "//conditions:default": [
-            "-ldl",
-            "-lm",
-            "-lpthread",
-        ],
-    }),
-    deps = [
-        ":wasm_vm_headers",
-        "//external:prefixed_wasmtime",
-    ],
-)
-
 cc_library(
     name = "lib",
     deps = [
@@ -294,6 +235,5 @@ cc_library(
         [":wasmedge_lib"],
     ) + proxy_wasm_select_engine_wasmtime(
         [":wasmtime_lib"],
-        [":prefixed_wasmtime_lib"],
     ),
 )

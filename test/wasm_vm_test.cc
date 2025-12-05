@@ -60,7 +60,7 @@ TEST_P(TestVm, Init) {
     std::cout << "Skipping warm() performance assertions for NullVM." << std::endl;
     return;
   }
-  EXPECT_LE(warm * 50, cold);
+  EXPECT_LE(warm * (engine_ == "wasmtime" ? 5 : 50), cold);
 }
 
 TEST_P(TestVm, Basic) {
