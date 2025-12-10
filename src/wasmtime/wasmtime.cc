@@ -158,10 +158,47 @@ bool Wasmtime::load(std::string_view bytecode, std::string_view /*precompiled*/,
     return false;
   }
 
-  Result<Module> module =
-      Module::compile(*engine(), std::span((uint8_t *)bytecode.data(), bytecode.size()));
+  if (bytecode.size() < 4) {
+    fail(FailState::UnableToInitializeCode, "Input bytes are too short to determine format.");
+    return false;
+  }
+
+  // Inspect the magic bytes to determine format.
+  const uint32_t magic = *reinterpret_cast<const uint32_t*>(bytecode.data());
+  const uint32_t wasm_magic = 0x6d736100; // Little-endian for: \0asm
+  const uint32_t elf_magic = 0x464c457f;  // Little-endian for: \x7fELF
+
+  // 1. Fix: Initialize 'module' to a default Error. This avoids the uninitialized variable error.
+  Result<Module> module = Result<Module>(::wasmtime::Error("Uninitialized module result"));
+  
+  // Get raw data and size. We must cast away constness because the Wasmtime C++ API 
+  // you are using seems to only provide overloads accepting a mutable Span<uint8_t>, 
+  // even for read operations like compile and deserialize.
+  uint8_t* data = const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(bytecode.data()));
+  size_t size = bytecode.size();
+  
+  // Use the wasmtime::Span type expected by the API.
+  ::wasmtime::Span<uint8_t> code_span(data, size);
+
+  if (magic == elf_magic) {
+    // --- FAST PATH: Precompiled Wasmtime artifact (ELF) ---
+    integration()->trace("AOT/ELF magic detected. Attempting to deserialize Wasmtime module (Fast Path).");
+    // 2. Fix: Use the two-argument Span overload.
+    module = Module::deserialize(*engine(), code_span);
+  } else if (magic == wasm_magic) {
+    // --- SLOW PATH: Raw Wasm bytecode ---
+    integration()->trace("Wasm magic detected. Compiling Wasm module (Slow Path).");
+    // 3. Fix: Use the two-argument Span overload.
+    module = Module::compile(*engine(), code_span);
+  } else {
+    // Unknown file format
+    fail(FailState::UnableToInitializeCode, "Input bytes have unknown format.");
+    return false;
+  }
+
   if (!module) {
-    fail(FailState::UnableToInitializeCode, "Failed to load Wasm code: " + module.err().message());
+    fail(FailState::UnableToInitializeCode, 
+         "Failed to load/deserialize Wasm module: " + module.err().message());
     return false;
   }
   module_.emplace(module.ok());
