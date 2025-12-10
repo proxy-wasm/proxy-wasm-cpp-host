@@ -23,6 +23,8 @@ exports_files(
 
 # Run this target to regenerate cargo_lockfile and vendor_path/*.
 # $ bazelisk run bazel/cargo/wasmtime:crates_vendor -- --repin
+# NOTE: You must change the wasmtime-c-api-impl to rust_static_library after repinning:
+# `sed -i.bak -e 's/rust_library/rust_static_library/g' bazel/cargo/wasmtime/remote/BUILD.wasmtime-c-api-impl-*.bazel`
 crates_vendor(
     name = "crates_vendor",
     cargo_lockfile = ":Cargo.Bazel.lock",
