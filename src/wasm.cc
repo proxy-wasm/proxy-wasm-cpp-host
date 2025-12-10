@@ -274,7 +274,7 @@ bool WasmBase::load(const std::string &code, bool allow_precompiled) {
 
   // Get ABI version from the module.
   if (!BytecodeUtil::getAbiVersion(code, abi_version_)) {
-    fail(FailState::UnableToInitializeCode, "Failed to parse corrupted Wasm module");
+    fail(FailState::UnableToInitializeCode, "FAILING HERE: Failed to parse corrupted Wasm module");
     return false;
   }
   if (abi_version_ == AbiVersion::Unknown) {
