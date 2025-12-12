@@ -182,7 +182,6 @@ bool Wasmtime::load(std::string_view bytecode, std::string_view /*precompiled*/,
 
   if (magic == elf_magic) {
     // --- FAST PATH: Precompiled Wasmtime artifact (ELF) ---
-    integration()->trace("AOT/ELF magic detected. Attempting to deserialize Wasmtime module (Fast Path).");
     // 2. Fix: Use the two-argument Span overload.
     module = Module::deserialize(*engine(), code_span);
   } else if (magic == wasm_magic) {

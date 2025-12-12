@@ -200,6 +200,11 @@ void WasmBase::getFunctions() {
     _GET_PROXY_ABI(on_request_headers, _abi_02);
     _GET_PROXY_ABI(on_response_headers, _abi_02);
     _GET_PROXY(on_foreign_function);
+  } else {
+    // Hardcoded for WasmTime AOT.
+    _GET_PROXY_ABI(on_request_headers, _abi_02);
+    _GET_PROXY_ABI(on_response_headers, _abi_02);
+    _GET_PROXY(on_foreign_function);
   }
 #undef _GET_PROXY_ABI
 #undef _GET_PROXY
