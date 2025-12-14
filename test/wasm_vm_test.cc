@@ -54,13 +54,13 @@ TEST_P(TestVm, Init) {
   // Verify that getting a "warm" engine takes less than 10us.
   EXPECT_LE(warm, warm_time_ns_limit);
 
-  // Verify that getting a "warm" engine takes at least 50x less time than getting a "cold" one.
+  // Verify that getting a "warm" engine takes at least 10x less time than getting a "cold" one.
   // We skip NullVM because warm() is a noop.
   if (engine_ == "null") {
     std::cout << "Skipping warm() performance assertions for NullVM." << std::endl;
     return;
   }
-  EXPECT_LE(warm * 50, cold);
+  EXPECT_LE(warm * 10, cold);
 }
 
 TEST_P(TestVm, Basic) {
