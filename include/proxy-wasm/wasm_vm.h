@@ -161,7 +161,7 @@ struct WasmVmIntegration {
   virtual proxy_wasm::LogLevel getLogLevel() = 0;
   virtual void error(std::string_view message) = 0;
   // Allow integrations to handle specific FailStates differently.
-  virtual void error(FailState fail_state, std::string_view message) { error(message); }
+  virtual void error(FailState, std::string_view message) { error(message); }
   virtual void trace(std::string_view message) = 0;
   // Get a NullVm implementation of a function.
   // @param function_name is the name of the function with the implementation specific prefix.
