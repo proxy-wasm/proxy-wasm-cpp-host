@@ -150,7 +150,7 @@ public:
               const std::shared_ptr<PluginHandleBase> &plugin_handle); // Stream context.
   virtual ~ContextBase();
 
-  virtual WasmBase *wasm() const { return wasm_; }
+  WasmBase *wasm() const { return wasm_; }
   uint32_t id() const { return id_; }
   // The VM Context used for calling "malloc" has an id_ == 0.
   bool isVmContext() const { return id_ == 0; }
