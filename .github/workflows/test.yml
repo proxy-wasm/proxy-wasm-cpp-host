@@ -194,7 +194,7 @@ jobs:
         - name: 'V8 on macOS/x86_64'
           engine: 'v8'
           repo: 'v8'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
           flags: --config=hermetic-llvm-macos
@@ -209,7 +209,7 @@ jobs:
         - name: 'WAMR interp on macOS/x86_64'
           engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
         - name: 'WAMR jit on Linux/x86_64'
@@ -224,7 +224,7 @@ jobs:
         - name: 'WAMR jit on macOS/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
           cache: true
@@ -238,7 +238,7 @@ jobs:
         - name: 'WasmEdge on macOS/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
         - name: 'Wasmtime on Linux/x86_64'
@@ -275,7 +275,7 @@ jobs:
         - name: 'Wasmtime on macOS/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
 

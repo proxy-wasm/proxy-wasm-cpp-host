@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@aspect_rules_lint//format:repositories.bzl", "rules_lint_dependencies")
+load("@bazel_lib//lib:repositories.bzl", "bazel_lib_dependencies", "bazel_lib_register_toolchains")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@envoy_toolshed//sysroot:sysroot.bzl", "setup_sysroots")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign/remote:crates.bzl", wasmsign_crate_repositories = "crate_repositories")
@@ -24,6 +26,11 @@ load("@toolchains_llvm//toolchain:rules.bzl", "llvm_toolchain")
 
 def proxy_wasm_cpp_host_dependencies():
     # Bazel extensions.
+
+    rules_lint_dependencies()
+
+    bazel_lib_dependencies()
+    bazel_lib_register_toolchains()
 
     py_repositories()
     python_register_toolchains(
@@ -41,7 +48,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasi",  # TODO: Change to wasm32-wasip1 once https://github.com/bazelbuild/rules_rust/issues/2782 is fixed
         ],
-        version = "1.77.2",
+        versions = ["1.77.2"],
     )
     rust_repository_set(
         name = "rust_linux_s390x",
@@ -50,7 +57,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasi",
         ],
-        version = "1.77.2",
+        versions = ["1.77.2"],
     )
     crate_universe_dependencies(bootstrap = True)
 
