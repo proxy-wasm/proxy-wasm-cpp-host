@@ -64,7 +64,6 @@ def _wasm_attrs(transition):
         "binary": attr.label(mandatory = True, cfg = transition),
         "signing_key": attr.label_list(allow_files = True),
         "_wasmsign_tool": attr.label(default = "//bazel/cargo/wasmsign/remote:wasmsign__wasmsign", executable = True, cfg = "exec"),
-        "_whitelist_function_transition": attr.label(default = "@bazel_tools//tools/whitelists/function_transition_whitelist"),
     }
 
 wasm_rust_binary_rule = rule(
@@ -83,7 +82,7 @@ def wasm_rust_binary(name, tags = [], wasi = False, signing_key = [], **kwargs):
 
     rust_binary(
         name = wasm_name,
-        edition = "2018",
+        edition = "2024",
         crate_type = "cdylib",
         out_binary = True,
         tags = ["manual"],

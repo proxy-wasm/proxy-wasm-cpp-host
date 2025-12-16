@@ -32,6 +32,12 @@ filegroup(
 
 # Workspace Member Dependencies
 alias(
+    name = "wasmsign-0.1.2",
+    actual = "@cu__wasmsign-0.1.2//:wasmsign",
+    tags = ["manual"],
+)
+
+alias(
     name = "wasmsign",
     actual = "@cu__wasmsign-0.1.2//:wasmsign",
     tags = ["manual"],
