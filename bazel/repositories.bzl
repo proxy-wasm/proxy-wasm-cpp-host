@@ -43,9 +43,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_cc",
-        sha256 = "2037875b9a4456dce4a79d112a8ae885bbc4aad968e6587dca6e64f3a0900cdf",
-        strip_prefix = "rules_cc-0.0.9",
-        urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz"],
+        sha256 = "b8b918a85f9144c01f6cfe0f45e4f2838c7413961a8ff23bc0c6cdf8bb07a3b6",
+        strip_prefix = "rules_cc-0.1.5",
+        urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.1.5/rules_cc-0.1.5.tar.gz"],
     )
 
     maybe(
@@ -112,18 +112,12 @@ def proxy_wasm_cpp_host_repositories():
 
     # Core deps. Keep them updated.
 
-    # Note: we depend on Abseil via rules_fuzzing. Remove this pin when we update that.
-    #
-    # This is the latest LTS release, which picks up:
-    # - Build fix: https://github.com/abseil/abseil-cpp/pull/1187
-    # - A bugfix found in local fuzzing:
-    #   https://github.com/abseil/abseil-cpp/commit/e7858c73279d81cbc005d9c76a385ab535520635
     maybe(
         http_archive,
         name = "com_google_absl",
-        sha256 = "733726b8c3a6d39a4120d7e45ea8b41a434cdacde401cba500f14236c49b39dc",
-        strip_prefix = "abseil-cpp-20240116.2",
-        urls = ["https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz"],
+        sha256 = "1692f77d1739bacf3f94337188b78583cf09bab7e420d2dc6c5605a4f86785a1",
+        strip_prefix = "abseil-cpp-20250814.1",
+        urls = ["https://github.com/abseil/abseil-cpp/archive/20250814.1.tar.gz"],
     )
 
     maybe(
@@ -177,10 +171,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         git_repository,
         name = "v8",
-        # 13.8.258.26
-        commit = "de9d0f8b56ae61896e4d2ac577fc589efb14f87d",
+        # 14.3.127.16
+        commit = "beee9f5cafde91bbd086077a11db16cb9768e62a",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1752074621 -0400",
+        shallow_since = "1752074621 -0700",
         patches = [
             "@proxy_wasm_cpp_host//bazel/external:v8.patch",
         ],
