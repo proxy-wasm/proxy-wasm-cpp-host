@@ -133,7 +133,7 @@ cc_library(
     ],
     deps = [
         ":wasm_vm_headers",
-        "//external:wee8",
+        "@v8//:wee8",
     ],
 )
 
@@ -151,7 +151,7 @@ cc_library(
     ],
     deps = [
         ":wasm_vm_headers",
-        "//external:wamr",
+        "@com_github_bytecodealliance_wasm_micro_runtime//:wamr_lib",
     ],
 )
 
@@ -178,7 +178,7 @@ cc_library(
     }),
     deps = [
         ":wasm_vm_headers",
-        "//external:wasmedge",
+        "@com_github_wasmedge_wasmedge//:wasmedge_lib",
     ],
 )
 
@@ -217,7 +217,7 @@ cc_library(
     }),
     deps = [
         ":wasm_vm_headers",
-        "//external:wasmtime",
+        "@com_github_bytecodealliance_wasmtime//:wasmtime_lib",
     ],
 )
 
@@ -276,7 +276,7 @@ cc_library(
     }),
     deps = [
         ":wasm_vm_headers",
-        "//external:prefixed_wasmtime",
+        "@com_github_bytecodealliance_wasmtime//:prefixed_wasmtime_lib",
     ],
 )
 
