@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@aspect_rules_lint//format:repositories.bzl", "rules_lint_dependencies")
+load("@bazel_lib//lib:repositories.bzl", "bazel_lib_dependencies", "bazel_lib_register_toolchains")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@envoy_toolshed//sysroot:sysroot.bzl", "setup_sysroots")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign/remote:crates.bzl", wasmsign_crate_repositories = "crate_repositories")
@@ -53,6 +55,11 @@ def proxy_wasm_cpp_host_dependencies():
         version = "1.77.2",
     )
     crate_universe_dependencies(bootstrap = True)
+
+    # Aspect dependencies for clang-tidy integration
+    rules_lint_dependencies()
+    bazel_lib_dependencies()
+    bazel_lib_register_toolchains()
 
     setup_sysroots()
     bazel_toolchain_dependencies()

@@ -48,14 +48,42 @@ def proxy_wasm_cpp_host_repositories():
         urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz"],
     )
 
+    # aspect_rules_lint v1.12.0 for modern clang-tidy integration
     maybe(
         http_archive,
-        name = "bazel_clang_tidy",
-        sha256 = "6ed23cbff9423a30ef10becf57210a26d54fe198a211f4037d931c06f843c023",
-        strip_prefix = "bazel_clang_tidy-c2fe98cfec0430e78bff4169e9ca0a43123e4c99",
-        url = "https://github.com/erenon/bazel_clang_tidy/archive/c2fe98cfec0430e78bff4169e9ca0a43123e4c99.tar.gz",
-        patches = ["@proxy_wasm_cpp_host//bazel/external:bazel_clang_tidy.patch"],
-        patch_args = ["-p1"],
+        name = "aspect_rules_lint",
+        sha256 = "a8a63bd071a39bd5be1f99d9f258eac674673c98505f9fc5b4c76587f67278cd",
+        strip_prefix = "rules_lint-1.12.0",
+        url = "https://github.com/aspect-build/rules_lint/releases/download/v1.12.0/rules_lint-v1.12.0.tar.gz",
+    )
+
+    # bazel_lib v3.0.1 required by aspect_rules_lint v1.12.0
+    maybe(
+        http_archive,
+        name = "bazel_lib",
+        sha256 = "8b074b1a2731d29f6b95defdca95297354dc424492caf7019cf6b9f36afba54f",
+        strip_prefix = "bazel-lib-3.0.1",
+        url = "https://github.com/bazel-contrib/bazel-lib/releases/download/v3.0.1/bazel-lib-v3.0.1.tar.gz",
+    )
+
+    # aspect_bazel_lib alias for aspect_rules_js v2.1.2 compatibility
+    # aspect_rules_js expects @aspect_bazel_lib while aspect_rules_lint expects @bazel_lib
+    # Both repos reference the same bazel-lib v3.0.1 release to maintain consistency
+    maybe(
+        http_archive,
+        name = "aspect_bazel_lib",
+        sha256 = "8b074b1a2731d29f6b95defdca95297354dc424492caf7019cf6b9f36afba54f",
+        strip_prefix = "bazel-lib-3.0.1",
+        url = "https://github.com/bazel-contrib/bazel-lib/releases/download/v3.0.1/bazel-lib-v3.0.1.tar.gz",
+    )
+
+    # aspect_rules_js is required by aspect_rules_lint
+    maybe(
+        http_archive,
+        name = "aspect_rules_js",
+        sha256 = "fbc34d815a0cc52183a1a26732fc0329e26774a51abbe0f26fc9fd2dab6133b4",
+        strip_prefix = "rules_js-2.1.2",
+        url = "https://github.com/aspect-build/rules_js/releases/download/v2.1.2/rules_js-v2.1.2.tar.gz",
     )
 
     maybe(
@@ -180,7 +208,7 @@ def proxy_wasm_cpp_host_repositories():
         # 13.8.258.26
         commit = "de9d0f8b56ae61896e4d2ac577fc589efb14f87d",
         remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1752074621 -0400",
+        shallow_since = "1752074621",
         patches = [
             "@proxy_wasm_cpp_host//bazel/external:v8.patch",
         ],
