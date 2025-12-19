@@ -116,40 +116,13 @@ rust_library(
     crate_features = [
         "alloc",
         "default",
+        "fs",
         "libc-extra-traits",
         "mm",
+        "param",
         "std",
         "use-libc-auxv",
-    ] + select({
-        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "fs",  # aarch64-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
-            "fs",  # aarch64-unknown-nixos-gnu
-        ],
-        "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
-            "fs",  # arm-unknown-linux-gnueabi
-        ],
-        "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi": [
-            "fs",  # armv7-unknown-linux-gnueabi
-        ],
-        "@rules_rust//rust/platform:i686-unknown-linux-gnu": [
-            "fs",  # i686-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:powerpc-unknown-linux-gnu": [
-            "fs",  # powerpc-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
-            "fs",  # s390x-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "fs",  # x86_64-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
-            "fs",  # x86_64-unknown-nixos-gnu
-        ],
-        "//conditions:default": [],
-    }),
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_flags = [
@@ -315,40 +288,13 @@ cargo_build_script(
     crate_features = [
         "alloc",
         "default",
+        "fs",
         "libc-extra-traits",
         "mm",
+        "param",
         "std",
         "use-libc-auxv",
-    ] + select({
-        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "fs",  # aarch64-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
-            "fs",  # aarch64-unknown-nixos-gnu
-        ],
-        "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
-            "fs",  # arm-unknown-linux-gnueabi
-        ],
-        "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi": [
-            "fs",  # armv7-unknown-linux-gnueabi
-        ],
-        "@rules_rust//rust/platform:i686-unknown-linux-gnu": [
-            "fs",  # i686-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:powerpc-unknown-linux-gnu": [
-            "fs",  # powerpc-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
-            "fs",  # s390x-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "fs",  # x86_64-unknown-linux-gnu
-        ],
-        "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
-            "fs",  # x86_64-unknown-nixos-gnu
-        ],
-        "//conditions:default": [],
-    }),
+    ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(

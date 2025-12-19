@@ -9,9 +9,31 @@ cc_library(
     name = "wasmtime_lib",
     hdrs = [
         "crates/c-api/include/wasm.h",
+        "crates/c-api/include/wasmtime.h",
+        "crates/c-api/include/wasi.h",
+        "crates/c-api/include/wasmtime/conf.h",
+        "crates/c-api/include/wasmtime/config.h",
+        "crates/c-api/include/wasmtime/async.h",
+        "crates/c-api/include/wasmtime/error.h",
+        "crates/c-api/include/wasmtime/engine.h",
+        "crates/c-api/include/wasmtime/extern.h",
+        "crates/c-api/include/wasmtime/module.h",
+        "crates/c-api/include/wasmtime/sharedmemory.h",
+        "crates/c-api/include/wasmtime/store.h",
+        "crates/c-api/include/wasmtime/func.h",
+        "crates/c-api/include/wasmtime/val.h",
+        "crates/c-api/include/wasmtime/global.h",
+        "crates/c-api/include/wasmtime/instance.h",
+        "crates/c-api/include/wasmtime/linker.h",
+        "crates/c-api/include/wasmtime/memory.h",
+        "crates/c-api/include/wasmtime/profiling.h",
+        "crates/c-api/include/wasmtime/table.h",
+        "crates/c-api/include/wasmtime/trap.h",
     ],
+    includes = ["crates/c-api/include"],
     deps = [
         ":rust_c_api",
+        ":wasmtime_conf_hdr",
     ],
 )
 
@@ -63,7 +85,7 @@ cc_library(
 rust_static_library(
     name = "rust_c_api",
     srcs = glob(["crates/c-api/src/**/*.rs"]),
-    crate_features = ["cranelift"],
+    crate_features = ["cranelift", "async"],
     crate_root = "crates/c-api/src/lib.rs",
     edition = "2021",
     proc_macro_deps = [
@@ -75,5 +97,27 @@ rust_static_library(
         "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:once_cell",
         # buildifier: leave-alone
         "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime",
+        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:futures",
     ],
 )
+
+genrule(
+    name = "wasmtime_conf_hdr",
+    outs = ["crates/c-api/include/wasmtime/conf.h"],
+    cmd = """
+    echo "
+
+#ifndef WASMTIME_CONF_H
+#define WASMTIME_CONF_H
+
+#define WASMTIME_FEATURE_ASYNC
+#define WASMTIME_FEATURE_CRANELIFT
+
+#if defined(WASMTIME_FEATURE_CRANELIFT) || defined(WASMTIME_FEATURE_WINCH)
+#define WASMTIME_FEATURE_COMPILER
+#endif
+
+#endif // WASMTIME_CONF_H" > $@
+    """,
+)
+

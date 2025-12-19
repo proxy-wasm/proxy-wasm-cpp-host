@@ -298,6 +298,7 @@ _NORMAL_DEPENDENCIES = {
         _COMMON_CONDITION: {
             "anyhow": Label("@cu__anyhow-1.0.86//:anyhow"),
             "env_logger": Label("@cu__env_logger-0.10.2//:env_logger"),
+            "futures": Label("@cu__futures-0.3.31//:futures"),
             "log": Label("@cu__log-0.4.22//:log"),
             "once_cell": Label("@cu__once_cell-1.19.0//:once_cell"),
             "tracing": Label("@cu__tracing-0.1.40//:tracing"),
@@ -474,6 +475,16 @@ def crate_repositories():
         urls = ["https://static.crates.io/crates/arbitrary/1.3.2/download"],
         strip_prefix = "arbitrary-1.3.2",
         build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.arbitrary-1.3.2.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__async-trait-0.1.89",
+        sha256 = "9035ad2d096bed7955a320ee7e2230574d28fd3c3a0f186cbea1ff3c7eed5dbb",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/async-trait/0.1.89/download"],
+        strip_prefix = "async-trait-0.1.89",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.async-trait-0.1.89.bazel"),
     )
 
     maybe(
@@ -708,6 +719,76 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "cu__futures-0.3.31",
+        sha256 = "65bc07b1a8bc7c85c5f2e110c476c7389b4554ba72af57d8445ea63a576b0876",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/futures/0.3.31/download"],
+        strip_prefix = "futures-0.3.31",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.futures-0.3.31.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__futures-channel-0.3.31",
+        sha256 = "2dff15bf788c671c1934e366d07e30c1814a8ef514e1af724a602e8a2fbe1b10",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/futures-channel/0.3.31/download"],
+        strip_prefix = "futures-channel-0.3.31",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.futures-channel-0.3.31.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__futures-core-0.3.31",
+        sha256 = "05f29059c0c2090612e8d742178b0580d2dc940c837851ad723096f87af6663e",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/futures-core/0.3.31/download"],
+        strip_prefix = "futures-core-0.3.31",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.futures-core-0.3.31.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__futures-io-0.3.31",
+        sha256 = "9e5c1b78ca4aae1ac06c48a526a655760685149f0d465d21f37abfe57ce075c6",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/futures-io/0.3.31/download"],
+        strip_prefix = "futures-io-0.3.31",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.futures-io-0.3.31.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__futures-sink-0.3.31",
+        sha256 = "e575fab7d1e0dcb8d0c7bcf9a63ee213816ab51902e6d244a95819acacf1d4f7",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/futures-sink/0.3.31/download"],
+        strip_prefix = "futures-sink-0.3.31",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.futures-sink-0.3.31.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__futures-task-0.3.31",
+        sha256 = "f90f7dce0722e95104fcb095585910c0977252f286e354b5e3bd38902cd99988",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/futures-task/0.3.31/download"],
+        strip_prefix = "futures-task-0.3.31",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.futures-task-0.3.31.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__futures-util-0.3.31",
+        sha256 = "9fa08315bb612088cc391249efdc3bc77536f16c91f6cf495e6fbe85b20a4a81",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/futures-util/0.3.31/download"],
+        strip_prefix = "futures-util-0.3.31",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.futures-util-0.3.31.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "cu__gimli-0.29.0",
         sha256 = "40ecd4077b5ae9fd2e9e169b102c6c330d0605168eb0e8bf79952b256dbefffd",
         type = "tar.gz",
@@ -934,6 +1015,16 @@ def crate_repositories():
         urls = ["https://static.crates.io/crates/pin-project-lite/0.2.14/download"],
         strip_prefix = "pin-project-lite-0.2.14",
         build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.pin-project-lite-0.2.14.bazel"),
+    )
+
+    maybe(
+        http_archive,
+        name = "cu__pin-utils-0.1.0",
+        sha256 = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/pin-utils/0.1.0/download"],
+        strip_prefix = "pin-utils-0.1.0",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.pin-utils-0.1.0.bazel"),
     )
 
     maybe(
@@ -1338,6 +1429,16 @@ def crate_repositories():
 
     maybe(
         http_archive,
+        name = "cu__wasmtime-fiber-24.0.0",
+        sha256 = "0f39043d13c7b58db69dc9a0feb191a961e75a9ec2402aebf42de183c022bb8a",
+        type = "tar.gz",
+        urls = ["https://static.crates.io/crates/wasmtime-fiber/24.0.0/download"],
+        strip_prefix = "wasmtime-fiber-24.0.0",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.wasmtime-fiber-24.0.0.bazel"),
+    )
+
+    maybe(
+        http_archive,
         name = "cu__wasmtime-jit-icache-coherence-24.0.0",
         sha256 = "d15de8429db996f0d17a4163a35eccc3f874cbfb50f29c379951ea1bbb39452e",
         type = "tar.gz",
@@ -1529,6 +1630,7 @@ def crate_repositories():
     return [
         struct(repo = "cu__anyhow-1.0.86", is_dev_dep = False),
         struct(repo = "cu__env_logger-0.10.2", is_dev_dep = False),
+        struct(repo = "cu__futures-0.3.31", is_dev_dep = False),
         struct(repo = "cu__log-0.4.22", is_dev_dep = False),
         struct(repo = "cu__once_cell-1.19.0", is_dev_dep = False),
         struct(repo = "cu__tracing-0.1.40", is_dev_dep = False),

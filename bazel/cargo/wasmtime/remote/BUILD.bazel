@@ -44,6 +44,12 @@ alias(
 )
 
 alias(
+    name = "futures",
+    actual = "@cu__futures-0.3.31//:futures",
+    tags = ["manual"],
+)
+
+alias(
     name = "log",
     actual = "@cu__log-0.4.22//:log",
     tags = ["manual"],
