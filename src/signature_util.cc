@@ -60,7 +60,7 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
 #ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
 
   /*
-   * Ed25519 signature generated using https://github.com/jedisct1/wasmsign
+   * Ed25519 signature generated using https://github.com/wasm-signatures/wasmsign2
    */
 
   std::string_view payload;
