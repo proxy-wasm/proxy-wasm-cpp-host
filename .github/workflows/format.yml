@@ -122,9 +122,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependencies (Linux)
-      run: sudo apt update -y && sudo apt install -y clang-tidy-18 lld-18 && sudo ln -sf /usr/bin/lld-18 /usr/bin/lld
-
     - name: set cache name
       id: vars
       # The cache tag consists of the following parts:
@@ -150,6 +147,7 @@ jobs:
     - name: Bazel build
       run: >
         bazel build
+        --config=hermetic-llvm
         --config clang-tidy
         --define engine=multi
         --disk_cache /tmp/bazel/cache

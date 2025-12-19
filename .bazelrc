@@ -60,6 +60,7 @@ build:clang-tsan --test_env=TSAN_OPTIONS=suppressions=bazel/tsan_suppressions.tx
 # Use Clang-Tidy tool.
 build:clang-tidy --aspects //tools/lint:linters.bzl%clang_tidy
 build:clang-tidy --output_groups=rules_lint_report
+build:clang-tidy --config=hermetic-llvm
 
 # Use GCC compiler.
 build:gcc --action_env=BAZEL_COMPILER=gcc

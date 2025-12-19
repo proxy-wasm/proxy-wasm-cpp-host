@@ -76,6 +76,7 @@ jobs:
         --test_output=errors
         --config=clang
         --disk_cache /tmp/bazel/cache
+        --config=hermetic-llvm
         -c opt
         $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
         $(bazel query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
@@ -137,13 +138,13 @@ jobs:
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang-asan --define=crypto=system
+          flags: --config=hermetic-llvm --config=clang-asan --define=crypto=system
         - name: 'NullVM on Linux/x86_64 with TSan'
           engine: 'null'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang-tsan
+          flags: --config=hermetic-llvm --config=clang-tsan
         - name: 'NullVM on Windows/x86_64'
           engine: 'null'
           os: windows-2022
@@ -205,20 +206,21 @@ jobs:
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=hermetic-llvm
         - name: 'WAMR interp on macOS/x86_64'
           engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm-macos
         - name: 'WAMR jit on Linux/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=hermetic-llvm
           deps: lld-18
           cache: true
         - name: 'WAMR jit on macOS/x86_64'
@@ -228,33 +230,35 @@ jobs:
           arch: x86_64
           action: test
           cache: true
+          flags: --config=hermetic-llvm-macos
         - name: 'WasmEdge on Linux/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=hermetic-llvm
         - name: 'WasmEdge on macOS/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
           os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang -c opt
+          flags: --config=hermetic-llvm -c opt
         - name: 'Wasmtime on Linux/x86_64 with ASan'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang-asan --define=crypto=system
+          flags: --config=hermetic-llvm --config=clang-asan --define=crypto=system
         - name: 'Wasmtime on Linux/aarch64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -278,6 +282,7 @@ jobs:
           os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm-macos
 
     steps:
     - uses: actions/checkout@v2

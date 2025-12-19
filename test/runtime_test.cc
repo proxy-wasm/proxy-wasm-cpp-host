@@ -158,7 +158,7 @@ TEST_P(TestVm, Trap) {
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
     EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
-    EXPECT_TRUE(host->isErrorLogged(" - trigger"));
+    EXPECT_TRUE(host->isErrorLogged(" - _wasm_trap_wasm::one"));
   }
 }
 
