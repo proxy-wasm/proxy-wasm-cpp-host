@@ -151,7 +151,7 @@ jobs:
         --config clang-tidy
         --define engine=multi
         --disk_cache /tmp/bazel/cache
-        --copt=-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
+        --copt=-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -c3-)\"
         //...
 
     - name: save bazel cache
