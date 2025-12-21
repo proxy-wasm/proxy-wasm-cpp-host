@@ -274,7 +274,7 @@ jobs:
           action: test
           flags: --config=clang --test_timeout=1800
           # s390x build-tools image built from bazel/external/Dockerfile.bazel
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x ghcr.io/proxy-wasm/build-tools:ubuntu-22.04-bazel-6.5.0
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x ghcr.io/proxy-wasm/build-tools:ubuntu-22.04-bazel-7.7.1
           cache: true
         - name: 'Wasmtime on macOS/x86_64'
           engine: 'wasmtime'
