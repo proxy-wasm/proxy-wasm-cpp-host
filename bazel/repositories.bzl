@@ -121,9 +121,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_fuzzing",
-        sha256 = "3ec0eee05b243552cc4a784b30323d088bf73cb2177ddda02c827e68981933f1",
-        strip_prefix = "rules_fuzzing-0.5.2",
-        urls = ["https://github.com/bazelbuild/rules_fuzzing/archive/v0.5.2.tar.gz"],
+        sha256 = "850897989ebc06567ea06c959eb4a6129fa509ed2dbbd0d147d62d2b986714a9",
+        strip_prefix = "rules_fuzzing-0.6.0",
+        urls = ["https://github.com/bazelbuild/rules_fuzzing/archive/v0.6.0.tar.gz"],
     )
 
     maybe(

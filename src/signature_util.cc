@@ -64,18 +64,18 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
    */
 
   std::string_view payload;
-  if (!BytecodeUtil::getCustomSection(bytecode, "signature_wasmsign", payload)) {
+  if (!BytecodeUtil::getCustomSection(bytecode, "signature", payload)) {
     message = "Failed to parse corrupted Wasm module";
     return false;
   }
 
   if (payload.empty()) {
-    message = "Custom Section \"signature_wasmsign\" not found";
+    message = "Custom Section \"signature\" not found";
     return false;
   }
 
   if (bytecode.data() + bytecode.size() != payload.data() + payload.size()) {
-    message = "Custom Section \"signature_wasmsign\" not at the end of Wasm module";
+    message = "Custom Section \"signature\" not at the end of Wasm module";
     return false;
   }
 
@@ -100,7 +100,7 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
   SHA512_Update(&ctx, "WasmSignature", sizeof("WasmSignature") - 1);
   const uint32_t ad_len = 0;
   SHA512_Update(&ctx, &ad_len, sizeof(uint32_t));
-  const size_t section_len = 3 + sizeof("signature_wasmsign") - 1 + 68;
+  const size_t section_len = 3 + sizeof("signature") - 1 + 68;
   SHA512_Update(&ctx, bytecode.data(), bytecode.size() - section_len);
   uint8_t hash[SHA512_DIGEST_LENGTH];
   SHA512_Final(hash, &ctx);
