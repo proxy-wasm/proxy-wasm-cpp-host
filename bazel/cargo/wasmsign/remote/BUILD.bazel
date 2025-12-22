@@ -32,14 +32,26 @@ filegroup(
 
 # Workspace Member Dependencies
 alias(
-    name = "wasmsign",
-    actual = "@cu__wasmsign-0.1.2//:wasmsign",
+    name = "wasmsign2-cli-0.2.6",
+    actual = "@cu__wasmsign2-cli-0.2.6//:wasmsign2_cli",
+    tags = ["manual"],
+)
+
+alias(
+    name = "wasmsign2-cli",
+    actual = "@cu__wasmsign2-cli-0.2.6//:wasmsign2_cli",
     tags = ["manual"],
 )
 
 # Binaries
 alias(
-    name = "wasmsign__wasmsign",
-    actual = "@cu__wasmsign-0.1.2//:wasmsign__bin",
+    name = "clap__stdio-fixture",
+    actual = "@cu__clap-3.2.25//:stdio-fixture__bin",
+    tags = ["manual"],
+)
+
+alias(
+    name = "wasmsign2-cli__wasmsign2",
+    actual = "@cu__wasmsign2-cli-0.2.6//:wasmsign2__bin",
     tags = ["manual"],
 )

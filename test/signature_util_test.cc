@@ -54,7 +54,7 @@ TEST(TestSignatureUtil, NoSignature) {
   const auto bytecode = readTestWasmFile("abi_export.wasm");
   std::string message;
   EXPECT_FALSE(SignatureUtil::verifySignature(bytecode, message));
-  EXPECT_EQ(message, "Custom Section \"signature_wasmsign\" not found");
+  EXPECT_EQ(message, "Custom Section \"signature\" not found");
 }
 
 } // namespace proxy_wasm

@@ -76,6 +76,7 @@ jobs:
         --test_output=errors
         --config=clang
         --disk_cache /tmp/bazel/cache
+        --config=hermetic-llvm
         -c opt
         $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
         $(bazel query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
@@ -137,13 +138,13 @@ jobs:
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang-asan --define=crypto=system
+          flags: --config=hermetic-llvm --config=clang-asan --define=crypto=system
         - name: 'NullVM on Linux/x86_64 with TSan'
           engine: 'null'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang-tsan
+          flags: --config=hermetic-llvm --config=clang-tsan
         - name: 'NullVM on Windows/x86_64'
           engine: 'null'
           os: windows-2022
@@ -194,7 +195,7 @@ jobs:
         - name: 'V8 on macOS/x86_64'
           engine: 'v8'
           repo: 'v8'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
           flags: --config=hermetic-llvm-macos
@@ -205,56 +206,59 @@ jobs:
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=hermetic-llvm
         - name: 'WAMR interp on macOS/x86_64'
           engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm-macos
         - name: 'WAMR jit on Linux/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=hermetic-llvm
           deps: lld-18
           cache: true
         - name: 'WAMR jit on macOS/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
           cache: true
+          flags: --config=hermetic-llvm-macos
         - name: 'WasmEdge on Linux/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=hermetic-llvm
         - name: 'WasmEdge on macOS/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm-macos
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang -c opt
+          flags: --config=hermetic-llvm -c opt
         - name: 'Wasmtime on Linux/x86_64 with ASan'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang-asan --define=crypto=system
+          flags: --config=hermetic-llvm --config=clang-asan --define=crypto=system
         - name: 'Wasmtime on Linux/aarch64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -275,9 +279,10 @@ jobs:
         - name: 'Wasmtime on macOS/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm-macos
 
     steps:
     - uses: actions/checkout@v2
@@ -358,7 +363,7 @@ jobs:
         --define engine=${{ matrix.engine }}
         --disk_cache /tmp/bazel/cache
         ${{ matrix.flags }}
-        --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
+        --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -c3- | tr -d '\n')\"
         //test:signature_util_test
 
     - name: remove unaccessed files from cache

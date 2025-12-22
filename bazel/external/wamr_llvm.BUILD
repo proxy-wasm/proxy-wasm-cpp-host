@@ -59,9 +59,6 @@ cmake(
     }),
     lib_source = ":srcs",
     out_data_dirs = [
-        "bin",
-        "include",
-        "lib",
         "libexec",
         "share",
     ],

@@ -51,7 +51,7 @@ RUN apt install -y \
     unzip
 
 # Download Bazel source
-ARG BAZEL_VERSION=6.5.0
+ARG BAZEL_VERSION=7.7.1
 RUN cd ~ && mkdir bazel && cd bazel
 RUN curl -LO https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip
 RUN unzip -q bazel-${BAZEL_VERSION}-dist.zip
