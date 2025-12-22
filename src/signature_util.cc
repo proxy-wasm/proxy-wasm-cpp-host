@@ -16,6 +16,7 @@
 
 #include <array>
 #include <cstring>
+#include <memory>
 
 #ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
 #include <openssl/evp.h>
@@ -97,8 +98,18 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
   /*
    * Ed25519 signature generated using https://github.com/wasm-signatures/wasmsign2 0.2.6
    * Format specification: https://github.com/WebAssembly/tool-conventions/blob/main/Signatures.md
-   * Note: wasmsign2 0.2.6 omits the signed_hashes_count wrapper and directly embeds a single
-   * SignedHash
+   *
+   * Format notes:
+   * - wasmsign2 0.2.6 DOES include signed_hashes_count (previously thought to omit it)
+   * - wasmsign2 0.2.6 includes length fields not in the spec:
+   *   - signed_hash_len: length of each SignedHash structure (using varint::put_slice)
+   *   - signature_bytes_len: length of each signature's data (using varint::put_slice)
+   *
+   * Signature verification:
+   * - The signature is over a message with domain separation, NOT just the hash
+   * - Message format: "wasmsig" + spec_version + content_type + hash_fn + hash
+   * - See:
+   * https://github.com/wasm-signatures/wasmsign2/blob/0.2.6/src/lib/src/signature/multi.rs#L268-L278
    */
 
   std::string_view signature_payload;
@@ -125,8 +136,8 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
 
   // Parse wasmsign2 0.2.6 format:
   // spec_version (byte), content_type (byte), hash_fn (byte),
-  // then directly the SignedHash structure:
-  //   hashes_count (varint), hashes (32 bytes each for SHA-256),
+  // signed_hashes_count (varint), then for each SignedHash:
+  //   signed_hash_len (varint), hashes_count (varint), hashes (32 bytes each for SHA-256),
   //   signatures_count (varint), then for each signature:
   //     key_id_len (varint), key_id (bytes), signature_id (byte),
   //     signature_len (varint), signature (bytes)
@@ -158,8 +169,28 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
     return false;
   }
 
-  // In wasmsign2 0.2.6, there is no signed_hashes_count varint
-  // The format goes directly to the SignedHash structure
+  // Parse signed_hashes_count
+  uint32_t signed_hashes_count = 0;
+  if (!parseVarint(pos, end, signed_hashes_count) || signed_hashes_count == 0) {
+    message = "Invalid or zero signed_hashes_count";
+    return false;
+  }
+
+  // For simplicity, we only support single SignedHash verification
+  if (signed_hashes_count != 1) {
+    message = "Only single SignedHash is supported (found " + std::to_string(signed_hashes_count) +
+              " SignedHash entries)";
+    return false;
+  }
+
+  // Parse signed_hash_len (the length of the SignedHash structure)
+  uint32_t signed_hash_len = 0;
+  if (!parseVarint(pos, end, signed_hash_len)) {
+    message = "Invalid signed_hash_len";
+    return false;
+  }
+
+  // Now parse the SignedHash structure
   uint32_t hashes_count = 0;
   if (!parseVarint(pos, end, hashes_count) || hashes_count == 0) {
     message = "Invalid or zero hashes_count";
@@ -189,6 +220,13 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
   }
 
   // We only verify the first signature
+  // wasmsign2 0.2.6 includes a signature_bytes_len field before each signature
+  uint32_t signature_bytes_len = 0;
+  if (!parseVarint(pos, end, signature_bytes_len)) {
+    message = "Invalid signature_bytes_len";
+    return false;
+  }
+
   uint32_t key_id_len = 0;
   if (!parseVarint(pos, end, key_id_len)) {
     message = "Invalid key_id_len";
@@ -289,6 +327,21 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
   }
 
   // Verify the signature
+  // wasmsign2 signs a message that includes domain separation and metadata:
+  // "wasmsig" + spec_version + content_type + hash_fn + hash
+  // See:
+  // https://github.com/wasm-signatures/wasmsign2/blob/0.2.6/src/lib/src/signature/multi.rs#L268-L278
+  const char *domain = "wasmsig";
+  size_t domain_len = 7;
+  size_t msg_len = domain_len + 3 + 32; // domain + 3 bytes (spec/content/hash) + 32 bytes (hash)
+  auto signature_msg = std::make_unique<uint8_t[]>(msg_len);
+
+  std::memcpy(signature_msg.get(), domain, domain_len);
+  signature_msg[domain_len] = spec_version;
+  signature_msg[domain_len + 1] = content_type;
+  signature_msg[domain_len + 2] = hash_fn;
+  std::memcpy(signature_msg.get() + domain_len + 3, expected_hash, 32);
+
   static const auto ed25519_pubkey = hex2pubkey<32>(PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY);
 
   EVP_PKEY *pubkey = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, nullptr, ed25519_pubkey.data(),
@@ -305,9 +358,9 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
     return false;
   }
 
-  bool ok =
-      (EVP_DigestVerifyInit(mdctx, nullptr, nullptr, nullptr, pubkey) != 0) &&
-      (EVP_DigestVerify(mdctx, signature, 64 /* ED25519_SIGNATURE_LEN */, expected_hash, 32) != 0);
+  bool ok = (EVP_DigestVerifyInit(mdctx, nullptr, nullptr, nullptr, pubkey) != 0) &&
+            (EVP_DigestVerify(mdctx, signature, 64 /* ED25519_SIGNATURE_LEN */, signature_msg.get(),
+                              msg_len) != 0);
 
   EVP_MD_CTX_free(mdctx);
   EVP_PKEY_free(pubkey);
