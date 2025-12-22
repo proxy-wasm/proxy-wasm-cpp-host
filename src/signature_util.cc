@@ -19,7 +19,6 @@
 
 #ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
 #include <openssl/evp.h>
-#include <openssl/sha.h>
 #endif
 
 #include "include/proxy-wasm/bytecode_util.h"
@@ -53,6 +52,42 @@ template <size_t N> constexpr std::array<uint8_t, N> hex2pubkey(const char (&hex
 
 } // namespace
 
+namespace {
+
+#ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
+
+// Helper function to parse a varint from the payload
+bool parseVarint(const char *&pos, const char *end, uint32_t &ret) {
+  uint32_t shift = 0;
+  uint32_t total = 0;
+  uint32_t v;
+  char b;
+  while (pos < end) {
+    if (pos + 1 > end) {
+      return false;
+    }
+    b = *pos++;
+    v = (b & 0x7f);
+    if (shift == 28 && v > 3) {
+      return false;
+    }
+    total += v << shift;
+    if ((b & 0x80) == 0) {
+      ret = total;
+      return true;
+    }
+    shift += 7;
+    if (shift > 28) {
+      return false;
+    }
+  }
+  return false;
+}
+
+#endif
+
+} // namespace
+
 namespace proxy_wasm {
 
 bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &message) {
@@ -61,50 +96,200 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
 
   /*
    * Ed25519 signature generated using https://github.com/wasm-signatures/wasmsign2
+   * Format specification: https://github.com/WebAssembly/tool-conventions/blob/main/Signatures.md
    */
 
-  std::string_view payload;
-  if (!BytecodeUtil::getCustomSection(bytecode, "signature", payload)) {
+  std::string_view signature_payload;
+  if (!BytecodeUtil::getCustomSection(bytecode, "signature", signature_payload)) {
     message = "Failed to parse corrupted Wasm module";
     return false;
   }
 
-  if (payload.empty()) {
+  if (signature_payload.empty()) {
     message = "Custom Section \"signature\" not found";
     return false;
   }
 
-  if (bytecode.data() + bytecode.size() != payload.data() + payload.size()) {
-    message = "Custom Section \"signature\" not at the end of Wasm module";
+  // In wasmsign2 v2, the signature section must be FIRST, not last
+  // Check if the signature section is at the beginning (after the WASM header)
+  // The signature section should start at bytecode offset 8 (after magic + version)
+  const char *sig_section_start = bytecode.data() + 8;
+  
+  // Verify the signature section is at the beginning by checking if its custom section (type 0)
+  if (sig_section_start >= bytecode.data() + bytecode.size() || *sig_section_start != 0) {
+    message = "Custom Section \"signature\" not at the beginning of Wasm module";
     return false;
   }
 
-  if (payload.size() != 68) {
-    message = "Signature has a wrong size (want: 68, is: " + std::to_string(payload.size()) + ")";
+  // Parse wasmsign2 v2 format:
+  // spec_version (byte), content_type (byte), hash_fn (byte), 
+  // signed_hashes_count (varint), then for each signed_hash:
+  //   hashes_count (varint), hashes (32 bytes each for SHA-256),
+  //   signature_count (varint), then for each signature:
+  //     key_id_len (varint), key_id (bytes), signature_id (byte), 
+  //     signature_len (varint), signature (bytes)
+
+  const char *pos = signature_payload.data();
+  const char *end = signature_payload.data() + signature_payload.size();
+
+  if (pos + 3 > end) {
+    message = "Signature payload too short";
     return false;
   }
 
-  uint32_t alg_id;
-  std::memcpy(&alg_id, payload.data(), sizeof(uint32_t));
-  alg_id = wasmtoh(alg_id, true);
+  uint8_t spec_version = static_cast<uint8_t>(*pos++);
+  uint8_t content_type = static_cast<uint8_t>(*pos++);
+  uint8_t hash_fn = static_cast<uint8_t>(*pos++);
 
-  if (alg_id != 2) {
-    message = "Signature has a wrong alg_id (want: 2, is: " + std::to_string(alg_id) + ")";
+  if (spec_version != 0x01) {
+    message = "Unsupported signature spec version: " + std::to_string(spec_version);
     return false;
   }
 
-  const auto *signature = reinterpret_cast<const uint8_t *>(payload.data()) + sizeof(uint32_t);
+  if (content_type != 0x01) {
+    message = "Unsupported content type: " + std::to_string(content_type);
+    return false;
+  }
 
-  SHA512_CTX ctx;
-  SHA512_Init(&ctx);
-  SHA512_Update(&ctx, "WasmSignature", sizeof("WasmSignature") - 1);
-  const uint32_t ad_len = 0;
-  SHA512_Update(&ctx, &ad_len, sizeof(uint32_t));
-  const size_t section_len = 3 + sizeof("signature") - 1 + 68;
-  SHA512_Update(&ctx, bytecode.data(), bytecode.size() - section_len);
-  uint8_t hash[SHA512_DIGEST_LENGTH];
-  SHA512_Final(hash, &ctx);
+  if (hash_fn != 0x01) {
+    message = "Unsupported hash function: " + std::to_string(hash_fn) + " (only SHA-256 supported)";
+    return false;
+  }
 
+  uint32_t signed_hashes_count = 0;
+  if (!parseVarint(pos, end, signed_hashes_count) || signed_hashes_count == 0) {
+    message = "Invalid or zero signed_hashes_count";
+    return false;
+  }
+
+  // We only verify the first signed_hash set
+  uint32_t hashes_count = 0;
+  if (!parseVarint(pos, end, hashes_count) || hashes_count == 0) {
+    message = "Invalid or zero hashes_count";
+    return false;
+  }
+
+  // For simplicity, we only support single-hash verification (no partial verification)
+  if (hashes_count != 1) {
+    message = "Only single-hash signatures are supported (found " + std::to_string(hashes_count) + " hashes)";
+    return false;
+  }
+
+  if (pos + 32 > end) {
+    message = "Signature payload too short for hash";
+    return false;
+  }
+
+  // Extract the expected hash
+  const uint8_t *expected_hash = reinterpret_cast<const uint8_t *>(pos);
+  pos += 32;
+
+  uint32_t signatures_count = 0;
+  if (!parseVarint(pos, end, signatures_count) || signatures_count == 0) {
+    message = "Invalid or zero signatures_count";
+    return false;
+  }
+
+  // We only verify the first signature
+  uint32_t key_id_len = 0;
+  if (!parseVarint(pos, end, key_id_len)) {
+    message = "Invalid key_id_len";
+    return false;
+  }
+
+  // Skip the key_id
+  if (key_id_len > 0) {
+    if (pos + key_id_len > end) {
+      message = "Signature payload too short for key_id";
+      return false;
+    }
+    pos += key_id_len;
+  }
+
+  if (pos + 1 > end) {
+    message = "Signature payload too short for signature_id";
+    return false;
+  }
+
+  uint8_t signature_id = static_cast<uint8_t>(*pos++);
+  if (signature_id != 0x01) {
+    message = "Unsupported signature algorithm: " + std::to_string(signature_id) + " (only Ed25519 supported)";
+    return false;
+  }
+
+  uint32_t signature_len = 0;
+  if (!parseVarint(pos, end, signature_len)) {
+    message = "Invalid signature_len";
+    return false;
+  }
+
+  if (signature_len != 64) {
+    message = "Invalid Ed25519 signature length: " + std::to_string(signature_len) + " (expected 64)";
+    return false;
+  }
+
+  if (pos + signature_len > end) {
+    message = "Signature payload too short for signature data";
+    return false;
+  }
+
+  const uint8_t *signature = reinterpret_cast<const uint8_t *>(pos);
+
+  // Compute the hash of the module content (everything after the signature section)
+  // We need to find where the signature section ends in the original bytecode
+  // The signature section structure in WASM is:
+  //   section_type (1 byte) + section_len (varint) + name_len (varint) + name + payload
+  
+  // Find the end of the signature section
+  const char *sig_section_pos = sig_section_start;
+  sig_section_pos++; // skip section type (0)
+  
+  uint32_t section_len = 0;
+  if (!parseVarint(sig_section_pos, bytecode.data() + bytecode.size(), section_len)) {
+    message = "Failed to parse signature section length";
+    return false;
+  }
+  
+  uint32_t name_len = 0;
+  const char *section_data_start = sig_section_pos;
+  if (!parseVarint(sig_section_pos, bytecode.data() + bytecode.size(), name_len)) {
+    message = "Failed to parse signature section name length";
+    return false;
+  }
+  
+  // The content to hash starts after the signature section
+  const char *content_start = section_data_start + section_len;
+  size_t content_len = bytecode.size() - (content_start - bytecode.data());
+
+  // Compute SHA-256 hash of the content
+  EVP_MD_CTX *hash_ctx = EVP_MD_CTX_new();
+  if (hash_ctx == nullptr) {
+    message = "Failed to allocate memory for hash context";
+    return false;
+  }
+
+  uint8_t computed_hash[32]; // SHA-256 produces 32 bytes
+  unsigned int hash_len = 0;
+
+  bool hash_ok =
+      (EVP_DigestInit_ex(hash_ctx, EVP_sha256(), nullptr) != 0) &&
+      (EVP_DigestUpdate(hash_ctx, content_start, content_len) != 0) &&
+      (EVP_DigestFinal_ex(hash_ctx, computed_hash, &hash_len) != 0);
+
+  EVP_MD_CTX_free(hash_ctx);
+
+  if (!hash_ok || hash_len != 32) {
+    message = "Failed to compute SHA-256 hash";
+    return false;
+  }
+
+  // Verify the computed hash matches the expected hash
+  if (std::memcmp(computed_hash, expected_hash, 32) != 0) {
+    message = "Hash mismatch";
+    return false;
+  }
+
+  // Verify the signature
   static const auto ed25519_pubkey = hex2pubkey<32>(PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY);
 
   EVP_PKEY *pubkey = EVP_PKEY_new_raw_public_key(EVP_PKEY_ED25519, nullptr, ed25519_pubkey.data(),
@@ -123,7 +308,7 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
 
   bool ok =
       (EVP_DigestVerifyInit(mdctx, nullptr, nullptr, nullptr, pubkey) != 0) &&
-      (EVP_DigestVerify(mdctx, signature, 64 /* ED25519_SIGNATURE_LEN */, hash, sizeof(hash)) != 0);
+      (EVP_DigestVerify(mdctx, signature, 64 /* ED25519_SIGNATURE_LEN */, expected_hash, 32) != 0);
 
   EVP_MD_CTX_free(mdctx);
   EVP_PKEY_free(pubkey);
