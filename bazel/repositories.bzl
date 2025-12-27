@@ -104,10 +104,10 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "toolchains_llvm",
-        sha256 = "b7cd301ef7b0ece28d20d3e778697a5e3b81828393150bed04838c0c52963a01",
-        strip_prefix = "toolchains_llvm-0.10.3",
-        canonical_id = "v0.10.3",
-        url = "https://github.com/grailbio/bazel-toolchain/releases/download/0.10.3/toolchains_llvm-0.10.3.tar.gz",
+        sha256 = "fded02569617d24551a0ad09c0750dc53a3097237157b828a245681f0ae739f8",
+        strip_prefix = "toolchains_llvm-v1.4.0",
+        canonical_id = "v1.4.0",
+        url = "https://github.com/bazel-contrib/toolchains_llvm/releases/download/v1.4.0/toolchains_llvm-v1.4.0.tar.gz",
     )
 
     maybe(
