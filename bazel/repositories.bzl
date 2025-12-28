@@ -312,11 +312,11 @@ def proxy_wasm_cpp_host_repositories():
 
     maybe(
         http_archive,
-        name = "llvm-15_0_7",
+        name = "llvm-19_1_0",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wamr_llvm.BUILD",
-        sha256 = "8b5fcb24b4128cf04df1b0b9410ce8b1a729cb3c544e6da885d234280dedeac6",
-        strip_prefix = "llvm-project-15.0.7.src",
-        url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/llvm-project-15.0.7.src.tar.xz",
+        sha256 = "5042522b49945bc560ff9206f25fb87980a9b89b914193ca00d961511ff0673c",
+        strip_prefix = "llvm-project-19.1.0.src",
+        url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.0/llvm-project-19.1.0.src.tar.xz",
     )
 
     # WasmEdge with dependencies.
