@@ -20,7 +20,7 @@
 #   Need to see "F" flag: cat /proc/sys/fs/binfmt_misc/qemu-*
 #
 # Build:
-#   docker buildx build --platform linux/s390x -t $IMAGE -f Dockerfile.bazel
+#   docker buildx build --platform linux/s390x -t $IMAGE -f Dockerfile.bazel .
 #
 # Push:
 #   docker image tag $IMAGE ghcr.io/proxy-wasm/$IMAGE
@@ -33,55 +33,54 @@
 #     --define engine=null --config=clang --test_timeout=1800 \
 #     -- //test/...
 
-# Update base image
-ARG UBUNTU_VERSION=24.04
-FROM ubuntu:${UBUNTU_VERSION} AS build
-
-# Use bash for all RUN instructions
-SHELL ["/bin/bash", "-c"]
-
-# Consolidated system update/upgrade and autoremove
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
-
-## All build dependencies for Bazel and ProxyWasm are listed in DEPS for clarity and maintainability.
-ARG DEPS="\
-    build-essential \
-    clang \
-    curl \
-    git \
-    libssl-dev \
-    libstdc++6 \
-    libz-dev \
-    openjdk-21-jdk \
-    python3 \
-    unzip \
-    zip\
-"
-# Install all build dependencies (no PPA needed on Ubuntu 24.04)
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set working directory for Bazel build
-WORKDIR /root/bazel
-
-
-# Download Bazel source and remove zip immediately after extraction
 ARG BAZEL_VERSION=7.7.1
-RUN curl -LO https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip && \
-    unzip -q bazel-${BAZEL_VERSION}-dist.zip && \
-    rm -f bazel-${BAZEL_VERSION}-dist.zip
+ARG UBUNTU_VERSION=22.04
 
-## Build Bazel and copy the binary
-# NOTE: This step is flaky and may hang for multiarch/buildx.
-# If it takes more than 2 hours, restart the Docker build.
-ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk"
-RUN ./compile.sh && \
-    mv /output/bazel /usr/bin/bazel && \
-    rm -rf /root/bazel
+# Stage 1: build Bazel from release for the target platform
+FROM ubuntu:${UBUNTU_VERSION} AS bazel-builder
+WORKDIR /tmp
+ARG BAZEL_VERSION
+ARG DEPS_BUILDER="\
+        build-essential \
+        ca-certificates \
+        curl \
+        git \
+        openjdk-21-jdk \
+        python3 \
+        unzip \
+        wget \
+        zip\
+"
+RUN apt-get update && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS_BUILDER && \
+        mkdir -p /tmp/src/bazel && \
+        wget --progress=dot:giga -O /tmp/bazel-dist.zip https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip && \
+        unzip /tmp/bazel-dist.zip -d /tmp/src/bazel && \
+        rm -f /tmp/bazel-dist.zip /tmp/src/bazel/MODULE.bazel.lock
+WORKDIR /tmp/src/bazel
+# Patch MODULE.bazel to force bazel_features v1.26.0 (avoids bzlmod macro requirement during bootstrap)
+COPY bazel/external/bazel-v7.7.1.patch /tmp/bazel-v7.7.1.patch
+RUN git apply /tmp/bazel-v7.7.1.patch
+RUN EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk" bash ./compile.sh && \
+        cp /tmp/src/bazel/output/bazel /tmp/bazel && \
+        chmod +x /tmp/bazel && \
+        rm -rf /tmp/src/bazel /tmp/bazel-v7.7.1.patch
 
-# Ensure a valid working directory after build
+# Stage 2: minimal runtime for executing tests
+FROM ubuntu:${UBUNTU_VERSION} AS test-runtime
+ARG DEPS_RUNTIME="\
+        ca-certificates \
+        openjdk-21-jre-headless \
+        python3 \
+        unzip \
+        zip\
+"
+RUN apt-get update && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS_RUNTIME && \
+        rm -rf /var/lib/apt/lists/*
+
+# Copy Bazel binary from builder
+COPY --from=bazel-builder /tmp/bazel /usr/bin/bazel
+
+# Set a valid working directory
 WORKDIR /root
