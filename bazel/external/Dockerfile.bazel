@@ -34,42 +34,54 @@
 #     -- //test/...
 
 # Update base image
-ARG UBUNTU_VERSION=22.04
-FROM ubuntu:${UBUNTU_VERSION} as build
-RUN apt update && apt upgrade -y
-RUN apt autoremove -y
+ARG UBUNTU_VERSION=24.04
+FROM ubuntu:${UBUNTU_VERSION} AS build
 
-# Install Bazel deps
-RUN apt install -y software-properties-common
-RUN add-apt-repository ppa:openjdk-r/ppa
-RUN apt install -y \
+# Use bash for all RUN instructions
+SHELL ["/bin/bash", "-c"]
+
+# Consolidated system update/upgrade and autoremove
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+## All build dependencies for Bazel and ProxyWasm are listed in DEPS for clarity and maintainability.
+ARG DEPS="\
     build-essential \
+    clang \
+    curl \
+    git \
+    libssl-dev \
+    libstdc++6 \
+    libz-dev \
     openjdk-21-jdk \
     python3 \
-    curl \
-    zip \
-    unzip
+    unzip \
+    zip\
+"
+# Install all build dependencies (no PPA needed on Ubuntu 24.04)
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS && \
+    rm -rf /var/lib/apt/lists/*
 
-# Download Bazel source
+# Set working directory for Bazel build
+WORKDIR /root/bazel
+
+
+# Download Bazel source and remove zip immediately after extraction
 ARG BAZEL_VERSION=7.7.1
-RUN cd ~ && mkdir bazel && cd bazel
-RUN curl -LO https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip
-RUN unzip -q bazel-${BAZEL_VERSION}-dist.zip
+RUN curl -LO https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip && \
+    unzip -q bazel-${BAZEL_VERSION}-dist.zip && \
+    rm -f bazel-${BAZEL_VERSION}-dist.zip
 
-# Build Bazel
-# NOTE: This step is flaky and frequently hangs for multiarch / buildx.
-# If it takes more than 2 hours, restart the Docker build and try again.
+## Build Bazel and copy the binary
+# NOTE: This step is flaky and may hang for multiarch/buildx.
+# If it takes more than 2 hours, restart the Docker build.
 ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk"
-RUN bash ./compile.sh
+RUN ./compile.sh && \
+    mv /output/bazel /usr/bin/bazel && \
+    rm -rf /root/bazel
 
-# Copy output to /usr/bin
-RUN cp /output/bazel /usr/bin/bazel
-
-# Install ProxyWasm build deps
-RUN apt install -y \
-    git \
-    python3-distutils \
-    clang \
-    libstdc++6 \
-    libssl-dev \
-    libz-dev
+# Ensure a valid working directory after build
+WORKDIR /root
