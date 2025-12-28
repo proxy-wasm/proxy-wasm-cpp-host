@@ -61,7 +61,10 @@ WORKDIR /tmp/src/bazel
 # Patch MODULE.bazel to force bazel_features v1.26.0 (avoids bzlmod macro requirement during bootstrap)
 COPY bazel/external/bazel-v7.7.1.patch /tmp/bazel-v7.7.1.patch
 RUN git apply /tmp/bazel-v7.7.1.patch
-RUN EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk" bash ./compile.sh && \
+# Limit parallelism and optimization to avoid GCC segmentation faults on s390x
+ENV BAZEL_COMPILE_FLAGS="-j 2 -O1"
+ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk"
+RUN bash ./compile.sh && \
         cp /tmp/src/bazel/output/bazel /tmp/bazel && \
         chmod +x /tmp/bazel && \
         rm -rf /tmp/src/bazel /tmp/bazel-v7.7.1.patch
