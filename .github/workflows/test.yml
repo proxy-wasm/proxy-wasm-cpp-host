@@ -239,10 +239,11 @@ jobs:
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: s390x
+          platform: linux/s390x
           action: test
           flags: --config=clang --test_timeout=1800
           # s390x build-tools image built from bazel/external/Dockerfile.bazel
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x ghcr.io/proxy-wasm/build-tools:ubuntu-22.04-bazel-6.5.0
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x proxy-wasm/build-tools:local-ci
           cache: true
         - name: 'Wasmtime on macOS/x86_64'
           engine: 'wasmtime'
@@ -297,6 +298,10 @@ jobs:
         for i in $(cd test/test_data && ls -1 *.wasm | sed 's/\.wasm$//g'); do \
           echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD; \
         done
+
+    - name: Build local Docker image
+      if: ${{ startsWith(matrix.run_under, 'docker') }}
+      run: docker build --platform ${{ matrix.platform }} -f bazel/external/Dockerfile.bazel -t proxy-wasm/build-tools:local-ci .
 
     - name: Bazel build/test
       shell: bash
