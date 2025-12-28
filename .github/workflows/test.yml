@@ -166,7 +166,7 @@ jobs:
           os: macos-15
           arch: x86_64
           action: test
-          flags: --config=hermetic-llvm-macos
+          flags: --config=hermetic-llvm
           cache: true
         - name: 'WAMR interp on Linux/x86_64'
           engine: 'wamr-interp'
@@ -181,7 +181,7 @@ jobs:
           os: macos-15
           arch: x86_64
           action: test
-          flags: --config=hermetic-llvm-macos
+          flags: --config=hermetic-llvm
         - name: 'WAMR jit on Linux/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
@@ -198,7 +198,7 @@ jobs:
           arch: x86_64
           action: test
           cache: true
-          flags: --config=hermetic-llvm-macos
+          flags: --config=hermetic-llvm
         - name: 'WasmEdge on Linux/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
@@ -212,7 +212,7 @@ jobs:
           os: macos-15
           arch: x86_64
           action: test
-          flags: --config=hermetic-llvm-macos
+          flags: --config=hermetic-llvm
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -250,10 +250,15 @@ jobs:
           os: macos-15
           arch: x86_64
           action: test
-          flags: --config=hermetic-llvm-macos
+          flags: --config=hermetic-llvm
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Compute job hash
+      id: job-hash
+      run: echo "hash=$(echo -n '${{ matrix.name }}' | sha1sum | cut -c1-7)" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Install dependencies (Linux)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
@@ -275,7 +280,7 @@ jobs:
     - uses: bazel-contrib/setup-bazel@0.16.0
       with:
         bazelisk-cache: true
-        disk-cache: ${{ github.job }}-${{ matrix.name }}
+        disk-cache: ${{ github.job }}-${{ steps.job-hash.outputs.hash }}
         repository-cache: true
 
     - name: Download test data
