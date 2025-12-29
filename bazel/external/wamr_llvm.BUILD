@@ -29,12 +29,12 @@ cmake(
         # Disable both: BUILD and INCLUDE, since some of the INCLUDE
         # targets build code instead of only generating build files.
         "CMAKE_CXX_FLAGS": "-Wno-unused-command-line-argument",
+        "CMAKE_OSX_ARCHITECTURES": "arm64",
         "LLVM_BUILD_BENCHMARKS": "off",
         "LLVM_BUILD_DOCS": "off",
         "LLVM_BUILD_EXAMPLES": "off",
         "LLVM_BUILD_TESTS": "off",
         "LLVM_BUILD_TOOLS": "off",
-        "LLVM_BUILD_UTILS": "off",
         "LLVM_ENABLE_IDE": "off",
         "LLVM_ENABLE_LIBEDIT": "off",
         "LLVM_ENABLE_LIBXML2": "off",
@@ -45,7 +45,6 @@ cmake(
         "LLVM_INCLUDE_DOCS": "off",
         "LLVM_INCLUDE_EXAMPLES": "off",
         "LLVM_INCLUDE_TESTS": "off",
-        "LLVM_INCLUDE_UTILS": "off",
         "LLVM_INCLUDE_TOOLS": "off",
         "LLVM_TARGETS_TO_BUILD": "X86;AArch64",
     },
