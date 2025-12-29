@@ -1,12 +1,3 @@
-From f29fdb0a8592306a070f31033c55dbdc7abd7161 Mon Sep 17 00:00:00 2001
-From: Test <test@example.com>
-Date: Sun, 28 Dec 2025 20:17:38 +0000
-Subject: [PATCH] Force bazel_features 1.11.0 (dep + override)
-
----
- MODULE.bazel | 5 +++++
- 1 file changed, 5 insertions(+)
-
 diff --git a/MODULE.bazel b/MODULE.bazel
 index 0a5ea5b..787d093 100755
 --- a/MODULE.bazel
@@ -30,4 +21,3 @@ index 0a5ea5b..787d093 100755
  
  local_path_override(
      module_name = "remoteapis",
--- 
