@@ -1,15 +1,31 @@
+diff --git a/.bazelrc b/.bazelrc
+index 8514bcc..d746475 100755
+--- a/.bazelrc
++++ b/.bazelrc
+@@ -92,3 +92,11 @@ test:ci-windows --test_env=JAVA_HOME
+ test:ci-windows --test_env=TEST_INSTALL_BASE=C:/b/bazeltest_install_base
+ test:ci-windows --test_env=REPOSITORY_CACHE=C:/b/bazeltest_repo_cache
+ test:ci-windows --test_tag_filters=-no_windows,-slow
++
++# Workaround for GCC segmentation faults on s390x under QEMU emulation
++# Disable optimization and limit parallelism during bootstrap
++build --jobs=1
++build --copt=-O0
++build --host_copt=-O0
++build --copt=-g0
++build --host_copt=-g0
 diff --git a/MODULE.bazel b/MODULE.bazel
-index 0a5ea5b..787d093 100755
+index 0a5ea5b..7e8ccd6 100755
 --- a/MODULE.bazel
 +++ b/MODULE.bazel
-@@ -14,6 +14,7 @@ module(
+@@ -12,6 +12,7 @@ module(
+ # Bazel module dependencies
+ # =========================================
  
++bazel_dep(name = "bazel_features", version = "1.11.0")
  bazel_dep(name = "rules_license", version = "0.0.7")
  bazel_dep(name = "bazel_skylib", version = "1.7.1")
-+bazel_dep(name = "bazel_features", version = "1.11.0")
  bazel_dep(name = "protobuf", version = "21.7", repo_name = "com_google_protobuf")
- bazel_dep(name = "grpc", version = "1.48.1.bcr.1", repo_name = "com_github_grpc_grpc")
- bazel_dep(name = "platforms", version = "0.0.10")
 @@ -41,6 +42,10 @@ single_version_override(
      patch_strip = 1,
      patches = ["//third_party:rules_jvm_external_6.0.patch"],
