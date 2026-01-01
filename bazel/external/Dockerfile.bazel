@@ -66,11 +66,13 @@ RUN git apply /tmp/bazel-v7.7.1.patch && \
     rm -rf derived/repository_cache
 # Additional compilation flags for bootstrap build to avoid GCC crashes under QEMU emulation
 # Note: .bazelrc is ignored during bootstrap (BAZELRC=/dev/null), so flags must be in EXTRA_BAZEL_ARGS
-# These flags duplicate those in the unix_cc_configure.bzl patch to ensure they're applied even if
-# toolchain auto-configuration has issues. This belt-and-suspenders approach is warranted for s390x/QEMU.
+# Use -c dbg and --host_compilation_mode=dbg to avoid default -O2 from opt mode
+# This prevents both -O2 and -O0 from appearing simultaneously in compiler invocations
 ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk \
     --jobs=1 \
     --local_ram_resources=2048 \
+    -c dbg \
+    --host_compilation_mode=dbg \
     --copt=-O0 --host_copt=-O0 \
     --copt=-g0 --host_copt=-g0 \
     --copt=-fno-inline --host_copt=-fno-inline \
