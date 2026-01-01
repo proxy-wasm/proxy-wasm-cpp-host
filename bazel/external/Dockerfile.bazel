@@ -58,12 +58,26 @@ RUN apt-get update && \
         unzip /tmp/bazel-dist.zip -d /tmp/src/bazel && \
         rm -f /tmp/bazel-dist.zip /tmp/src/bazel/MODULE.bazel.lock
 WORKDIR /tmp/src/bazel
-# Patch MODULE.bazel and .bazelrc to:
+# Patch MODULE.bazel and tools/cpp/unix_cc_configure.bzl to:
 # - Force bazel_features v1.11.0 (avoids bzlmod macro requirement during bootstrap)
-# - Configure compilation flags to avoid GCC segmentation faults on s390x under QEMU emulation
+# - Configure C++ toolchain compilation flags to avoid GCC segmentation faults on s390x under QEMU emulation
 COPY bazel/external/bazel-v7.7.1.patch /tmp/bazel-v7.7.1.patch
 RUN git apply /tmp/bazel-v7.7.1.patch
-ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk --host_copt=-O0 --host_copt=-g0 --host_copt=-fno-inline --host_copt=-fno-inline-functions --host_copt=-fno-var-tracking --host_copt=-fno-var-tracking-assignments --host_copt=-fno-schedule-insns --host_copt=-fno-schedule-insns2"
+# Additional compilation flags for bootstrap build to avoid GCC crashes under QEMU emulation
+# Note: .bazelrc is ignored during bootstrap (BAZELRC=/dev/null), so flags must be in EXTRA_BAZEL_ARGS
+# These flags duplicate those in the unix_cc_configure.bzl patch to ensure they're applied even if
+# toolchain auto-configuration has issues. This belt-and-suspenders approach is warranted for s390x/QEMU.
+ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk \
+    --jobs=1 \
+    --local_ram_resources=2048 \
+    --copt=-O0 --host_copt=-O0 \
+    --copt=-g0 --host_copt=-g0 \
+    --copt=-fno-inline --host_copt=-fno-inline \
+    --copt=-fno-inline-functions --host_copt=-fno-inline-functions \
+    --copt=-fno-var-tracking --host_copt=-fno-var-tracking \
+    --copt=-fno-var-tracking-assignments --host_copt=-fno-var-tracking-assignments \
+    --copt=-fno-schedule-insns --host_copt=-fno-schedule-insns \
+    --copt=-fno-schedule-insns2 --host_copt=-fno-schedule-insns2"
 RUN bash ./compile.sh && \
         cp /tmp/src/bazel/output/bazel /tmp/bazel && \
         chmod +x /tmp/bazel && \
