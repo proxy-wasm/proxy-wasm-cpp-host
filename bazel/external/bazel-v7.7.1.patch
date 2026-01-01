@@ -1,8 +1,8 @@
 diff --git a/.bazelrc b/.bazelrc
-index 8514bcc..8934613 100755
+index 8514bcc..fedbb52 100755
 --- a/.bazelrc
 +++ b/.bazelrc
-@@ -92,3 +92,15 @@ test:ci-windows --test_env=JAVA_HOME
+@@ -92,3 +92,24 @@ test:ci-windows --test_env=JAVA_HOME
  test:ci-windows --test_env=TEST_INSTALL_BASE=C:/b/bazeltest_install_base
  test:ci-windows --test_env=REPOSITORY_CACHE=C:/b/bazeltest_repo_cache
  test:ci-windows --test_tag_filters=-no_windows,-slow
@@ -52,10 +52,10 @@ index 0a5ea5b..82411c9 100755
  local_path_override(
      module_name = "remoteapis",
 diff --git a/tools/cpp/unix_cc_configure.bzl b/tools/cpp/unix_cc_configure.bzl
-index bbbba7e..e113e00 100755
+index bbbba7e..d2b37ee 100755
 --- a/tools/cpp/unix_cc_configure.bzl
 +++ b/tools/cpp/unix_cc_configure.bzl
-@@ -688,10 +688,12 @@ def configure_unix_toolchain(repository_ctx, cpu_value, overriden_tools):
+@@ -688,10 +688,17 @@ def configure_unix_toolchain(repository_ctx, cpu_value, overriden_tools):
                      # handling in Bazel.
                      "-g0",
  

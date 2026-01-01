@@ -23,6 +23,19 @@ filegroup(
     srcs = glob(["**"]),
 )
 
+# Platform and architecture-aware alias that selects the appropriate LLVM configuration
+alias(
+    name = "llvm_wamr_lib",
+    actual = select({
+        ":linux_x86_64": ":llvm_wamr_lib_linux_x86",
+        ":linux_aarch64": ":llvm_wamr_lib_linux_aarch64",
+        ":macos_x86_64": ":llvm_wamr_lib_macos_x86",
+        ":macos_aarch64": ":llvm_wamr_lib_macos_aarch64",
+        # Default to x86_64 Linux for other architectures
+        "//conditions:default": ":llvm_wamr_lib_linux_x86",
+    }),
+)
+
 # LLVM configuration for Linux x86_64 builds
 # LLVM_BUILD_UTILS and LLVM_INCLUDE_UTILS are disabled to avoid mlgo-utils
 # test suite errors (requires llvm-objcopy and yaml2obj tools that are disabled).
@@ -503,17 +516,4 @@ config_setting(
         "@platforms//os:macos",
         "@platforms//cpu:aarch64",
     ],
-)
-
-# Platform and architecture-aware alias that selects the appropriate LLVM configuration
-alias(
-    name = "llvm_wamr_lib",
-    actual = select({
-        ":linux_x86_64": ":llvm_wamr_lib_linux_x86",
-        ":linux_aarch64": ":llvm_wamr_lib_linux_aarch64",
-        ":macos_x86_64": ":llvm_wamr_lib_macos_x86",
-        ":macos_aarch64": ":llvm_wamr_lib_macos_aarch64",
-        # Default to x86_64 Linux for other architectures
-        "//conditions:default": ":llvm_wamr_lib_linux_x86",
-    }),
 )
