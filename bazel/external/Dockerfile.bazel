@@ -34,7 +34,7 @@
 #     -- //test/...
 
 ARG BAZEL_VERSION=7.7.1
-ARG UBUNTU_VERSION=22.04
+ARG UBUNTU_VERSION=24.04
 
 # Stage 1: build Bazel from release for the target platform
 FROM ubuntu:${UBUNTU_VERSION} AS bazel-builder
@@ -43,6 +43,7 @@ ARG BAZEL_VERSION
 ARG DEPS_BUILDER="\
         build-essential \
         ca-certificates \
+        clang \
         curl \
         git \
         openjdk-21-jdk \
@@ -68,6 +69,9 @@ RUN git apply /tmp/bazel-v7.7.1.patch && \
 # Note: .bazelrc is ignored during bootstrap (BAZELRC=/dev/null), so flags must be in EXTRA_BAZEL_ARGS
 # Use -c dbg and --host_compilation_mode=dbg to avoid default -O2 from opt mode
 # This prevents both -O2 and -O0 from appearing simultaneously in compiler invocations
+# Use clang instead of gcc as it's more stable under QEMU emulation
+ENV CC=clang
+ENV CXX=clang++
 ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk \
     --jobs=1 \
     --local_ram_resources=2048 \
