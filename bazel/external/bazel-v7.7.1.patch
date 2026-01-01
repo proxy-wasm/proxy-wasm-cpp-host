@@ -10,6 +10,7 @@ index 8514bcc..8934613 100755
 +# Workaround for GCC segmentation faults on s390x under QEMU emulation
 +# Disable optimization and limit parallelism during bootstrap
 +build --jobs=1
++build --local_ram_resources=2048
 +build --copt=-O0
 +build --host_copt=-O0
 +build --copt=-g0
@@ -18,6 +19,14 @@ index 8514bcc..8934613 100755
 +build --host_copt=-fno-inline
 +build --copt=-fno-inline-functions
 +build --host_copt=-fno-inline-functions
++build --copt=-fno-var-tracking
++build --host_copt=-fno-var-tracking
++build --copt=-fno-var-tracking-assignments
++build --host_copt=-fno-var-tracking-assignments
++build --copt=-fno-schedule-insns
++build --host_copt=-fno-schedule-insns
++build --copt=-fno-schedule-insns2
++build --host_copt=-fno-schedule-insns2
 diff --git a/MODULE.bazel b/MODULE.bazel
 index 0a5ea5b..82411c9 100755
 --- a/MODULE.bazel
@@ -57,9 +66,14 @@ index bbbba7e..e113e00 100755
 +                    # Workaround for GCC segmentation faults on s390x under QEMU emulation
 +                    "-O0",
 +
-+                    # Additional flags to prevent inlining which can cause GCC crashes
++                    # Additional flags to prevent inlining and reduce memory usage
++                    # which can cause GCC crashes under QEMU emulation
 +                    "-fno-inline",
 +                    "-fno-inline-functions",
++                    "-fno-var-tracking",
++                    "-fno-var-tracking-assignments",
++                    "-fno-schedule-insns",
++                    "-fno-schedule-insns2",
  
                      # Security hardening on by default.
                      # Conservative choice; -D_FORTIFY_SOURCE=2 may be unsafe in some cases.
