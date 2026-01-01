@@ -22,6 +22,26 @@ index 0a5ea5b..82411c9 100755
  
  local_path_override(
      module_name = "remoteapis",
+diff --git a/tools/cpp/bsd_cc_toolchain_config.bzl b/tools/cpp/bsd_cc_toolchain_config.bzl
+index 8dbecd9..7f5ab3e 100755
+--- a/tools/cpp/bsd_cc_toolchain_config.bzl
++++ b/tools/cpp/bsd_cc_toolchain_config.bzl
+@@ -149,7 +149,14 @@ def _impl(ctx):
+                     flag_group(
+                         flags = [
+                             "-g0",
+-                            "-O2",
++                            # Workaround for GCC segmentation faults on s390x under QEMU emulation
++                            "-O0",
++                            "-fno-inline",
++                            "-fno-inline-functions",
++                            "-fno-var-tracking",
++                            "-fno-var-tracking-assignments",
++                            "-fno-schedule-insns",
++                            "-fno-schedule-insns2",
+                             "-DNDEBUG",
+                             "-ffunction-sections",
+                             "-fdata-sections",
 diff --git a/tools/cpp/unix_cc_configure.bzl b/tools/cpp/unix_cc_configure.bzl
 index bbbba7e..d2b37ee 100755
 --- a/tools/cpp/unix_cc_configure.bzl
