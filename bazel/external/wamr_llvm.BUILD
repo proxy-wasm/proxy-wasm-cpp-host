@@ -376,21 +376,48 @@ cmake(
     working_directory = "llvm",
 )
 
+# Platform-specific config settings to enable proper select() in alias rule
+config_setting(
+    name = "linux_x86_64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+config_setting(
+    name = "linux_aarch64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:aarch64",
+    ],
+)
+
+config_setting(
+    name = "macos_x86_64",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+config_setting(
+    name = "macos_aarch64",
+    constraint_values = [
+        "@platforms//os:macos",
+        "@platforms//cpu:aarch64",
+    ],
+)
+
 # Platform and architecture-aware alias that selects the appropriate LLVM configuration
 # Note: macOS cross-compiles for arm64, so it always uses llvm_wamr_lib_macos with both X86 and AArch64 targets
 alias(
     name = "llvm_wamr_lib",
     actual = select({
-        "@platforms//cpu:x86_64": select({
-            "@platforms//os:linux": ":llvm_wamr_lib_linux_x86",
-            "@platforms//os:macos": ":llvm_wamr_lib_macos",
-            "//conditions:default": ":llvm_wamr_lib_linux_x86",
-        }),
-        "@platforms//cpu:aarch64": select({
-            "@platforms//os:linux": ":llvm_wamr_lib_linux_aarch64",
-            "@platforms//os:macos": ":llvm_wamr_lib_macos",
-            "//conditions:default": ":llvm_wamr_lib_linux_aarch64",
-        }),
+        ":linux_x86_64": ":llvm_wamr_lib_linux_x86",
+        ":linux_aarch64": ":llvm_wamr_lib_linux_aarch64",
+        ":macos_x86_64": ":llvm_wamr_lib_macos",
+        ":macos_aarch64": ":llvm_wamr_lib_macos",
         # Default to x86_64 Linux for other architectures
         "//conditions:default": ":llvm_wamr_lib_linux_x86",
     }),
