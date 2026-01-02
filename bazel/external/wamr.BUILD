@@ -68,6 +68,10 @@ cmake(
     linkopts = select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": ["-ldl"],
         "//conditions:default": [],
+    }) + select({
+        "@platforms//os:macos": ["-Wl,-all_load"],
+        "@platforms//os:linux": ["-Wl,--start-group", "-Wl,--end-group"],
+        "//conditions:default": [],
     }),
     out_static_libs = ["libiwasm.a"],
     deps = select({

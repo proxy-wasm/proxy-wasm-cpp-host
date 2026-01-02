@@ -149,6 +149,10 @@ cc_library(
         "PROXY_WASM_HAS_RUNTIME_WAMR",
         "PROXY_WASM_HOST_ENGINE_WAMR",
     ],
+    linkopts = select({
+        "@platforms//os:macos": ["-Wl,-all_load"],
+        "//conditions:default": [],
+    }),
     deps = [
         ":wasm_vm_headers",
         "@com_github_bytecodealliance_wasm_micro_runtime//:wamr_lib",
