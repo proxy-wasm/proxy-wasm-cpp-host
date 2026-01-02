@@ -12,16 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_features//:deps.bzl", "bazel_features_deps")
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 load("@fuzzing_py_deps//:requirements.bzl", pip_fuzzing_dependencies = "install_deps")
 load("@llvm_toolchain//:toolchains.bzl", "llvm_register_toolchains")
 load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
 load("@rules_fuzzing//fuzzing:repositories.bzl", "rules_fuzzing_dependencies")
+load("@rules_python//python:repositories.bzl", "python_register_toolchains")
 load("@v8_python_deps//:requirements.bzl", pip_v8_dependencies = "install_deps")
 
 def proxy_wasm_cpp_host_dependencies_import():
+    python_register_toolchains(
+        name = "python_3_11",
+        python_version = "3.11",
+        ignore_root_user_error = True,  # for docker run
+    )
+    bazel_skylib_workspace()
+    bazel_features_deps()
+
     llvm_register_toolchains()
 
-    rules_foreign_cc_dependencies()
     rules_fuzzing_dependencies()
 
     pip_fuzzing_dependencies()

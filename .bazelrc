@@ -58,10 +58,9 @@ build:clang-tsan --linkopt -fsanitize=thread
 build:clang-tsan --test_env=TSAN_OPTIONS=suppressions=bazel/tsan_suppressions.txt
 
 # Use Clang-Tidy tool.
-build:clang-tidy --config=clang
-build:clang-tidy --aspects @bazel_clang_tidy//clang_tidy:clang_tidy.bzl%clang_tidy_aspect
-build:clang-tidy --@bazel_clang_tidy//:clang_tidy_config=@proxy_wasm_cpp_host//:clang_tidy_config
-build:clang-tidy --output_groups=report
+build:clang-tidy --aspects //tools/lint:linters.bzl%clang_tidy
+build:clang-tidy --output_groups=rules_lint_report
+build:clang-tidy --config=hermetic-llvm
 
 # Use GCC compiler.
 build:gcc --action_env=BAZEL_COMPILER=gcc
@@ -71,11 +70,6 @@ build:gcc --action_env=CXX=g++
 build:hermetic-llvm --incompatible_enable_cc_toolchain_resolution
 build:hermetic-llvm --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 build:hermetic-llvm --extra_toolchains @emsdk//emscripten_toolchain:cc-toolchain-wasm
-
-build:hermetic-llvm-macos --config=hermetic-llvm
-# Below flags mitigate https://github.com/bazel-contrib/toolchains_llvm/pull/229.
-build:hermetic-llvm-macos --features=-libtool
-build:hermetic-llvm-macos --features=-supports_dynamic_linker
 
 build --enable_platform_specific_config
 

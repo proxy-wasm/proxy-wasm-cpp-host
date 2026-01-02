@@ -31,14 +31,17 @@ pub extern "C" fn trigger2(_val: i32) -> i32 {
     0
 }
 
+#[inline(never)]
 fn one() {
     two();
 }
 
+#[inline(never)]
 fn two() {
     three();
 }
 
-fn three(){
+#[inline(never)]
+fn three() {
     panic!("trap!");
 }
