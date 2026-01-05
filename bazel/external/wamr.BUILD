@@ -70,7 +70,10 @@ cmake(
         "//conditions:default": [],
     }) + select({
         "@platforms//os:macos": ["-Wl,-all_load"],
-        "@platforms//os:linux": ["-Wl,--start-group", "-Wl,--end-group"],
+        "@platforms//os:linux": [
+            "-Wl,--start-group",
+            "-Wl,--end-group",
+        ],
         "//conditions:default": [],
     }),
     out_static_libs = ["libiwasm.a"],
