@@ -258,7 +258,7 @@ jobs:
 
     - name: Compute job hash
       id: job-hash
-      run: echo "hash=$(echo -n '${{ matrix.name }}' | sha1sum | cut -c1-7)" >> $GITHUB_OUTPUT
+      run: echo "hash=$(echo -n '${{ matrix.engine }}-${{ matrix.flags }}-${{ matrix.os }}-${{ matrix.arch }}' | sha1sum | cut -c1-10)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Install dependencies (Linux)
@@ -277,6 +277,10 @@ jobs:
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
       run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+    - name: Set up Docker Buildx
+      if: startsWith(matrix.run_under, 'docker')
+      uses: docker/setup-buildx-action@v3
 
     - uses: bazel-contrib/setup-bazel@0.16.0
       with:
@@ -301,7 +305,15 @@ jobs:
 
     - name: Build local Docker image
       if: ${{ startsWith(matrix.run_under, 'docker') }}
-      run: docker build --platform ${{ matrix.platform }} -f bazel/external/Dockerfile.bazel -t proxy-wasm/build-tools:local-ci .
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: bazel/external/Dockerfile.bazel
+        platforms: ${{ matrix.platform }}
+        tags: proxy-wasm/build-tools:local-ci
+        load: true
+        cache-from: type=gha,scope=build-tools-${{ matrix.platform }}
+        cache-to: type=gha,mode=max,scope=build-tools-${{ matrix.platform }}
 
     - name: Bazel build/test
       shell: bash

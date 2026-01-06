@@ -20,7 +20,7 @@
 #   Need to see "F" flag: cat /proc/sys/fs/binfmt_misc/qemu-*
 #
 # Build:
-#   docker buildx build --platform linux/s390x -t $IMAGE -f Dockerfile.bazel .
+#   docker buildx build --platform linux/s390x -t $IMAGE -f Dockerfile.bazel
 #
 # Push:
 #   docker image tag $IMAGE ghcr.io/proxy-wasm/$IMAGE
@@ -35,6 +35,7 @@
 
 ARG BAZEL_VERSION=7.7.1
 ARG UBUNTU_VERSION=24.04
+ARG TARGETARCH
 
 # Stage 1: build Bazel from release for the target platform
 FROM ubuntu:${UBUNTU_VERSION} AS bazel-builder
@@ -52,12 +53,14 @@ ARG DEPS_BUILDER="\
         wget \
         zip\
 "
+ARG TARGETARCH
 RUN apt-get update && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS_BUILDER && \
         mkdir -p /tmp/src/bazel && \
         wget --progress=dot:giga -O /tmp/bazel-dist.zip https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip && \
         unzip /tmp/bazel-dist.zip -d /tmp/src/bazel && \
         rm -f /tmp/bazel-dist.zip /tmp/src/bazel/MODULE.bazel.lock
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-${TARGETARCH}
 WORKDIR /tmp/src/bazel
 # Patch MODULE.bazel and tools/cpp/unix_cc_configure.bzl to:
 # - Force bazel_features v1.11.0 (avoids bzlmod macro requirement during bootstrap)
@@ -88,14 +91,21 @@ RUN bash ./compile.sh && \
 FROM ubuntu:${UBUNTU_VERSION} AS test-runtime
 ARG DEPS_RUNTIME="\
         ca-certificates \
-        openjdk-21-jre-headless \
+        clang \
+        git \
+        libstdc++6 \
+        libssl-dev \
+        libz-dev \
+        openjdk-21-jdk \
         python3 \
         unzip \
         zip\
 "
+ARG TARGETARCH
 RUN apt-get update && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS_RUNTIME && \
         rm -rf /var/lib/apt/lists/*
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-${TARGETARCH}
 
 # Copy Bazel binary from builder
 COPY --from=bazel-builder /tmp/bazel /usr/bin/bazel
