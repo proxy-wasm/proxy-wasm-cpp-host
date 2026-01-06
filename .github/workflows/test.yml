@@ -52,6 +52,7 @@ jobs:
       with:
         bazelisk-cache: true
         disk-cache: ${{ github.job }}
+        external-cache: true
         repository-cache: true
 
     - name: Bazel build
@@ -286,6 +287,7 @@ jobs:
       with:
         bazelisk-cache: true
         disk-cache: ${{ github.job }}-${{ steps.job-hash.outputs.hash }}
+        external-cache: true
         repository-cache: true
 
     - name: Download test data

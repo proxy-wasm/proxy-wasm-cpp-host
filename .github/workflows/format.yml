@@ -92,6 +92,7 @@ jobs:
       with:
         bazelisk-cache: true
         disk-cache: ${{ github.job }}
+        external-cache: true
         repository-cache: true
 
     - name: Format (bazel query)
@@ -132,6 +133,7 @@ jobs:
       with:
         bazelisk-cache: true
         disk-cache: ${{ github.job }}
+        external-cache: true
         repository-cache: true
 
     - name: Bazel build
