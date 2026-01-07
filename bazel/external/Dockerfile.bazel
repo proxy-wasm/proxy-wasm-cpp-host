@@ -51,8 +51,7 @@ ARG DEPS_BUILDER="\
         python3 \
         unzip \
         wget \
-        zip\
-"
+        zip"
 ARG TARGETARCH
 RUN apt-get update && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS_BUILDER && \
@@ -93,14 +92,17 @@ ARG DEPS_RUNTIME="\
         ca-certificates \
         clang \
         git \
+        libbz2-dev \
+        libffi-dev \
+        liblzma-dev \
         libstdc++6 \
         libssl-dev \
         libz-dev \
         openjdk-21-jdk \
         python3 \
+        python3-dev \
         unzip \
-        zip\
-"
+        zip"
 ARG TARGETARCH
 RUN apt-get update && \
         DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS_RUNTIME && \
