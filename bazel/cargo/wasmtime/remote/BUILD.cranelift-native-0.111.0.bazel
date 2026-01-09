@@ -6,15 +6,21 @@
 #     bazel run @//bazel/cargo/wasmtime:crates_vendor
 ###############################################################################
 
+load("@rules_rust//cargo:defs.bzl", "cargo_toml_env_vars")
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
+
+cargo_toml_env_vars(
+    name = "cargo_toml_env_vars",
+    src = "Cargo.toml",
+)
 
 rust_library(
     name = "cranelift_native",
     srcs = glob(
         include = ["**/*.rs"],
-        allow_empty = False,
+        allow_empty = True,
     ),
     compile_data = glob(
         include = ["**"],
@@ -34,6 +40,9 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
+    rustc_env_files = [
+        ":cargo_toml_env_vars",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -49,6 +58,9 @@ rust_library(
         "@cu__cranelift-codegen-0.111.0//:cranelift_codegen",
         "@cu__target-lexicon-0.12.16//:target_lexicon",
     ] + select({
+        "@rules_rust//rust/platform:riscv64gc-unknown-linux-gnu": [
+            "@cu__libc-0.2.155//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
+        ],
         "@rules_rust//rust/platform:riscv64gc-unknown-none-elf": [
             "@cu__libc-0.2.155//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
         ],

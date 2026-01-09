@@ -6,15 +6,21 @@
 #     bazel run @//bazel/cargo/wasmtime:crates_vendor
 ###############################################################################
 
+load("@rules_rust//cargo:defs.bzl", "cargo_toml_env_vars")
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
 package(default_visibility = ["//visibility:public"])
+
+cargo_toml_env_vars(
+    name = "cargo_toml_env_vars",
+    src = "Cargo.toml",
+)
 
 rust_library(
     name = "errno",
     srcs = glob(
         include = ["**/*.rs"],
-        allow_empty = False,
+        allow_empty = True,
     ),
     compile_data = glob(
         include = ["**"],
@@ -33,6 +39,9 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     edition = "2018",
+    rustc_env_files = [
+        ":cargo_toml_env_vars",
+    ],
     rustc_flags = [
         "--cap-lints=allow",
     ],
@@ -54,14 +63,14 @@ rust_library(
         "@rules_rust//rust/platform:aarch64-apple-ios-sim": [
             "@cu__libc-0.2.155//:libc",  # cfg(unix)
         ],
-        "@rules_rust//rust/platform:aarch64-fuchsia": [
-            "@cu__libc-0.2.155//:libc",  # cfg(unix)
-        ],
         "@rules_rust//rust/platform:aarch64-linux-android": [
             "@cu__libc-0.2.155//:libc",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:aarch64-pc-windows-msvc": [
             "@cu__windows-sys-0.52.0//:windows_sys",  # cfg(windows)
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-fuchsia": [
+            "@cu__libc-0.2.155//:libc",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
             "@cu__libc-0.2.155//:libc",  # cfg(unix)
@@ -99,19 +108,28 @@ rust_library(
         "@rules_rust//rust/platform:powerpc-unknown-linux-gnu": [
             "@cu__libc-0.2.155//:libc",  # cfg(unix)
         ],
+        "@rules_rust//rust/platform:riscv64gc-unknown-linux-gnu": [
+            "@cu__libc-0.2.155//:libc",  # cfg(unix)
+        ],
         "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
             "@cu__libc-0.2.155//:libc",  # cfg(unix)
         ],
-        "@rules_rust//rust/platform:wasm32-wasi": [
+        "@rules_rust//rust/platform:wasm32-unknown-emscripten": [
+            "@cu__libc-0.2.155//:libc",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:wasm32-wasip1": [
+            "@cu__libc-0.2.155//:libc",  # cfg(target_os = "wasi")
+        ],
+        "@rules_rust//rust/platform:wasm32-wasip1-threads": [
+            "@cu__libc-0.2.155//:libc",  # cfg(target_os = "wasi")
+        ],
+        "@rules_rust//rust/platform:wasm32-wasip2": [
             "@cu__libc-0.2.155//:libc",  # cfg(target_os = "wasi")
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
             "@cu__libc-0.2.155//:libc",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-apple-ios": [
-            "@cu__libc-0.2.155//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:x86_64-fuchsia": [
             "@cu__libc-0.2.155//:libc",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-linux-android": [
@@ -121,6 +139,9 @@ rust_library(
             "@cu__windows-sys-0.52.0//:windows_sys",  # cfg(windows)
         ],
         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [
+            "@cu__libc-0.2.155//:libc",  # cfg(unix)
+        ],
+        "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [
             "@cu__libc-0.2.155//:libc",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [

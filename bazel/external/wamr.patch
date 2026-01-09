@@ -1,0 +1,26 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c33b211e..d04d0cc8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -178,8 +178,6 @@ set (WAMR_PUBLIC_HEADERS
+ )
+ set_target_properties (vmlib PROPERTIES PUBLIC_HEADER "${WAMR_PUBLIC_HEADERS}")
+ 
+-set_version_info (vmlib)
+-
+ install (TARGETS vmlib
+   EXPORT iwasmTargets
+   LIBRARY DESTINATION lib
+diff --git a/build-scripts/config_common.cmake b/build-scripts/config_common.cmake
+index cb15b8b0..b71cf077 100644
+--- a/build-scripts/config_common.cmake
++++ b/build-scripts/config_common.cmake
+@@ -140,7 +140,7 @@ else ()
+ endif ()
+ 
+ # Version
+-include (${WAMR_ROOT_DIR}/build-scripts/version.cmake)
++# include (${WAMR_ROOT_DIR}/build-scripts/version.cmake)
+ 
+ # Package
+ include (${WAMR_ROOT_DIR}/build-scripts/package.cmake)

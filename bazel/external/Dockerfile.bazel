@@ -33,43 +33,84 @@
 #     --define engine=null --config=clang --test_timeout=1800 \
 #     -- //test/...
 
-# Update base image
-ARG UBUNTU_VERSION=22.04
-FROM ubuntu:${UBUNTU_VERSION} as build
-RUN apt update && apt upgrade -y
-RUN apt autoremove -y
+ARG BAZEL_VERSION=7.7.1
+ARG UBUNTU_VERSION=24.04
+ARG TARGETARCH
 
-# Install Bazel deps
-RUN apt install -y software-properties-common
-RUN add-apt-repository ppa:openjdk-r/ppa
-RUN apt install -y \
-    build-essential \
-    openjdk-11-jdk \
-    python3 \
-    curl \
-    zip \
-    unzip
+# Stage 1: build Bazel from release for the target platform
+FROM ubuntu:${UBUNTU_VERSION} AS bazel-builder
+WORKDIR /tmp
+ARG BAZEL_VERSION
+ARG DEPS_BUILDER="\
+        build-essential \
+        ca-certificates \
+        clang \
+        curl \
+        git \
+        openjdk-21-jdk \
+        python3 \
+        unzip \
+        wget \
+        zip"
+ARG TARGETARCH
+RUN apt-get update && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS_BUILDER && \
+        mkdir -p /tmp/src/bazel && \
+        wget --progress=dot:giga -O /tmp/bazel-dist.zip https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip && \
+        unzip /tmp/bazel-dist.zip -d /tmp/src/bazel && \
+        rm -f /tmp/bazel-dist.zip /tmp/src/bazel/MODULE.bazel.lock
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-${TARGETARCH}
+WORKDIR /tmp/src/bazel
+# Patch MODULE.bazel and tools/cpp/unix_cc_configure.bzl to:
+# - Force bazel_features v1.11.0 (avoids bzlmod macro requirement during bootstrap)
+# - Configure C++ toolchain compilation flags to avoid GCC segmentation faults on s390x under QEMU emulation
+COPY bazel/external/bazel-v7.7.1.patch /tmp/bazel-v7.7.1.patch
+RUN git apply /tmp/bazel-v7.7.1.patch && \
+    rm -rf derived/repository_cache
+# Additional compilation flags for bootstrap build to avoid GCC crashes under QEMU emulation
+# Note: .bazelrc is ignored during bootstrap (BAZELRC=/dev/null), so flags must be in EXTRA_BAZEL_ARGS
+# Use -c dbg and --host_compilation_mode=dbg to avoid default -O2 from opt mode
+# This prevents both -O2 and -O0 from appearing simultaneously in compiler invocations
+# Use clang instead of gcc as it's more stable under QEMU emulation
+ENV CC=clang
+ENV CXX=clang++
+ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk \
+    --jobs=1 \
+    --local_ram_resources=2048 \
+    -c dbg \
+    --host_compilation_mode=dbg \
+    --copt=-O0 --host_copt=-O0 \
+    --copt=-g0 --host_copt=-g0"
+RUN bash ./compile.sh && \
+        cp /tmp/src/bazel/output/bazel /tmp/bazel && \
+        chmod +x /tmp/bazel && \
+        rm -rf /tmp/src/bazel /tmp/bazel-v7.7.1.patch
 
-# Download Bazel source
-ARG BAZEL_VERSION=6.5.0
-RUN cd ~ && mkdir bazel && cd bazel
-RUN curl -LO https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip
-RUN unzip -q bazel-${BAZEL_VERSION}-dist.zip
+# Stage 2: minimal runtime for executing tests
+FROM ubuntu:${UBUNTU_VERSION} AS test-runtime
+ARG DEPS_RUNTIME="\
+        ca-certificates \
+        clang \
+        git \
+        libbz2-dev \
+        libffi-dev \
+        liblzma-dev \
+        libstdc++6 \
+        libssl-dev \
+        libz-dev \
+        openjdk-21-jdk \
+        python3 \
+        python3-dev \
+        unzip \
+        zip"
+ARG TARGETARCH
+RUN apt-get update && \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $DEPS_RUNTIME && \
+        rm -rf /var/lib/apt/lists/*
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-${TARGETARCH}
 
-# Build Bazel
-# NOTE: This step is flaky and frequently hangs for multiarch / buildx.
-# If it takes more than 2 hours, restart the Docker build and try again.
-ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk"
-RUN bash ./compile.sh
+# Copy Bazel binary from builder
+COPY --from=bazel-builder /tmp/bazel /usr/bin/bazel
 
-# Copy output to /usr/bin
-RUN cp /output/bazel /usr/bin/bazel
-
-# Install ProxyWasm build deps
-RUN apt install -y \
-    git \
-    python3-distutils \
-    clang \
-    libstdc++6 \
-    libssl-dev \
-    libz-dev
+# Set a valid working directory
+WORKDIR /root

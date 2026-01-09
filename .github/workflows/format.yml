@@ -88,6 +88,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - uses: bazel-contrib/setup-bazel@0.16.0
+      with:
+        bazelisk-cache: true
+        disk-cache: ${{ github.job }}
+        external-cache: true
+        repository-cache: true
+
     - name: Format (bazel query)
       run: |
         bazel query 'deps(//bazel/cargo/...)'
@@ -122,43 +129,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependencies (Linux)
-      run: sudo apt update -y && sudo apt install -y clang-tidy-18 lld-18 && sudo ln -sf /usr/bin/lld-18 /usr/bin/lld
-
-    - name: set cache name
-      id: vars
-      # The cache tag consists of the following parts:
-      # * clang-tidy- prefix
-      # * matrix.name, which separates the cache for each build type.
-      # * hash of WORKSPACE, .bazelrc, and .bazelversion, which is
-      #   purely to differentiate caches for substantial changes in bazel.
-      # * github.sha, which is the commit hash of the commit used to generate
-      #   the cache entry.
-      run: echo "CACHE_TAG=clang-tidy-${{ matrix.name }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion') }}" >> "$GITHUB_OUTPUT"
-
-    - name: bazel cache
-      uses: actions/cache/restore@v3
+    - uses: bazel-contrib/setup-bazel@0.16.0
       with:
-        path: /tmp/bazel/cache
-        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
-        restore-keys: |
-          ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
-          ${{ steps.vars.outputs.CACHE_TAG }}-
-          clang-tidy-${{ matrix.name }}-
-          clang-tidy-
+        bazelisk-cache: true
+        disk-cache: ${{ github.job }}
+        external-cache: true
+        repository-cache: true
 
     - name: Bazel build
       run: >
         bazel build
+        --config=hermetic-llvm
         --config clang-tidy
         --define engine=multi
-        --disk_cache /tmp/bazel/cache
-        --copt=-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
+        --copt=-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -c3-)\"
         //...
-
-    - name: save bazel cache
-      uses: actions/cache/save@v3
-      if: always()
-      with:
-        path: /tmp/bazel/cache
-        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}

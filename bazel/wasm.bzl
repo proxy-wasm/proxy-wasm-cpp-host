@@ -45,7 +45,7 @@ def _wasm_binary_impl(ctx):
     if ctx.attr.signing_key:
         ctx.actions.run(
             executable = ctx.executable._wasmsign_tool,
-            arguments = ["--sign", "--use-custom-section", "--sk-path", ctx.files.signing_key[0].path, "--pk-path", ctx.files.signing_key[1].path, "--input", ctx.files.binary[0].path, "--output", out.path],
+            arguments = ["sign", "--secret-key", ctx.files.signing_key[0].path, "--public-key", ctx.files.signing_key[1].path, "--input-file", ctx.files.binary[0].path, "--output-file", out.path],
             outputs = [out],
             inputs = ctx.files.binary + ctx.files.signing_key,
         )
@@ -63,8 +63,8 @@ def _wasm_attrs(transition):
     return {
         "binary": attr.label(mandatory = True, cfg = transition),
         "signing_key": attr.label_list(allow_files = True),
-        "_wasmsign_tool": attr.label(default = "//bazel/cargo/wasmsign/remote:wasmsign__wasmsign", executable = True, cfg = "exec"),
-        "_whitelist_function_transition": attr.label(default = "@bazel_tools//tools/whitelists/function_transition_whitelist"),
+        "_wasmsign_tool": attr.label(default = "//bazel/cargo/wasmsign/remote:wasmsign2-cli__wasmsign2", executable = True, cfg = "exec"),
+        "_allowlist_function_transition": attr.label(default = "@bazel_tools//tools/allowlists/function_transition_allowlist"),
     }
 
 wasm_rust_binary_rule = rule(

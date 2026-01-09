@@ -158,7 +158,10 @@ TEST_P(TestVm, Trap) {
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
     EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
-    EXPECT_TRUE(host->isErrorLogged(" - trigger"));
+    // Check for the function name 'one' in the backtrace, which may appear with or without
+    // module prefix depending on Rust compiler version and symbol generation.
+    bool has_one_symbol = host->isErrorLogged("::one") || host->isErrorLogged(" - one");
+    EXPECT_TRUE(has_one_symbol) << "Expected to find '::one' or ' - one' in backtrace";
   }
 }
 

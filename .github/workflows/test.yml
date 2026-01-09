@@ -48,26 +48,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: set cache name
-      id: vars
-      # The cache tag consists of the following parts:
-      # * test-deps-bazel-cache- prefix
-      # * hash of WORKSPACE, .bazelrc, and .bazelversion, which is
-      #   purely to differentiate caches for substantial changes in bazel.
-      # * github.sha, which is the commit hash of the commit used to generate
-      #   the cache entry.
-      run: echo "CACHE_TAG=test-deps-bazel-cache-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion') }}" >> "$GITHUB_OUTPUT"
-
-    - name: bazel cache
-      uses: actions/cache/restore@v3
+    - uses: bazel-contrib/setup-bazel@0.16.0
       with:
-        path: /tmp/bazel/cache
-        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
-        restore-keys: |
-          ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
-          ${{ steps.vars.outputs.CACHE_TAG }}-
-          test-deps-bazel-cache-${{ matrix.name }}-
-          test-deps-bazel-cache-
+        bazelisk-cache: true
+        disk-cache: ${{ github.job }}
+        external-cache: true
+        repository-cache: true
 
     - name: Bazel build
       run: >
@@ -75,7 +61,7 @@ jobs:
         --verbose_failures
         --test_output=errors
         --config=clang
-        --disk_cache /tmp/bazel/cache
+        --config=hermetic-llvm
         -c opt
         $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
         $(bazel query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
@@ -99,22 +85,6 @@ jobs:
         if-no-files-found: error
         retention-days: 3
 
-    - name: remove unaccessed files from cache
-      shell: bash
-      run: >
-        find /tmp/bazel/cache
-        -type f
-        -name '*'
-        -amin +360
-        -exec rm {} \;
-
-    - name: save bazel cache
-      uses: actions/cache/save@v3
-      if: always()
-      with:
-        path: /tmp/bazel/cache
-        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
-
   build:
     name: ${{ matrix.action }} with ${{ matrix.name }}
 
@@ -137,13 +107,13 @@ jobs:
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang-asan --define=crypto=system
+          flags: --config=hermetic-llvm --config=clang-asan --define=crypto=system
         - name: 'NullVM on Linux/x86_64 with TSan'
           engine: 'null'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang-tsan
+          flags: --config=hermetic-llvm --config=clang-tsan
         - name: 'NullVM on Windows/x86_64'
           engine: 'null'
           os: windows-2022
@@ -194,10 +164,10 @@ jobs:
         - name: 'V8 on macOS/x86_64'
           engine: 'v8'
           repo: 'v8'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
-          flags: --config=hermetic-llvm-macos
+          flags: --config=hermetic-llvm
           cache: true
         - name: 'WAMR interp on Linux/x86_64'
           engine: 'wamr-interp'
@@ -205,56 +175,59 @@ jobs:
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=hermetic-llvm
         - name: 'WAMR interp on macOS/x86_64'
           engine: 'wamr-interp'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm
         - name: 'WAMR jit on Linux/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=hermetic-llvm
           deps: lld-18
           cache: true
         - name: 'WAMR jit on macOS/x86_64'
           engine: 'wamr-jit'
           repo: 'com_github_bytecodealliance_wasm_micro_runtime'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
           cache: true
+          flags: --config=hermetic-llvm
         - name: 'WasmEdge on Linux/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang
+          flags: --config=hermetic-llvm
         - name: 'WasmEdge on macOS/x86_64'
           engine: 'wasmedge'
           repo: 'com_github_wasmedge_wasmedge'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang -c opt
+          flags: --config=hermetic-llvm -c opt
         - name: 'Wasmtime on Linux/x86_64 with ASan'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: x86_64
           action: test
-          flags: --config=clang-asan --define=crypto=system
+          flags: --config=hermetic-llvm --config=clang-asan --define=crypto=system
         - name: 'Wasmtime on Linux/aarch64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -267,20 +240,27 @@ jobs:
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: s390x
+          platform: linux/s390x
           action: test
           flags: --config=clang --test_timeout=1800
           # s390x build-tools image built from bazel/external/Dockerfile.bazel
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x ghcr.io/proxy-wasm/build-tools:ubuntu-22.04-bazel-6.5.0
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x proxy-wasm/build-tools:local-ci
           cache: true
         - name: 'Wasmtime on macOS/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
-          os: macos-13
+          os: macos-15
           arch: x86_64
           action: test
+          flags: --config=hermetic-llvm
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Compute job hash
+      id: job-hash
+      run: echo "hash=$(echo -n '${{ matrix.engine }}-${{ matrix.flags }}-${{ matrix.os }}-${{ matrix.arch }}' | sha1sum | cut -c1-10)" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Install dependencies (Linux)
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
@@ -299,27 +279,16 @@ jobs:
       if: startsWith(matrix.run_under, 'docker')
       run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-    - name: set cache name
-      id: vars
-      # The cache tag consists of the following parts:
-      # * bazel-cache- prefix
-      # * matrix.name, which separates the cache for each build type.
-      # * hash of WORKSPACE, .bazelrc, and .bazelversion, which is
-      #   purely to differentiate caches for substantial changes in bazel.
-      # * github.sha, which is the commit hash of the commit used to generate
-      #   the cache entry.
-      run: echo "CACHE_TAG=bazel-cache-${{ matrix.name }}-${{ hashFiles('WORKSPACE', '.bazelrc', '.bazelversion') }}" >> "$GITHUB_OUTPUT"
+    - name: Set up Docker Buildx
+      if: startsWith(matrix.run_under, 'docker')
+      uses: docker/setup-buildx-action@v3
 
-    - name: bazel cache
-      uses: actions/cache/restore@v3
+    - uses: bazel-contrib/setup-bazel@0.16.0
       with:
-        path: /tmp/bazel/cache
-        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
-        restore-keys: |
-          ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
-          ${{ steps.vars.outputs.CACHE_TAG }}-
-          bazel-cache-${{ matrix.name }}-
-          bazel-cache-
+        bazelisk-cache: true
+        disk-cache: ${{ github.job }}-${{ steps.job-hash.outputs.hash }}
+        external-cache: true
+        repository-cache: true
 
     - name: Download test data
       uses: actions/download-artifact@v4
@@ -336,6 +305,18 @@ jobs:
           echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD; \
         done
 
+    - name: Build local Docker image
+      if: ${{ startsWith(matrix.run_under, 'docker') }}
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: bazel/external/Dockerfile.bazel
+        platforms: ${{ matrix.platform }}
+        tags: proxy-wasm/build-tools:local-ci
+        load: true
+        cache-from: type=gha,scope=build-tools-${{ matrix.platform }}
+        cache-to: type=gha,mode=max,scope=build-tools-${{ matrix.platform }}
+
     - name: Bazel build/test
       shell: bash
       run: >
@@ -344,7 +325,6 @@ jobs:
         --verbose_failures
         --test_output=errors
         --define engine=${{ matrix.engine }}
-        --disk_cache /tmp/bazel/cache
         ${{ matrix.flags }}
         -- //test/... ${{ matrix.targets }}
 
@@ -356,24 +336,7 @@ jobs:
         --verbose_failures
         --test_output=errors
         --define engine=${{ matrix.engine }}
-        --disk_cache /tmp/bazel/cache
         ${{ matrix.flags }}
-        --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -b9-)\"
+        --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -c3- | tr -d '\n')\"
         //test:signature_util_test
-
-    - name: remove unaccessed files from cache
-      shell: bash
-      run: >
-        find /tmp/bazel/cache
-        -type f
-        -name '*'
-        -amin +360
-        -exec rm {} \;
-
-    - name: save bazel cache
-      uses: actions/cache/save@v3
-      if: always()
-      with:
-        path: /tmp/bazel/cache
-        key: ${{ steps.vars.outputs.CACHE_TAG }}-${{ github.sha }}
 
