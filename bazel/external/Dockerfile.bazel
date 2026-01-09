@@ -74,13 +74,7 @@ RUN git apply /tmp/bazel-v7.7.1.patch && \
 # Use clang instead of gcc as it's more stable under QEMU emulation
 ENV CC=clang
 ENV CXX=clang++
-ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk \
-    --jobs=1 \
-    --local_ram_resources=2048 \
-    -c dbg \
-    --host_compilation_mode=dbg \
-    --copt=-O0 --host_copt=-O0 \
-    --copt=-g0 --host_copt=-g0"
+ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk"
 RUN bash ./compile.sh && \
         cp /tmp/src/bazel/output/bazel /tmp/bazel && \
         chmod +x /tmp/bazel && \
