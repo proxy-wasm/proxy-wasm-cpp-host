@@ -26,7 +26,7 @@ filegroup(
 cmake(
     name = "wasmedge_lib",
     cache_entries = {
-        "WASMEDGE_BUILD_AOT_RUNTIME": "Off",
+        "WASMEDGE_USE_LLVM": "Off",
         "WASMEDGE_BUILD_SHARED_LIB": "Off",
         "WASMEDGE_BUILD_STATIC_LIB": "On",
         "WASMEDGE_BUILD_TOOLS": "Off",
@@ -38,4 +38,8 @@ cmake(
     generate_args = ["-GNinja"],
     lib_source = ":srcs",
     out_static_libs = ["libwasmedge.a"],
+    deps = [
+        "@fmt",
+        "@spdlog",
+    ],
 )

@@ -52,16 +52,15 @@ template <> WasmEdge_Value makeVal(double t) { return WasmEdge_ValueGenF64(t); }
 
 // Helper function to print values.
 std::string printValue(const WasmEdge_Value &value) {
-  switch (value.Type) {
-  case WasmEdge_ValType_I32:
+  if (WasmEdge_ValTypeIsI32(value.Type)) {
     return std::to_string(WasmEdge_ValueGetI32(value));
-  case WasmEdge_ValType_I64:
+  } else if (WasmEdge_ValTypeIsI64(value.Type)) {
     return std::to_string(WasmEdge_ValueGetI64(value));
-  case WasmEdge_ValType_F32:
+  } else if (WasmEdge_ValTypeIsF32(value.Type)) {
     return std::to_string(WasmEdge_ValueGetF32(value));
-  case WasmEdge_ValType_F64:
+  } else if (WasmEdge_ValTypeIsF64(value.Type)) {
     return std::to_string(WasmEdge_ValueGetF64(value));
-  default:
+  } else {
     return "unknown";
   }
 }
@@ -83,20 +82,19 @@ std::string printValues(const WasmEdge_Value *values, size_t size) {
 
 // Helper function to print valtype.
 const char *printValType(WasmEdge_ValType kind) {
-  switch (kind) {
-  case WasmEdge_ValType_I32:
+  if (WasmEdge_ValTypeIsI32(kind)) {
     return "i32";
-  case WasmEdge_ValType_I64:
+  } else if (WasmEdge_ValTypeIsI64(kind)) {
     return "i64";
-  case WasmEdge_ValType_F32:
+  } else if (WasmEdge_ValTypeIsF32(kind)) {
     return "f32";
-  case WasmEdge_ValType_F64:
+  } else if (WasmEdge_ValTypeIsF64(kind)) {
     return "f64";
-  case WasmEdge_ValType_ExternRef:
+  } else if (WasmEdge_ValTypeIsExternRef(kind)) {
     return "anyref";
-  case WasmEdge_ValType_FuncRef:
+  } else if (WasmEdge_ValTypeIsFuncRef(kind)) {
     return "funcref";
-  default:
+  } else {
     return "unknown";
   }
 }
@@ -118,6 +116,20 @@ std::string printValTypes(const WasmEdge_ValType *types, size_t size) {
   return s;
 }
 
+// Helper function to compare vectors of WasmEdge_ValType.
+bool compareValTypeVectors(const std::vector<WasmEdge_ValType> &a,
+                           const std::vector<WasmEdge_ValType> &b) {
+  if (a.size() != b.size()) {
+    return false;
+  }
+  for (size_t i = 0; i < a.size(); i++) {
+    if (!WasmEdge_ValTypeIsEqual(a[i], b[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
 template <typename T> struct ConvertWordType {
   using type = T; // NOLINT(readability-identifier-naming)
 };
@@ -126,12 +138,12 @@ template <> struct ConvertWordType<Word> {
 };
 
 // Helper templates to convert arg to valtype.
-template <typename T> enum WasmEdge_ValType convArgToValType();
-template <> enum WasmEdge_ValType convArgToValType<Word>() { return WasmEdge_ValType_I32; }
-template <> enum WasmEdge_ValType convArgToValType<uint32_t>() { return WasmEdge_ValType_I32; }
-template <> enum WasmEdge_ValType convArgToValType<int64_t>() { return WasmEdge_ValType_I64; }
-template <> enum WasmEdge_ValType convArgToValType<uint64_t>() { return WasmEdge_ValType_I64; }
-template <> enum WasmEdge_ValType convArgToValType<double>() { return WasmEdge_ValType_F64; }
+template <typename T> WasmEdge_ValType convArgToValType();
+template <> WasmEdge_ValType convArgToValType<Word>() { return WasmEdge_ValTypeGenI32(); }
+template <> WasmEdge_ValType convArgToValType<uint32_t>() { return WasmEdge_ValTypeGenI32(); }
+template <> WasmEdge_ValType convArgToValType<int64_t>() { return WasmEdge_ValTypeGenI64(); }
+template <> WasmEdge_ValType convArgToValType<uint64_t>() { return WasmEdge_ValTypeGenI64(); }
+template <> WasmEdge_ValType convArgToValType<double>() { return WasmEdge_ValTypeGenF64(); }
 
 // Helper templates to convert valtype to arg.
 template <typename T> T convValTypeToArg(WasmEdge_Value val);
@@ -164,11 +176,11 @@ constexpr T convValTypesToArgsTuple(const WasmEdge_Value *arr) {
 
 // Helper templates to convert args tuple to valtypes.
 template <typename T, std::size_t... I>
-uint32_t convArgsTupleToValTypesImpl(std::vector<enum WasmEdge_ValType> &types,
+uint32_t convArgsTupleToValTypesImpl(std::vector<WasmEdge_ValType> &types,
                                      std::index_sequence<I...> /*comptime*/) {
   auto size = std::tuple_size<T>::value;
   if (size > 0) {
-    auto ps = std::array<enum WasmEdge_ValType, std::tuple_size<T>::value>{
+    auto ps = std::array<WasmEdge_ValType, std::tuple_size<T>::value>{
         convArgToValType<typename std::tuple_element<I, T>::type>()...};
     types.resize(size);
     std::copy_n(ps.data(), size, types.data());
@@ -177,14 +189,14 @@ uint32_t convArgsTupleToValTypesImpl(std::vector<enum WasmEdge_ValType> &types,
 }
 
 template <typename T, typename Is = std::make_index_sequence<std::tuple_size<T>::value>>
-uint32_t convArgsTupleToValTypes(std::vector<enum WasmEdge_ValType> &types) {
+uint32_t convArgsTupleToValTypes(std::vector<WasmEdge_ValType> &types) {
   return convArgsTupleToValTypesImpl<T>(types, Is());
 }
 
 // Helper templates to create WasmEdge_FunctionTypeContext.
 template <typename R, typename T> WasmEdge_FunctionTypeContext *newWasmEdgeFuncType() {
-  std::vector<enum WasmEdge_ValType> params;
-  std::vector<enum WasmEdge_ValType> returns;
+  std::vector<WasmEdge_ValType> params;
+  std::vector<WasmEdge_ValType> returns;
   uint32_t param_nums = convArgsTupleToValTypes<T>(params);
   uint32_t return_nums = convArgsTupleToValTypes<std::tuple<R>>(returns);
   auto *ftype = WasmEdge_FunctionTypeCreate(params.data(), param_nums, returns.data(), return_nums);
@@ -192,7 +204,7 @@ template <typename R, typename T> WasmEdge_FunctionTypeContext *newWasmEdgeFuncT
 }
 
 template <typename T> WasmEdge_FunctionTypeContext *newWasmEdgeFuncType() {
-  std::vector<enum WasmEdge_ValType> params;
+  std::vector<WasmEdge_ValType> params;
   uint32_t param_nums = convArgsTupleToValTypes<T>(params);
   auto *ftype = WasmEdge_FunctionTypeCreate(params.data(), param_nums, nullptr, 0);
   return ftype;
@@ -521,19 +533,18 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
 
-  std::vector<enum WasmEdge_ValType> exp_args;
-  std::vector<enum WasmEdge_ValType> exp_returns;
+  std::vector<WasmEdge_ValType> exp_args;
+  std::vector<WasmEdge_ValType> exp_returns;
   convArgsTupleToValTypes<std::tuple<Args...>>(exp_args);
   convArgsTupleToValTypes<std::tuple<>>(exp_returns);
   const auto *functype_cxt = WasmEdge_FunctionInstanceGetFunctionType(func_cxt);
-  std::vector<enum WasmEdge_ValType> act_args(
-      WasmEdge_FunctionTypeGetParametersLength(functype_cxt));
-  std::vector<enum WasmEdge_ValType> act_returns(
-      WasmEdge_FunctionTypeGetReturnsLength(functype_cxt));
+  std::vector<WasmEdge_ValType> act_args(WasmEdge_FunctionTypeGetParametersLength(functype_cxt));
+  std::vector<WasmEdge_ValType> act_returns(WasmEdge_FunctionTypeGetReturnsLength(functype_cxt));
   WasmEdge_FunctionTypeGetParameters(functype_cxt, act_args.data(), act_args.size());
   WasmEdge_FunctionTypeGetReturns(functype_cxt, act_returns.data(), act_returns.size());
 
-  if (exp_args != act_args || exp_returns != act_returns) {
+  if (!compareValTypeVectors(exp_args, act_args) ||
+      !compareValTypeVectors(exp_returns, act_returns)) {
     fail(FailState::UnableToInitializeCode,
          "Bad function signature for: " + std::string(function_name) +
              ", want: " + printValTypes(exp_args.data(), exp_args.size()) + " -> " +
@@ -574,19 +585,18 @@ void WasmEdge::getModuleFunctionImpl(std::string_view function_name,
     return;
   }
 
-  std::vector<enum WasmEdge_ValType> exp_args;
-  std::vector<enum WasmEdge_ValType> exp_returns;
+  std::vector<WasmEdge_ValType> exp_args;
+  std::vector<WasmEdge_ValType> exp_returns;
   convArgsTupleToValTypes<std::tuple<Args...>>(exp_args);
   convArgsTupleToValTypes<std::tuple<R>>(exp_returns);
   const auto *functype_cxt = WasmEdge_FunctionInstanceGetFunctionType(func_cxt);
-  std::vector<enum WasmEdge_ValType> act_args(
-      WasmEdge_FunctionTypeGetParametersLength(functype_cxt));
-  std::vector<enum WasmEdge_ValType> act_returns(
-      WasmEdge_FunctionTypeGetReturnsLength(functype_cxt));
+  std::vector<WasmEdge_ValType> act_args(WasmEdge_FunctionTypeGetParametersLength(functype_cxt));
+  std::vector<WasmEdge_ValType> act_returns(WasmEdge_FunctionTypeGetReturnsLength(functype_cxt));
   WasmEdge_FunctionTypeGetParameters(functype_cxt, act_args.data(), act_args.size());
   WasmEdge_FunctionTypeGetReturns(functype_cxt, act_returns.data(), act_returns.size());
 
-  if (exp_args != act_args || exp_returns != act_returns) {
+  if (!compareValTypeVectors(exp_args, act_args) ||
+      !compareValTypeVectors(exp_returns, act_returns)) {
     fail(FailState::UnableToInitializeCode,
          "Bad function signature for: " + std::string(function_name) +
              ", want: " + printValTypes(exp_args.data(), exp_args.size()) + " -> " +
