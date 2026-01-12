@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-extern "C" {
+unsafe extern "C" {
     fn __wasm_call_ctors();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn _initialize() {
     unsafe {
         __wasm_call_ctors();
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_abi_version_0_2_0() {}
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_memory_allocate(_: usize) -> *mut u8 {
     std::ptr::null_mut()
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn run() {
     for (key, value) in std::env::vars() {
         println!("{}: {}\n", key, value);
