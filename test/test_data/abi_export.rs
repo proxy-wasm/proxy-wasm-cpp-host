@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_abi_version_0_2_0() {}
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_vm_start(_: u32, _: usize) -> bool {
     true
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_context_create(_: u32, _: u32) {}
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_memory_allocate(size: usize) -> *mut u8 {
     let mut vec: Vec<u8> = Vec::with_capacity(size);
     unsafe {

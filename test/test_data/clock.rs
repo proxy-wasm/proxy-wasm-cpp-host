@@ -14,15 +14,15 @@
 
 use std::time::{Instant, SystemTime};
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_abi_version_0_2_0() {}
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_memory_allocate(_: usize) -> *mut u8 {
     std::ptr::null_mut()
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn run() {
     println!("monotonic: {:?}", Instant::now());
     println!("realtime: {:?}", SystemTime::now());

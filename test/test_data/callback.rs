@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_abi_version_0_2_0() {}
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_memory_allocate(_: usize) -> *mut u8 {
     std::ptr::null_mut()
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn run() {
     unsafe {
         callback();
@@ -29,14 +29,14 @@ pub extern "C" fn run() {
 
 static A : i32 = 100000;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn run2(val: i32) -> i32 {
     unsafe {
         callback2(val) + A
     }
 }
 
-extern "C" {
+unsafe extern "C" {
     fn callback();
     fn callback2(val: i32) -> i32;
 }

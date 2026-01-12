@@ -103,6 +103,7 @@ jobs:
       run: |
         bazel run //bazel/cargo/wasmsign:crates_vendor
         bazel run //bazel/cargo/wasmtime:crates_vendor
+        perl -pi -e 's/rust_library/rust_static_library/g' bazel/cargo/wasmtime/remote/BUILD.wasmtime-c-api-impl-*.bazel
         git diff --exit-code
 
   clang_format:

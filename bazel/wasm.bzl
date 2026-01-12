@@ -83,7 +83,7 @@ def wasm_rust_binary(name, tags = [], wasi = False, signing_key = [], **kwargs):
 
     rust_binary(
         name = wasm_name,
-        edition = "2018",
+        edition = "2024",
         crate_type = "cdylib",
         out_binary = True,
         tags = ["manual"],

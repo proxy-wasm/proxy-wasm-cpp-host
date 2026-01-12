@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_abi_version_0_2_0() {}
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_memory_allocate(_: usize) -> *mut u8 {
     std::ptr::null_mut()
 }
@@ -23,12 +23,12 @@ pub extern "C" fn proxy_on_memory_allocate(_: usize) -> *mut u8 {
 // TODO(PiotrSikora): switch to "getrandom" crate.
 pub mod wasi_snapshot_preview1 {
     #[link(wasm_import_module = "wasi_snapshot_preview1")]
-    extern "C" {
+    unsafe extern "C" {
         pub fn random_get(buf: *mut u8, buf_len: usize) -> u16;
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn run(size: usize) {
     let mut buf: Vec<u8> = Vec::with_capacity(size);
     match unsafe { wasi_snapshot_preview1::random_get(buf.as_mut_ptr(), size) } {

@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_abi_version_0_2_0() {}
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_memory_allocate(_: usize) -> *mut u8 {
     std::ptr::null_mut()
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn trigger() {
     one();
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn trigger2(_val: i32) -> i32 {
     three();
     0
