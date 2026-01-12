@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@rules_cc//cc:defs.bzl", "cc_library")
 load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
 
 licenses(["notice"])  # Apache 2
@@ -24,7 +25,35 @@ filegroup(
 )
 
 cmake(
-    name = "wamr_lib",
+    name = "wamr_lib_cmake",
+    cache_entries = select({
+        "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": {
+            "BAZEL_BUILD": "ON",
+            # Set LLVM_INCLUDE_DIR for the patch to use
+            "LLVM_INCLUDE_DIR": "$$EXT_BUILD_ROOT/external/llvm_toolchain_llvm/include",
+        },
+        "//conditions:default": {},
+    }),
+    # LLVM dependencies for JIT are provided via Bazel, not CMake
+    # The patch skips LLVM CMake detection when BAZEL_BUILD is set
+    # LLVM headers from hermetic toolchain (bzlmod-compatible via data attribute)
+    # LLVM libraries are linked via cc_library deps (see wamr_lib below)
+    data = select({
+        "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": [
+            "@llvm_toolchain_llvm//:all_includes",
+        ],
+        "//conditions:default": [],
+    }),
+    env = select({
+        "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": {
+            # Reference LLVM headers in sandbox via EXT_BUILD_ROOT
+            # The data attribute ensures llvm_toolchain_llvm is mounted in sandbox
+            # This path works with both WORKSPACE and bzlmod
+            "CFLAGS": "-isystem $$EXT_BUILD_ROOT/external/llvm_toolchain_llvm/include",
+            "CXXFLAGS": "-isystem $$EXT_BUILD_ROOT/external/llvm_toolchain_llvm/include",
+        },
+        "//conditions:default": {},
+    }),
     generate_args = [
         # disable WASI
         "-DWAMR_BUILD_LIBC_WASI=0",
@@ -47,7 +76,8 @@ cmake(
         "-GNinja",
     ] + select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": [
-            "-DLLVM_DIR=$EXT_BUILD_DEPS/copy_llvm-19_1_0/llvm/lib/cmake/llvm",
+            # WAMR's CMake will find LLVM via CMAKE_PREFIX_PATH
+            # No need to set LLVM_DIR explicitly
             "-DWAMR_BUILD_AOT=1",
             "-DWAMR_BUILD_FAST_INTERP=0",
             "-DWAMR_BUILD_INTERP=0",
@@ -65,13 +95,20 @@ cmake(
         ],
     }),
     lib_source = ":srcs",
+    out_static_libs = ["libiwasm.a"],
+)
+
+# Wrapper library that adds LLVM dependencies for linking
+cc_library(
+    name = "wamr_lib",
     linkopts = select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": ["-ldl"],
         "//conditions:default": [],
     }),
-    out_static_libs = ["libiwasm.a"],
-    deps = select({
-        "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": ["@llvm-19_1_0//:llvm_wamr_lib"],
+    deps = [":wamr_lib_cmake"] + select({
+        "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": [
+            "@llvm-raw//:llvm_wamr_lib",
+        ],
         "//conditions:default": [],
     }),
 )

@@ -17,6 +17,7 @@ load("@bazel_lib//lib:repositories.bzl", "bazel_lib_dependencies", "bazel_lib_re
 load("@com_google_googletest//:googletest_deps.bzl", "googletest_deps")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@envoy_toolshed//sysroot:sysroot.bzl", "setup_sysroots")
+load("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmsign/remote:crates.bzl", wasmsign_crate_repositories = "crate_repositories")
 load("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:crates.bzl", wasmtime_crate_repositories = "crate_repositories")
 load("@rules_foreign_cc//foreign_cc:repositories.bzl", "rules_foreign_cc_dependencies")
@@ -106,6 +107,12 @@ def proxy_wasm_cpp_host_dependencies():
     # NullVM dependencies.
 
     protobuf_deps()
+
+    # LLVM with native Bazel build (for WAMR JIT).
+    # Configure LLVM using its native Bazel overlay from utils/bazel.
+    # Only build X86 and AArch64 targets to minimize build size.
+    # Note: LLVM external dependencies (llvm_zlib, llvm_zstd) are defined in repositories.bzl
+    llvm_configure(name = "llvm-project", targets = ["X86", "AArch64"])
 
     # Wasmtime dependencies.
 

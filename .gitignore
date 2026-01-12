@@ -3,3 +3,4 @@
 /compile_commands.json
 /.cache/
 /_codeql_detected_source_root
+bazel/external/__pycache__/

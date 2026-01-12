@@ -12,532 +12,89 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_foreign_cc//foreign_cc:defs.bzl", "cmake")
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 licenses(["notice"])  # Apache 2
 
 package(default_visibility = ["//visibility:public"])
 
-filegroup(
-    name = "srcs",
-    srcs = glob(["**"]),
-)
-
-# Platform and architecture-aware alias that selects the appropriate LLVM configuration
-alias(
+# LLVM libraries needed by WAMR JIT - built with native Bazel.
+# This replaces the foreign_cc cmake build of LLVM with native Bazel builds.
+# These libraries are linked into the final binary, while WAMR's CMake build
+# uses the hermetic LLVM toolchain's CMake configs for configuration only.
+# Uses select() for CPU-specific libraries only.
+cc_library(
     name = "llvm_wamr_lib",
-    actual = select({
-        ":linux_x86_64": ":llvm_wamr_lib_linux_x86",
-        ":linux_aarch64": ":llvm_wamr_lib_linux_aarch64",
-        ":macos_x86_64": ":llvm_wamr_lib_macos_x86",
-        ":macos_aarch64": ":llvm_wamr_lib_macos_aarch64",
-        # Default to x86_64 Linux for other architectures
-        "//conditions:default": ":llvm_wamr_lib_linux_x86",
+    deps = [
+        "@llvm-project//llvm:Analysis",
+        "@llvm-project//llvm:BitReader",
+        "@llvm-project//llvm:BitWriter",
+        "@llvm-project//llvm:CodeGen",
+        "@llvm-project//llvm:Core",
+        "@llvm-project//llvm:ExecutionEngine",
+        "@llvm-project//llvm:IPO",
+        "@llvm-project//llvm:IRReader",
+        "@llvm-project//llvm:InstCombine",
+        "@llvm-project//llvm:Instrumentation",
+        "@llvm-project//llvm:JITLink",
+        "@llvm-project//llvm:Linker",
+        "@llvm-project//llvm:MC",
+        "@llvm-project//llvm:MCJIT",
+        "@llvm-project//llvm:Object",
+        "@llvm-project//llvm:OrcJIT",
+        "@llvm-project//llvm:Passes",
+        "@llvm-project//llvm:Scalar",
+        "@llvm-project//llvm:Support",
+        "@llvm-project//llvm:Target",
+        "@llvm-project//llvm:TransformUtils",
+        "@llvm-project//llvm:Vectorize",
+    ] + select({
+        "@platforms//cpu:x86_64": [
+            "@llvm-project//llvm:X86AsmParser",
+            "@llvm-project//llvm:X86CodeGen",
+            "@llvm-project//llvm:X86Disassembler",
+        ],
+        "@platforms//cpu:aarch64": [
+            "@llvm-project//llvm:AArch64AsmParser",
+            "@llvm-project//llvm:AArch64CodeGen",
+            "@llvm-project//llvm:AArch64Disassembler",
+        ],
+        "//conditions:default": [
+            "@llvm-project//llvm:X86AsmParser",
+            "@llvm-project//llvm:X86CodeGen",
+            "@llvm-project//llvm:X86Disassembler",
+        ],
     }),
 )
 
-# LLVM configuration for Linux x86_64 builds
-# LLVM_BUILD_UTILS and LLVM_INCLUDE_UTILS are disabled to avoid mlgo-utils
-# test suite errors (requires llvm-objcopy and yaml2obj tools that are disabled).
-# Only X86 target is built to minimize library size.
-cmake(
-    name = "llvm_wamr_lib_linux_x86",
-    cache_entries = {
-        # Disable both: BUILD and INCLUDE, since some of the INCLUDE
-        # targets build code instead of only generating build files.
-        "LLVM_BUILD_BENCHMARKS": "off",
-        "LLVM_BUILD_DOCS": "off",
-        "LLVM_BUILD_EXAMPLES": "off",
-        "LLVM_BUILD_TESTS": "off",
-        "LLVM_BUILD_TOOLS": "off",
-        "LLVM_BUILD_UTILS": "off",
-        "LLVM_ENABLE_IDE": "off",
-        "LLVM_ENABLE_LIBEDIT": "off",
-        "LLVM_ENABLE_LIBXML2": "off",
-        "LLVM_ENABLE_TERMINFO": "off",
-        "LLVM_ENABLE_ZLIB": "off",
-        "LLVM_ENABLE_ZSTD": "off",
-        "LLVM_INCLUDE_BENCHMARKS": "off",
-        "LLVM_INCLUDE_DOCS": "off",
-        "LLVM_INCLUDE_EXAMPLES": "off",
-        "LLVM_INCLUDE_TESTS": "off",
-        "LLVM_INCLUDE_TOOLS": "off",
-        "LLVM_INCLUDE_UTILS": "off",
-        "LLVM_TARGETS_TO_BUILD": "X86",
-        "CMAKE_CXX_FLAGS": "-Wno-unused-command-line-argument",
-    },
-    # `lld` works on Linux
-    generate_args = [
-        "-GNinja",
-        "-DLLVM_USE_LINKER=lld",
-    ],
-    lib_source = ":srcs",
-    out_data_dirs = [
-        "libexec",
-        "share",
-    ],
-    out_static_libs = [
-        # How to get the library list:
-        #  build LLVM with "-DLLVM_INCLUDE_TOOLS=ON"
-        #  cd bin and run "./llvm-config --libnames"
-        # X86-specific libraries only (no AArch64, no Windows-specific libs)
-        "libLLVMX86Disassembler.a",
-        "libLLVMX86AsmParser.a",
-        "libLLVMX86CodeGen.a",
-        "libLLVMX86Desc.a",
-        "libLLVMX86Info.a",
-        "libLLVMOrcJIT.a",
-        "libLLVMMCJIT.a",
-        "libLLVMJITLink.a",
-        "libLLVMInterpreter.a",
-        "libLLVMExecutionEngine.a",
-        "libLLVMRuntimeDyld.a",
-        "libLLVMOrcTargetProcess.a",
-        "libLLVMOrcShared.a",
-        "libLLVMDWP.a",
-        "libLLVMSymbolize.a",
-        "libLLVMDebugInfoPDB.a",
-        "libLLVMDebugInfoGSYM.a",
-        "libLLVMDebugInfoBTF.a",
-        "libLLVMOption.a",
-        "libLLVMObjectYAML.a",
-        "libLLVMMCA.a",
-        "libLLVMMCDisassembler.a",
-        "libLLVMLTO.a",
-        "libLLVMPasses.a",
-        "libLLVMHipStdPar.a",
-        "libLLVMCFGuard.a",
-        "libLLVMCoroutines.a",
-        "libLLVMObjCARCOpts.a",
-        "libLLVMipo.a",
-        "libLLVMVectorize.a",
-        "libLLVMLinker.a",
-        "libLLVMInstrumentation.a",
-        "libLLVMFrontendOpenMP.a",
-        "libLLVMFrontendOffloading.a",
-        "libLLVMFrontendOpenACC.a",
-        "libLLVMExtensions.a",
-        "libLLVMDWARFLinker.a",
-        "libLLVMGlobalISel.a",
-        "libLLVMMIRParser.a",
-        "libLLVMAsmPrinter.a",
-        "libLLVMDebugInfoMSF.a",
-        "libLLVMDebugInfoDWARF.a",
-        "libLLVMSelectionDAG.a",
-        "libLLVMCodeGenTypes.a",
-        "libLLVMCodeGen.a",
-        "libLLVMIRPrinter.a",
-        "libLLVMIRReader.a",
-        "libLLVMAsmParser.a",
-        "libLLVMInterfaceStub.a",
-        "libLLVMFileCheck.a",
-        "libLLVMFuzzMutate.a",
-        "libLLVMTarget.a",
-        "libLLVMScalarOpts.a",
-        "libLLVMInstCombine.a",
-        "libLLVMAggressiveInstCombine.a",
-        "libLLVMTransformUtils.a",
-        "libLLVMBitWriter.a",
-        "libLLVMAnalysis.a",
-        "libLLVMProfileData.a",
-        "libLLVMObject.a",
-        "libLLVMTextAPI.a",
-        "libLLVMMCParser.a",
-        "libLLVMMC.a",
-        "libLLVMDebugInfoCodeView.a",
-        "libLLVMBitReader.a",
-        "libLLVMCore.a",
-        "libLLVMRemarks.a",
-        "libLLVMBitstreamReader.a",
-        "libLLVMBinaryFormat.a",
-        "libLLVMWindowsDriver.a",
-        "libLLVMTableGen.a",
-        "libLLVMTargetParser.a",
-        "libLLVMSupport.a",
-        "libLLVMDemangle.a",
-    ],
-    working_directory = "llvm",
+# Create a tarball with LLVM headers preserving directory structure
+# This is a robust, bzlmod-compatible solution for providing headers to rules_foreign_cc
+genrule(
+    name = "package_llvm_headers",
+    srcs = ["@llvm_toolchain_llvm//:all_includes"],
+    outs = ["llvm_headers.tar.gz"],
+    cmd = """
+        # Create temporary directory for building the archive
+        TMPDIR=$$(mktemp -d)
+        
+        # Copy all headers preserving directory structure
+        # The all_includes filegroup contains files like include/llvm/Config/llvm-config.h
+        for src in $(SRCS); do
+            # Extract the path relative to the workspace
+            # Files are like external/llvm_toolchain_llvm/include/llvm/...
+            rel_path=$$(echo $$src | sed 's|.*/llvm_toolchain_llvm/||')
+            dest_path=$$TMPDIR/$$rel_path
+            mkdir -p $$(dirname $$dest_path)
+            cp $$src $$dest_path
+        done
+        
+        # Create tarball from the temp directory
+        tar -czf $(location llvm_headers.tar.gz) -C $$TMPDIR .
+        rm -rf $$TMPDIR
+    """,
 )
 
-# LLVM configuration for Linux aarch64 builds
-# Similar to Linux x86_64 but builds only AArch64 target.
-cmake(
-    name = "llvm_wamr_lib_linux_aarch64",
-    cache_entries = {
-        "LLVM_BUILD_BENCHMARKS": "off",
-        "LLVM_BUILD_DOCS": "off",
-        "LLVM_BUILD_EXAMPLES": "off",
-        "LLVM_BUILD_TESTS": "off",
-        "LLVM_BUILD_TOOLS": "off",
-        "LLVM_BUILD_UTILS": "off",
-        "LLVM_ENABLE_IDE": "off",
-        "LLVM_ENABLE_LIBEDIT": "off",
-        "LLVM_ENABLE_LIBXML2": "off",
-        "LLVM_ENABLE_TERMINFO": "off",
-        "LLVM_ENABLE_ZLIB": "off",
-        "LLVM_ENABLE_ZSTD": "off",
-        "LLVM_INCLUDE_BENCHMARKS": "off",
-        "LLVM_INCLUDE_DOCS": "off",
-        "LLVM_INCLUDE_EXAMPLES": "off",
-        "LLVM_INCLUDE_TESTS": "off",
-        "LLVM_INCLUDE_TOOLS": "off",
-        "LLVM_INCLUDE_UTILS": "off",
-        "LLVM_TARGETS_TO_BUILD": "AArch64",
-        "CMAKE_CXX_FLAGS": "-Wno-unused-command-line-argument",
-    },
-    # `lld` works on Linux
-    generate_args = [
-        "-GNinja",
-        "-DLLVM_USE_LINKER=lld",
-    ],
-    lib_source = ":srcs",
-    out_data_dirs = [
-        "libexec",
-        "share",
-    ],
-    out_static_libs = [
-        "libLLVMAArch64Disassembler.a",
-        "libLLVMAArch64AsmParser.a",
-        "libLLVMAArch64CodeGen.a",
-        "libLLVMAArch64Desc.a",
-        "libLLVMAArch64Info.a",
-        "libLLVMAArch64Utils.a",
-        "libLLVMOrcJIT.a",
-        "libLLVMMCJIT.a",
-        "libLLVMJITLink.a",
-        "libLLVMInterpreter.a",
-        "libLLVMExecutionEngine.a",
-        "libLLVMRuntimeDyld.a",
-        "libLLVMOrcTargetProcess.a",
-        "libLLVMOrcShared.a",
-        "libLLVMDWP.a",
-        "libLLVMSymbolize.a",
-        "libLLVMDebugInfoPDB.a",
-        "libLLVMDebugInfoGSYM.a",
-        "libLLVMDebugInfoBTF.a",
-        "libLLVMOption.a",
-        "libLLVMObjectYAML.a",
-        "libLLVMMCA.a",
-        "libLLVMMCDisassembler.a",
-        "libLLVMLTO.a",
-        "libLLVMPasses.a",
-        "libLLVMHipStdPar.a",
-        "libLLVMCFGuard.a",
-        "libLLVMCoroutines.a",
-        "libLLVMObjCARCOpts.a",
-        "libLLVMipo.a",
-        "libLLVMVectorize.a",
-        "libLLVMLinker.a",
-        "libLLVMInstrumentation.a",
-        "libLLVMFrontendOpenMP.a",
-        "libLLVMFrontendOffloading.a",
-        "libLLVMFrontendOpenACC.a",
-        "libLLVMExtensions.a",
-        "libLLVMDWARFLinker.a",
-        "libLLVMGlobalISel.a",
-        "libLLVMMIRParser.a",
-        "libLLVMAsmPrinter.a",
-        "libLLVMDebugInfoMSF.a",
-        "libLLVMDebugInfoDWARF.a",
-        "libLLVMSelectionDAG.a",
-        "libLLVMCodeGenTypes.a",
-        "libLLVMCodeGen.a",
-        "libLLVMIRPrinter.a",
-        "libLLVMIRReader.a",
-        "libLLVMAsmParser.a",
-        "libLLVMInterfaceStub.a",
-        "libLLVMFileCheck.a",
-        "libLLVMFuzzMutate.a",
-        "libLLVMTarget.a",
-        "libLLVMScalarOpts.a",
-        "libLLVMInstCombine.a",
-        "libLLVMAggressiveInstCombine.a",
-        "libLLVMTransformUtils.a",
-        "libLLVMBitWriter.a",
-        "libLLVMAnalysis.a",
-        "libLLVMProfileData.a",
-        "libLLVMObject.a",
-        "libLLVMTextAPI.a",
-        "libLLVMMCParser.a",
-        "libLLVMMC.a",
-        "libLLVMDebugInfoCodeView.a",
-        "libLLVMBitReader.a",
-        "libLLVMCore.a",
-        "libLLVMRemarks.a",
-        "libLLVMBitstreamReader.a",
-        "libLLVMBinaryFormat.a",
-        "libLLVMWindowsDriver.a",
-        "libLLVMTableGen.a",
-        "libLLVMTargetParser.a",
-        "libLLVMSupport.a",
-        "libLLVMDemangle.a",
-    ],
-    working_directory = "llvm",
-)
-
-# LLVM configuration for macOS x86_64 builds
-# LLVM_BUILD_UTILS and LLVM_INCLUDE_UTILS are disabled to avoid mlgo-utils
-# test suite errors (requires llvm-objcopy and yaml2obj tools that are disabled).
-# Only X86 target is built to minimize library size.
-cmake(
-    name = "llvm_wamr_lib_macos_x86",
-    cache_entries = {
-        # Disable both: BUILD and INCLUDE, since some of the INCLUDE
-        # targets build code instead of only generating build files.
-        "CMAKE_OSX_ARCHITECTURES": "x86_64",
-        "LLVM_BUILD_BENCHMARKS": "off",
-        "LLVM_BUILD_DOCS": "off",
-        "LLVM_BUILD_EXAMPLES": "off",
-        "LLVM_BUILD_TESTS": "off",
-        "LLVM_BUILD_TOOLS": "off",
-        "LLVM_BUILD_UTILS": "off",
-        "LLVM_ENABLE_IDE": "off",
-        "LLVM_ENABLE_LIBEDIT": "off",
-        "LLVM_ENABLE_LIBXML2": "off",
-        "LLVM_ENABLE_TERMINFO": "off",
-        "LLVM_ENABLE_ZLIB": "off",
-        "LLVM_ENABLE_ZSTD": "off",
-        "LLVM_INCLUDE_BENCHMARKS": "off",
-        "LLVM_INCLUDE_DOCS": "off",
-        "LLVM_INCLUDE_EXAMPLES": "off",
-        "LLVM_INCLUDE_TESTS": "off",
-        "LLVM_INCLUDE_TOOLS": "off",
-        "LLVM_INCLUDE_UTILS": "off",
-        "LLVM_TARGETS_TO_BUILD": "X86",
-        "CMAKE_CXX_FLAGS": "-Wno-unused-command-line-argument",
-    },
-    # `lld` doesn't work on macOS
-    generate_args = ["-GNinja"],
-    lib_source = ":srcs",
-    out_data_dirs = [
-        "libexec",
-        "share",
-    ],
-    out_static_libs = [
-        # How to get the library list:
-        #  build LLVM with "-DLLVM_INCLUDE_TOOLS=ON"
-        #  cd bin and run "./llvm-config --libnames"
-        # X86-specific libraries only (no AArch64, no Windows-specific libs)
-        "libLLVMX86Disassembler.a",
-        "libLLVMX86AsmParser.a",
-        "libLLVMX86CodeGen.a",
-        "libLLVMX86Desc.a",
-        "libLLVMX86Info.a",
-        "libLLVMOrcJIT.a",
-        "libLLVMMCJIT.a",
-        "libLLVMJITLink.a",
-        "libLLVMInterpreter.a",
-        "libLLVMExecutionEngine.a",
-        "libLLVMRuntimeDyld.a",
-        "libLLVMOrcTargetProcess.a",
-        "libLLVMOrcShared.a",
-        "libLLVMDWP.a",
-        "libLLVMSymbolize.a",
-        "libLLVMDebugInfoPDB.a",
-        "libLLVMDebugInfoGSYM.a",
-        "libLLVMDebugInfoBTF.a",
-        "libLLVMOption.a",
-        "libLLVMObjectYAML.a",
-        "libLLVMMCA.a",
-        "libLLVMMCDisassembler.a",
-        "libLLVMLTO.a",
-        "libLLVMPasses.a",
-        "libLLVMHipStdPar.a",
-        "libLLVMCFGuard.a",
-        "libLLVMCoroutines.a",
-        "libLLVMObjCARCOpts.a",
-        "libLLVMipo.a",
-        "libLLVMVectorize.a",
-        "libLLVMLinker.a",
-        "libLLVMInstrumentation.a",
-        "libLLVMFrontendOpenMP.a",
-        "libLLVMFrontendOffloading.a",
-        "libLLVMFrontendOpenACC.a",
-        "libLLVMExtensions.a",
-        "libLLVMDWARFLinker.a",
-        "libLLVMGlobalISel.a",
-        "libLLVMMIRParser.a",
-        "libLLVMAsmPrinter.a",
-        "libLLVMDebugInfoMSF.a",
-        "libLLVMDebugInfoDWARF.a",
-        "libLLVMSelectionDAG.a",
-        "libLLVMCodeGenTypes.a",
-        "libLLVMCodeGen.a",
-        "libLLVMIRPrinter.a",
-        "libLLVMIRReader.a",
-        "libLLVMAsmParser.a",
-        "libLLVMInterfaceStub.a",
-        "libLLVMFileCheck.a",
-        "libLLVMFuzzMutate.a",
-        "libLLVMTarget.a",
-        "libLLVMScalarOpts.a",
-        "libLLVMInstCombine.a",
-        "libLLVMAggressiveInstCombine.a",
-        "libLLVMTransformUtils.a",
-        "libLLVMBitWriter.a",
-        "libLLVMAnalysis.a",
-        "libLLVMProfileData.a",
-        "libLLVMObject.a",
-        "libLLVMTextAPI.a",
-        "libLLVMMCParser.a",
-        "libLLVMMC.a",
-        "libLLVMDebugInfoCodeView.a",
-        "libLLVMBitReader.a",
-        "libLLVMCore.a",
-        "libLLVMRemarks.a",
-        "libLLVMBitstreamReader.a",
-        "libLLVMBinaryFormat.a",
-        "libLLVMWindowsDriver.a",
-        "libLLVMTableGen.a",
-        "libLLVMTargetParser.a",
-        "libLLVMSupport.a",
-        "libLLVMDemangle.a",
-    ],
-    working_directory = "llvm",
-)
-
-# LLVM configuration for macOS aarch64 builds
-cmake(
-    name = "llvm_wamr_lib_macos_aarch64",
-    cache_entries = {
-        "CMAKE_OSX_ARCHITECTURES": "arm64",
-        "LLVM_BUILD_BENCHMARKS": "off",
-        "LLVM_BUILD_DOCS": "off",
-        "LLVM_BUILD_EXAMPLES": "off",
-        "LLVM_BUILD_TESTS": "off",
-        "LLVM_BUILD_TOOLS": "off",
-        "LLVM_BUILD_UTILS": "off",
-        "LLVM_ENABLE_IDE": "off",
-        "LLVM_ENABLE_LIBEDIT": "off",
-        "LLVM_ENABLE_LIBXML2": "off",
-        "LLVM_ENABLE_TERMINFO": "off",
-        "LLVM_ENABLE_ZLIB": "off",
-        "LLVM_ENABLE_ZSTD": "off",
-        "LLVM_INCLUDE_BENCHMARKS": "off",
-        "LLVM_INCLUDE_DOCS": "off",
-        "LLVM_INCLUDE_EXAMPLES": "off",
-        "LLVM_INCLUDE_TESTS": "off",
-        "LLVM_INCLUDE_TOOLS": "off",
-        "LLVM_INCLUDE_UTILS": "off",
-        "LLVM_TARGETS_TO_BUILD": "AArch64",
-        "CMAKE_CXX_FLAGS": "-Wno-unused-command-line-argument",
-    },
-    # `lld` doesn't work on macOS
-    generate_args = ["-GNinja"],
-    lib_source = ":srcs",
-    out_data_dirs = [
-        "libexec",
-        "share",
-    ],
-    out_static_libs = [
-        "libLLVMAArch64Disassembler.a",
-        "libLLVMAArch64AsmParser.a",
-        "libLLVMAArch64CodeGen.a",
-        "libLLVMAArch64Desc.a",
-        "libLLVMAArch64Info.a",
-        "libLLVMAArch64Utils.a",
-        "libLLVMOrcJIT.a",
-        "libLLVMMCJIT.a",
-        "libLLVMJITLink.a",
-        "libLLVMInterpreter.a",
-        "libLLVMExecutionEngine.a",
-        "libLLVMRuntimeDyld.a",
-        "libLLVMOrcTargetProcess.a",
-        "libLLVMOrcShared.a",
-        "libLLVMDWP.a",
-        "libLLVMSymbolize.a",
-        "libLLVMDebugInfoPDB.a",
-        "libLLVMDebugInfoGSYM.a",
-        "libLLVMDebugInfoBTF.a",
-        "libLLVMOption.a",
-        "libLLVMObjectYAML.a",
-        "libLLVMMCA.a",
-        "libLLVMMCDisassembler.a",
-        "libLLVMLTO.a",
-        "libLLVMPasses.a",
-        "libLLVMHipStdPar.a",
-        "libLLVMCFGuard.a",
-        "libLLVMCoroutines.a",
-        "libLLVMObjCARCOpts.a",
-        "libLLVMipo.a",
-        "libLLVMVectorize.a",
-        "libLLVMLinker.a",
-        "libLLVMInstrumentation.a",
-        "libLLVMFrontendOpenMP.a",
-        "libLLVMFrontendOffloading.a",
-        "libLLVMFrontendOpenACC.a",
-        "libLLVMExtensions.a",
-        "libLLVMDWARFLinker.a",
-        "libLLVMGlobalISel.a",
-        "libLLVMMIRParser.a",
-        "libLLVMAsmPrinter.a",
-        "libLLVMDebugInfoMSF.a",
-        "libLLVMDebugInfoDWARF.a",
-        "libLLVMSelectionDAG.a",
-        "libLLVMCodeGenTypes.a",
-        "libLLVMCodeGen.a",
-        "libLLVMIRPrinter.a",
-        "libLLVMIRReader.a",
-        "libLLVMAsmParser.a",
-        "libLLVMInterfaceStub.a",
-        "libLLVMFileCheck.a",
-        "libLLVMFuzzMutate.a",
-        "libLLVMTarget.a",
-        "libLLVMScalarOpts.a",
-        "libLLVMInstCombine.a",
-        "libLLVMAggressiveInstCombine.a",
-        "libLLVMTransformUtils.a",
-        "libLLVMBitWriter.a",
-        "libLLVMAnalysis.a",
-        "libLLVMProfileData.a",
-        "libLLVMObject.a",
-        "libLLVMTextAPI.a",
-        "libLLVMMCParser.a",
-        "libLLVMMC.a",
-        "libLLVMDebugInfoCodeView.a",
-        "libLLVMBitReader.a",
-        "libLLVMCore.a",
-        "libLLVMRemarks.a",
-        "libLLVMBitstreamReader.a",
-        "libLLVMBinaryFormat.a",
-        "libLLVMWindowsDriver.a",
-        "libLLVMTableGen.a",
-        "libLLVMTargetParser.a",
-        "libLLVMSupport.a",
-        "libLLVMDemangle.a",
-    ],
-    working_directory = "llvm",
-)
-
-# Platform-specific config settings to enable proper select() in alias rule
-config_setting(
-    name = "linux_x86_64",
-    constraint_values = [
-        "@platforms//os:linux",
-        "@platforms//cpu:x86_64",
-    ],
-)
-
-config_setting(
-    name = "linux_aarch64",
-    constraint_values = [
-        "@platforms//os:linux",
-        "@platforms//cpu:aarch64",
-    ],
-)
-
-config_setting(
-    name = "macos_x86_64",
-    constraint_values = [
-        "@platforms//os:macos",
-        "@platforms//cpu:x86_64",
-    ],
-)
-
-config_setting(
-    name = "macos_aarch64",
-    constraint_values = [
-        "@platforms//os:macos",
-        "@platforms//cpu:aarch64",
-    ],
+filegroup(
+    name = "llvm_headers",
+    srcs = [":package_llvm_headers"],
 )
