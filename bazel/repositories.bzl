@@ -22,9 +22,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "bazel_features",
-        sha256 = "af3d4fb1cf4f25942cb4a933b1ad93a0ea9fe9ee70c2af7f369fb72a67c266e5",
-        strip_prefix = "bazel_features-1.21.0",
-        urls = ["https://github.com/bazel-contrib/bazel_features/releases/download/v1.21.0/bazel_features-v1.21.0.tar.gz"],
+        sha256 = "c41853e3b636c533b86bf5ab4658064e6cc9db0a3bce52cbff0629e094344ca9",
+        strip_prefix = "bazel_features-1.33.0",
+        urls = ["https://github.com/bazel-contrib/bazel_features/releases/download/v1.33.0/bazel_features-v1.33.0.tar.gz"],
     )
 
     # Update platforms for crate_universe. Can remove when we update Bazel version.
@@ -147,16 +147,13 @@ def proxy_wasm_cpp_host_repositories():
 
     # Note: we depend on Abseil via rules_fuzzing. Remove this pin when we update that.
     #
-    # This is the latest LTS release, which picks up:
-    # - Build fix: https://github.com/abseil/abseil-cpp/pull/1187
-    # - A bugfix found in local fuzzing:
-    #   https://github.com/abseil/abseil-cpp/commit/e7858c73279d81cbc005d9c76a385ab535520635
+    # This is the latest LTS release (20250512.1), required by protobuf 33.2
     maybe(
         http_archive,
         name = "com_google_absl",
-        sha256 = "733726b8c3a6d39a4120d7e45ea8b41a434cdacde401cba500f14236c49b39dc",
-        strip_prefix = "abseil-cpp-20240116.2",
-        urls = ["https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz"],
+        sha256 = "9b7a064305e9fd94d124ffa6cc358592eb42b5da588fb4e07d09254aa40086db",
+        strip_prefix = "abseil-cpp-20250512.1",
+        urls = ["https://github.com/abseil/abseil-cpp/archive/refs/tags/20250512.1.tar.gz"],
     )
 
     maybe(
@@ -203,9 +200,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "com_google_protobuf",
-        sha256 = "3d32940e975c4ad9b8ba69640e78f5527075bae33ca2890275bf26b853c0962c",
-        strip_prefix = "protobuf-29.1",
-        url = "https://github.com/protocolbuffers/protobuf/releases/download/v29.1/protobuf-29.1.tar.gz",
+        sha256 = "6b6599b54c88d75904b7471f5ca34a725fa0af92e134dd1a32d5b395aa4b4ca8",
+        strip_prefix = "protobuf-33.2",
+        url = "https://github.com/protocolbuffers/protobuf/releases/download/v33.2/protobuf-33.2.tar.gz",
         repo_mapping = {
             "@abseil-cpp": "@com_google_absl",
         },
