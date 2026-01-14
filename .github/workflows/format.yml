@@ -83,7 +83,7 @@ jobs:
   rules_rust:
     name: check format with rules_rust
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-16core
 
     steps:
     - uses: actions/checkout@v2
