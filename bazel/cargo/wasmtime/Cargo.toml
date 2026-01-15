@@ -15,7 +15,7 @@
 [package]
 edition = "2024"
 name = "wasmtime-c-api-bazel"
-version = "39.0.1"
+version = "40.0.2"
 
 [lib]
 path = "fake_lib.rs"
@@ -28,4 +28,4 @@ log = {version = "0.4.29", default-features = false, features = ['std']}
 # following sed command will do it for you:
 #
 # `sed -i.bak -e 's/rust_library/rust_static_library/g' bazel/cargo/wasmtime/remote/BUILD.wasmtime-c-api-impl-*.bazel`
-wasmtime-c-api-impl = {version = "39.0.1", default-features = false, features = ['cranelift', 'wasi', 'wat', 'gc-drc']}
+wasmtime-c-api-impl = {version = "40.0.2", default-features = false, features = ['cranelift', 'wasi', 'wat', 'gc-drc']}
