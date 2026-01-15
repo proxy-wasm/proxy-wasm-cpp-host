@@ -27,6 +27,7 @@ build:clang-xsan --linkopt --unwindlib=libgcc
 build:clang-asan --config=clang-xsan
 build:clang-asan --copt -DADDRESS_SANITIZER=1
 build:clang-asan --copt -DUNDEFINED_SANITIZER=1
+build:clang-asan --copt -DV8_USE_ADDRESS_SANITIZER=1
 build:clang-asan --copt -fsanitize=address,undefined
 build:clang-asan --copt -fsanitize-address-use-after-scope
 build:clang-asan --linkopt -fsanitize=address,undefined
