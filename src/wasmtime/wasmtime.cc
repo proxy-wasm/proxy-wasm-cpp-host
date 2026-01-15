@@ -58,9 +58,7 @@ using ::wasmtime::Store;
 using ::wasmtime::Table;
 using ::wasmtime::TrapResult;
 
-} // namespace
-
-static Engine *engine() {
+Engine *engine() {
   static auto *const engine = []() {
     Config config;
     config.epoch_interruption(true);
@@ -69,9 +67,21 @@ static Engine *engine() {
   return engine;
 }
 
+template <typename T> std::string printValue(const T &value) { return std::to_string(value); }
+template <> std::string printValue(const proxy_wasm::Word &value) {
+  return std::to_string(value.u64_);
+}
+
+std::string printValues() { return ""; }
+template <typename Arg, typename... Args> std::string printValues(Arg arg, Args... args) {
+  return printValue(arg) + ((", " + printValue(args)) + ... + "");
+}
+
+} // namespace
+
 class Wasmtime : public WasmVm {
 public:
-  Wasmtime() : linker_(*engine()){};
+  Wasmtime() = default;
 
   std::string_view getEngineName() override { return "wasmtime"; }
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
@@ -134,7 +144,7 @@ private:
   std::optional<Instance> instance_;
   std::optional<Memory> memory_;
   std::optional<Table> table_;
-  Linker linker_;
+  Linker linker_ = Linker(*engine());
 
   std::unordered_map<std::string, ::wasmtime::Func> module_functions_;
 };
@@ -193,17 +203,6 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
 
   return clone;
 }
-template <typename T> static std::string printValue(const T &value) {
-  return std::to_string(value);
-}
-template <> std::string printValue(const proxy_wasm::Word &value) {
-  return std::to_string(value.u64_);
-}
-
-static std::string printValues() { return ""; }
-template <typename Arg, typename... Args> static std::string printValues(Arg arg, Args... args) {
-  return printValue(arg) + ((", " + printValue(args)) + ... + "");
-}
 
 bool Wasmtime::link(std::string_view /*debug_name*/) {
   assert(module_.has_value());
@@ -245,7 +244,7 @@ std::optional<std::string_view> Wasmtime::getMemory(uint64_t pointer, uint64_t s
   if (pointer + size > data.size()) {
     return std::nullopt;
   }
-  return std::string_view((char *)(data.data() + pointer), size);
+  return std::string_view(reinterpret_cast<char *>(data.data() + pointer), size);
 }
 
 bool Wasmtime::setMemory(uint64_t pointer, uint64_t size, const void *data) {
