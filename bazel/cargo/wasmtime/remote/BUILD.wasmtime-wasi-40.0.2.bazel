@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "errno",
+    name = "wasmtime_wasi",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,10 +35,14 @@ rust_library(
         ],
     ),
     crate_features = [
-        "std",
+        "p1",
+        "p2",
     ],
     crate_root = "src/lib.rs",
-    edition = "2018",
+    edition = "2024",
+    proc_macro_deps = [
+        "@cu__async-trait-0.1.89//:async_trait",
+    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -47,108 +51,125 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=errno",
+        "crate-name=wasmtime-wasi",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.3.14",
-    deps = select({
+    version = "40.0.2",
+    deps = [
+        "@cu__anyhow-1.0.100//:anyhow",
+        "@cu__bitflags-2.10.0//:bitflags",
+        "@cu__bytes-1.11.0//:bytes",
+        "@cu__cap-fs-ext-3.4.5//:cap_fs_ext",
+        "@cu__cap-net-ext-3.4.5//:cap_net_ext",
+        "@cu__cap-rand-3.4.5//:cap_rand",
+        "@cu__cap-std-3.4.5//:cap_std",
+        "@cu__cap-time-ext-3.4.5//:cap_time_ext",
+        "@cu__fs-set-times-0.20.3//:fs_set_times",
+        "@cu__futures-0.3.31//:futures",
+        "@cu__io-lifetimes-2.0.4//:io_lifetimes",
+        "@cu__system-interface-0.27.3//:system_interface",
+        "@cu__thiserror-2.0.17//:thiserror",
+        "@cu__tokio-1.49.0//:tokio",
+        "@cu__tracing-0.1.44//:tracing",
+        "@cu__url-2.5.8//:url",
+        "@cu__wasmtime-40.0.2//:wasmtime",
+        "@cu__wasmtime-wasi-io-40.0.2//:wasmtime_wasi_io",
+        "@cu__wiggle-40.0.2//:wiggle",
+    ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:aarch64-apple-ios": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:aarch64-apple-ios-sim": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:aarch64-linux-android": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:aarch64-pc-windows-msvc": [
+            "@cu__io-extras-0.18.4//:io_extras",  # cfg(windows)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(windows)
             "@cu__windows-sys-0.61.2//:windows_sys",  # cfg(windows)
         ],
         "@rules_rust//rust/platform:aarch64-unknown-fuchsia": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:aarch64-unknown-nto-qnx710": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:i686-apple-darwin": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:i686-linux-android": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:i686-pc-windows-msvc": [
+            "@cu__io-extras-0.18.4//:io_extras",  # cfg(windows)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(windows)
             "@cu__windows-sys-0.61.2//:windows_sys",  # cfg(windows)
         ],
         "@rules_rust//rust/platform:i686-unknown-freebsd": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:i686-unknown-linux-gnu": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:powerpc-unknown-linux-gnu": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:riscv64gc-unknown-linux-gnu": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:wasm32-unknown-emscripten": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
-        ],
-        "@rules_rust//rust/platform:wasm32-wasip1": [
-            "@cu__libc-0.2.180//:libc",  # cfg(target_os = "wasi")
-        ],
-        "@rules_rust//rust/platform:wasm32-wasip1-threads": [
-            "@cu__libc-0.2.180//:libc",  # cfg(target_os = "wasi")
-        ],
-        "@rules_rust//rust/platform:wasm32-wasip2": [
-            "@cu__libc-0.2.180//:libc",  # cfg(target_os = "wasi")
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-apple-ios": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-linux-android": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-pc-windows-msvc": [
+            "@cu__io-extras-0.18.4//:io_extras",  # cfg(windows)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(windows)
             "@cu__windows-sys-0.61.2//:windows_sys",  # cfg(windows)
         ],
         "@rules_rust//rust/platform:x86_64-unknown-freebsd": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-unknown-fuchsia": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-unknown-linux-gnu": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "@rules_rust//rust/platform:x86_64-unknown-nixos-gnu": [
-            "@cu__libc-0.2.180//:libc",  # cfg(unix)
+            "@cu__rustix-1.1.3//:rustix",  # cfg(unix)
         ],
         "//conditions:default": [],
     }),
