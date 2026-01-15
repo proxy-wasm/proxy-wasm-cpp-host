@@ -32,6 +32,18 @@ filegroup(
 
 # Workspace Member Dependencies
 alias(
+    name = "log-0.4.29",
+    actual = "@cu__log-0.4.29//:log",
+    tags = ["manual"],
+)
+
+alias(
+    name = "log",
+    actual = "@cu__log-0.4.29//:log",
+    tags = ["manual"],
+)
+
+alias(
     name = "wasmtime-c-api-impl-39.0.1",
     actual = "@cu__wasmtime-c-api-impl-39.0.1//:wasmtime_c_api",
     tags = ["manual"],

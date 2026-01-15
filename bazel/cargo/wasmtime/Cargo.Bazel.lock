@@ -1448,6 +1448,7 @@ dependencies = [
 name = "wasmtime-c-api-bazel"
 version = "39.0.1"
 dependencies = [
+ "log",
  "wasmtime-c-api-impl",
 ]
 

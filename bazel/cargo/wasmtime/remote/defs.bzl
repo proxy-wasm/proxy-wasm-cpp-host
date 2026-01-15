@@ -295,6 +295,7 @@ def aliases(
 _NORMAL_DEPENDENCIES = {
     "bazel/cargo/wasmtime": {
         _COMMON_CONDITION: {
+            "log": Label("@cu//:log-0.4.29"),
             "wasmtime-c-api-impl": Label("@cu//:wasmtime-c-api-impl-39.0.1"),
         },
     },
@@ -2609,5 +2610,6 @@ def crate_repositories():
     )
 
     return [
+        struct(repo = "cu__log-0.4.29", is_dev_dep = False),
         struct(repo = "cu__wasmtime-c-api-impl-39.0.1", is_dev_dep = False),
     ]
