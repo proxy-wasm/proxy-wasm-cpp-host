@@ -21,6 +21,8 @@ version = "39.0.1"
 path = "fake_lib.rs"
 
 [dependencies]
+# Fixes testdata build error due to missing crate_features = ["std"]
+log = {version = "0.4.29", default-features = false, features = ['std']}
 # IMPORTANT NOTE: prefixed linking of wasmtime requires changing the generated
 # file to specify `rust_static_library` instead of `rust_library`. The
 # following sed command will do it for you:
