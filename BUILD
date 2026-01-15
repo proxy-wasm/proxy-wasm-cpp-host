@@ -190,7 +190,6 @@ cc_library(
 cc_library(
     name = "wasmtime_lib",
     srcs = [
-        "src/common/types.h",
         "src/wasmtime/wasmtime.cc",
     ],
     hdrs = ["include/proxy-wasm/wasmtime.h"],
