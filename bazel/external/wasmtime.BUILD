@@ -13,7 +13,6 @@
 # limitations under the License.
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
-load("@rules_rust//rust:defs.bzl", "rust_static_library")
 
 licenses(["notice"])  # Apache 2
 
@@ -21,34 +20,18 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "wasmtime_lib",
-    hdrs = [
-        "crates/c-api/include/wasm.h",
-    ],
-    deps = [
-        ":rust_c_api",
-    ],
-)
-
-genrule(
-    name = "prefixed_wasmtime_c_api_headers",
     srcs = [
-        "crates/c-api/include/wasm.h",
+        ":prefixed_wasmtime_c_api_lib",
     ],
-    outs = [
-        "crates/c-api/include/prefixed_wasm.h",
-    ],
-    cmd = """
-        sed -e 's/\\ wasm_/\\ wasmtime_wasm_/g' \
-            -e 's/\\*wasm_/\\*wasmtime_wasm_/g' \
-            -e 's/(wasm_/(wasmtime_wasm_/g'     \
-        $(<) >$@
-        """,
+    hdrs = glob(["crates/c-api/include/**"]) + [":wasmtime_conf.h"],
+    includes = ["crates/c-api/include/"],
+    linkstatic = 1,
 )
 
 genrule(
     name = "prefixed_wasmtime_c_api_lib",
     srcs = [
-        ":rust_c_api",
+        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime-c-api-impl",
     ],
     outs = [
         "prefixed_wasmtime_c_api.a",
@@ -63,31 +46,27 @@ genrule(
     toolchains = ["@bazel_tools//tools/cpp:current_cc_toolchain"],
 )
 
-cc_library(
-    name = "prefixed_wasmtime_lib",
-    srcs = [
-        ":prefixed_wasmtime_c_api_lib",
-    ],
-    hdrs = [
-        ":prefixed_wasmtime_c_api_headers",
-    ],
-    linkstatic = 1,
-)
+# This must match the features defined in `bazel/cargo/wasmtime/Cargo.toml` for
+# the C/C++ API to expose the right set of methods.
+features = [
+    "cranelift",
+    "wat",
+    "wasi",
+    "gc-drc",
+]
 
-rust_static_library(
-    name = "rust_c_api",
-    srcs = glob(["crates/c-api/src/**/*.rs"]),
-    crate_features = ["cranelift"],
-    crate_root = "crates/c-api/src/lib.rs",
-    edition = "2021",
-    proc_macro_deps = [
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime-c-api-macros",
-    ],
-    deps = [
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:anyhow",
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:env_logger",
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:once_cell",
-        # buildifier: leave-alone
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime",
-    ],
+# Wasmtime C-api headers use cmakedefines to generate the config file.
+# This does the same as CMake's configure_file, but using the crate features array above.
+genrule(
+    name = "wasmtime_conf.h",
+    srcs = ["crates/c-api/include/wasmtime/conf.h.in"],
+    outs = ["crates/c-api/include/wasmtime/conf.h"],
+    cmd = """
+      cat < $< > $$TMPDIR/working_file
+      for enabled_feature in $$(echo "{}"); do
+        sed -i "s/#cmakedefine WASMTIME_FEATURE_$$enabled_feature/#define WASMTIME_FEATURE_$$enabled_feature 1/" $$TMPDIR/working_file
+      done
+      sed -i 's/#cmakedefine \\(.*\\)/\\/\\/ \\1 is not defined./' $$TMPDIR/working_file
+      cp $$TMPDIR/working_file $@
+      """.format(" ".join([f.upper() for f in features])),
 )
