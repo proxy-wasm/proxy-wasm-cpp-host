@@ -151,9 +151,9 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "com_google_absl",
-        sha256 = "9b7a064305e9fd94d124ffa6cc358592eb42b5da588fb4e07d09254aa40086db",
-        strip_prefix = "abseil-cpp-20250512.1",
-        urls = ["https://github.com/abseil/abseil-cpp/archive/refs/tags/20250512.1.tar.gz"],
+        sha256 = "1692f77d1739bacf3f94337188b78583cf09bab7e420d2dc6c5605a4f86785a1",
+        strip_prefix = "abseil-cpp-20250814.1",
+        urls = ["https://github.com/abseil/abseil-cpp/archive/20250814.1.tar.gz"],
     )
 
     maybe(
@@ -211,12 +211,11 @@ def proxy_wasm_cpp_host_repositories():
     # V8 with dependencies.
 
     maybe(
-        git_repository,
+        http_archive,
         name = "v8",
-        # 13.8.258.26
-        commit = "de9d0f8b56ae61896e4d2ac577fc589efb14f87d",
-        remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1752074621 -0700",
+        urls = ["https://github.com/v8/v8/archive/refs/tags/14.4.258.16.tar.gz"],
+        integrity = "sha256-igwEEi6kcb2q7EodzjJasjCx/6LRMiFTVWfDKcNB+Xw=",
+        strip_prefix = "v8-14.4.258.16",
         patches = [
             "@proxy_wasm_cpp_host//bazel/external:v8.patch",
         ],
