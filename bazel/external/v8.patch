@@ -1,36 +1,7 @@
-From 3b6a69271801db1b1a411fb969b515c74c459f65 Mon Sep 17 00:00:00 2001
-From: Matt Leon <mattleon@google.com>
-Date: Wed, 16 Jul 2025 16:55:02 -0400
-Subject: [PATCH 1/7] Disable pointer compression
-
-Pointer compression limits the maximum number of WasmVMs.
-
-Signed-off-by: Matt Leon <mattleon@google.com>
----
- BUILD.bazel | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/BUILD.bazel b/BUILD.bazel
-index b1a54b2b42c..96c8be8901f 100644
---- a/BUILD.bazel
-+++ b/BUILD.bazel
-@@ -296,7 +296,7 @@ v8_int(
- # If no explicit value for v8_enable_pointer_compression, we set it to 'none'.
- v8_string(
-     name = "v8_enable_pointer_compression",
--    default = "none",
-+    default = "False",
- )
- 
- # Default setting for v8_enable_pointer_compression.
--- 
-2.52.0.457.g6b5491de43-goog
-
-
 From aea5afcb03b19af37ed1c04cfdf294e9f4499f6b Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 16:56:31 -0400
-Subject: [PATCH 2/7] Restore _allowlist_function_transition
+Subject: [PATCH 1/6] Restore _allowlist_function_transition
 
 Reverts v8 commit b26554ec368e9553782012c96aa5e99b163eaff2, which removed use of
 _allowlist_function_transition from v8 bazel/defs.bzl, since it is still required
@@ -85,7 +56,7 @@ index 8c929454840..57336154cf7 100644
 From 920ef0496317a512083a09caa905fbf87a01c14b Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 16:56:52 -0400
-Subject: [PATCH 3/7] Don't expose Wasm C API (only Wasm C++ API).
+Subject: [PATCH 2/6] Don't expose Wasm C API (only Wasm C++ API).
 
 Signed-off-by: Matt Leon <mattleon@google.com>
 ---
@@ -118,7 +89,7 @@ index e7cf656ade4..660ed06021d 100644
 From f6379d9391b775f0459c3740302e435421a942c1 Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 16:58:02 -0400
-Subject: [PATCH 4/7] Stub out fast_float for bazel-supplied version
+Subject: [PATCH 3/6] Stub out fast_float for bazel-supplied version
 
 Signed-off-by: Matt Leon <mattleon@google.com>
 ---
@@ -145,7 +116,7 @@ index 96c8be8901f..05630ab7035 100644
 From 98a46e051afa5186a07400c53923367b9bea0ebe Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 20:04:05 -0400
-Subject: [PATCH 5/7] Stub out vendored dependencies for bazel-sourced versions
+Subject: [PATCH 4/6] Stub out vendored dependencies for bazel-sourced versions
 
 Signed-off-by: Matt Leon <mattleon@google.com>
 ---
@@ -177,7 +148,7 @@ index 05630ab7035..7f14a987148 100644
 From e3cebe8ca694935302a8c3806ab6398c593f31cd Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Wed, 16 Jul 2025 20:29:10 -0400
-Subject: [PATCH 6/7] Add build flags to make V8 compile with GCC
+Subject: [PATCH 5/6] Add build flags to make V8 compile with GCC
 
 Signed-off-by: Matt Leon <mattleon@google.com>
 ---
@@ -205,7 +176,7 @@ index ba8315bb938..277a07ef63d 100644
 From 5f9cd8cf1b1758678d41f96cd22477e052c787f8 Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
 Date: Fri, 18 Jul 2025 17:28:42 -0400
-Subject: [PATCH 7/7] Hack out atomic simd support in V8.
+Subject: [PATCH 6/6] Hack out atomic simd support in V8.
 
 Atomic simdutf requires __cpp_lib_atomic_ref >= 201806, which is only
 supported in clang libc++ 19+. The version of LLVM used in Envoy as of
