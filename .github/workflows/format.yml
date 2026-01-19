@@ -102,7 +102,7 @@ jobs:
     - name: Format (rules_rust)
       run: |
         bazel run //bazel/cargo/wasmsign:crates_vendor
-        bazel run //bazel/cargo/wasmtime:crates_vendor
+        ./bazel/cargo/wasmtime/vendor_and_patch.sh
         git diff --exit-code
 
   clang_format:

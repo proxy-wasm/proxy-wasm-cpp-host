@@ -48,13 +48,13 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasip1",
         ],
-        versions = ["1.91.0"],
+        versions = ["1.92.0"],
         sha256s = {
-            "rustc-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "a7169e8cb6174af2f45717703370363d8de82ce55f6ccba185893045b9370874",
-            "clippy-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "0087c3d58d2fdeafa89830c299b1026c9f981b49835db89c922b3c6a299b3225",
-            "cargo-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "7103c03fb8abe85b23307005a9dfe4f01c826a89945d84b96fa2d03fd4d2d138",
-            "llvm-tools-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "3d7756e0ce1ee18d20399aef770f09c55a4134f5a0f18e4e3c018aa1b3919a70",
-            "rust-std-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "89e6520b16c12b43526440298d2da0dcb70747c5cc2d0b8e47d39b5da9aeef49",
+            "rustc-1.92.0-x86_64-unknown-linux-gnu.tar.xz": "78b2dd9c6b1fcd2621fa81c611cf5e2d6950690775038b585c64f364422886e0",
+            "clippy-1.92.0-x86_64-unknown-linux-gnu.tar.xz": "2c1bf6e7da8ec50feba03fe188fc9a744ba59e2c6ece7970c13e201d08defa9a",
+            "cargo-1.92.0-x86_64-unknown-linux-gnu.tar.xz": "e5e12be2c7126a7036c8adf573078a28b92611f5767cc9bd0a6f7c83081df103",
+            "llvm-tools-1.92.0-x86_64-unknown-linux-gnu.tar.xz": "0e7ecc3cd9e0d1ab690954e2a623f7e5e9c55aca7d9853c712d6d84cc490f1dd",
+            "rust-std-1.92.0-x86_64-unknown-linux-gnu.tar.xz": "5f106805ed86ebf8df287039e53a45cf974391ef4d088c2760776b05b8e48b5d",
         },
     )
     rust_repository_set(
@@ -64,7 +64,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasip1",
         ],
-        versions = ["1.91.0"],
+        versions = ["1.92.0"],
     )
     crate_universe_dependencies(bootstrap = True)
 

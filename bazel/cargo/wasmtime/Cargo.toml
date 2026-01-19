@@ -15,17 +15,20 @@
 [package]
 edition = "2021"
 name = "wasmtime-c-api-bazel"
-version = "24.0.0"
-rust-version = "1.78.0"
+version = "40.0.2"
 
 [lib]
 path = "fake_lib.rs"
 
 [dependencies]
-env_logger = "0.10"
-anyhow = "1.0"
-once_cell = "1.12"
-log = {version = "0.4.8", default-features = false}
-tracing = "0.1.26"
-wasmtime = {version = "24.0.0", default-features = false, features = ['cranelift', 'runtime', 'gc', 'std']}
-wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v24.0.0"}
+# Fixes testdata build error due to missing crate_features = ["std"]
+log = {version = "0.4.29", default-features = false, features = ['std']}
+# IMPORTANT NOTES:
+# 1. Prefixed linking requires rust_static_library instead of rust_library
+#    (see vendor_and_patch.sh for automatic patching)
+#
+# Use vendor_and_patch.sh to automatically apply the patch:
+# `./bazel/cargo/wasmtime/vendor_and_patch.sh --repin`
+#
+# Or see vendor_and_patch.sh for manual patching commands.
+wasmtime-c-api-impl = {version = "40.0.2", default-features = false, features = ['cranelift', 'wasi', 'wat', 'gc-drc']}

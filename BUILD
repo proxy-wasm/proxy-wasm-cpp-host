@@ -280,7 +280,7 @@ cc_library(
     }),
     deps = [
         ":wasm_vm_headers",
-        "@com_github_bytecodealliance_wasmtime//:prefixed_wasmtime_lib",
+        "@com_github_bytecodealliance_wasmtime//:wasmtime_lib",
     ],
 )
 
