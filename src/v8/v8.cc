@@ -15,6 +15,7 @@
 
 #include "include/proxy-wasm/v8.h"
 
+#include <atomic>
 #include <cassert>
 #include <iomanip>
 #include <memory>
@@ -38,19 +39,60 @@
 namespace proxy_wasm {
 namespace v8 {
 
+// Global configuration for V8 options. Must be set before the first VM is created.
+// Using atomic for thread-safe read access during engine initialization.
+static std::atomic<bool> g_enable_liftoff{false};
+static std::atomic<bool> g_engine_initialized{false};
+
+// Builder class for constructing V8 command-line arguments.
+class V8ArgsBuilder {
+public:
+  V8ArgsBuilder() = default;
+
+  V8ArgsBuilder &setMaxMemoryPages(uint32_t max_pages) {
+    max_memory_pages_ = max_pages;
+    return *this;
+  }
+
+  V8ArgsBuilder &setLiftoffEnabled(bool enabled) {
+    liftoff_enabled_ = enabled;
+    return *this;
+  }
+
+  std::string build() const {
+    std::string args = absl::StrFormat("--wasm_max_mem_pages=%u", max_memory_pages_);
+
+    if (!liftoff_enabled_) {
+      args += " --no-liftoff";
+    }
+
+    return args;
+  }
+
+private:
+  uint32_t max_memory_pages_ =
+      PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES / PROXY_WASM_HOST_WASM_MEMORY_PAGE_SIZE_BYTES;
+  bool liftoff_enabled_ = false;
+};
+
 wasm::Engine *engine() {
   static std::once_flag init;
   static wasm::own<wasm::Engine> engine;
 
   std::call_once(init, []() {
-    // Disable the Liftoff compiler to force optimized JIT up-front.
-    std::string args = absl::StrFormat("--wasm_max_mem_pages=%u --no-liftoff",
-                                       PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES /
-                                           PROXY_WASM_HOST_WASM_MEMORY_PAGE_SIZE_BYTES);
+    // Build V8 command-line arguments using the builder pattern.
+    // When Liftoff is disabled (default), force optimized JIT up-front with TurboFan only.
+    // When enabled, allow Liftoff for faster startup time.
+    std::string args = V8ArgsBuilder()
+                           .setMaxMemoryPages(PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES /
+                                              PROXY_WASM_HOST_WASM_MEMORY_PAGE_SIZE_BYTES)
+                           .setLiftoffEnabled(g_enable_liftoff.load(std::memory_order_acquire))
+                           .build();
     ::v8::V8::SetFlagsFromString(args.c_str(), args.size());
     ::v8::V8::EnableWebAssemblyTrapHandler(true);
 
     engine = wasm::Engine::make();
+    g_engine_initialized.store(true, std::memory_order_release);
   });
 
   return engine.get();
@@ -757,7 +799,22 @@ std::string V8::getFailMessage(std::string_view function_name, wasm::own<wasm::T
   return message;
 }
 
+void setLiftoffEnabled(bool enable) {
+  // Check if V8 engine has already been initialized.
+  // Once initialized, the configuration cannot be changed (silently ignored).
+  // Note: There's an inherent race condition here by design - if the engine
+  // is initialized between the check and the set, the configuration change
+  // will be ignored. This is acceptable because the function is intended to be
+  // called during initialization before any concurrent VM creation.
+  if (g_engine_initialized.load(std::memory_order_acquire)) {
+    return;
+  }
+  g_enable_liftoff.store(enable, std::memory_order_release);
+}
+
 } // namespace v8
+
+void setV8LiftoffEnabled(bool enable) { v8::setLiftoffEnabled(enable); }
 
 std::unique_ptr<WasmVm> createV8Vm() { return std::make_unique<v8::V8>(); }
 

@@ -223,6 +223,21 @@ cc_test(
     ],
 )
 
+cc_test(
+    name = "v8_options_test",
+    srcs = ["v8_options_test.cc"],
+    data = [
+        "//test/test_data:abi_export.wasm",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
 cc_library(
     name = "utility_lib",
     testonly = True,

@@ -21,6 +21,17 @@
 
 namespace proxy_wasm {
 
+// Enable or disable the Liftoff compiler for V8 WebAssembly.
+// This function uses atomic operations internally but must be called before
+// creating any V8 VMs to take effect. Calls after the first VM creation are
+// silently ignored.
+//
+// @param enable when false (default), only TurboFan is used for eager compilation,
+//   which is beneficial for use cases where VMs are cloned to share compiled code.
+//   When true, Liftoff is enabled for faster startup time at the cost of
+//   potentially slower execution.
+void setV8LiftoffEnabled(bool enable);
+
 std::unique_ptr<WasmVm> createV8Vm();
 
 } // namespace proxy_wasm
