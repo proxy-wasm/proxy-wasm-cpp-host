@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include <openssl/sha.h>
+#include <openssl/evp.h>
 
 namespace proxy_wasm {
 
@@ -37,13 +37,33 @@ std::string BytesToHex(const std::vector<uint8_t> &bytes) {
 } // namespace
 
 std::vector<uint8_t> Sha256(const std::vector<std::string_view> &parts) {
-  uint8_t sha256[SHA256_DIGEST_LENGTH];
-  SHA256_CTX sha_ctx;
-  SHA256_Init(&sha_ctx);
-  for (auto part : parts) {
-    SHA256_Update(&sha_ctx, part.data(), part.size());
+  uint8_t sha256[32]; // SHA-256 produces 32 bytes
+  unsigned int hash_len = 0;
+
+  EVP_MD_CTX *hash_ctx = EVP_MD_CTX_new();
+  if (hash_ctx == nullptr) {
+    return std::vector<uint8_t>();
   }
-  SHA256_Final(sha256, &sha_ctx);
+
+  bool hash_ok = (EVP_DigestInit_ex(hash_ctx, EVP_sha256(), nullptr) != 0);
+  if (hash_ok) {
+    for (auto part : parts) {
+      if (EVP_DigestUpdate(hash_ctx, part.data(), part.size()) == 0) {
+        hash_ok = false;
+        break;
+      }
+    }
+  }
+  if (hash_ok) {
+    hash_ok = (EVP_DigestFinal_ex(hash_ctx, sha256, &hash_len) != 0);
+  }
+
+  EVP_MD_CTX_free(hash_ctx);
+
+  if (!hash_ok || hash_len != 32) {
+    return std::vector<uint8_t>();
+  }
+
   return std::vector<uint8_t>(std::begin(sha256), std::end(sha256));
 }
 

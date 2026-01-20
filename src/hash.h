@@ -17,7 +17,7 @@
 #include <string>
 #include <vector>
 
-#include <openssl/sha.h>
+#include <openssl/evp.h>
 
 namespace proxy_wasm {
 
