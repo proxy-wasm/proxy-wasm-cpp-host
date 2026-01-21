@@ -89,6 +89,7 @@ cc_library(
     }),
     deps = [
         ":headers",
+        "@com_google_absl//absl/cleanup",
     ] + select({
         "//bazel:crypto_system": [],
         "//conditions:default": ["@boringssl//:crypto"],
