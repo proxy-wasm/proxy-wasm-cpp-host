@@ -31,7 +31,7 @@ bazel_dep(name = "rules_rust", version = "0.68.1")
 bazel_dep(name = "rules_fuzzing", version = "0.6.0")
 bazel_dep(name = "googletest", version = "1.17.0.bcr.2", repo_name = "com_google_googletest")
 bazel_dep(name = "boringssl", version = "0.20251124.0")
-bazel_dep(name = "emsdk", version = "4.0.13")
+bazel_dep(name = "emsdk", version = "4.0.17")
 bazel_dep(name = "toolchains_llvm", version = "1.6.0")
 
 archive_override(
@@ -42,18 +42,11 @@ archive_override(
     urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.68.1/rules_rust-0.68.1.tar.gz"],
 )
 
-archive_override(
-    module_name = "emsdk",
-    integrity = "sha256-qRpMH0LbsDRfqsCTFh4n1D6baWSEDYyNgJdquNPq8tM=",
-    strip_prefix = "emsdk-4.0.23/bazel",
-    urls = ["https://github.com/emscripten-core/emsdk/archive/refs/tags/4.0.23.tar.gz"],
-)
-
 emscripten_deps = use_extension(
     "@emsdk//:emscripten_deps.bzl",
     "emscripten_deps",
 )
-emscripten_deps.config(version = "4.0.23")
+emscripten_deps.config(version = "4.0.17")
 
 archive_override(
     module_name = "proxy-wasm-cpp-sdk",
