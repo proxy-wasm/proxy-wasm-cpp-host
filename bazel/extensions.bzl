@@ -14,6 +14,7 @@
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("//bazel/cargo/wasmsign/remote:crates.bzl", _wasmsign_crate_repositories = "crate_repositories")
 load("//bazel/cargo/wasmtime/remote:crates.bzl", _wasmtime_crate_repositories = "crate_repositories")
 
 def _wasmtime_crates_impl(ctx):
@@ -25,6 +26,17 @@ def _wasmtime_crates_impl(ctx):
 
 wasmtime_crates = module_extension(
     implementation = _wasmtime_crates_impl,
+)
+
+def _wasmsign_crates_impl(ctx):
+    direct_deps = _wasmsign_crate_repositories()
+    return ctx.extension_metadata(
+        root_module_direct_deps = [dep.repo for dep in direct_deps],
+        root_module_direct_dev_deps = [],
+    )
+
+wasmsign_crates = module_extension(
+    implementation = _wasmsign_crates_impl,
 )
 
 def _wasmtime_impl(ctx):

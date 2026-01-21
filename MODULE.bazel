@@ -80,14 +80,12 @@ use_repo(rust, "rust_toolchains")
 
 register_toolchains("@rust_toolchains//:all")
 
-crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
-crate.from_cargo(
-    name = "wasmsign",
-    cargo_lockfile = "//bazel/cargo/wasmsign:Cargo.Bazel.lock",
-    generate_binaries = True,
-    manifests = ["//bazel/cargo/wasmsign:Cargo.toml"],
+wasmsign_crates = use_extension("//bazel:extensions.bzl", "wasmsign_crates")
+use_repo(
+    wasmsign_crates,
+    "ws",
+    "ws__wasmsign2-cli-0.2.6",
 )
-use_repo(crate, "wasmsign")
 
 # Wasmtime and its dependencies
 wasmtime_crates = use_extension("//bazel:extensions.bzl", "wasmtime_crates")
