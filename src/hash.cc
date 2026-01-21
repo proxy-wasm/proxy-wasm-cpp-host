@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 
+#include "absl/cleanup/cleanup.h"
 #include <openssl/evp.h>
 
 namespace proxy_wasm {
@@ -37,7 +38,7 @@ std::string BytesToHex(const std::vector<uint8_t> &bytes) {
 } // namespace
 
 std::vector<uint8_t> Sha256(const std::vector<std::string_view> &parts) {
-  uint8_t sha256[32]; // SHA-256 produces 32 bytes
+  uint8_t sha256[EVP_MAX_MD_SIZE];
   unsigned int hash_len = 0;
 
   EVP_MD_CTX *hash_ctx = EVP_MD_CTX_new();
@@ -45,26 +46,23 @@ std::vector<uint8_t> Sha256(const std::vector<std::string_view> &parts) {
     return std::vector<uint8_t>();
   }
 
-  bool hash_ok = (EVP_DigestInit_ex(hash_ctx, EVP_sha256(), nullptr) != 0);
-  if (hash_ok) {
-    for (auto part : parts) {
-      if (EVP_DigestUpdate(hash_ctx, part.data(), part.size()) == 0) {
-        hash_ok = false;
-        break;
-      }
-    }
-  }
-  if (hash_ok) {
-    hash_ok = (EVP_DigestFinal_ex(hash_ctx, sha256, &hash_len) != 0);
-  }
+  absl::Cleanup free_ctx = [hash_ctx] { EVP_MD_CTX_free(hash_ctx); };
 
-  EVP_MD_CTX_free(hash_ctx);
-
-  if (!hash_ok || hash_len != 32) {
+  if (EVP_DigestInit_ex(hash_ctx, EVP_sha256(), nullptr) == 0) {
     return std::vector<uint8_t>();
   }
 
-  return std::vector<uint8_t>(std::begin(sha256), std::end(sha256));
+  for (const auto &part : parts) {
+    if (EVP_DigestUpdate(hash_ctx, part.data(), part.size()) == 0) {
+      return std::vector<uint8_t>();
+    }
+  }
+
+  if (EVP_DigestFinal_ex(hash_ctx, sha256, &hash_len) == 0) {
+    return std::vector<uint8_t>();
+  }
+
+  return std::vector<uint8_t>(sha256, sha256 + hash_len);
 }
 
 std::string Sha256String(const std::vector<std::string_view> &parts) {

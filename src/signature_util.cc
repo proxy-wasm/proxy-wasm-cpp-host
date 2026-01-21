@@ -19,6 +19,7 @@
 #include <memory>
 
 #ifdef PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY
+#include "absl/cleanup/cleanup.h"
 #include <openssl/evp.h>
 #endif
 
@@ -306,22 +307,28 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
     return false;
   }
 
-  uint8_t computed_hash[32]; // SHA-256 produces 32 bytes
+  absl::Cleanup free_hash_ctx = [hash_ctx] { EVP_MD_CTX_free(hash_ctx); };
+
+  uint8_t computed_hash[EVP_MAX_MD_SIZE];
   unsigned int hash_len = 0;
 
-  bool hash_ok = (EVP_DigestInit_ex(hash_ctx, EVP_sha256(), nullptr) != 0) &&
-                 (EVP_DigestUpdate(hash_ctx, content_start, content_len) != 0) &&
-                 (EVP_DigestFinal_ex(hash_ctx, computed_hash, &hash_len) != 0);
+  if (EVP_DigestInit_ex(hash_ctx, EVP_sha256(), nullptr) == 0) {
+    message = "Failed to compute SHA-256 hash";
+    return false;
+  }
 
-  EVP_MD_CTX_free(hash_ctx);
+  if (EVP_DigestUpdate(hash_ctx, content_start, content_len) == 0) {
+    message = "Failed to compute SHA-256 hash";
+    return false;
+  }
 
-  if (!hash_ok || hash_len != 32) {
+  if (EVP_DigestFinal_ex(hash_ctx, computed_hash, &hash_len) == 0) {
     message = "Failed to compute SHA-256 hash";
     return false;
   }
 
   // Verify the computed hash matches the expected hash
-  if (std::memcmp(computed_hash, expected_hash, 32) != 0) {
+  if (std::memcmp(computed_hash, expected_hash, hash_len) != 0) {
     message = "Hash mismatch";
     return false;
   }
@@ -333,14 +340,14 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
   // https://github.com/wasm-signatures/wasmsign2/blob/0.2.6/src/lib/src/signature/multi.rs#L268-L278
   const char *domain = "wasmsig";
   size_t domain_len = 7;
-  size_t msg_len = domain_len + 3 + 32; // domain + 3 bytes (spec/content/hash) + 32 bytes (hash)
+  size_t msg_len = domain_len + 3 + hash_len; // domain + 3 bytes (spec/content/hash) + hash
   auto signature_msg = std::make_unique<uint8_t[]>(msg_len);
 
   std::memcpy(signature_msg.get(), domain, domain_len);
   signature_msg[domain_len] = spec_version;
   signature_msg[domain_len + 1] = content_type;
   signature_msg[domain_len + 2] = hash_fn;
-  std::memcpy(signature_msg.get() + domain_len + 3, expected_hash, 32);
+  std::memcpy(signature_msg.get() + domain_len + 3, expected_hash, hash_len);
 
   static const auto ed25519_pubkey = hex2pubkey<32>(PROXY_WASM_VERIFY_WITH_ED25519_PUBKEY);
 
@@ -351,21 +358,23 @@ bool SignatureUtil::verifySignature(std::string_view bytecode, std::string &mess
     return false;
   }
 
+  absl::Cleanup free_pubkey = [pubkey] { EVP_PKEY_free(pubkey); };
+
   EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
   if (mdctx == nullptr) {
     message = "Failed to allocate memory for EVP_MD_CTX";
-    EVP_PKEY_free(pubkey);
     return false;
   }
 
-  bool ok = (EVP_DigestVerifyInit(mdctx, nullptr, nullptr, nullptr, pubkey) != 0) &&
-            (EVP_DigestVerify(mdctx, signature, 64 /* ED25519_SIGNATURE_LEN */, signature_msg.get(),
-                              msg_len) != 0);
+  absl::Cleanup free_mdctx = [mdctx] { EVP_MD_CTX_free(mdctx); };
 
-  EVP_MD_CTX_free(mdctx);
-  EVP_PKEY_free(pubkey);
+  if (EVP_DigestVerifyInit(mdctx, nullptr, nullptr, nullptr, pubkey) == 0) {
+    message = "Failed to initialize signature verification";
+    return false;
+  }
 
-  if (!ok) {
+  if (EVP_DigestVerify(mdctx, signature, 64 /* ED25519_SIGNATURE_LEN */, signature_msg.get(),
+                       msg_len) == 0) {
     message = "Signature mismatch";
     return false;
   }
