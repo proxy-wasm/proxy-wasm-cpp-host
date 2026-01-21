@@ -38,7 +38,7 @@ bazel_dep(name = "aspect_rules_lint", version = "1.13.0")
 archive_override(
     module_name = "rules_rust",
     integrity = "sha256-yKqAbPYGZnmsI0YyQe6ArWkiZdrQRl9RERy74wuJA1I=",
-    patch_args = ["-p1"],
+    patch_strip = 1,
     patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
     urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.68.1/rules_rust-0.68.1.tar.gz"],
 )
@@ -58,11 +58,8 @@ archive_override(
 
 # Configure and register the toolchain.
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
-llvm.toolchain(
-    llvm_version = "19.1.0",
-)
+llvm.toolchain(llvm_version = "19.1.0")
 use_repo(llvm, "llvm_toolchain", "llvm_toolchain_llvm")
-
 register_toolchains("@llvm_toolchain//:all")
 
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
@@ -102,20 +99,14 @@ use_repo(wasmtime, "com_github_bytecodealliance_wasmtime")
 wamr = use_extension("//bazel:extensions.bzl", "wamr")
 use_repo(wamr, "com_github_bytecodealliance_wasm_micro_runtime")
 
+wamr_jit_deps = use_extension("//bazel:extensions.bzl", "wamr_jit_deps")
+use_repo(wamr_jit_deps, "llvm-raw", "llvm_zlib", "llvm_zstd")
+llvm_configure = use_repo_rule("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
+llvm_configure(name = "llvm-project", targets = ["X86", "AArch64"])
+
 # V8 runtime and its dependencies
 v8 = use_extension("//bazel:extensions.bzl", "v8")
 use_repo(v8, "v8")
-
-v8_deps = use_extension("//bazel:extensions.bzl", "v8_deps")
-use_repo(
-    v8_deps,
-    "dragonbox",
-    "fast_float",
-    "fp16",
-    "highway",
-    "intel_ittapi",
-    "simdutf",
-)
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(

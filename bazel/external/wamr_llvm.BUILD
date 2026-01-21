@@ -66,35 +66,3 @@ cc_library(
         ],
     }),
 )
-
-# Create a tarball with LLVM headers preserving directory structure
-# This is a robust, bzlmod-compatible solution for providing headers to rules_foreign_cc
-genrule(
-    name = "package_llvm_headers",
-    srcs = ["@llvm_toolchain_llvm//:all_includes"],
-    outs = ["llvm_headers.tar.gz"],
-    cmd = """
-        # Create temporary directory for building the archive
-        TMPDIR=$$(mktemp -d)
-        
-        # Copy all headers preserving directory structure
-        # The all_includes filegroup contains files like include/llvm/Config/llvm-config.h
-        for src in $(SRCS); do
-            # Extract the path relative to the workspace
-            # Files are like external/llvm_toolchain_llvm/include/llvm/...
-            rel_path=$$(echo $$src | sed 's|.*/llvm_toolchain_llvm/||')
-            dest_path=$$TMPDIR/$$rel_path
-            mkdir -p $$(dirname $$dest_path)
-            cp $$src $$dest_path
-        done
-        
-        # Create tarball from the temp directory
-        tar -czf $(location llvm_headers.tar.gz) -C $$TMPDIR .
-        rm -rf $$TMPDIR
-    """,
-)
-
-filegroup(
-    name = "llvm_headers",
-    srcs = [":package_llvm_headers"],
-)

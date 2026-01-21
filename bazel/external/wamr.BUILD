@@ -29,7 +29,9 @@ cmake(
     cache_entries = select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": {
             "BAZEL_BUILD": "ON",
-            # Set LLVM_INCLUDE_DIR for the patch to use
+            # Set LLVM_INCLUDE_DIR for the patch to use. It doesn't actually
+            # matter, since the isystem directives in `env` below will pick up the
+            # real includes anyway.
             "LLVM_INCLUDE_DIR": "$$EXT_BUILD_ROOT/external/llvm_toolchain_llvm/include",
         },
         "//conditions:default": {},
@@ -38,8 +40,10 @@ cmake(
     # The patch skips LLVM CMake detection when BAZEL_BUILD is set
     # LLVM headers from hermetic toolchain (bzlmod-compatible via data attribute)
     # LLVM libraries are linked via cc_library deps (see wamr_lib below)
+    # NOTE: @llvm_toolchain_llvm must match the version of llvm used for :llvm_wamr_lib.
     data = select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": [
+            ":llvm_wamr_lib",
             "@llvm_toolchain_llvm//:all_includes",
         ],
         "//conditions:default": [],
@@ -49,8 +53,10 @@ cmake(
             # Reference LLVM headers in sandbox via EXT_BUILD_ROOT
             # The data attribute ensures llvm_toolchain_llvm is mounted in sandbox
             # This path works with both WORKSPACE and bzlmod
-            "CFLAGS": "-isystem $$EXT_BUILD_ROOT/external/llvm_toolchain_llvm/include",
-            "CXXFLAGS": "-isystem $$EXT_BUILD_ROOT/external/llvm_toolchain_llvm/include",
+            # The bzlmod paths use the *unstable* repository naming
+            # conventions, and will possibly break with differen bazel versions.
+            "CFLAGS": "-isystem $$EXT_BUILD_ROOT/external/llvm_toolchain_llvm/include -isystem $$EXT_BUILD_ROOT/external/toolchains_llvm++llvm+llvm_toolchain_llvm/include",
+            "CXXFLAGS": "-isystem $$EXT_BUILD_ROOT/external/llvm_toolchain_llvm/include -isystem $$EXT_BUILD_ROOT/external/toolchains_llvm++llvm+llvm_toolchain_llvm/include",
         },
         "//conditions:default": {},
     }),
@@ -107,8 +113,57 @@ cc_library(
     }),
     deps = [":wamr_lib_cmake"] + select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": [
-            "@llvm-raw//:llvm_wamr_lib",
+            ":llvm_wamr_lib",
         ],
         "//conditions:default": [],
+    }),
+)
+
+# LLVM libraries needed by WAMR JIT - built with native Bazel.
+# This replaces the foreign_cc cmake build of LLVM with native Bazel builds.
+# These libraries are linked into the final binary, while WAMR's CMake build
+# uses the hermetic LLVM toolchain's CMake configs for configuration only.
+# Uses select() for CPU-specific libraries only.
+cc_library(
+    name = "llvm_wamr_lib",
+    deps = [
+        "@llvm-project//llvm:Analysis",
+        "@llvm-project//llvm:BitReader",
+        "@llvm-project//llvm:BitWriter",
+        "@llvm-project//llvm:CodeGen",
+        "@llvm-project//llvm:Core",
+        "@llvm-project//llvm:ExecutionEngine",
+        "@llvm-project//llvm:IPO",
+        "@llvm-project//llvm:IRReader",
+        "@llvm-project//llvm:InstCombine",
+        "@llvm-project//llvm:Instrumentation",
+        "@llvm-project//llvm:JITLink",
+        "@llvm-project//llvm:Linker",
+        "@llvm-project//llvm:MC",
+        "@llvm-project//llvm:MCJIT",
+        "@llvm-project//llvm:Object",
+        "@llvm-project//llvm:OrcJIT",
+        "@llvm-project//llvm:Passes",
+        "@llvm-project//llvm:Scalar",
+        "@llvm-project//llvm:Support",
+        "@llvm-project//llvm:Target",
+        "@llvm-project//llvm:TransformUtils",
+        "@llvm-project//llvm:Vectorize",
+    ] + select({
+        "@platforms//cpu:x86_64": [
+            "@llvm-project//llvm:X86AsmParser",
+            "@llvm-project//llvm:X86CodeGen",
+            "@llvm-project//llvm:X86Disassembler",
+        ],
+        "@platforms//cpu:aarch64": [
+            "@llvm-project//llvm:AArch64AsmParser",
+            "@llvm-project//llvm:AArch64CodeGen",
+            "@llvm-project//llvm:AArch64Disassembler",
+        ],
+        "//conditions:default": [
+            "@llvm-project//llvm:X86AsmParser",
+            "@llvm-project//llvm:X86CodeGen",
+            "@llvm-project//llvm:X86Disassembler",
+        ],
     }),
 )

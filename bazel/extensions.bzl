@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@bazel_features//:features.bzl", "bazel_features")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("//bazel/cargo/wasmsign/remote:crates.bzl", _wasmsign_crate_repositories = "crate_repositories")
@@ -20,6 +21,7 @@ load("//bazel/cargo/wasmtime/remote:crates.bzl", _wasmtime_crate_repositories = 
 def _wasmtime_crates_impl(ctx):
     direct_deps = _wasmtime_crate_repositories()
     return ctx.extension_metadata(
+        reproducible = bazel_features.external_deps.extension_metadata_has_reproducible,
         root_module_direct_deps = [dep.repo for dep in direct_deps],
         root_module_direct_dev_deps = [],
     )
@@ -31,6 +33,7 @@ wasmtime_crates = module_extension(
 def _wasmsign_crates_impl(ctx):
     direct_deps = _wasmsign_crate_repositories()
     return ctx.extension_metadata(
+        reproducible = bazel_features.external_deps.extension_metadata_has_reproducible,
         root_module_direct_deps = [dep.repo for dep in direct_deps],
         root_module_direct_dev_deps = [],
     )
@@ -75,34 +78,49 @@ wamr = module_extension(
     implementation = _wamr_impl,
 )
 
-def _v8_impl(ctx):
+def _wamr_jit_deps_impl(ctx):
+    # These dependencies must be in the global namespace so we can call use_repo_rule.
+    # LLVM dependency for jit build
     http_archive(
-        name = "v8",
-        urls = ["https://github.com/v8/v8/archive/refs/tags/14.4.258.16.tar.gz"],
-        integrity = "sha256-igwEEi6kcb2q7EodzjJasjCx/6LRMiFTVWfDKcNB+Xw=",
-        strip_prefix = "v8-14.4.258.16",
-        patches = [
-            "@proxy_wasm_cpp_host//bazel/external:v8.patch",
+        name = "llvm-raw",
+        build_file = "@proxy_wasm_cpp_host//bazel/external:wamr_llvm.BUILD",
+        sha256 = "5042522b49945bc560ff9206f25fb87980a9b89b914193ca00d961511ff0673c",
+        strip_prefix = "llvm-project-19.1.0.src",
+        url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.0/llvm-project-19.1.0.src.tar.xz",
+    )
+
+    # LLVM external dependencies for native Bazel build.
+    http_archive(
+        name = "llvm_zlib",
+        build_file = "@llvm-raw//utils/bazel/third_party_build:zlib-ng.BUILD",
+        sha256 = "e36bb346c00472a1f9ff2a0a4643e590a254be6379da7cddd9daeb9a7f296731",
+        strip_prefix = "zlib-ng-2.0.7",
+        urls = [
+            "https://github.com/zlib-ng/zlib-ng/archive/refs/tags/2.0.7.zip",
         ],
-        patch_strip = 1,
-        patch_cmds = [
-            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/simdutf/simdutf.h\"!#include \"simdutf.h\"!' {} \\;",
-            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fp16/src/include/fp16.h\"!#include \"fp16.h\"!' {} \\;",
-            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/dragonbox/src/include/dragonbox/dragonbox.h\"!#include \"dragonbox/dragonbox.h\"!' {} \\;",
-            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fast_float/src/include/fast_float/!#include \"fast_float/!' {} \\;",
+    )
+
+    http_archive(
+        name = "llvm_zstd",
+        build_file = "@llvm-raw//utils/bazel/third_party_build:zstd.BUILD",
+        sha256 = "7c42d56fac126929a6a85dbc73ff1db2411d04f104fae9bdea51305663a83fd0",
+        strip_prefix = "zstd-1.5.2",
+        urls = [
+            "https://github.com/facebook/zstd/releases/download/v1.5.2/zstd-1.5.2.tar.gz",
         ],
     )
     return ctx.extension_metadata(
-        root_module_direct_deps = ["v8"],
+        root_module_direct_deps = ["llvm-raw", "llvm_zlib", "llvm_zstd"],
         root_module_direct_dev_deps = [],
     )
 
-v8 = module_extension(
-    implementation = _v8_impl,
+wamr_jit_deps = module_extension(
+    implementation = _wamr_jit_deps_impl,
 )
 
-def _v8_deps_impl(ctx):
-    # V8 supporting dependencies
+def _v8_impl(ctx):
+    # V8 supporting dependencies. Some of these repositories are possible to
+    # use with bazel_dep. All V8 dependencies are listed here for ease of maintenance.
     http_archive(
         name = "highway",
         sha256 = "7e0be78b8318e8bdbf6fa545d2ecb4c90f947df03f7aadc42c1967f019e63343",
@@ -142,20 +160,34 @@ def _v8_deps_impl(ctx):
         urls = ["https://github.com/intel/ittapi/archive/a3911fff01a775023a06af8754f9ec1e5977dd97.tar.gz"],
         build_file = "@proxy_wasm_cpp_host//bazel/external: intel_ittapi.BUILD",
     )
-    return ctx.extension_metadata(
-        root_module_direct_deps = [
-            "highway",
-            "fast_float",
-            "dragonbox",
-            "fp16",
-            "simdutf",
-            "intel_ittapi",
+
+    # V8 is present in bazel central repository, however, as of 2026-01-20 does
+    # not enumerate all of its dependencies, and the bazel_dep version of V8
+    # cannot depend on repositories declared in extensions. Instead, import V8
+    # via extension.
+    http_archive(
+        name = "v8",
+        urls = ["https://github.com/v8/v8/archive/refs/tags/14.4.258.16.tar.gz"],
+        integrity = "sha256-igwEEi6kcb2q7EodzjJasjCx/6LRMiFTVWfDKcNB+Xw=",
+        strip_prefix = "v8-14.4.258.16",
+        patches = [
+            "@proxy_wasm_cpp_host//bazel/external:v8.patch",
         ],
+        patch_strip = 1,
+        patch_cmds = [
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/simdutf/simdutf.h\"!#include \"simdutf.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fp16/src/include/fp16.h\"!#include \"fp16.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/dragonbox/src/include/dragonbox/dragonbox.h\"!#include \"dragonbox/dragonbox.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fast_float/src/include/fast_float/!#include \"fast_float/!' {} \\;",
+        ],
+    )
+    return ctx.extension_metadata(
+        root_module_direct_deps = ["v8"],
         root_module_direct_dev_deps = [],
     )
 
-v8_deps = module_extension(
-    implementation = _v8_deps_impl,
+v8 = module_extension(
+    implementation = _v8_impl,
 )
 
 def _wasmedge_impl(ctx):
