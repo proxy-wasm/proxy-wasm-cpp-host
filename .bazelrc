@@ -1,5 +1,5 @@
-# Disable Bzlmod
-common --noenable_bzlmod
+# Enable Bzlmod
+common --enable_bzlmod
 
 # Pass CC, CXX and PATH from the environment.
 build --action_env=CC
@@ -70,7 +70,6 @@ build:gcc --action_env=CXX=g++
 
 build:hermetic-llvm --incompatible_enable_cc_toolchain_resolution
 build:hermetic-llvm --action_env BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
-build:hermetic-llvm --extra_toolchains @emsdk//emscripten_toolchain:cc-toolchain-wasm
 
 build --enable_platform_specific_config
 

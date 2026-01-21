@@ -63,7 +63,7 @@ def _wasm_attrs(transition):
     return {
         "binary": attr.label(mandatory = True, cfg = transition),
         "signing_key": attr.label_list(allow_files = True),
-        "_wasmsign_tool": attr.label(default = "//bazel/cargo/wasmsign/remote:wasmsign2-cli__wasmsign2", executable = True, cfg = "exec"),
+        "_wasmsign_tool": attr.label(default = "@wasmsign//:wasmsign2-cli__wasmsign2", executable = True, cfg = "exec"),
         "_allowlist_function_transition": attr.label(default = "@bazel_tools//tools/allowlists/function_transition_allowlist"),
     }
 

@@ -17,44 +17,59 @@ module(
     version = "0.0.0",
 )
 
-bazel_dep(name = "envoy", version = "")
-
 bazel_dep(name = "abseil-cpp", version = "20250814.1")
-bazel_dep(name = "bazel_features", version = "1.21.0")
-bazel_dep(name = "bazel_skylib", version = "1.7.0")
+bazel_dep(name = "bazel_features", version = "1.38.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "protobuf", version = "33.2", repo_name = "com_google_protobuf")
 bazel_dep(name = "proxy-wasm-cpp-sdk", version = "0.0.0", repo_name = "proxy_wasm_cpp_sdk")
-bazel_dep(name = "rules_cc", version = "0.1.5")
+bazel_dep(name = "rules_cc", version = "0.2.14")
+bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
 bazel_dep(name = "rules_license", version = "1.0.0")
 bazel_dep(name = "rules_python", version = "1.7.0")
 bazel_dep(name = "rules_rust", version = "0.68.1")
+bazel_dep(name = "rules_fuzzing", version = "0.6.0")
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2", repo_name = "com_google_googletest")
+bazel_dep(name = "boringssl", version = "0.20251124.0")
+bazel_dep(name = "emsdk", version = "4.0.13")
+bazel_dep(name = "toolchains_llvm", version = "1.6.0")
 
-git_override(
+archive_override(
+    module_name = "rules_rust",
+    integrity = "sha256-yKqAbPYGZnmsI0YyQe6ArWkiZdrQRl9RERy74wuJA1I=",
+    patch_args = ["-p1"],
+    patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
+    urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.68.1/rules_rust-0.68.1.tar.gz"],
+)
+
+archive_override(
+    module_name = "emsdk",
+    integrity = "sha256-qRpMH0LbsDRfqsCTFh4n1D6baWSEDYyNgJdquNPq8tM=",
+    strip_prefix = "emsdk-4.0.23/bazel",
+    urls = ["https://github.com/emscripten-core/emsdk/archive/refs/tags/4.0.23.tar.gz"],
+)
+
+emscripten_deps = use_extension(
+    "@emsdk//:emscripten_deps.bzl",
+    "emscripten_deps",
+)
+emscripten_deps.config(version = "4.0.23")
+
+archive_override(
     module_name = "proxy-wasm-cpp-sdk",
-    commit = "e5256b0c5463ea9961965ad5de3e379e00486640",
-    remote = "https://github.com/proxy-wasm/proxy-wasm-cpp-sdk",
-    patch_strip = 1,
-    patches = ["//bazel:proxy-wasm-cpp-sdk.patch"],
+    integrity = "sha256-tWCh2ieg06s3RSfpx9+k/mSTiHKZlFvidioFGM41Vw4=",
+    strip_prefix = "proxy-wasm-cpp-sdk-e5256b0c5463ea9961965ad5de3e379e00486640",
+    urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/e5256b0c5463ea9961965ad5de3e379e00486640.tar.gz"],
 )
 
-python = use_extension("@rules_python//python/extensions:python.bzl", "python")
-python.toolchain(
-    is_default = True,
-    python_version = "3.12",
+# Configure and register the toolchain.
+llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+llvm.toolchain(
+    llvm_version = "19.1.0",
 )
-use_repo(
-    python,
-    "python_3_12",
-    python = "python_versions",
-)
-pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
-pip.parse(
-    hub_name = "v8_python_deps",
-    python_version = "3.12",
-    requirements_lock = "@v8//:bazel/requirements.txt",
-)
-use_repo(pip, "v8_python_deps")
+use_repo(llvm, "llvm_toolchain", "llvm_toolchain_llvm")
+
+register_toolchains("@llvm_toolchain//:all")
 
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
@@ -65,123 +80,31 @@ use_repo(rust, "rust_toolchains")
 
 register_toolchains("@rust_toolchains//:all")
 
-wasmtime = use_extension("//bazel:extensions.bzl", "wasmtime")
-use_repo(wasmtime, "com_github_wasmtime")
+crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
+crate.from_cargo(
+    name = "wasmsign",
+    cargo_lockfile = "//bazel/cargo/wasmsign:Cargo.Bazel.lock",
+    generate_binaries = True,
+    manifests = ["//bazel/cargo/wasmsign:Cargo.toml"],
+)
+use_repo(crate, "wasmsign")
 
+# Wasmtime and its dependencies
 wasmtime_crates = use_extension("//bazel:extensions.bzl", "wasmtime_crates")
 use_repo(
     wasmtime_crates,
     "cu",
-    "cu__ahash-0.8.11",
-    "cu__aho-corasick-1.1.3",
     "cu__anyhow-1.0.86",
-    "cu__arbitrary-1.3.2",
-    "cu__bitflags-2.6.0",
-    "cu__bumpalo-3.16.0",
-    "cu__cc-1.1.7",
-    "cu__cfg-if-1.0.0",
-    "cu__cobs-0.2.3",
-    "cu__cranelift-bforest-0.111.0",
-    "cu__cranelift-bitset-0.111.0",
-    "cu__cranelift-codegen-0.111.0",
-    "cu__cranelift-codegen-meta-0.111.0",
-    "cu__cranelift-codegen-shared-0.111.0",
-    "cu__cranelift-control-0.111.0",
-    "cu__cranelift-entity-0.111.0",
-    "cu__cranelift-frontend-0.111.0",
-    "cu__cranelift-isle-0.111.0",
-    "cu__cranelift-native-0.111.0",
-    "cu__cranelift-wasm-0.111.0",
-    "cu__crc32fast-1.4.2",
-    "cu__either-1.13.0",
-    "cu__embedded-io-0.4.0",
     "cu__env_logger-0.10.2",
-    "cu__equivalent-1.0.1",
-    "cu__errno-0.3.9",
-    "cu__fallible-iterator-0.3.0",
-    "cu__gimli-0.29.0",
-    "cu__hashbrown-0.13.2",
-    "cu__hashbrown-0.14.5",
-    "cu__heck-0.4.1",
-    "cu__hermit-abi-0.3.9",
-    "cu__humantime-2.1.0",
-    "cu__id-arena-2.2.1",
-    "cu__indexmap-2.3.0",
-    "cu__is-terminal-0.4.12",
-    "cu__itertools-0.12.1",
-    "cu__itoa-1.0.11",
-    "cu__leb128-0.2.5",
-    "cu__libc-0.2.155",
-    "cu__libm-0.2.8",
-    "cu__linux-raw-sys-0.4.14",
     "cu__log-0.4.22",
-    "cu__mach2-0.4.2",
-    "cu__memchr-2.7.4",
-    "cu__memfd-0.6.4",
-    "cu__object-0.36.2",
     "cu__once_cell-1.19.0",
-    "cu__paste-1.0.15",
-    "cu__pin-project-lite-0.2.14",
-    "cu__postcard-1.0.8",
-    "cu__proc-macro2-1.0.86",
-    "cu__psm-0.1.21",
-    "cu__quote-1.0.36",
-    "cu__regalloc2-0.9.3",
-    "cu__regex-1.10.5",
-    "cu__regex-automata-0.4.7",
-    "cu__regex-syntax-0.8.4",
-    "cu__rustc-hash-1.1.0",
-    "cu__rustix-0.38.34",
-    "cu__ryu-1.0.18",
-    "cu__semver-1.0.23",
-    "cu__serde-1.0.204",
-    "cu__serde_derive-1.0.204",
-    "cu__serde_json-1.0.120",
-    "cu__slice-group-by-0.3.1",
-    "cu__smallvec-1.13.2",
-    "cu__sptr-0.3.2",
-    "cu__stable_deref_trait-1.2.0",
-    "cu__syn-2.0.72",
-    "cu__target-lexicon-0.12.16",
-    "cu__termcolor-1.4.1",
-    "cu__thiserror-1.0.63",
-    "cu__thiserror-impl-1.0.63",
     "cu__tracing-0.1.40",
-    "cu__tracing-attributes-0.1.27",
-    "cu__tracing-core-0.1.32",
-    "cu__unicode-ident-1.0.12",
-    "cu__unicode-xid-0.2.4",
-    "cu__version_check-0.9.5",
-    "cu__wasm-encoder-0.215.0",
-    "cu__wasmparser-0.215.0",
-    "cu__wasmprinter-0.215.0",
     "cu__wasmtime-24.0.0",
-    "cu__wasmtime-asm-macros-24.0.0",
     "cu__wasmtime-c-api-macros-24.0.0",
-    "cu__wasmtime-component-macro-24.0.0",
-    "cu__wasmtime-component-util-24.0.0",
-    "cu__wasmtime-cranelift-24.0.0",
-    "cu__wasmtime-environ-24.0.0",
-    "cu__wasmtime-jit-icache-coherence-24.0.0",
-    "cu__wasmtime-slab-24.0.0",
-    "cu__wasmtime-types-24.0.0",
-    "cu__wasmtime-versioned-export-macros-24.0.0",
-    "cu__wasmtime-wit-bindgen-24.0.0",
-    "cu__winapi-util-0.1.8",
-    "cu__windows-sys-0.52.0",
-    "cu__windows-targets-0.52.6",
-    "cu__windows_aarch64_gnullvm-0.52.6",
-    "cu__windows_aarch64_msvc-0.52.6",
-    "cu__windows_i686_gnu-0.52.6",
-    "cu__windows_i686_gnullvm-0.52.6",
-    "cu__windows_i686_msvc-0.52.6",
-    "cu__windows_x86_64_gnu-0.52.6",
-    "cu__windows_x86_64_gnullvm-0.52.6",
-    "cu__windows_x86_64_msvc-0.52.6",
-    "cu__wit-parser-0.215.0",
-    "cu__zerocopy-0.7.35",
-    "cu__zerocopy-derive-0.7.35",
 )
+
+wasmtime = use_extension("//bazel:extensions.bzl", "wasmtime")
+use_repo(wasmtime, "com_github_bytecodealliance_wasmtime")
 
 # WAMR runtime
 wamr = use_extension("//bazel:extensions.bzl", "wamr")
@@ -202,10 +125,15 @@ use_repo(
     "simdutf",
 )
 
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    extra_pip_args = ["--require-hashes"],
+    hub_name = "v8_python_deps",
+    python_version = "3.11",
+    requirements_lock = "@v8//:bazel/requirements.txt",
+)
+use_repo(pip, "v8_python_deps")
+
 # WasmEdge runtime
 wasmedge = use_extension("//bazel:extensions.bzl", "wasmedge")
 use_repo(wasmedge, "com_github_wasmedge_wasmedge")
-
-# BoringSSL (for crypto, unless using system crypto)
-boringssl = use_extension("//bazel:extensions.bzl", "boringssl")
-use_repo(boringssl, "boringssl")

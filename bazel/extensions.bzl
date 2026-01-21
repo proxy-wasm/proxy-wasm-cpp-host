@@ -29,14 +29,14 @@ wasmtime_crates = module_extension(
 
 def _wasmtime_impl(ctx):
     http_archive(
-        name = "com_github_wasmtime",
+        name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
         sha256 = "2ccb49bb3bfa4d86907ad4c80d1147aef6156c7b6e3f7f14ed02a39de9761155",
         strip_prefix = "wasmtime-24.0.0",
         url = "https://github.com/bytecodealliance/wasmtime/archive/v24.0.0.tar.gz",
     )
     return ctx.extension_metadata(
-        root_module_direct_deps = ["com_github_wasmtime"],
+        root_module_direct_deps = ["com_github_bytecodealliance_wasmtime"],
         root_module_direct_dev_deps = [],
     )
 
@@ -64,18 +64,20 @@ wamr = module_extension(
 )
 
 def _v8_impl(ctx):
-    git_repository(
+    http_archive(
         name = "v8",
-        commit = "de9d0f8b56ae61896e4d2ac577fc589efb14f87d",
-        remote = "https://chromium.googlesource.com/v8/v8",
-        shallow_since = "1752074621 -0700",
-        patches = ["@proxy_wasm_cpp_host//bazel/external:v8.patch"],
-        patch_args = ["-p1"],
+        urls = ["https://github.com/v8/v8/archive/refs/tags/14.4.258.16.tar.gz"],
+        integrity = "sha256-igwEEi6kcb2q7EodzjJasjCx/6LRMiFTVWfDKcNB+Xw=",
+        strip_prefix = "v8-14.4.258.16",
+        patches = [
+            "@proxy_wasm_cpp_host//bazel/external:v8.patch",
+        ],
+        patch_strip = 1,
         patch_cmds = [
-            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/simdutf/simdutf.h\"! #include \"simdutf.h\"!' {} \\;",
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/simdutf/simdutf.h\"!#include \"simdutf.h\"!' {} \\;",
             "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fp16/src/include/fp16.h\"!#include \"fp16.h\"!' {} \\;",
             "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/dragonbox/src/include/dragonbox/dragonbox.h\"!#include \"dragonbox/dragonbox.h\"!' {} \\;",
-            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fast_float/src/include/fast_float/! #include \"fast_float/!' {} \\;",
+            "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fast_float/src/include/fast_float/!#include \"fast_float/!' {} \\;",
         ],
     )
     return ctx.extension_metadata(
@@ -161,18 +163,3 @@ wasmedge = module_extension(
     implementation = _wasmedge_impl,
 )
 
-def _boringssl_impl(ctx):
-    http_archive(
-        name = "boringssl",
-        sha256 = "f1f421738e9ba39dd88daf8cf3096ddba9c53e2b6b41b32fff5a3ff82f4cd162",
-        strip_prefix = "boringssl-45cf810dbdbd767f09f8cb0b0fcccd342c39041f",
-        urls = ["https://github.com/google/boringssl/archive/45cf810dbdbd767f09f8cb0b0fcccd342c39041f.tar.gz"],
-    )
-    return ctx.extension_metadata(
-        root_module_direct_deps = ["boringssl"],
-        root_module_direct_dev_deps = [],
-    )
-
-boringssl = module_extension(
-    implementation = _boringssl_impl,
-)
