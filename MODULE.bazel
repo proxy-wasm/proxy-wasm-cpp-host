@@ -33,6 +33,7 @@ bazel_dep(name = "googletest", version = "1.17.0.bcr.2", repo_name = "com_google
 bazel_dep(name = "boringssl", version = "0.20251124.0")
 bazel_dep(name = "emsdk", version = "4.0.17")
 bazel_dep(name = "toolchains_llvm", version = "1.6.0")
+bazel_dep(name = "aspect_rules_lint", version = "1.13.0")
 
 archive_override(
     module_name = "rules_rust",
