@@ -13,6 +13,7 @@
 # limitations under the License.
 
 load("@bazel_skylib//lib:selects.bzl", "selects")
+load(":v8_transition.bzl", "v8_lib_no_pointer_compression")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -67,6 +68,13 @@ selects.config_setting_group(
         ":requested_crypto_system",
         ":linux_s390x",
     ],
+)
+
+# V8 library with pointer compression disabled using V8's Starlark transition.
+# This avoids the need to patch V8's default pointer compression setting.
+v8_lib_no_pointer_compression(
+    name = "wee8_no_pointer_compression",
+    library = "@v8//:wee8",
 )
 
 exports_files(["tsan_suppressions.txt"])
