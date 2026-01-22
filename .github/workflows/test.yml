@@ -214,6 +214,22 @@ jobs:
           arch: x86_64
           action: test
           flags: --config=hermetic-llvm
+        - name: 'WasmEdge llvm on Linux/x86_64'
+          engine: 'wasmedge-llvm'
+          repo: 'com_github_wasmedge_wasmedge'
+          os: ubuntu-24.04-16core
+          arch: x86_64
+          action: test
+          flags: --config=hermetic-llvm
+          cache: true
+        - name: 'WasmEdge llvm on macOS/x86_64'
+          engine: 'wasmedge-llvm'
+          repo: 'com_github_wasmedge_wasmedge'
+          os: macos-15-large
+          arch: x86_64
+          action: test
+          flags: --config=hermetic-llvm
+          cache: true
         - name: 'Wasmtime on Linux/x86_64'
           engine: 'wasmtime'
           repo: 'com_github_bytecodealliance_wasmtime'
@@ -339,4 +355,3 @@ jobs:
         ${{ matrix.flags }}
         --per_file_copt=src/signature_util.cc,test/signature_util_test.cc@-DPROXY_WASM_VERIFY_WITH_ED25519_PUBKEY=\"$(xxd -p -c 256 test/test_data/signature_key1.pub | cut -c3- | tr -d '\n')\"
         //test:signature_util_test
-

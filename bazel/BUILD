@@ -43,6 +43,11 @@ config_setting(
 )
 
 config_setting(
+    name = "engine_wasmedge_llvm",
+    values = {"define": "engine=wasmedge-llvm"},
+)
+
+config_setting(
     name = "engine_wasmtime",
     values = {"define": "engine=wasmtime"},
 )

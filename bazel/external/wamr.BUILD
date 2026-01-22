@@ -107,7 +107,7 @@ cc_library(
     }),
     deps = [":wamr_lib_cmake"] + select({
         "@proxy_wasm_cpp_host//bazel:engine_wamr_jit": [
-            "@llvm-raw//:llvm_wamr_lib",
+            "@llvm-raw//:llvm_lib",
         ],
         "//conditions:default": [],
     }),
