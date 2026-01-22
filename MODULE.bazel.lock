@@ -536,7 +536,7 @@
     },
     "//bazel:extensions.bzl%wamr_jit_deps": {
       "general": {
-        "bzlTransitiveDigest": "6qSbfOCCYPeVb8uBoUSgFmDJ1gTye6XIItXFw9SAU0g=",
+        "bzlTransitiveDigest": "5iD8fTlRmrRjPFG+zhIvlngoSKHo91mpCNFbuwPx5Jc=",
         "usagesDigest": "zjIMfOdvkQbAnU2aXpD9BskKvrcV0MFaKlcTsyBl8fg=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},

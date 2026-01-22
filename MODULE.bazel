@@ -60,6 +60,7 @@ archive_override(
 llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
 llvm.toolchain(llvm_version = "19.1.0")
 use_repo(llvm, "llvm_toolchain", "llvm_toolchain_llvm")
+
 register_toolchains("@llvm_toolchain//:all")
 
 rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
@@ -101,8 +102,16 @@ use_repo(wamr, "com_github_bytecodealliance_wasm_micro_runtime")
 
 wamr_jit_deps = use_extension("//bazel:extensions.bzl", "wamr_jit_deps")
 use_repo(wamr_jit_deps, "llvm-raw", "llvm_zlib", "llvm_zstd")
+
 llvm_configure = use_repo_rule("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
-llvm_configure(name = "llvm-project", targets = ["X86", "AArch64"])
+
+llvm_configure(
+    name = "llvm-project",
+    targets = [
+        "X86",
+        "AArch64",
+    ],
+)
 
 # V8 runtime and its dependencies
 v8 = use_extension("//bazel:extensions.bzl", "v8")
