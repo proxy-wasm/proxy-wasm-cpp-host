@@ -339,14 +339,40 @@ def proxy_wasm_cpp_host_repositories():
     )
 
     # WasmEdge with dependencies.
+    # Using native Bazel cc_library rules based on Bazel Central Registry (BCR) definitions
+    # to avoid CMake FetchContent network access during build.
+
+    # fmt dependency for spdlog (version 11.0.2, based on BCR)
+    # https://github.com/bazelbuild/bazel-central-registry/tree/main/modules/fmt/11.0.2
+    maybe(
+        http_archive,
+        name = "com_github_fmtlib_fmt",
+        sha256 = "6cb1e6d37bdcb756dbbe59be438790db409cdb4868c66e888d5df9f13f7c027f",
+        strip_prefix = "fmt-11.0.2",
+        urls = ["https://github.com/fmtlib/fmt/archive/refs/tags/11.0.2.tar.gz"],
+        build_file = "@proxy_wasm_cpp_host//bazel/external:fmt.BUILD",
+    )
+
+    # spdlog dependency for WasmEdge (version 1.13.0, based on BCR)
+    # https://github.com/bazelbuild/bazel-central-registry/tree/main/modules/spdlog/1.13.0
+    maybe(
+        http_archive,
+        name = "com_github_gabime_spdlog",
+        sha256 = "534f2ee1a4dcbeb22249856edfb2be76a1cf4f708a20b0ac2ed090ee24cfdbc9",
+        strip_prefix = "spdlog-1.13.0",
+        urls = ["https://github.com/gabime/spdlog/archive/refs/tags/v1.13.0.tar.gz"],
+        build_file = "@proxy_wasm_cpp_host//bazel/external:spdlog.BUILD",
+    )
 
     maybe(
         http_archive,
         name = "com_github_wasmedge_wasmedge",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmedge.BUILD",
-        sha256 = "7ab8a0df37c8d282ecff72d0f0bff8db63fd92df1645d5a014a9dbed4b7f9025",
-        strip_prefix = "WasmEdge-proxy-wasm-0.13.1",
-        url = "https://github.com/WasmEdge/WasmEdge/archive/refs/tags/proxy-wasm/0.13.1.tar.gz",
+        sha256 = "2354d90a67e3eb396179663bdc0b457abbbc70dca967ec4528f211599a49f62a",
+        strip_prefix = "WasmEdge-0.16.1",
+        url = "https://github.com/WasmEdge/WasmEdge/archive/refs/tags/0.16.1.tar.gz",
+        patches = ["@proxy_wasm_cpp_host//bazel/external:wasmedge.patch"],
+        patch_args = ["-p1"],
     )
 
     # Wasmtime with dependencies.
