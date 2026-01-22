@@ -114,17 +114,24 @@ llvm_configure(
 )
 
 # V8 runtime and its dependencies
-v8 = use_extension("//bazel:extensions.bzl", "v8")
-use_repo(v8, "v8")
-
-pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
-pip.parse(
-    extra_pip_args = ["--require-hashes"],
-    hub_name = "v8_python_deps",
-    python_version = "3.11",
-    requirements_lock = "@v8//:bazel/requirements.txt",
+bazel_dep(name = "v8", version = "0.0.0")
+archive_override(
+    module_name = "v8",
+    integrity = "sha256-igwEEi6kcb2q7EodzjJasjCx/6LRMiFTVWfDKcNB+Xw=",
+    patch_cmds = [
+        "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/simdutf/simdutf.h\"!#include \"simdutf.h\"!' {} \\;",
+        "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fp16/src/include/fp16.h\"!#include \"fp16.h\"!' {} \\;",
+        "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/dragonbox/src/include/dragonbox/dragonbox.h\"!#include \"dragonbox/dragonbox.h\"!' {} \\;",
+        "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fast_float/src/include/fast_float/!#include \"fast_float/!' {} \\;",
+    ],
+    patch_strip = 1,
+    patches = [
+        "@proxy_wasm_cpp_host//bazel/external:v8.patch",
+        "@proxy_wasm_cpp_host//bazel/external:v8_module_bazel.patch"
+    ],
+    strip_prefix = "v8-14.4.258.16",
+    urls = ["https://github.com/v8/v8/archive/refs/tags/14.4.258.16.tar.gz"],
 )
-use_repo(pip, "v8_python_deps")
 
 # WasmEdge runtime
 wasmedge = use_extension("//bazel:extensions.bzl", "wasmedge")

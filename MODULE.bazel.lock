@@ -12,6 +12,7 @@
     "https://bcr.bazel.build/modules/abseil-cpp/20240116.2/MODULE.bazel": "73939767a4686cd9a520d16af5ab440071ed75cec1a876bf2fcfaf1f71987a16",
     "https://bcr.bazel.build/modules/abseil-cpp/20250127.1/MODULE.bazel": "c4a89e7ceb9bf1e25cf84a9f830ff6b817b72874088bf5141b314726e46a57c1",
     "https://bcr.bazel.build/modules/abseil-cpp/20250512.1/MODULE.bazel": "d209fdb6f36ffaf61c509fcc81b19e81b411a999a934a032e10cd009a0226215",
+    "https://bcr.bazel.build/modules/abseil-cpp/20250814.0/MODULE.bazel": "c43c16ca2c432566cdb78913964497259903ebe8fb7d9b57b38e9f1425b427b8",
     "https://bcr.bazel.build/modules/abseil-cpp/20250814.1/MODULE.bazel": "51f2312901470cdab0dbdf3b88c40cd21c62a7ed58a3de45b365ddc5b11bcab2",
     "https://bcr.bazel.build/modules/abseil-cpp/20250814.1/source.json": "cea3901d7e299da7320700abbaafe57a65d039f10d0d7ea601c4a66938ea4b0c",
     "https://bcr.bazel.build/modules/ape/1.0.1/MODULE.bazel": "37411cfd13bfc28cd264674d660a3ecb3b5b35b9dbe4c0b2be098683641b3fee",
@@ -92,6 +93,10 @@
     "https://bcr.bazel.build/modules/emsdk/4.0.13/MODULE.bazel": "0327a27d99cc665c698aa6b80608b5d60fcaa6ef7540dc31d5a405b590524c62",
     "https://bcr.bazel.build/modules/emsdk/4.0.17/MODULE.bazel": "a10c49d7063e5dffeec0c5b43753ab2575179fbb679851059861af7d2a781c6a",
     "https://bcr.bazel.build/modules/emsdk/4.0.17/source.json": "8463664bc6319425d29ef0d7edd8660daf1bf0ec33c367420243d4db35e0f482",
+    "https://bcr.bazel.build/modules/fast_float/8.0.2/MODULE.bazel": "43504664efdfa4c6cf1349626c87135c9b87926325c720458f396eee25568eda",
+    "https://bcr.bazel.build/modules/fast_float/8.0.2/source.json": "8b83304ea4c3c1e43cc74e644918394a799b0f2cebe3b9ffbbe37ac75dcfb171",
+    "https://bcr.bazel.build/modules/fp16/0.0.0-20210320-0a92994/MODULE.bazel": "d980075c0ca85a8e856a95a8d8c04ba56c9ec01c98f85e2d49650c6d8b7c8268",
+    "https://bcr.bazel.build/modules/fp16/0.0.0-20210320-0a92994/source.json": "07df001709b35e7e03f139e7032d3e5f8ce47750c966315670c710fbafdf5f95",
     "https://bcr.bazel.build/modules/gawk/5.3.2.bcr.1/MODULE.bazel": "cdf8cbe5ee750db04b78878c9633cc76e80dcf4416cbe982ac3a9222f80713c8",
     "https://bcr.bazel.build/modules/gawk/5.3.2.bcr.1/source.json": "fa7b512dfcb5eafd90ce3959cf42a2a6fe96144ebbb4b3b3928054895f2afac2",
     "https://bcr.bazel.build/modules/gazelle/0.27.0/MODULE.bazel": "3446abd608295de6d90b4a8a118ed64a9ce11dcb3dda2dc3290a22056bd20996",
@@ -110,6 +115,8 @@
     "https://bcr.bazel.build/modules/googletest/1.17.0/MODULE.bazel": "dbec758171594a705933a29fcf69293d2468c49ec1f2ebca65c36f504d72df46",
     "https://bcr.bazel.build/modules/helly25_bzl/0.3.1/MODULE.bazel": "3a4be20f6fc13be32ad44643b8252ef5af09eee936f1d943cd4fd7867fa92826",
     "https://bcr.bazel.build/modules/helly25_bzl/0.3.1/source.json": "b129ab1828492de2c163785bbeb4065c166de52d932524b4317beb5b7f917994",
+    "https://bcr.bazel.build/modules/highway/1.2.0/MODULE.bazel": "605dc84b4931a409f16d920409dc38718798754c1afa4c80115a32118d67acb3",
+    "https://bcr.bazel.build/modules/highway/1.2.0/source.json": "01a2c7e56a1850a28c0026c0adc32e52db44c6a1df142b3f88b2a3747a5bff7d",
     "https://bcr.bazel.build/modules/jq.bzl/0.1.0/MODULE.bazel": "2ce69b1af49952cd4121a9c3055faa679e748ce774c7f1fda9657f936cae902f",
     "https://bcr.bazel.build/modules/jq.bzl/0.1.0/source.json": "746bf13cac0860f091df5e4911d0c593971cd8796b5ad4e809b2f8e133eee3d5",
     "https://bcr.bazel.build/modules/jsoncpp/1.9.5/MODULE.bazel": "31271aedc59e815656f5736f282bb7509a97c7ecb43e927ac1a37966e0578075",
@@ -173,6 +180,7 @@
     "https://bcr.bazel.build/modules/rules_cc/0.0.8/MODULE.bazel": "964c85c82cfeb6f3855e6a07054fdb159aced38e99a5eecf7bce9d53990afa3e",
     "https://bcr.bazel.build/modules/rules_cc/0.0.9/MODULE.bazel": "836e76439f354b89afe6a911a7adf59a6b2518fafb174483ad78a2a2fde7b1c5",
     "https://bcr.bazel.build/modules/rules_cc/0.1.1/MODULE.bazel": "2f0222a6f229f0bf44cd711dc13c858dad98c62d52bd51d8fc3a764a83125513",
+    "https://bcr.bazel.build/modules/rules_cc/0.1.2/MODULE.bazel": "557ddc3a96858ec0d465a87c0a931054d7dcfd6583af2c7ed3baf494407fd8d0",
     "https://bcr.bazel.build/modules/rules_cc/0.1.4/MODULE.bazel": "bb03a452a7527ac25a7518fb86a946ef63df860b9657d8323a0c50f8504fb0b9",
     "https://bcr.bazel.build/modules/rules_cc/0.1.5/MODULE.bazel": "88dfc9361e8b5ae1008ac38f7cdfd45ad738e4fa676a3ad67d19204f045a1fd8",
     "https://bcr.bazel.build/modules/rules_cc/0.2.0/MODULE.bazel": "b5c17f90458caae90d2ccd114c81970062946f49f355610ed89bebf954f5783c",
@@ -304,155 +312,6 @@
   },
   "selectedYankedVersions": {},
   "moduleExtensions": {
-    "//bazel:extensions.bzl%v8": {
-      "general": {
-        "bzlTransitiveDigest": "5iD8fTlRmrRjPFG+zhIvlngoSKHo91mpCNFbuwPx5Jc=",
-        "usagesDigest": "/TErurfYIgWnMa81nW2CGhLEv4RjIFU3sUJ/JBH5auE=",
-        "recordedFileInputs": {},
-        "recordedDirentsInputs": {},
-        "envVariables": {},
-        "generatedRepoSpecs": {
-          "highway": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
-            "attributes": {
-              "sha256": "7e0be78b8318e8bdbf6fa545d2ecb4c90f947df03f7aadc42c1967f019e63343",
-              "urls": [
-                "https://github.com/google/highway/archive/refs/tags/1.2.0.tar.gz"
-              ],
-              "strip_prefix": "highway-1.2.0"
-            }
-          },
-          "fast_float": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
-            "attributes": {
-              "sha256": "d2a08e722f461fe699ba61392cd29e6b23be013d0f56e50c7786d0954bffcb17",
-              "urls": [
-                "https://github.com/fastfloat/fast_float/archive/refs/tags/v7.0.0.tar.gz"
-              ],
-              "strip_prefix": "fast_float-7.0.0"
-            }
-          },
-          "dragonbox": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
-            "attributes": {
-              "urls": [
-                "https://github.com/jk-jeon/dragonbox/archive/6c7c925b571d54486b9ffae8d9d18a822801cbda.zip"
-              ],
-              "strip_prefix": "dragonbox-6c7c925b571d54486b9ffae8d9d18a822801cbda",
-              "sha256": "2f10448d665355b41f599e869ac78803f82f13b070ce7ef5ae7b5cceb8a178f3",
-              "build_file": "@@//bazel/external:dragonbox.BUILD"
-            }
-          },
-          "fp16": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
-            "attributes": {
-              "urls": [
-                "https://github.com/Maratyszcza/FP16/archive/0a92994d729ff76a58f692d3028ca1b64b145d91.zip"
-              ],
-              "strip_prefix": "FP16-0a92994d729ff76a58f692d3028ca1b64b145d91",
-              "sha256": "e66e65515fa09927b348d3d584c68be4215cfe664100d01c9dbc7655a5716d70",
-              "build_file": "@@//bazel/external:fp16.BUILD"
-            }
-          },
-          "simdutf": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
-            "attributes": {
-              "sha256": "512374f8291d3daf102ccd0ad223b1a8318358f7c1295efd4d9a3abbb8e4b6ff",
-              "urls": [
-                "https://github.com/simdutf/simdutf/releases/download/v7.3.0/singleheader.zip"
-              ],
-              "build_file": "@@//bazel/external:simdutf.BUILD"
-            }
-          },
-          "intel_ittapi": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
-            "attributes": {
-              "strip_prefix": "ittapi-a3911fff01a775023a06af8754f9ec1e5977dd97",
-              "sha256": "1d0dddfc5abb786f2340565c82c6edd1cff10c917616a18ce62ee0b94dbc2ed4",
-              "urls": [
-                "https://github.com/intel/ittapi/archive/a3911fff01a775023a06af8754f9ec1e5977dd97.tar.gz"
-              ],
-              "build_file": "@@//bazel/external: intel_ittapi.BUILD"
-            }
-          },
-          "v8": {
-            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
-            "attributes": {
-              "urls": [
-                "https://github.com/v8/v8/archive/refs/tags/14.4.258.16.tar.gz"
-              ],
-              "integrity": "sha256-igwEEi6kcb2q7EodzjJasjCx/6LRMiFTVWfDKcNB+Xw=",
-              "strip_prefix": "v8-14.4.258.16",
-              "patches": [
-                "@@//bazel/external:v8.patch"
-              ],
-              "patch_strip": 1,
-              "patch_cmds": [
-                "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/simdutf/simdutf.h\"!#include \"simdutf.h\"!' {} \\;",
-                "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fp16/src/include/fp16.h\"!#include \"fp16.h\"!' {} \\;",
-                "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/dragonbox/src/include/dragonbox/dragonbox.h\"!#include \"dragonbox/dragonbox.h\"!' {} \\;",
-                "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fast_float/src/include/fast_float/!#include \"fast_float/!' {} \\;"
-              ]
-            }
-          }
-        },
-        "moduleExtensionMetadata": {
-          "explicitRootModuleDirectDeps": [
-            "v8"
-          ],
-          "explicitRootModuleDirectDevDeps": [],
-          "useAllRepos": "NO",
-          "reproducible": false
-        },
-        "recordedRepoMappingEntries": [
-          [
-            "",
-            "bazel_features",
-            "bazel_features+"
-          ],
-          [
-            "",
-            "bazel_skylib",
-            "bazel_skylib+"
-          ],
-          [
-            "",
-            "bazel_tools",
-            "bazel_tools"
-          ],
-          [
-            "",
-            "cu",
-            "+wasmtime_crates+cu"
-          ],
-          [
-            "",
-            "rules_rust",
-            "rules_rust+"
-          ],
-          [
-            "",
-            "ws",
-            "+wasmsign_crates+ws"
-          ],
-          [
-            "bazel_features+",
-            "bazel_features_globals",
-            "bazel_features++version_extension+bazel_features_globals"
-          ],
-          [
-            "bazel_features+",
-            "bazel_features_version",
-            "bazel_features++version_extension+bazel_features_version"
-          ],
-          [
-            "rules_rust+",
-            "bazel_tools",
-            "bazel_tools"
-          ]
-        ]
-      }
-    },
     "//bazel:extensions.bzl%wamr": {
       "general": {
         "bzlTransitiveDigest": "5iD8fTlRmrRjPFG+zhIvlngoSKHo91mpCNFbuwPx5Jc=",
@@ -1709,6 +1568,66 @@
             "rules_python+",
             "platforms",
             "platforms"
+          ]
+        ]
+      }
+    },
+    "@@v8+//:bazel/extension.bzl%v8_non_bazel_deps": {
+      "general": {
+        "bzlTransitiveDigest": "2O4guGcjNSQMqY+j8rAo0CLe1U3CnV8F7ROxWxqLjgE=",
+        "usagesDigest": "+fx/lzMcegPqqSrtL6Q20csL5cN9Pu8oqS1ee+VgwQg=",
+        "recordedFileInputs": {},
+        "recordedDirentsInputs": {},
+        "envVariables": {},
+        "generatedRepoSpecs": {
+          "dragonbox": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "urls": [
+                "https://github.com/jk-jeon/dragonbox/archive/6c7c925b571d54486b9ffae8d9d18a822801cbda.zip"
+              ],
+              "strip_prefix": "dragonbox-6c7c925b571d54486b9ffae8d9d18a822801cbda",
+              "sha256": "2f10448d665355b41f599e869ac78803f82f13b070ce7ef5ae7b5cceb8a178f3",
+              "build_file": "@@v8+//:bazel/dragonbox.BUILD"
+            }
+          },
+          "simdutf": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "512374f8291d3daf102ccd0ad223b1a8318358f7c1295efd4d9a3abbb8e4b6ff",
+              "urls": [
+                "https://github.com/simdutf/simdutf/releases/download/v7.3.0/singleheader.zip"
+              ],
+              "build_file": "@@v8+//:bazel/simdutf.BUILD"
+            }
+          },
+          "intel_ittapi": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "strip_prefix": "ittapi-a3911fff01a775023a06af8754f9ec1e5977dd97",
+              "sha256": "1d0dddfc5abb786f2340565c82c6edd1cff10c917616a18ce62ee0b94dbc2ed4",
+              "urls": [
+                "https://github.com/intel/ittapi/archive/a3911fff01a775023a06af8754f9ec1e5977dd97.tar.gz"
+              ],
+              "build_file": "@@v8+//:bazel/intel_ittapi.BUILD"
+            }
+          }
+        },
+        "moduleExtensionMetadata": {
+          "explicitRootModuleDirectDeps": [
+            "dragonbox",
+            "simdutf",
+            "intel_ittapi"
+          ],
+          "explicitRootModuleDirectDevDeps": [],
+          "useAllRepos": "NO",
+          "reproducible": false
+        },
+        "recordedRepoMappingEntries": [
+          [
+            "v8+",
+            "bazel_tools",
+            "bazel_tools"
           ]
         ]
       }
