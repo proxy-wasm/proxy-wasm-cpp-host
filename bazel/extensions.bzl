@@ -19,10 +19,14 @@ load("//bazel/cargo/wasmsign/remote:crates.bzl", _wasmsign_crate_repositories = 
 load("//bazel/cargo/wasmtime/remote:crates.bzl", _wasmtime_crate_repositories = "crate_repositories")
 
 def _wasmtime_crates_impl(ctx):
-    direct_deps = _wasmtime_crate_repositories()
+    deps = []
+    for repo in _wasmtime_crate_repositories():
+        if not repo.is_dev_dep:
+            deps.append(repo.repo)
+
     return ctx.extension_metadata(
         reproducible = bazel_features.external_deps.extension_metadata_has_reproducible,
-        root_module_direct_deps = [dep.repo for dep in direct_deps],
+        root_module_direct_deps = deps,
         root_module_direct_dev_deps = [],
     )
 
@@ -31,10 +35,14 @@ wasmtime_crates = module_extension(
 )
 
 def _wasmsign_crates_impl(ctx):
-    direct_deps = _wasmsign_crate_repositories()
+    deps = []
+    for repo in _wasmsign_crate_repositories():
+        if not repo.is_dev_dep:
+            deps.append(repo.repo)
+
     return ctx.extension_metadata(
         reproducible = bazel_features.external_deps.extension_metadata_has_reproducible,
-        root_module_direct_deps = [dep.repo for dep in direct_deps],
+        root_module_direct_deps = deps,
         root_module_direct_dev_deps = [],
     )
 

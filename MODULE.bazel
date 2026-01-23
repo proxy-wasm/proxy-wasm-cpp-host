@@ -17,9 +17,11 @@ module(
     version = "0.0.0",
 )
 
-bazel_dep(name = "abseil-cpp", version = "20250814.1")
+bazel_dep(name = "abseil-cpp", version = "20250814.1", repo_name = "com_google_absl")
 bazel_dep(name = "bazel_features", version = "1.38.0")
 bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "boringssl", version = "0.20251124.0")
+bazel_dep(name = "emsdk", version = "4.0.17")
 bazel_dep(name = "platforms", version = "1.0.0")
 bazel_dep(name = "protobuf", version = "33.2", repo_name = "com_google_protobuf")
 bazel_dep(name = "proxy-wasm-cpp-sdk", version = "0.0.0", repo_name = "proxy_wasm_cpp_sdk")
@@ -28,12 +30,11 @@ bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
 bazel_dep(name = "rules_license", version = "1.0.0")
 bazel_dep(name = "rules_python", version = "1.7.0")
 bazel_dep(name = "rules_rust", version = "0.68.1")
-bazel_dep(name = "rules_fuzzing", version = "0.6.0")
-bazel_dep(name = "googletest", version = "1.17.0.bcr.2", repo_name = "com_google_googletest")
-bazel_dep(name = "boringssl", version = "0.20251124.0")
-bazel_dep(name = "emsdk", version = "4.0.17")
 bazel_dep(name = "toolchains_llvm", version = "1.6.0")
-bazel_dep(name = "aspect_rules_lint", version = "1.13.0")
+
+bazel_dep(name = "aspect_rules_lint", version = "1.13.0", dev_dependency = True)
+bazel_dep(name = "rules_fuzzing", version = "0.6.0", dev_dependency = True)
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2", dev_dependency = True, repo_name = "com_google_googletest")
 
 archive_override(
     module_name = "rules_rust",
@@ -127,7 +128,7 @@ archive_override(
     patch_strip = 1,
     patches = [
         "@proxy_wasm_cpp_host//bazel/external:v8.patch",
-        "@proxy_wasm_cpp_host//bazel/external:v8_module_bazel.patch"
+        "@proxy_wasm_cpp_host//bazel/external:v8_module_bazel.patch",
     ],
     strip_prefix = "v8-14.4.258.16",
     urls = ["https://github.com/v8/v8/archive/refs/tags/14.4.258.16.tar.gz"],
