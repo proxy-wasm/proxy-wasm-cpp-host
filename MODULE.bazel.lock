@@ -494,19 +494,47 @@
     },
     "//bazel:extensions.bzl%wasmedge": {
       "general": {
-        "bzlTransitiveDigest": "C0vgBPjxA2qqOSf+EzSSfbA+ZhGIoSPDZ2+YDN42nmI=",
+        "bzlTransitiveDigest": "oPYU+St8cdsjfJOoZxJjAoSPk/R509inkkUUlj9bphQ=",
         "usagesDigest": "KVcCQaLzHYmhH6vY+T52CYXyABE1A/hTSKz2ov1jblw=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
         "envVariables": {},
         "generatedRepoSpecs": {
+          "com_github_fmtlib_fmt": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "6cb1e6d37bdcb756dbbe59be438790db409cdb4868c66e888d5df9f13f7c027f",
+              "strip_prefix": "fmt-11.0.2",
+              "urls": [
+                "https://github.com/fmtlib/fmt/archive/refs/tags/11.0.2.tar.gz"
+              ],
+              "build_file": "@@//bazel/external:fmt.BUILD"
+            }
+          },
+          "com_github_gabime_spdlog": {
+            "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
+            "attributes": {
+              "sha256": "534f2ee1a4dcbeb22249856edfb2be76a1cf4f708a20b0ac2ed090ee24cfdbc9",
+              "strip_prefix": "spdlog-1.13.0",
+              "urls": [
+                "https://github.com/gabime/spdlog/archive/refs/tags/v1.13.0.tar.gz"
+              ],
+              "build_file": "@@//bazel/external:spdlog.BUILD"
+            }
+          },
           "com_github_wasmedge_wasmedge": {
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:http.bzl%http_archive",
             "attributes": {
               "build_file": "@@//bazel/external:wasmedge.BUILD",
-              "sha256": "7ab8a0df37c8d282ecff72d0f0bff8db63fd92df1645d5a014a9dbed4b7f9025",
-              "strip_prefix": "WasmEdge-proxy-wasm-0.13.1",
-              "url": "https://github.com/WasmEdge/WasmEdge/archive/refs/tags/proxy-wasm/0.13.1.tar.gz"
+              "sha256": "2354d90a67e3eb396179663bdc0b457abbbc70dca967ec4528f211599a49f62a",
+              "strip_prefix": "WasmEdge-0.16.1",
+              "url": "https://github.com/WasmEdge/WasmEdge/archive/refs/tags/0.16.1.tar.gz",
+              "patches": [
+                "@@//bazel/external:wasmedge.patch"
+              ],
+              "patch_args": [
+                "-p1"
+              ]
             }
           }
         },
