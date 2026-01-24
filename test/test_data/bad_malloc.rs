@@ -14,15 +14,15 @@
 
 use std::mem::MaybeUninit;
 
-extern "C" {
+unsafe extern "C" {
     fn proxy_log(level: u32, message_data: *const u8, message_size: usize) -> u32;
     fn proxy_done() -> u32;
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_abi_version_0_2_0() {}
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn proxy_on_memory_allocate(size: usize) -> *mut u8 {
     let mut vec: Vec<MaybeUninit<u8>> = Vec::with_capacity(size);
     unsafe {
