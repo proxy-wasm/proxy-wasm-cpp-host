@@ -14,24 +14,75 @@
 # limitations under the License.
 
 
-# Prep:
-#   docker run --rm --privileged tonistiigi/binfmt --install all
-#   docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-#   Need to see "F" flag: cat /proc/sys/fs/binfmt_misc/qemu-*
+# ============================================================================
+# BUILD TOOLS DOCKER IMAGE WORKFLOWS
+# ============================================================================
 #
-# Build:
-#   docker buildx build --platform linux/s390x -t $IMAGE -f Dockerfile.bazel
+# This Dockerfile creates build tools images for cross-platform testing,
+# particularly for s390x architecture. Images are published to GitHub
+# Container Registry (ghcr.io/proxy-wasm/build-tools).
 #
-# Push:
-#   docker image tag $IMAGE ghcr.io/proxy-wasm/$IMAGE
-#   docker push ghcr.io/proxy-wasm/$IMAGE
+# ----------------------------------------------------------------------------
+# RECOMMENDED: Automated Workflow (via GitHub Actions)
+# ----------------------------------------------------------------------------
 #
-# Test:
-#   docker run --rm --volume $(pwd):/mnt --workdir /mnt \
-#     --platform linux/s390x $IMAGE \
-#     bazel test --verbose_failures --test_output=errors \
-#     --define engine=null --config=clang --test_timeout=1800 \
-#     -- //test/...
+# The preferred method for publishing build tools images is through the
+# automated GitHub Actions workflow defined in:
+#   .github/workflows/publish-build-tools.yml
+#
+# This workflow can be triggered manually via the GitHub UI:
+#   1. Go to Actions tab in the repository
+#   2. Select "Publish Build Tools Docker Image"
+#   3. Click "Run workflow"
+#   4. Provide the required inputs:
+#      - ubuntu_version: Base Ubuntu version (e.g., 22.04, 24.04)
+#      - bazel_version: Bazel version to build (e.g., 6.5.0, 7.0.0)
+#      - platforms: Target platforms (default: linux/s390x)
+#      - draft: Set to 'false' to build and push, 'true' for build-only testing
+#
+# The workflow handles QEMU setup, multi-platform builds, caching, and
+# authentication automatically. Images are tagged as:
+#   ghcr.io/proxy-wasm/build-tools:ubuntu-{VERSION}-bazel-{VERSION}
+#
+# This automated approach is recommended because it:
+#   - Ensures consistent build environments
+#   - Handles authentication and permissions automatically
+#   - Provides build caching for faster iterations
+#   - Supports draft mode for testing before publishing
+#
+# ----------------------------------------------------------------------------
+# ALTERNATIVE: Manual Build and Push
+# ----------------------------------------------------------------------------
+#
+# For local development or when automated workflows are unavailable,
+# you can manually build and push images using the following steps:
+#
+# 1. Prep (enable cross-platform emulation):
+#      docker run --rm --privileged tonistiigi/binfmt --install all
+#      docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#      # Verify "F" flag: cat /proc/sys/fs/binfmt_misc/qemu-*
+#
+# 2. Build:
+#      docker buildx build --platform linux/s390x \
+#        --build-arg UBUNTU_VERSION=22.04 \
+#        --build-arg BAZEL_VERSION=6.5.0 \
+#        -t build-tools:local \
+#        -f bazel/external/Dockerfile.bazel .
+#
+# 3. Push (requires appropriate permissions):
+#      docker image tag build-tools:local \
+#        ghcr.io/proxy-wasm/build-tools:ubuntu-22.04-bazel-6.5.0
+#      docker push ghcr.io/proxy-wasm/build-tools:ubuntu-22.04-bazel-6.5.0
+#
+# 4. Test:
+#      docker run --rm --volume $(pwd):/mnt --workdir /mnt \
+#        --platform linux/s390x \
+#        ghcr.io/proxy-wasm/build-tools:ubuntu-22.04-bazel-6.5.0 \
+#        bazel test --verbose_failures --test_output=errors \
+#        --define engine=null --config=clang --test_timeout=1800 \
+#        -- //test/...
+#
+# ============================================================================
 
 ARG BAZEL_VERSION=7.7.1
 ARG UBUNTU_VERSION=24.04
