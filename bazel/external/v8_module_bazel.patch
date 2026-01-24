@@ -1,0 +1,160 @@
+diff --git a/MODULE.bazel b/MODULE.bazel
+index 3370e06bc07..65889216eab 100644
+--- a/MODULE.bazel
++++ b/MODULE.bazel
+@@ -9,6 +9,11 @@ bazel_dep(name = "rules_python", version = "1.0.0")
+ bazel_dep(name = "platforms", version = "0.0.11")
+ bazel_dep(name = "abseil-cpp", version = "20250814.0")
+ bazel_dep(name = "highway", version = "1.2.0")
++bazel_dep(name = "fast_float", version = "8.0.2")
++bazel_dep(name = "fp16", version = "0.0.0-20210320-0a92994")
++
++v8_non_bazel_deps = use_extension("//:bazel/extension.bzl", "v8_non_bazel_deps")
++use_repo(v8_non_bazel_deps, "dragonbox", "simdutf", "intel_ittapi")
+ 
+ pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+ pip.parse(
+diff --git a/bazel/dragonbox.BUILD b/bazel/dragonbox.BUILD
+new file mode 100644
+index 00000000000..00f3ee074c7
+--- /dev/null
++++ b/bazel/dragonbox.BUILD
+@@ -0,0 +1,26 @@
++# Copyright 2025 Google LLC
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++load("@rules_cc//cc:defs.bzl", "cc_library")
++
++licenses(["notice"])  # Apache 2
++
++package(default_visibility = ["//visibility:public"])
++
++cc_library(
++    name = "dragonbox",
++    srcs = [],
++    hdrs = ["include/dragonbox/dragonbox.h"],
++    includes = ["include/"],
++)
+diff --git a/bazel/extension.bzl b/bazel/extension.bzl
+new file mode 100644
+index 00000000000..df199b109a4
+--- /dev/null
++++ b/bazel/extension.bzl
+@@ -0,0 +1,34 @@
++load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
++
++def _v8_non_bazel_deps_impl(ctx):
++    # V8 supporting dependencies. Some of these repositories are possible to
++    # use with bazel_dep. All V8 dependencies are listed here for ease of maintenance.
++    http_archive(
++        name = "dragonbox",
++        urls = ["https://github.com/jk-jeon/dragonbox/archive/6c7c925b571d54486b9ffae8d9d18a822801cbda.zip"],
++        strip_prefix = "dragonbox-6c7c925b571d54486b9ffae8d9d18a822801cbda",
++        sha256 = "2f10448d665355b41f599e869ac78803f82f13b070ce7ef5ae7b5cceb8a178f3",
++        build_file = "//:bazel/dragonbox.BUILD",
++    )
++    http_archive(
++        name = "simdutf",
++        sha256 = "512374f8291d3daf102ccd0ad223b1a8318358f7c1295efd4d9a3abbb8e4b6ff",
++        urls = ["https://github.com/simdutf/simdutf/releases/download/v7.3.0/singleheader.zip"],
++        build_file = "//:bazel/simdutf.BUILD",
++    )
++    http_archive(
++        name = "intel_ittapi",
++        strip_prefix = "ittapi-a3911fff01a775023a06af8754f9ec1e5977dd97",
++        sha256 = "1d0dddfc5abb786f2340565c82c6edd1cff10c917616a18ce62ee0b94dbc2ed4",
++        urls = ["https://github.com/intel/ittapi/archive/a3911fff01a775023a06af8754f9ec1e5977dd97.tar.gz"],
++        build_file = "//:bazel/intel_ittapi.BUILD",
++    )
++    return ctx.extension_metadata(
++        root_module_direct_deps = ["dragonbox", "simdutf", "intel_ittapi"],
++        root_module_direct_dev_deps = [],
++    )
++
++v8_non_bazel_deps = module_extension(
++    implementation = _v8_non_bazel_deps_impl,
++)
++
+diff --git a/bazel/intel_ittapi.BUILD b/bazel/intel_ittapi.BUILD
+new file mode 100644
+index 00000000000..cc867842fb9
+--- /dev/null
++++ b/bazel/intel_ittapi.BUILD
+@@ -0,0 +1,35 @@
++# Copyright 2025 Google LLC
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++load("@rules_cc//cc:defs.bzl", "cc_library")
++
++licenses(["notice"])
++
++package(default_visibility = ["//visibility:public"])
++
++cc_library(
++    name = "lib_ittapi",
++    srcs = [
++        "include/ittnotify.h",
++        "include/jitprofiling.h",
++        "src/ittnotify/ittnotify_config.h",
++        "src/ittnotify/jitprofiling.c",
++    ],
++    hdrs = [
++        "include/ittnotify.h",
++        "src/ittnotify/ittnotify_types.h",
++    ],
++    includes = ["include/"],
++    visibility = ["//visibility:public"],
++)
+diff --git a/bazel/simdutf.BUILD b/bazel/simdutf.BUILD
+new file mode 100644
+index 00000000000..834467e35c4
+--- /dev/null
++++ b/bazel/simdutf.BUILD
+@@ -0,0 +1,25 @@
++# Copyright 2025 Google LLC
++#
++# Licensed under the Apache License, Version 2.0 (the "License");
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#
++#     http://www.apache.org/licenses/LICENSE-2.0
++#
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an "AS IS" BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++
++load("@rules_cc//cc:defs.bzl", "cc_library")
++
++licenses(["notice"])  # Apache 2
++
++package(default_visibility = ["//visibility:public"])
++
++cc_library(
++    name = "simdutf",
++    srcs = ["simdutf.cpp"],
++    hdrs = ["simdutf.h"],
++)

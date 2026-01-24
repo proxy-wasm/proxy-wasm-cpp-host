@@ -1,0 +1,139 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module(
+    name = "proxy_wasm_cpp_host",
+    version = "0.0.0",
+)
+
+bazel_dep(name = "abseil-cpp", version = "20250814.1", repo_name = "com_google_absl")
+bazel_dep(name = "bazel_features", version = "1.38.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "boringssl", version = "0.20251124.0")
+bazel_dep(name = "emsdk", version = "4.0.17")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "protobuf", version = "33.2", repo_name = "com_google_protobuf")
+bazel_dep(name = "proxy-wasm-cpp-sdk", version = "0.0.0", repo_name = "proxy_wasm_cpp_sdk")
+bazel_dep(name = "rules_cc", version = "0.2.14")
+bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
+bazel_dep(name = "rules_license", version = "1.0.0")
+bazel_dep(name = "rules_python", version = "1.7.0")
+bazel_dep(name = "rules_rust", version = "0.68.1")
+bazel_dep(name = "toolchains_llvm", version = "1.6.0")
+
+bazel_dep(name = "aspect_rules_lint", version = "1.13.0", dev_dependency = True)
+bazel_dep(name = "rules_fuzzing", version = "0.6.0", dev_dependency = True)
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2", dev_dependency = True, repo_name = "com_google_googletest")
+
+archive_override(
+    module_name = "rules_rust",
+    integrity = "sha256-yKqAbPYGZnmsI0YyQe6ArWkiZdrQRl9RERy74wuJA1I=",
+    patch_strip = 1,
+    patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
+    urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.68.1/rules_rust-0.68.1.tar.gz"],
+)
+
+emscripten_deps = use_extension(
+    "@emsdk//:emscripten_deps.bzl",
+    "emscripten_deps",
+)
+emscripten_deps.config(version = "4.0.17")
+
+archive_override(
+    module_name = "proxy-wasm-cpp-sdk",
+    integrity = "sha256-tWCh2ieg06s3RSfpx9+k/mSTiHKZlFvidioFGM41Vw4=",
+    strip_prefix = "proxy-wasm-cpp-sdk-e5256b0c5463ea9961965ad5de3e379e00486640",
+    urls = ["https://github.com/proxy-wasm/proxy-wasm-cpp-sdk/archive/e5256b0c5463ea9961965ad5de3e379e00486640.tar.gz"],
+)
+
+# Configure and register the toolchain.
+llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+llvm.toolchain(llvm_version = "19.1.0")
+use_repo(llvm, "llvm_toolchain", "llvm_toolchain_llvm")
+
+register_toolchains("@llvm_toolchain//:all")
+
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+rust.toolchain(
+    edition = "2021",
+    versions = ["1.91.0"],
+)
+use_repo(rust, "rust_toolchains")
+
+register_toolchains("@rust_toolchains//:all")
+
+wasmsign_crates = use_extension("//bazel:extensions.bzl", "wasmsign_crates")
+use_repo(
+    wasmsign_crates,
+    "ws",
+    "ws__wasmsign2-cli-0.2.6",
+)
+
+# Wasmtime and its dependencies
+wasmtime_crates = use_extension("//bazel:extensions.bzl", "wasmtime_crates")
+use_repo(
+    wasmtime_crates,
+    "cu",
+    "cu__anyhow-1.0.86",
+    "cu__env_logger-0.10.2",
+    "cu__log-0.4.22",
+    "cu__once_cell-1.19.0",
+    "cu__tracing-0.1.40",
+    "cu__wasmtime-24.0.0",
+    "cu__wasmtime-c-api-macros-24.0.0",
+)
+
+wasmtime = use_extension("//bazel:extensions.bzl", "wasmtime")
+use_repo(wasmtime, "com_github_bytecodealliance_wasmtime")
+
+# WAMR runtime
+wamr = use_extension("//bazel:extensions.bzl", "wamr")
+use_repo(wamr, "com_github_bytecodealliance_wasm_micro_runtime")
+
+wamr_jit_deps = use_extension("//bazel:extensions.bzl", "wamr_jit_deps")
+use_repo(wamr_jit_deps, "llvm-raw", "llvm_zlib", "llvm_zstd")
+
+llvm_configure = use_repo_rule("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
+
+llvm_configure(
+    name = "llvm-project",
+    targets = [
+        "X86",
+        "AArch64",
+    ],
+)
+
+# V8 runtime and its dependencies
+bazel_dep(name = "v8", version = "0.0.0")
+archive_override(
+    module_name = "v8",
+    integrity = "sha256-igwEEi6kcb2q7EodzjJasjCx/6LRMiFTVWfDKcNB+Xw=",
+    patch_cmds = [
+        "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/simdutf/simdutf.h\"!#include \"simdutf.h\"!' {} \\;",
+        "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fp16/src/include/fp16.h\"!#include \"fp16.h\"!' {} \\;",
+        "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/dragonbox/src/include/dragonbox/dragonbox.h\"!#include \"dragonbox/dragonbox.h\"!' {} \\;",
+        "find ./src ./include -type f -exec sed -i.bak -e 's!#include \"third_party/fast_float/src/include/fast_float/!#include \"fast_float/!' {} \\;",
+    ],
+    patch_strip = 1,
+    patches = [
+        "@proxy_wasm_cpp_host//bazel/external:v8.patch",
+        "@proxy_wasm_cpp_host//bazel/external:v8_module_bazel.patch",
+    ],
+    strip_prefix = "v8-14.4.258.16",
+    urls = ["https://github.com/v8/v8/archive/refs/tags/14.4.258.16.tar.gz"],
+)
+
+# WasmEdge runtime
+wasmedge = use_extension("//bazel:extensions.bzl", "wasmedge")
+use_repo(wasmedge, "com_github_wasmedge_wasmedge")
