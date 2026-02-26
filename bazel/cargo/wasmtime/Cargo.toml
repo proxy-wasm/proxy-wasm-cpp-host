@@ -13,19 +13,19 @@
 # limitations under the License.
 
 [package]
-edition = "2021"
+edition = "2024"
 name = "wasmtime-c-api-bazel"
-version = "24.0.0"
-rust-version = "1.78.0"
+version = "40.0.2"
 
 [lib]
 path = "fake_lib.rs"
 
 [dependencies]
-env_logger = "0.10"
-anyhow = "1.0"
-once_cell = "1.12"
-log = {version = "0.4.8", default-features = false}
-tracing = "0.1.26"
-wasmtime = {version = "24.0.0", default-features = false, features = ['cranelift', 'runtime', 'gc', 'std']}
-wasmtime-c-api-macros = {git = "https://github.com/bytecodealliance/wasmtime", tag = "v24.0.0"}
+# Fixes testdata build error due to missing crate_features = ["std"]
+log = {version = "0.4.29", default-features = false, features = ['std']}
+# IMPORTANT NOTE: prefixed linking of wasmtime requires changing the generated
+# file to specify `rust_static_library` instead of `rust_library`. The
+# following sed command will do it for you:
+#
+# `sed -i.bak -e 's/rust_library/rust_static_library/g' bazel/cargo/wasmtime/remote/BUILD.wasmtime-c-api-impl-*.bazel`
+wasmtime-c-api-impl = {version = "40.0.2", default-features = false, features = ['cranelift', 'wasi', 'wat', 'gc-drc']}

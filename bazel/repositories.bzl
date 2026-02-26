@@ -137,8 +137,8 @@ def proxy_wasm_cpp_host_repositories():
     maybe(
         http_archive,
         name = "rules_rust",
-        integrity = "sha256-yKqAbPYGZnmsI0YyQe6ArWkiZdrQRl9RERy74wuJA1I=",
-        urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.68.1/rules_rust-0.68.1.tar.gz"],
+        integrity = "sha256-u8dkwlLQYSgbI1knek1GSA4tz69yr8HObgCtpYzL/Uw=",
+        urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.69.0/rules_rust-0.69.0.tar.gz"],
         patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
         patch_args = ["-p1"],
     )
@@ -381,7 +381,20 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "2ccb49bb3bfa4d86907ad4c80d1147aef6156c7b6e3f7f14ed02a39de9761155",
-        strip_prefix = "wasmtime-24.0.0",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v24.0.0.tar.gz",
+        sha256 = "6b452be12d8acae3f9d254a4a9d51829ad0aafe31c8669c83b41c2514d5ac45c",
+        strip_prefix = "wasmtime-40.0.2",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v40.0.2.tar.gz",
+        # Prefix wasm_c_api functions for coexistence with other runtimes.
+        patch_cmds = ["""
+          find ./crates/c-api -type f -exec sed -i.bak   \
+             -e 's/\\ wasm_/\\ wasmtime_wasm_/g'                 \
+             -e 's/\\*wasm_/\\*wasmtime_wasm_/g'                 \
+             -e 's/^wasm_/wasmtime_wasm_/g'                      \
+             -e 's/<wasm_/<wasmtime_wasm_/g'                     \
+             -e 's/\\.wasm_/\\.wasmtime_wasm_/g'                 \
+             -e 's/\\&wasm_/\\&wasmtime_wasm_/g'                 \
+             -e 's/\\[wasm_/\\[wasmtime_wasm_/g'                 \
+             -e 's/wasmtime_config_wasm_/wasmtime_config_wasmtime_wasm_/g' \
+             -e 's/(wasm_/(wasmtime_wasm_/g' {} \\;
+        """],
     )

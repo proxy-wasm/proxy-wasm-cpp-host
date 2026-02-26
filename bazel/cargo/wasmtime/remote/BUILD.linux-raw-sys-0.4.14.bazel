@@ -36,8 +36,12 @@ rust_library(
     ),
     crate_features = [
         "general",
+        "if_ether",
         "ioctl",
+        "net",
+        "netlink",
         "no_std",
+        "xdp",
     ] + select({
         "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
             "elf",  # aarch64-unknown-linux-gnu
