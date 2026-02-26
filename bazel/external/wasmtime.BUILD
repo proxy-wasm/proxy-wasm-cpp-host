@@ -64,9 +64,9 @@ genrule(
     cmd = """
       cat < $< > $$TMPDIR/working_file
       for enabled_feature in $$(echo "{}"); do
-        sed -i "s/#cmakedefine WASMTIME_FEATURE_$$enabled_feature/#define WASMTIME_FEATURE_$$enabled_feature 1/" $$TMPDIR/working_file
+        perl -pi -e "s/#cmakedefine WASMTIME_FEATURE_$$enabled_feature/#define WASMTIME_FEATURE_$$enabled_feature 1/" $$TMPDIR/working_file
       done
-      sed -i 's/#cmakedefine \\(.*\\)/\\/\\/ \\1 is not defined./' $$TMPDIR/working_file
+      perl -pi -e 's/#cmakedefine \\(.*\\)/\\/\\/ \\1 is not defined./' $$TMPDIR/working_file
       cp $$TMPDIR/working_file $@
       """.format(" ".join([f.upper() for f in features])),
 )
