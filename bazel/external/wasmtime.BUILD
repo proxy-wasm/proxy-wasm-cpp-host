@@ -36,12 +36,15 @@ genrule(
     outs = [
         "prefixed_wasmtime_c_api.a",
     ],
+    tools = [
+        "@llvm_toolchain_llvm//:objcopy"
+    ],
     cmd = """
         for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
             echo $$symbol | sed -r 's/^(_?)(wasm_[a-z_]+)$$/\\1\\2 \\1wasmtime_\\2/' >>prefixed
         done
         # This should be OBJCOPY, but bazel-zig-cc doesn't define it.
-        objcopy --redefine-syms=prefixed $(<) $@
+        $(location @llvm_toolchain_llvm//:objcopy) --redefine-syms=prefixed $(<) $@
         """,
     toolchains = ["@bazel_tools//tools/cpp:current_cc_toolchain"],
 )
