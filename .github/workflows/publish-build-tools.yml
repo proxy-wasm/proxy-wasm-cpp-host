@@ -46,8 +46,9 @@ jobs:
     - name: Generate tag
       id: tag
       run: |
-        TAG="ubuntu-${{ github.event.inputs.ubuntu_version }}-bazel-${{ github.event.inputs.bazel_version }}"
-        echo "tag=$TAG" >> $GITHUB_OUTPUT
+       echo "tag=$TAG" >> $GITHUB_OUTPUT
+      env:
+        TAG: "ubuntu-${{ github.event.inputs.ubuntu_version }}-bazel-${{ github.event.inputs.bazel_version }}"
 
     - name: Login to GitHub Container Registry
       if: ${{ !github.event.inputs.draft }}
