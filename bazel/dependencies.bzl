@@ -48,14 +48,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasip1",
         ],
-        versions = ["1.91.0"],
-        sha256s = {
-            "rustc-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "a7169e8cb6174af2f45717703370363d8de82ce55f6ccba185893045b9370874",
-            "clippy-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "0087c3d58d2fdeafa89830c299b1026c9f981b49835db89c922b3c6a299b3225",
-            "cargo-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "7103c03fb8abe85b23307005a9dfe4f01c826a89945d84b96fa2d03fd4d2d138",
-            "llvm-tools-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "3d7756e0ce1ee18d20399aef770f09c55a4134f5a0f18e4e3c018aa1b3919a70",
-            "rust-std-1.91.0-x86_64-unknown-linux-gnu.tar.xz": "89e6520b16c12b43526440298d2da0dcb70747c5cc2d0b8e47d39b5da9aeef49",
-        },
+        versions = ["1.93.0"],
     )
     rust_repository_set(
         name = "rust_linux_s390x",
@@ -64,7 +57,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasip1",
         ],
-        versions = ["1.91.0"],
+        versions = ["1.93.0"],
     )
     crate_universe_dependencies(bootstrap = True)
 
