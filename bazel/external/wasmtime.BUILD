@@ -41,7 +41,7 @@ genrule(
     ],
     cmd = """
         for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
-            echo $$symbol | sed -r 's/^(_?)(wasm_[a-z_]+)$$/\\1\\2 \\1wasmtime_\\2/' >>prefixed
+            echo $$symbol | perl -p -e 's!^(_?)(wasm_[a-z_0-9.:-]+)$$!\\1\\2 \\1wasmtime_\\2!' >>prefixed
         done
         # This should be OBJCOPY, but bazel-zig-cc doesn't define it.
         $(location @llvm_toolchain_llvm//:objcopy) --redefine-syms=prefixed $(<) $@
@@ -69,7 +69,7 @@ genrule(
       for enabled_feature in $$(echo "{}"); do
         perl -pi -e "s/#cmakedefine WASMTIME_FEATURE_$$enabled_feature/#define WASMTIME_FEATURE_$$enabled_feature 1/" $$TMPDIR/working_file
       done
-      perl -pi -e 's/#cmakedefine \\(.*\\)/\\/\\/ \\1 is not defined./' $$TMPDIR/working_file
+      perl -pi -e 's?#cmakedefine (.*)?// \\1 is not defined.?' $$TMPDIR/working_file
       cp $$TMPDIR/working_file $@
       """.format(" ".join([f.upper() for f in features])),
 )
