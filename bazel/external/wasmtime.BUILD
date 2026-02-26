@@ -55,7 +55,7 @@ genrule(
     ],
     cmd = """
         for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
-            echo $$symbol | sed -r 's/^(_?)(wasm_[a-z_]+)$$/\\1\\2 \\1wasmtime_\\2/' >>prefixed
+            echo $$symbol | sed -E 's/([a-z_]*)/\\1 wasmtime_\\1/' >> prefixed
         done
         # This should be OBJCOPY, but bazel-zig-cc doesn't define it.
         objcopy --redefine-syms=prefixed $(<) $@
