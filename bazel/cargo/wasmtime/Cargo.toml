@@ -14,7 +14,7 @@
 
 [package]
 name = "wasmtime-c-api-bazel"
-version = "24.0.0"
+version = "42.0.1"
 edition = "2021"
 rust-version = "1.78.0"
 
@@ -24,4 +24,4 @@ path = "fake_lib.rs"
 [dependencies]
 # Fixes testdata build error due to missing crate_features = ["std"]
 log = {version = "0.4.29", default-features = false, features = ['std']}
-wasmtime-c-api-impl = {version = "=24.0.0", features = ['cranelift']}
+wasmtime-c-api-impl = {version = "42.0.1", default-features = false, features = ['cranelift', 'gc-drc']}

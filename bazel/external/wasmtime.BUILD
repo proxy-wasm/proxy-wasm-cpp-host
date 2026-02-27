@@ -61,6 +61,7 @@ genrule(
 # the C/C++ API to expose the right set of methods.
 features = [
     "cranelift",
+    "gc-drc",
 ]
 
 # Wasmtime C-api headers use cmakedefines to generate the config file.
