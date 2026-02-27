@@ -84,6 +84,9 @@ rust_library(
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
             "@cu__rustix-0.37.28//:rustix",  # cfg(not(windows))
         ],
+        "@rules_rust//rust/platform:arm-unknown-linux-musleabi": [
+            "@cu__rustix-0.37.28//:rustix",  # cfg(not(windows))
+        ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
             "@cu__rustix-0.37.28//:rustix",  # cfg(not(windows))
         ],

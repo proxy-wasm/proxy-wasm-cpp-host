@@ -85,6 +85,9 @@ rust_library(
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
             "@cu__libc-0.2.178//:libc",  # cfg(unix)
         ],
+        "@rules_rust//rust/platform:arm-unknown-linux-musleabi": [
+            "@cu__libc-0.2.178//:libc",  # cfg(unix)
+        ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
             "@cu__libc-0.2.178//:libc",  # cfg(unix)
         ],

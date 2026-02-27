@@ -48,6 +48,9 @@ rust_library(
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
             "errno",  # arm-unknown-linux-gnueabi
         ],
+        "@rules_rust//rust/platform:arm-unknown-linux-musleabi": [
+            "errno",  # arm-unknown-linux-musleabi
+        ],
         "@rules_rust//rust/platform:armv7-unknown-linux-gnueabi": [
             "errno",  # armv7-unknown-linux-gnueabi
         ],

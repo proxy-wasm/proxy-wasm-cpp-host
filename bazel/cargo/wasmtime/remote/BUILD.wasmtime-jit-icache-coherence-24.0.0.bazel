@@ -72,6 +72,9 @@ rust_library(
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
             "@cu__libc-0.2.155//:libc",  # cfg(any(target_os = "linux", target_os = "macos", target_os = "freebsd", target_os = "android"))
         ],
+        "@rules_rust//rust/platform:arm-unknown-linux-musleabi": [
+            "@cu__libc-0.2.155//:libc",  # cfg(any(target_os = "linux", target_os = "macos", target_os = "freebsd", target_os = "android"))
+        ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
             "@cu__libc-0.2.155//:libc",  # cfg(any(target_os = "linux", target_os = "macos", target_os = "freebsd", target_os = "android"))
         ],
