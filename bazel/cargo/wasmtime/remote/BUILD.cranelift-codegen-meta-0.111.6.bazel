@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "regex_syntax",
+    name = "cranelift_codegen_meta",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,9 +34,6 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "std",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_env_files = [
@@ -47,10 +44,13 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=regex-syntax",
+        "crate-name=cranelift-codegen-meta",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.8.4",
+    version = "0.111.6",
+    deps = [
+        "@cu__cranelift-codegen-shared-0.111.6//:cranelift_codegen_shared",
+    ],
 )
