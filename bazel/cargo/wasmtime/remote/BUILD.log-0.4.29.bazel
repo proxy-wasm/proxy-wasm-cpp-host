@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "wasmtime_environ",
+    name = "log",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,15 +35,10 @@ rust_library(
         ],
     ),
     crate_features = [
-        "compile",
-        "gc",
         "std",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
-    proc_macro_deps = [
-        "@cu__serde_derive-1.0.204//:serde_derive",
-    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -52,26 +47,10 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=wasmtime-environ",
+        "crate-name=log",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "24.0.0",
-    deps = [
-        "@cu__anyhow-1.0.86//:anyhow",
-        "@cu__cranelift-bitset-0.111.0//:cranelift_bitset",
-        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
-        "@cu__gimli-0.29.0//:gimli",
-        "@cu__indexmap-2.3.0//:indexmap",
-        "@cu__log-0.4.22//:log",
-        "@cu__object-0.36.2//:object",
-        "@cu__postcard-1.0.8//:postcard",
-        "@cu__serde-1.0.204//:serde",
-        "@cu__target-lexicon-0.12.16//:target_lexicon",
-        "@cu__wasm-encoder-0.215.0//:wasm_encoder",
-        "@cu__wasmparser-0.215.0//:wasmparser",
-        "@cu__wasmprinter-0.215.0//:wasmprinter",
-        "@cu__wasmtime-types-24.0.0//:wasmtime_types",
-    ],
+    version = "0.4.29",
 )

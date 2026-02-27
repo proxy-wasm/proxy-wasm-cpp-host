@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "wasmtime_types",
+    name = "cranelift_wasm",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,13 +35,11 @@ rust_library(
         ],
     ),
     crate_features = [
+        "default",
         "std",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
-    proc_macro_deps = [
-        "@cu__serde_derive-1.0.204//:serde_derive",
-    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -50,17 +48,20 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=wasmtime-types",
+        "crate-name=cranelift-wasm",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "24.0.0",
+    version = "0.111.6",
     deps = [
-        "@cu__anyhow-1.0.86//:anyhow",
-        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
-        "@cu__serde-1.0.204//:serde",
+        "@cu__cranelift-codegen-0.111.6//:cranelift_codegen",
+        "@cu__cranelift-entity-0.111.6//:cranelift_entity",
+        "@cu__cranelift-frontend-0.111.6//:cranelift_frontend",
+        "@cu__itertools-0.12.1//:itertools",
+        "@cu__log-0.4.29//:log",
         "@cu__smallvec-1.13.2//:smallvec",
         "@cu__wasmparser-0.215.0//:wasmparser",
+        "@cu__wasmtime-types-24.0.6//:wasmtime_types",
     ],
 )
