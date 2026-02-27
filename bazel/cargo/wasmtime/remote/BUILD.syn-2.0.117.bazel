@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "bumpalo",
+    name = "syn",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,8 +35,14 @@ rust_library(
         ],
     ),
     crate_features = [
-        "allocator-api2",
+        "clone-impls",
         "default",
+        "derive",
+        "full",
+        "parsing",
+        "printing",
+        "proc-macro",
+        "visit-mut",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -48,13 +54,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bumpalo",
+        "crate-name=syn",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "3.16.0",
+    version = "2.0.117",
     deps = [
-        "@cu__allocator-api2-0.2.21//:allocator_api2",
+        "@cu__proc-macro2-1.0.106//:proc_macro2",
+        "@cu__quote-1.0.45//:quote",
+        "@cu__unicode-ident-1.0.12//:unicode_ident",
     ],
 )

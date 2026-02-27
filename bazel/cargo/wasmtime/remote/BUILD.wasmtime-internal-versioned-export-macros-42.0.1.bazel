@@ -7,7 +7,7 @@
 ###############################################################################
 
 load("@rules_rust//cargo:defs.bzl", "cargo_toml_env_vars")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -16,8 +16,8 @@ cargo_toml_env_vars(
     src = "Cargo.toml",
 )
 
-rust_library(
-    name = "bumpalo",
+rust_proc_macro(
+    name = "wasmtime_internal_versioned_export_macros",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,12 +34,8 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "allocator-api2",
-        "default",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -48,13 +44,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bumpalo",
+        "crate-name=wasmtime-internal-versioned-export-macros",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "3.16.0",
+    version = "42.0.1",
     deps = [
-        "@cu__allocator-api2-0.2.21//:allocator_api2",
+        "@cu__proc-macro2-1.0.106//:proc_macro2",
+        "@cu__quote-1.0.45//:quote",
+        "@cu__syn-2.0.117//:syn",
     ],
 )

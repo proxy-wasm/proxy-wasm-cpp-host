@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "bumpalo",
+    name = "wasmparser",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,8 +35,12 @@ rust_library(
         ],
     ),
     crate_features = [
-        "allocator-api2",
-        "default",
+        "component-model",
+        "features",
+        "serde",
+        "simd",
+        "std",
+        "validate",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -48,13 +52,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bumpalo",
+        "crate-name=wasmparser",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "3.16.0",
+    version = "0.244.0",
     deps = [
-        "@cu__allocator-api2-0.2.21//:allocator_api2",
+        "@cu__bitflags-2.11.0//:bitflags",
+        "@cu__semver-1.0.23//:semver",
+        "@cu__serde-1.0.228//:serde",
     ],
 )

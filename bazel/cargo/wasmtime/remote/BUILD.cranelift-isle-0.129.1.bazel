@@ -21,7 +21,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "libc",
+    name = "cranelift_isle",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -40,10 +40,9 @@ rust_library(
     ),
     crate_features = [
         "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -52,14 +51,14 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=cranelift-isle",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "0.129.1",
     deps = [
-        "@cu__libc-0.2.182//:build_script_build",
+        "@cu__cranelift-isle-0.129.1//:build_script_build",
     ],
 )
 
@@ -84,7 +83,6 @@ cargo_build_script(
     ),
     crate_features = [
         "default",
-        "std",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -100,8 +98,8 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2021",
-    pkg_name = "libc",
+    edition = "2024",
+    pkg_name = "cranelift-isle",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -110,12 +108,12 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=cranelift-isle",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "0.129.1",
     visibility = ["//visibility:private"],
 )
 

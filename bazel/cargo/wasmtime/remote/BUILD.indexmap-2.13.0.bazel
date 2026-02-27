@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "bumpalo",
+    name = "indexmap",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,8 +35,8 @@ rust_library(
         ],
     ),
     crate_features = [
-        "allocator-api2",
-        "default",
+        "serde",
+        "std",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -48,13 +48,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bumpalo",
+        "crate-name=indexmap",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "3.16.0",
+    version = "2.13.0",
     deps = [
-        "@cu__allocator-api2-0.2.21//:allocator_api2",
+        "@cu__equivalent-1.0.1//:equivalent",
+        "@cu__hashbrown-0.16.1//:hashbrown",
+        "@cu__serde_core-1.0.228//:serde_core",
     ],
 )

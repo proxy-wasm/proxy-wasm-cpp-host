@@ -21,7 +21,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "libc",
+    name = "wasmtime_internal_unwinder",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -39,11 +39,11 @@ rust_library(
         ],
     ),
     crate_features = [
+        "cranelift",
         "default",
-        "std",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -52,14 +52,19 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=wasmtime-internal-unwinder",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "42.0.1",
     deps = [
-        "@cu__libc-0.2.182//:build_script_build",
+        "@cu__cfg-if-1.0.0//:cfg_if",
+        "@cu__cranelift-codegen-0.129.1//:cranelift_codegen",
+        "@cu__log-0.4.29//:log",
+        "@cu__object-0.37.3//:object",
+        "@cu__wasmtime-environ-42.0.1//:wasmtime_environ",
+        "@cu__wasmtime-internal-unwinder-42.0.1//:build_script_build",
     ],
 )
 
@@ -83,8 +88,8 @@ cargo_build_script(
         ],
     ),
     crate_features = [
+        "cranelift",
         "default",
-        "std",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -100,8 +105,8 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2021",
-    pkg_name = "libc",
+    edition = "2024",
+    pkg_name = "wasmtime-internal-unwinder",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -110,12 +115,12 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=wasmtime-internal-unwinder",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "42.0.1",
     visibility = ["//visibility:private"],
 )
 

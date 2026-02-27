@@ -21,11 +21,15 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "libc",
+    name = "winch_codegen",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
     ),
+    aliases = {
+        "@cu__wasmtime-internal-core-42.0.1//:wasmtime_internal_core": "wasmtime_core",
+        "@cu__wasmtime-internal-cranelift-42.0.1//:wasmtime_internal_cranelift": "wasmtime_cranelift",
+    },
     compile_data = glob(
         include = ["**"],
         allow_empty = True,
@@ -38,12 +42,8 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-        "std",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -52,14 +52,25 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=winch-codegen",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "42.0.1",
     deps = [
-        "@cu__libc-0.2.182//:build_script_build",
+        "@cu__cranelift-assembler-x64-0.129.1//:cranelift_assembler_x64",
+        "@cu__cranelift-codegen-0.129.1//:cranelift_codegen",
+        "@cu__gimli-0.33.0//:gimli",
+        "@cu__regalloc2-0.13.5//:regalloc2",
+        "@cu__smallvec-1.15.1//:smallvec",
+        "@cu__target-lexicon-0.13.5//:target_lexicon",
+        "@cu__thiserror-2.0.18//:thiserror",
+        "@cu__wasmparser-0.244.0//:wasmparser",
+        "@cu__wasmtime-environ-42.0.1//:wasmtime_environ",
+        "@cu__wasmtime-internal-core-42.0.1//:wasmtime_internal_core",
+        "@cu__wasmtime-internal-cranelift-42.0.1//:wasmtime_internal_cranelift",
+        "@cu__winch-codegen-42.0.1//:build_script_build",
     ],
 )
 
@@ -82,10 +93,6 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-        "std",
-    ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
@@ -100,8 +107,8 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2021",
-    pkg_name = "libc",
+    edition = "2024",
+    pkg_name = "winch-codegen",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -110,12 +117,12 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=winch-codegen",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "42.0.1",
     visibility = ["//visibility:private"],
 )
 

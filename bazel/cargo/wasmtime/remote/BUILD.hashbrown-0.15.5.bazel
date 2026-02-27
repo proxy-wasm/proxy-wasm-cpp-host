@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "bumpalo",
+    name = "hashbrown",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,8 +35,7 @@ rust_library(
         ],
     ),
     crate_features = [
-        "allocator-api2",
-        "default",
+        "default-hasher",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -48,13 +47,13 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bumpalo",
+        "crate-name=hashbrown",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "3.16.0",
+    version = "0.15.5",
     deps = [
-        "@cu__allocator-api2-0.2.21//:allocator_api2",
+        "@cu__foldhash-0.1.5//:foldhash",
     ],
 )
