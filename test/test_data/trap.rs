@@ -36,12 +36,15 @@ fn one() {
     two();
 }
 
-#[inline(never)]
+// Proxy-Wasm only prints up to 9 stack frames in V8.
+// Ensure that we can see the `one` frame in the stack trace for assertions by inlining two and
+// three.
+#[inline(always)]
 fn two() {
     three();
 }
 
-#[inline(never)]
+#[inline(always)]
 fn three() {
     panic!("trap!");
 }
