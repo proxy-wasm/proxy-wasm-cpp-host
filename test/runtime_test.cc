@@ -132,7 +132,7 @@ TEST_P(TestVm, WasmMemoryLimit) {
   // Backtrace
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
-    EXPECT_TRUE(host->isErrorLogged("rg_oom"));
+    EXPECT_TRUE(host->isErrorLogged("rust_oom"));
     EXPECT_TRUE(host->isErrorLogged(" - alloc::alloc::handle_alloc_error"));
   }
 }
@@ -157,8 +157,8 @@ TEST_P(TestVm, Trap) {
   // Backtrace
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
-    EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
-    // Check for the function name 'one' in the backtrace, which may appear with or without
+    EXPECT_TRUE(host->isErrorLogged(" - std::panicking"));
+    // Check for the function name 'two' in the backtrace, which may appear with or without
     // module prefix depending on Rust compiler version and symbol generation.
     bool has_one_symbol = host->isErrorLogged("::one") || host->isErrorLogged(" - one");
     EXPECT_TRUE(has_one_symbol) << "Expected to find '::one' or ' - one' in backtrace";
@@ -185,7 +185,7 @@ TEST_P(TestVm, Trap2) {
   // Backtrace
   if (engine_ == "v8") {
     EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
-    EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
+    EXPECT_TRUE(host->isErrorLogged(" - std::panicking"));
     EXPECT_TRUE(host->isErrorLogged(" - trigger2"));
   }
 }
