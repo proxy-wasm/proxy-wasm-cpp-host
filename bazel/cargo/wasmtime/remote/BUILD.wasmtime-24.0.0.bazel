@@ -124,6 +124,10 @@ rust_library(
             "@cu__memfd-0.6.4//:memfd",  # arm-unknown-linux-gnueabi
             "@cu__rustix-0.38.34//:rustix",  # arm-unknown-linux-gnueabi
         ],
+        "@rules_rust//rust/platform:arm-unknown-linux-musleabi": [
+            "@cu__memfd-0.6.4//:memfd",  # arm-unknown-linux-musleabi
+            "@cu__rustix-0.38.34//:rustix",  # arm-unknown-linux-musleabi
+        ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
             "@cu__rustix-0.38.34//:rustix",  # armv7-linux-androideabi
         ],

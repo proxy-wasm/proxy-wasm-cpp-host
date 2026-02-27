@@ -81,6 +81,9 @@ rust_library(
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
             "@cu__libc-0.2.155//:libc",  # cfg(any(unix, target_os = "wasi"))
         ],
+        "@rules_rust//rust/platform:arm-unknown-linux-musleabi": [
+            "@cu__libc-0.2.155//:libc",  # cfg(any(unix, target_os = "wasi"))
+        ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
             "@cu__libc-0.2.155//:libc",  # cfg(any(unix, target_os = "wasi"))
         ],
