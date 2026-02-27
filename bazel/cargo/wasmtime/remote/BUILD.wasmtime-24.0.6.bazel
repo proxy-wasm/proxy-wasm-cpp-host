@@ -49,7 +49,7 @@ rust_library(
     proc_macro_deps = [
         "@cu__paste-1.0.15//:paste",
         "@cu__serde_derive-1.0.204//:serde_derive",
-        "@cu__wasmtime-versioned-export-macros-24.0.0//:wasmtime_versioned_export_macros",
+        "@cu__wasmtime-versioned-export-macros-24.0.6//:wasmtime_versioned_export_macros",
     ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
@@ -64,7 +64,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "24.0.0",
+    version = "24.0.6",
     deps = [
         "@cu__anyhow-1.0.86//:anyhow",
         "@cu__bitflags-2.6.0//:bitflags",
@@ -72,9 +72,9 @@ rust_library(
         "@cu__cfg-if-1.0.0//:cfg_if",
         "@cu__hashbrown-0.14.5//:hashbrown",
         "@cu__indexmap-2.3.0//:indexmap",
-        "@cu__libc-0.2.155//:libc",
+        "@cu__libc-0.2.182//:libc",
         "@cu__libm-0.2.8//:libm",
-        "@cu__log-0.4.22//:log",
+        "@cu__log-0.4.29//:log",
         "@cu__object-0.36.2//:object",
         "@cu__once_cell-1.19.0//:once_cell",
         "@cu__postcard-1.0.8//:postcard",
@@ -83,12 +83,12 @@ rust_library(
         "@cu__sptr-0.3.2//:sptr",
         "@cu__target-lexicon-0.12.16//:target_lexicon",
         "@cu__wasmparser-0.215.0//:wasmparser",
-        "@cu__wasmtime-24.0.0//:build_script_build",
-        "@cu__wasmtime-asm-macros-24.0.0//:wasmtime_asm_macros",
-        "@cu__wasmtime-cranelift-24.0.0//:wasmtime_cranelift",
-        "@cu__wasmtime-environ-24.0.0//:wasmtime_environ",
-        "@cu__wasmtime-jit-icache-coherence-24.0.0//:wasmtime_jit_icache_coherence",
-        "@cu__wasmtime-slab-24.0.0//:wasmtime_slab",
+        "@cu__wasmtime-24.0.6//:build_script_build",
+        "@cu__wasmtime-asm-macros-24.0.6//:wasmtime_asm_macros",
+        "@cu__wasmtime-cranelift-24.0.6//:wasmtime_cranelift",
+        "@cu__wasmtime-environ-24.0.6//:wasmtime_environ",
+        "@cu__wasmtime-jit-icache-coherence-24.0.6//:wasmtime_jit_icache_coherence",
+        "@cu__wasmtime-slab-24.0.6//:wasmtime_slab",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@cu__mach2-0.4.2//:mach2",  # aarch64-apple-darwin
@@ -241,7 +241,7 @@ cargo_build_script(
     edition = "2021",
     pkg_name = "wasmtime",
     proc_macro_deps = [
-        "@cu__wasmtime-versioned-export-macros-24.0.0//:wasmtime_versioned_export_macros",
+        "@cu__wasmtime-versioned-export-macros-24.0.6//:wasmtime_versioned_export_macros",
     ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
@@ -256,7 +256,7 @@ cargo_build_script(
         "noclippy",
         "norustfmt",
     ],
-    version = "24.0.0",
+    version = "24.0.6",
     visibility = ["//visibility:private"],
     deps = [
         "@cu__cc-1.1.7//:cc",

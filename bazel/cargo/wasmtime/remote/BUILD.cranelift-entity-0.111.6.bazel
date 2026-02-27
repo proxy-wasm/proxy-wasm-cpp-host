@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "regex",
+    name = "cranelift_entity",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,17 +35,15 @@ rust_library(
         ],
     ),
     crate_features = [
-        "perf",
-        "perf-backtrack",
-        "perf-cache",
-        "perf-dfa",
-        "perf-inline",
-        "perf-literal",
-        "perf-onepass",
-        "std",
+        "enable-serde",
+        "serde",
+        "serde_derive",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
+    proc_macro_deps = [
+        "@cu__serde_derive-1.0.204//:serde_derive",
+    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -54,16 +52,14 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=regex",
+        "crate-name=cranelift-entity",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.10.5",
+    version = "0.111.6",
     deps = [
-        "@cu__aho-corasick-1.1.3//:aho_corasick",
-        "@cu__memchr-2.7.4//:memchr",
-        "@cu__regex-automata-0.4.7//:regex_automata",
-        "@cu__regex-syntax-0.8.4//:regex_syntax",
+        "@cu__cranelift-bitset-0.111.6//:cranelift_bitset",
+        "@cu__serde-1.0.204//:serde",
     ],
 )

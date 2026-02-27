@@ -21,7 +21,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "cranelift_codegen",
+    name = "wasmtime_c_api",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -39,14 +39,13 @@ rust_library(
         ],
     ),
     crate_features = [
-        "gimli",
-        "host-arch",
-        "std",
-        "trace-log",
-        "unwind",
+        "cranelift",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
+    proc_macro_deps = [
+        "@cu__wasmtime-c-api-macros-24.0.6//:wasmtime_c_api_macros",
+    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -55,27 +54,19 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-codegen",
+        "crate-name=wasmtime-c-api-impl",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.111.0",
+    version = "24.0.6",
     deps = [
-        "@cu__bumpalo-3.16.0//:bumpalo",
-        "@cu__cranelift-bforest-0.111.0//:cranelift_bforest",
-        "@cu__cranelift-bitset-0.111.0//:cranelift_bitset",
-        "@cu__cranelift-codegen-0.111.0//:build_script_build",
-        "@cu__cranelift-codegen-shared-0.111.0//:cranelift_codegen_shared",
-        "@cu__cranelift-control-0.111.0//:cranelift_control",
-        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
-        "@cu__gimli-0.29.0//:gimli",
-        "@cu__hashbrown-0.14.5//:hashbrown",
-        "@cu__log-0.4.22//:log",
-        "@cu__regalloc2-0.9.3//:regalloc2",
-        "@cu__rustc-hash-1.1.0//:rustc_hash",
-        "@cu__smallvec-1.13.2//:smallvec",
-        "@cu__target-lexicon-0.12.16//:target_lexicon",
+        "@cu__anyhow-1.0.86//:anyhow",
+        "@cu__log-0.4.29//:log",
+        "@cu__once_cell-1.19.0//:once_cell",
+        "@cu__tracing-0.1.40//:tracing",
+        "@cu__wasmtime-24.0.6//:wasmtime",
+        "@cu__wasmtime-c-api-impl-24.0.6//:build_script_build",
     ],
 )
 
@@ -99,11 +90,7 @@ cargo_build_script(
         ],
     ),
     crate_features = [
-        "gimli",
-        "host-arch",
-        "std",
-        "trace-log",
-        "unwind",
+        "cranelift",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -120,7 +107,8 @@ cargo_build_script(
         ],
     ),
     edition = "2021",
-    pkg_name = "cranelift-codegen",
+    links = "wasmtime-c-api",
+    pkg_name = "wasmtime-c-api-impl",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -129,17 +117,13 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-codegen",
+        "crate-name=wasmtime-c-api-impl",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.111.0",
+    version = "24.0.6",
     visibility = ["//visibility:private"],
-    deps = [
-        "@cu__cranelift-codegen-meta-0.111.0//:cranelift_codegen_meta",
-        "@cu__cranelift-isle-0.111.0//:cranelift_isle",
-    ],
 )
 
 alias(

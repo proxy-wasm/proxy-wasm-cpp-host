@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "cranelift_bitset",
+    name = "cranelift_bforest",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,14 +34,8 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "enable-serde",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
-    proc_macro_deps = [
-        "@cu__serde_derive-1.0.204//:serde_derive",
-    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -50,13 +44,13 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-bitset",
+        "crate-name=cranelift-bforest",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.111.0",
+    version = "0.111.6",
     deps = [
-        "@cu__serde-1.0.204//:serde",
+        "@cu__cranelift-entity-0.111.6//:cranelift_entity",
     ],
 )
