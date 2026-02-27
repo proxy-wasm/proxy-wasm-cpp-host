@@ -48,7 +48,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasip1",
         ],
-        versions = ["1.93.0"],
+        versions = ["1.93.1"],
     )
     rust_repository_set(
         name = "rust_linux_s390x",
@@ -57,7 +57,7 @@ def proxy_wasm_cpp_host_dependencies():
             "wasm32-unknown-unknown",
             "wasm32-wasip1",
         ],
-        versions = ["1.93.0"],
+        versions = ["1.93.1"],
     )
     crate_universe_dependencies(bootstrap = True)
 
