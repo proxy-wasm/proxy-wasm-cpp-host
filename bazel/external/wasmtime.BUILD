@@ -21,73 +21,69 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "wasmtime_lib",
-    hdrs = [
-        "crates/c-api/include/wasm.h",
+    srcs = [
+        ":prefixed_wasmtime_c_api_lib",
     ],
-    deps = [
-        ":rust_c_api",
-    ],
+    hdrs = glob(["crates/c-api/include/**"]) + [":wasmtime_conf.h"],
+    includes = ["crates/c-api/include/"],
 )
 
-genrule(
-    name = "prefixed_wasmtime_c_api_headers",
+# Wrap wasmtime-c-api-impl in a rust_static_library so it can be used as a cc_library.
+rust_static_library(
+    name = "wasmtime_lib_staticlib",
     srcs = [
-        "crates/c-api/include/wasm.h",
+        "lib.rs",
     ],
-    outs = [
-        "crates/c-api/include/prefixed_wasm.h",
+    edition = "2021",
+    deps = [
+        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime-c-api-impl",
     ],
-    cmd = """
-        sed -e 's/\\ wasm_/\\ wasmtime_wasm_/g' \
-            -e 's/\\*wasm_/\\*wasmtime_wasm_/g' \
-            -e 's/(wasm_/(wasmtime_wasm_/g'     \
-        $(<) >$@
-        """,
 )
 
 genrule(
     name = "prefixed_wasmtime_c_api_lib",
     srcs = [
-        ":rust_c_api",
+        ":wasmtime_lib_staticlib",
     ],
     outs = [
         "prefixed_wasmtime_c_api.a",
     ],
     cmd = """
         for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
-            echo $$symbol | sed -r 's/^(_?)(wasm_[a-z_]+)$$/\\1\\2 \\1wasmtime_\\2/' >>prefixed
+            echo $$symbol | perl -p -e 's!^(_?)(wasm_[a-z_0-9.:-]+)$$!\\1\\2 \\1wasmtime_\\2!' >>prefixed
         done
         # This should be OBJCOPY, but bazel-zig-cc doesn't define it.
-        objcopy --redefine-syms=prefixed $(<) $@
-        """,
+        """ +
+          # MacOS runners for GitHub do not ship with objcopy. Use the version bundled with the vendored toolchain.
+          select({
+              "@platforms//os:macos": "$(location @llvm_toolchain_llvm//:objcopy) --redefine-syms=prefixed $(<) $@ ",
+              "//conditions:default": "objcopy --redefine-syms=prefixed $(<) $@ ",
+          }),
     toolchains = ["@bazel_tools//tools/cpp:current_cc_toolchain"],
+    tools = select({
+        "@platforms//os:macos": ["@llvm_toolchain_llvm//:objcopy"],
+        "//conditions:default": [],
+    }),
 )
 
-cc_library(
-    name = "prefixed_wasmtime_lib",
-    srcs = [
-        ":prefixed_wasmtime_c_api_lib",
-    ],
-    hdrs = [
-        ":prefixed_wasmtime_c_api_headers",
-    ],
-    linkstatic = 1,
-)
+# This must match the features defined in `bazel/cargo/wasmtime/Cargo.toml` for
+# the C/C++ API to expose the right set of methods.
+features = [
+    "cranelift",
+]
 
-rust_static_library(
-    name = "rust_c_api",
-    srcs = glob(["crates/c-api/src/**/*.rs"]),
-    crate_features = ["cranelift"],
-    crate_root = "crates/c-api/src/lib.rs",
-    edition = "2021",
-    proc_macro_deps = [
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime-c-api-macros",
-    ],
-    deps = [
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:anyhow",
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:env_logger",
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:once_cell",
-        # buildifier: leave-alone
-        "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime",
-    ],
+# Wasmtime C-api headers use cmakedefines to generate the config file.
+# This does the same as CMake's configure_file, but using the crate features array above.
+genrule(
+    name = "wasmtime_conf.h",
+    srcs = ["crates/c-api/include/wasmtime/conf.h.in"],
+    outs = ["crates/c-api/include/wasmtime/conf.h"],
+    cmd = """
+      cat < $< > $$TMPDIR/working_file
+      for enabled_feature in $$(echo "{}"); do
+        perl -pi -e "s/#cmakedefine WASMTIME_FEATURE_$$enabled_feature/#define WASMTIME_FEATURE_$$enabled_feature 1/" $$TMPDIR/working_file
+      done
+      perl -pi -e 's?#cmakedefine (.*)?// \\1 is not defined.?' $$TMPDIR/working_file
+      cp $$TMPDIR/working_file $@
+      """.format(" ".join([f.upper() for f in features])),
 )
