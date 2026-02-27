@@ -88,6 +88,9 @@ rust_library(
         "@rules_rust//rust/platform:arm-unknown-linux-gnueabi": [
             "@cu__libc-0.2.178//:libc",  # cfg(all(any(target_os = "linux", target_os = "android"), not(any(all(target_os = "linux", target_env = ""), getrandom_backend = "custom", getrandom_backend = "linux_raw", getrandom_backend = "rdrand", getrandom_backend = "rndr"))))
         ],
+        "@rules_rust//rust/platform:arm-unknown-linux-musleabi": [
+            "@cu__libc-0.2.178//:libc",  # cfg(all(any(target_os = "linux", target_os = "android"), not(any(all(target_os = "linux", target_env = ""), getrandom_backend = "custom", getrandom_backend = "linux_raw", getrandom_backend = "rdrand", getrandom_backend = "rndr"))))
+        ],
         "@rules_rust//rust/platform:armv7-linux-androideabi": [
             "@cu__libc-0.2.178//:libc",  # cfg(all(any(target_os = "linux", target_os = "android"), not(any(all(target_os = "linux", target_env = ""), getrandom_backend = "custom", getrandom_backend = "linux_raw", getrandom_backend = "rdrand", getrandom_backend = "rndr"))))
         ],
