@@ -40,3 +40,8 @@
 #ifndef PROXY_WASM_HOST_PAIRS_MAX_COUNT
 #define PROXY_WASM_HOST_PAIRS_MAX_COUNT 1024
 #endif
+
+// Maximum number of frames in Wasm backtrace.
+#ifndef PROXY_WASM_HOST_MAX_BACKTRACE_FRAMES_COUNT
+#define PROXY_WASM_HOST_MAX_BACKTRACE_FRAMES_COUNT 20
+#endif
