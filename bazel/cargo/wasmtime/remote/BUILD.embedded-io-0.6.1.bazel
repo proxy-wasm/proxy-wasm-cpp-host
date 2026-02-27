@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "bumpalo",
+    name = "embedded_io",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,10 +34,6 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "allocator-api2",
-        "default",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_env_files = [
@@ -48,13 +44,10 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bumpalo",
+        "crate-name=embedded-io",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "3.16.0",
-    deps = [
-        "@cu__allocator-api2-0.2.21//:allocator_api2",
-    ],
+    version = "0.6.1",
 )

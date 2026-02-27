@@ -21,11 +21,14 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "libc",
+    name = "wasmtime_internal_jit_debug",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
     ),
+    aliases = {
+        "@cu__wasmtime-internal-versioned-export-macros-42.0.1//:wasmtime_internal_versioned_export_macros": "wasmtime_versioned_export_macros",
+    },
     compile_data = glob(
         include = ["**"],
         allow_empty = True,
@@ -38,12 +41,11 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-        "std",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
+    proc_macro_deps = [
+        "@cu__wasmtime-internal-versioned-export-macros-42.0.1//:wasmtime_internal_versioned_export_macros",
+    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -52,14 +54,14 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=wasmtime-internal-jit-debug",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "42.0.1",
     deps = [
-        "@cu__libc-0.2.182//:build_script_build",
+        "@cu__wasmtime-internal-jit-debug-42.0.1//:build_script_build",
     ],
 )
 
@@ -69,6 +71,9 @@ cargo_build_script(
         include = ["**/*.rs"],
         allow_empty = True,
     ),
+    aliases = {
+        "@cu__wasmtime-internal-versioned-export-macros-42.0.1//:wasmtime_internal_versioned_export_macros": "wasmtime_versioned_export_macros",
+    },
     compile_data = glob(
         include = ["**"],
         allow_empty = True,
@@ -82,10 +87,6 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-        "std",
-    ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
     data = glob(
@@ -100,8 +101,11 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2021",
-    pkg_name = "libc",
+    edition = "2024",
+    pkg_name = "wasmtime-internal-jit-debug",
+    proc_macro_deps = [
+        "@cu__wasmtime-internal-versioned-export-macros-42.0.1//:wasmtime_internal_versioned_export_macros",
+    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -110,13 +114,16 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=wasmtime-internal-jit-debug",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "42.0.1",
     visibility = ["//visibility:private"],
+    deps = [
+        "@cu__cc-1.2.56//:cc",
+    ],
 )
 
 alias(

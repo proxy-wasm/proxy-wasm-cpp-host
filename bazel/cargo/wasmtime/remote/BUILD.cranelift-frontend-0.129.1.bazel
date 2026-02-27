@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "bumpalo",
+    name = "cranelift_frontend",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,11 +35,11 @@ rust_library(
         ],
     ),
     crate_features = [
-        "allocator-api2",
         "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -48,13 +48,16 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bumpalo",
+        "crate-name=cranelift-frontend",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "3.16.0",
+    version = "0.129.1",
     deps = [
-        "@cu__allocator-api2-0.2.21//:allocator_api2",
+        "@cu__cranelift-codegen-0.129.1//:cranelift_codegen",
+        "@cu__log-0.4.29//:log",
+        "@cu__smallvec-1.15.1//:smallvec",
+        "@cu__target-lexicon-0.13.5//:target_lexicon",
     ],
 )

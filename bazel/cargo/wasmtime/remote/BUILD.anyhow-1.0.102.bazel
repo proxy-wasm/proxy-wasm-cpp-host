@@ -21,7 +21,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "libc",
+    name = "anyhow",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -52,14 +52,14 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=anyhow",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "1.0.102",
     deps = [
-        "@cu__libc-0.2.182//:build_script_build",
+        "@cu__anyhow-1.0.102//:build_script_build",
     ],
 )
 
@@ -101,7 +101,7 @@ cargo_build_script(
         ],
     ),
     edition = "2021",
-    pkg_name = "libc",
+    pkg_name = "anyhow",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -110,12 +110,12 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=anyhow",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "1.0.102",
     visibility = ["//visibility:private"],
 )
 

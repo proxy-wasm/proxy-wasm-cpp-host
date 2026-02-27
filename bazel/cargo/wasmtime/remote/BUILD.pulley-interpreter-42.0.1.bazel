@@ -17,11 +17,14 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "bumpalo",
+    name = "pulley_interpreter",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
     ),
+    aliases = {
+        "@cu__wasmtime-internal-core-42.0.1//:wasmtime_internal_core": "wasmtime_core",
+    },
     compile_data = glob(
         include = ["**"],
         allow_empty = True,
@@ -35,11 +38,17 @@ rust_library(
         ],
     ),
     crate_features = [
-        "allocator-api2",
-        "default",
+        "decode",
+        "disas",
+        "encode",
+        "interp",
+        "std",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
+    proc_macro_deps = [
+        "@cu__pulley-macros-42.0.1//:pulley_macros",
+    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -48,13 +57,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bumpalo",
+        "crate-name=pulley-interpreter",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "3.16.0",
+    version = "42.0.1",
     deps = [
-        "@cu__allocator-api2-0.2.21//:allocator_api2",
+        "@cu__cranelift-bitset-0.129.1//:cranelift_bitset",
+        "@cu__log-0.4.29//:log",
+        "@cu__wasmtime-internal-core-42.0.1//:wasmtime_internal_core",
     ],
 )

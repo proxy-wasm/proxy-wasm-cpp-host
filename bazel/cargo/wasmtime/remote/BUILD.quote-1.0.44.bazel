@@ -21,7 +21,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "libc",
+    name = "quote",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -40,7 +40,7 @@ rust_library(
     ),
     crate_features = [
         "default",
-        "std",
+        "proc-macro",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -52,14 +52,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=quote",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "1.0.44",
     deps = [
-        "@cu__libc-0.2.182//:build_script_build",
+        "@cu__proc-macro2-1.0.106//:proc_macro2",
+        "@cu__quote-1.0.44//:build_script_build",
     ],
 )
 
@@ -84,7 +85,7 @@ cargo_build_script(
     ),
     crate_features = [
         "default",
-        "std",
+        "proc-macro",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -101,7 +102,7 @@ cargo_build_script(
         ],
     ),
     edition = "2021",
-    pkg_name = "libc",
+    pkg_name = "quote",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -110,12 +111,12 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=quote",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "1.0.44",
     visibility = ["//visibility:private"],
 )
 

@@ -21,7 +21,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "libc",
+    name = "object",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -39,11 +39,20 @@ rust_library(
         ],
     ),
     crate_features = [
-        "default",
+        "coff",
+        "elf",
+        "macho",
+        "pe",
+        "read_core",
         "std",
+        "unaligned",
+        "write",
+        "write_core",
+        "write_std",
+        "xcoff",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2018",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -52,14 +61,18 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=object",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "0.37.3",
     deps = [
-        "@cu__libc-0.2.182//:build_script_build",
+        "@cu__crc32fast-1.4.2//:crc32fast",
+        "@cu__hashbrown-0.15.5//:hashbrown",
+        "@cu__indexmap-2.13.0//:indexmap",
+        "@cu__memchr-2.7.4//:memchr",
+        "@cu__object-0.37.3//:build_script_build",
     ],
 )
 
@@ -83,8 +96,17 @@ cargo_build_script(
         ],
     ),
     crate_features = [
-        "default",
+        "coff",
+        "elf",
+        "macho",
+        "pe",
+        "read_core",
         "std",
+        "unaligned",
+        "write",
+        "write_core",
+        "write_std",
+        "xcoff",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -100,8 +122,8 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2021",
-    pkg_name = "libc",
+    edition = "2018",
+    pkg_name = "object",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -110,12 +132,12 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=object",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "0.37.3",
     visibility = ["//visibility:private"],
 )
 

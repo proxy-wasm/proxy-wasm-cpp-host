@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "bumpalo",
+    name = "regalloc2",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,11 +35,12 @@ rust_library(
         ],
     ),
     crate_features = [
-        "allocator-api2",
+        "checker",
         "default",
+        "std",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2018",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -48,13 +49,18 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=bumpalo",
+        "crate-name=regalloc2",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "3.16.0",
+    version = "0.13.5",
     deps = [
         "@cu__allocator-api2-0.2.21//:allocator_api2",
+        "@cu__bumpalo-3.16.0//:bumpalo",
+        "@cu__hashbrown-0.15.5//:hashbrown",
+        "@cu__log-0.4.29//:log",
+        "@cu__rustc-hash-2.1.1//:rustc_hash",
+        "@cu__smallvec-1.15.1//:smallvec",
     ],
 )

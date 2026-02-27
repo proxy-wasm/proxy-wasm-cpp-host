@@ -21,11 +21,14 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "libc",
+    name = "cranelift_codegen",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
     ),
+    aliases = {
+        "@cu__wasmtime-internal-core-42.0.1//:wasmtime_internal_core": "wasmtime_core",
+    },
     compile_data = glob(
         include = ["**"],
         allow_empty = True,
@@ -39,11 +42,15 @@ rust_library(
         ],
     ),
     crate_features = [
-        "default",
+        "gimli",
+        "host-arch",
+        "pulley",
         "std",
+        "timing",
+        "unwind",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -52,14 +59,31 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=cranelift-codegen",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "0.129.1",
     deps = [
-        "@cu__libc-0.2.182//:build_script_build",
+        "@cu__bumpalo-3.16.0//:bumpalo",
+        "@cu__cranelift-assembler-x64-0.129.1//:cranelift_assembler_x64",
+        "@cu__cranelift-bforest-0.129.1//:cranelift_bforest",
+        "@cu__cranelift-bitset-0.129.1//:cranelift_bitset",
+        "@cu__cranelift-codegen-0.129.1//:build_script_build",
+        "@cu__cranelift-codegen-shared-0.129.1//:cranelift_codegen_shared",
+        "@cu__cranelift-control-0.129.1//:cranelift_control",
+        "@cu__cranelift-entity-0.129.1//:cranelift_entity",
+        "@cu__gimli-0.33.0//:gimli",
+        "@cu__hashbrown-0.15.5//:hashbrown",
+        "@cu__libm-0.2.16//:libm",
+        "@cu__log-0.4.29//:log",
+        "@cu__pulley-interpreter-42.0.1//:pulley_interpreter",
+        "@cu__regalloc2-0.13.5//:regalloc2",
+        "@cu__rustc-hash-2.1.1//:rustc_hash",
+        "@cu__smallvec-1.15.1//:smallvec",
+        "@cu__target-lexicon-0.13.5//:target_lexicon",
+        "@cu__wasmtime-internal-core-42.0.1//:wasmtime_internal_core",
     ],
 )
 
@@ -83,8 +107,12 @@ cargo_build_script(
         ],
     ),
     crate_features = [
-        "default",
+        "gimli",
+        "host-arch",
+        "pulley",
         "std",
+        "timing",
+        "unwind",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -100,8 +128,8 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2021",
-    pkg_name = "libc",
+    edition = "2024",
+    pkg_name = "cranelift-codegen",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -110,13 +138,17 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=libc",
+        "crate-name=cranelift-codegen",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.182",
+    version = "0.129.1",
     visibility = ["//visibility:private"],
+    deps = [
+        "@cu__cranelift-codegen-meta-0.129.1//:cranelift_codegen_meta",
+        "@cu__cranelift-isle-0.129.1//:cranelift_isle",
+    ],
 )
 
 alias(
