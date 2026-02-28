@@ -162,6 +162,7 @@ void WasmBase::getFunctions() {
   _GET(_initialize);
   if (_initialize_) {
     _GET(main);
+    _GET(__main_void);
   } else {
     _GET(_start);
   }
@@ -410,6 +411,8 @@ void WasmBase::startVm(ContextBase *root_context) {
       // Re-using main() keeps this consistent when switching between
       // WASI command (that calls main()) and reactor (that doesn't).
       main_(root_context, Word(0), Word(0));
+    } else if (__main_void_) {
+      __main_void_(root_context);
     }
   } else if (_start_) {
     // WASI command.
