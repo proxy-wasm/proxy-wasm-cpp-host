@@ -226,6 +226,8 @@ protected:
   WasmCallVoid<0> _start_;      /* WASI command (Emscripten v1.39.0+, TinyGo) */
 
   WasmCallWord<2> main_;
+  WasmCallWord<0> __main_void_;
+
   WasmCallWord<1> malloc_;
 
   // Calls into the VM.
