@@ -78,7 +78,7 @@ TEST_P(TestVm, StraceLogLevel) {
 
 TEST_P(TestVm, TerminateExecution) {
   // TODO(chaoqin-li1123): implement execution termination for other runtime.
-  if (engine_ != "v8") {
+  if (engine_ != "v8" && engine_ != "wasmtime") {
     return;
   }
   auto source = readTestWasmFile("resource_limits.wasm");
@@ -102,12 +102,16 @@ TEST_P(TestVm, TerminateExecution) {
   // Check integration logs.
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: infinite_loop failed"));
-  EXPECT_TRUE(host->isErrorLogged("TerminationException"));
+  if (engine_ == "v8") {
+    EXPECT_TRUE(host->isErrorLogged("TerminationException"));
+  } else if (engine_ == "wasmtime") {
+    EXPECT_TRUE(host->isErrorLogged("wasm trap: interrupt"));
+  }
 }
 
 TEST_P(TestVm, WasmMemoryLimit) {
   // TODO(PiotrSikora): enforce memory limits in other engines.
-  if (engine_ != "v8") {
+  if (engine_ != "v8" && engine_ != "wasmtime") {
     return;
   }
   auto source = readTestWasmFile("resource_limits.wasm");

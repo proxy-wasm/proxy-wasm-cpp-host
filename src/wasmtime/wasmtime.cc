@@ -16,6 +16,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <string>
@@ -56,7 +57,11 @@ using ::wasmtime::Table;
 using ::wasmtime::TrapResult;
 
 Engine *engine() {
-  static auto *const engine = []() { return new Engine(Config{}); }();
+  static auto *const engine = []() {
+    Config config;
+    config.epoch_interruption(true);
+    return new Engine(std::move(config));
+  }();
   return engine;
 }
 
@@ -121,7 +126,7 @@ public:
 
   void warm() override;
 
-  void terminate() override {}
+  void terminate() override { engine()->increment_epoch(); }
 
   bool usesWasmByteOrder() override { return true; }
 
@@ -160,6 +165,11 @@ void Wasmtime::initStore() {
     return;
   }
   store_.emplace(*engine());
+  store_->limiter(PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES,
+                  /*table_elements=*/std::numeric_limits<int64_t>::max(),
+                  /*instances=*/std::numeric_limits<int64_t>::max(),
+                  /*tables=*/std::numeric_limits<int64_t>::max(),
+                  /*memories=*/std::numeric_limits<int64_t>::max());
 }
 
 bool Wasmtime::load(std::string_view bytecode, std::string_view /*precompiled*/,
@@ -354,6 +364,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
                            ")");
     }
     InPlaceConvertHostToWasmEndianness(args...);
+    store_->context().set_epoch_deadline(1);
     TrapResult<std::monostate> result = func.call(store_->context(), {args...});
     if (!result) {
       fail(FailState::RuntimeError,
@@ -387,6 +398,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
                            ")");
     }
     InPlaceConvertHostToWasmEndianness(args...);
+    store_->context().set_epoch_deadline(1);
     TrapResult<R> result_wasm = func.call(store_->context(), {args...});
     if (!result_wasm) {
       fail(FailState::RuntimeError,
