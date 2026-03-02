@@ -57,14 +57,14 @@ jobs:
 
     - name: Bazel build
       run: >
-        bazel build
+        bazelisk build
         --verbose_failures
         --test_output=errors
         --config=clang
         --config=hermetic-llvm
         -c opt
-        $(bazel query 'kind(was.*_rust_binary, //test/test_data/...)')
-        $(bazel query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
+        $(bazelisk query 'kind(was.*_rust_binary, //test/test_data/...)')
+        $(bazelisk query 'kind(_optimized_wasm_cc_binary, //test/test_data/...)')
 
     # Currently, in Github Action, "Bazel build step" creates `wasm_canary_check.wasm` directory as a temporal directory.
     # Since the name of this directory has "*.wasm" pattern, the step "Mangle build rules to use existing test data" fails.
@@ -321,7 +321,7 @@ jobs:
       shell: bash
       run: >
         ${{ matrix.run_under }}
-        bazel ${{ matrix.action }}
+        bazelisk ${{ matrix.action }}
         --verbose_failures
         --test_output=errors
         --define engine=${{ matrix.engine }}
@@ -332,7 +332,7 @@ jobs:
       if: ${{ matrix.engine != 'null' && !startsWith(matrix.os, 'windows') }}
       run: >
         ${{ matrix.run_under }}
-        bazel ${{ matrix.action }}
+        bazelisk ${{ matrix.action }}
         --verbose_failures
         --test_output=errors
         --define engine=${{ matrix.engine }}

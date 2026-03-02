@@ -97,12 +97,12 @@ jobs:
 
     - name: Format (bazel query)
       run: |
-        bazel query 'deps(//bazel/cargo/...)'
+        bazelisk query 'deps(//bazel/cargo/...)'
 
     - name: Format (rules_rust)
       run: |
-        bazel run //bazel/cargo/wasmsign:crates_vendor
-        bazel run //bazel/cargo/wasmtime:crates_vendor
+        bazelisk run //bazel/cargo/wasmsign:crates_vendor
+        bazelisk run //bazel/cargo/wasmtime:crates_vendor
         git diff --exit-code
 
   clang_format:
@@ -138,7 +138,7 @@ jobs:
 
     - name: Bazel build
       run: >
-        bazel build
+        bazelisk build
         --config=hermetic-llvm
         --config clang-tidy
         --define engine=multi
