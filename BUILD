@@ -187,31 +187,11 @@ cc_library(
     ],
 )
 
-genrule(
-    name = "prefixed_wasmtime_sources",
-    srcs = [
-        "src/wasmtime/types.h",
-        "src/wasmtime/wasmtime.cc",
-    ],
-    outs = [
-        "src/wasmtime/prefixed_types.h",
-        "src/wasmtime/prefixed_wasmtime.cc",
-    ],
-    cmd = """
-        for file in $(SRCS); do
-           sed -e 's/wasm_/wasmtime_wasm_/g' \
-               -e 's/wasmtime\\/types.h/wasmtime\\/prefixed_types.h/g' \
-           $$file >$(@D)/$$(dirname $$file)/prefixed_$$(basename $$file)
-        done
-        """,
-)
-
 cc_library(
     name = "wasmtime_lib",
     srcs = [
         "src/common/types.h",
-        "src/wasmtime/prefixed_types.h",
-        "src/wasmtime/prefixed_wasmtime.cc",
+        "src/wasmtime/wasmtime.cc",
     ],
     hdrs = ["include/proxy-wasm/wasmtime.h"],
     copts = [

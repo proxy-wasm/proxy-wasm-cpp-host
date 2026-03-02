@@ -66,11 +66,20 @@ genrule(
     }),
 )
 
-# This must match the features defined in `bazel/cargo/wasmtime/Cargo.toml` for
-# the C/C++ API to expose the right set of methods.
+# This should match the features defined in `bazel/cargo/wasmtime/Cargo.toml`
+# for the C/C++ API to expose the right set of methods. Listing the feature
+# here enables the C-api implementations of the features. Rust-side
+# implementations are controlled by the Cargo.toml file. Mismatching features
+# will result in compile/link time failures.
 features = [
     "cranelift",
     "gc-drc",
+    # The C++ API references the wat feature whenever cranelift is turned on.
+    # Without adding `wat` to the headers, the C++ API will fail at compile time.
+    # `wat` is not actually used by proxy-wasm, so the corresponding feature is not
+    # enabled in Cargo.toml. If proxy-wasm used wat, this configuration would fail
+    # at link time.
+    "wat",
 ]
 
 # Wasmtime C-api headers use cmakedefines to generate the config file.
