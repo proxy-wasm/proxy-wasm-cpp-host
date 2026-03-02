@@ -46,9 +46,9 @@ jobs:
     runs-on: ubuntu-24.04-16core
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-    - uses: bazel-contrib/setup-bazel@0.16.0
+    - uses: bazel-contrib/setup-bazel@77a1d3d18379c7cb0a7e3b9fcaaa4d94f1029763 # 0.18.0
       with:
         bazelisk-cache: true
         disk-cache: ${{ github.job }}
@@ -78,7 +78,7 @@ jobs:
         done
 
     - name: Upload test data
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
         name: test_data
         path: bazel-bin/test/test_data/*.wasm
@@ -255,7 +255,7 @@ jobs:
           flags: --config=hermetic-llvm
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - name: Compute job hash
       id: job-hash
@@ -269,7 +269,7 @@ jobs:
     # Needed for s390x test which runs on a GHCR Docker Ubuntu image.
     - name: Login to GitHub Container Registry
       if: startsWith(matrix.run_under, 'docker')
-      uses: docker/login-action@v3
+      uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
@@ -277,13 +277,13 @@ jobs:
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
 
     - name: Set up Docker Buildx
       if: startsWith(matrix.run_under, 'docker')
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
-    - uses: bazel-contrib/setup-bazel@0.16.0
+    - uses: bazel-contrib/setup-bazel@77a1d3d18379c7cb0a7e3b9fcaaa4d94f1029763 # 0.18.0
       with:
         bazelisk-cache: true
         disk-cache: ${{ github.job }}-${{ steps.job-hash.outputs.hash }}
@@ -291,7 +291,7 @@ jobs:
         repository-cache: true
 
     - name: Download test data
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
       with:
         name: test_data
         path: test/test_data/
@@ -307,7 +307,7 @@ jobs:
 
     - name: Build local Docker image
       if: ${{ startsWith(matrix.run_under, 'docker') }}
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
       with:
         context: .
         file: bazel/external/Dockerfile.bazel
