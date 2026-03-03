@@ -13,9 +13,9 @@
 # limitations under the License.
 
 [package]
-edition = "2021"
 name = "wasmtime-c-api-bazel"
 version = "24.0.0"
+edition = "2021"
 rust-version = "1.78.0"
 
 [lib]
