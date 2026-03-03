@@ -388,7 +388,7 @@ def proxy_wasm_cpp_host_repositories():
              -e 's/\\[wasm_/\\[wasmtime_wasm_/g'                 \
              -e 's/wasmtime_config_wasm_/wasmtime_config_wasmtime_wasm_/g' \
              -e 's/(wasm_/(wasmtime_wasm_/g' {} \\;
-          cat >lib.rs <<EOF
+          cat >src/lib.rs <<EOF
 pub use wasmtime_c_api;
 EOF
         """],
