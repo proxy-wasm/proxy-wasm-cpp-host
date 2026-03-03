@@ -71,8 +71,8 @@ using WasmCallWord = std::function<WasmCallInFuncType<N, Word, ContextBase *, Wo
 #define FOR_ALL_WASM_VM_EXPORTS(_f)                                                                \
   _f(proxy_wasm::WasmCallVoid<0>) _f(proxy_wasm::WasmCallVoid<1>) _f(proxy_wasm::WasmCallVoid<2>)  \
       _f(proxy_wasm::WasmCallVoid<3>) _f(proxy_wasm::WasmCallVoid<5>)                              \
-          _f(proxy_wasm::WasmCallWord<1>) _f(proxy_wasm::WasmCallWord<2>)                          \
-              _f(proxy_wasm::WasmCallWord<3>)
+          _f(proxy_wasm::WasmCallWord<0>) _f(proxy_wasm::WasmCallWord<1>)                          \
+              _f(proxy_wasm::WasmCallWord<2>) _f(proxy_wasm::WasmCallWord<3>)
 
 // These are templates and its helper for constructing signatures of functions callbacks from Wasm
 // VMs.
