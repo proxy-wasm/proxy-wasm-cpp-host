@@ -32,7 +32,7 @@ cc_library(
 rust_static_library(
     name = "wasmtime_lib_staticlib",
     srcs = [
-        "lib.rs",
+        "src/lib.rs",
     ],
     edition = "2021",
     deps = [
