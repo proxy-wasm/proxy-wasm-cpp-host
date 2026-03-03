@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "cranelift_bforest",
+    name = "log",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,6 +34,9 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "std",
+    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_env_files = [
@@ -44,13 +47,10 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-bforest",
+        "crate-name=log",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.111.0",
-    deps = [
-        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
-    ],
+    version = "0.4.29",
 )

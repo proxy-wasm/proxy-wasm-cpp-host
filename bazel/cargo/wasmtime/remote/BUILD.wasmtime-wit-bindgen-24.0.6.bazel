@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "regex",
+    name = "wasmtime_wit_bindgen",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,16 +34,6 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "perf",
-        "perf-backtrack",
-        "perf-cache",
-        "perf-dfa",
-        "perf-inline",
-        "perf-literal",
-        "perf-onepass",
-        "std",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_env_files = [
@@ -54,16 +44,16 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=regex",
+        "crate-name=wasmtime-wit-bindgen",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.10.5",
+    version = "24.0.6",
     deps = [
-        "@cu__aho-corasick-1.1.3//:aho_corasick",
-        "@cu__memchr-2.7.4//:memchr",
-        "@cu__regex-automata-0.4.7//:regex_automata",
-        "@cu__regex-syntax-0.8.4//:regex_syntax",
+        "@cu__anyhow-1.0.86//:anyhow",
+        "@cu__heck-0.4.1//:heck",
+        "@cu__indexmap-2.3.0//:indexmap",
+        "@cu__wit-parser-0.215.0//:wit_parser",
     ],
 )

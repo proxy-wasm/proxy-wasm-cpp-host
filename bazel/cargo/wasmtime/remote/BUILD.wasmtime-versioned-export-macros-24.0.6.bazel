@@ -7,7 +7,7 @@
 ###############################################################################
 
 load("@rules_rust//cargo:defs.bzl", "cargo_toml_env_vars")
-load("@rules_rust//rust:defs.bzl", "rust_library")
+load("@rules_rust//rust:defs.bzl", "rust_proc_macro")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -16,8 +16,8 @@ cargo_toml_env_vars(
     src = "Cargo.toml",
 )
 
-rust_library(
-    name = "wasmtime_asm_macros",
+rust_proc_macro(
+    name = "wasmtime_versioned_export_macros",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -44,13 +44,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=wasmtime-asm-macros",
+        "crate-name=wasmtime-versioned-export-macros",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "24.0.0",
+    version = "24.0.6",
     deps = [
-        "@cu__cfg-if-1.0.0//:cfg_if",
+        "@cu__proc-macro2-1.0.86//:proc_macro2",
+        "@cu__quote-1.0.36//:quote",
+        "@cu__syn-2.0.72//:syn",
     ],
 )
