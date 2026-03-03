@@ -296,7 +296,7 @@ _NORMAL_DEPENDENCIES = {
     "bazel/cargo/wasmtime": {
         _COMMON_CONDITION: {
             "log": Label("@cu//:log-0.4.29"),
-            "wasmtime-c-api-impl": Label("@cu//:wasmtime-c-api-impl-24.0.6"),
+            "wasmtime-c-api-impl": Label("@cu//:wasmtime-c-api-impl-24.0.0"),
         },
     },
 }
@@ -1203,22 +1203,22 @@ def crate_repositories():
 
     maybe(
         http_archive,
-        name = "cu__wasmtime-c-api-impl-24.0.6",
-        sha256 = "cc0fff19223a1fac9db13c4f085c10153de473e1007e4b567b93f2f039c7a8d3",
+        name = "cu__wasmtime-c-api-impl-24.0.0",
+        sha256 = "765e302e7d9125e614aaeec3ad6b6083605393004eca00214106a4ff6b47fc58",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/wasmtime-c-api-impl/24.0.6/download"],
-        strip_prefix = "wasmtime-c-api-impl-24.0.6",
-        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.wasmtime-c-api-impl-24.0.6.bazel"),
+        urls = ["https://static.crates.io/crates/wasmtime-c-api-impl/24.0.0/download"],
+        strip_prefix = "wasmtime-c-api-impl-24.0.0",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.wasmtime-c-api-impl-24.0.0.bazel"),
     )
 
     maybe(
         http_archive,
-        name = "cu__wasmtime-c-api-macros-24.0.6",
-        sha256 = "7309794ec8b2989bca04df99ad091ecfc5eceb0e1ab310b81f09608d1ed32986",
+        name = "cu__wasmtime-c-api-macros-24.0.0",
+        sha256 = "2d09d02eaa84aa2de5babee7b0296557ad6e4903bb10aa8d135e393e753a43d6",
         type = "tar.gz",
-        urls = ["https://static.crates.io/crates/wasmtime-c-api-macros/24.0.6/download"],
-        strip_prefix = "wasmtime-c-api-macros-24.0.6",
-        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.wasmtime-c-api-macros-24.0.6.bazel"),
+        urls = ["https://static.crates.io/crates/wasmtime-c-api-macros/24.0.0/download"],
+        strip_prefix = "wasmtime-c-api-macros-24.0.0",
+        build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:BUILD.wasmtime-c-api-macros-24.0.0.bazel"),
     )
 
     maybe(
@@ -1453,5 +1453,5 @@ def crate_repositories():
 
     return [
         struct(repo = "cu__log-0.4.29", is_dev_dep = False),
-        struct(repo = "cu__wasmtime-c-api-impl-24.0.6", is_dev_dep = False),
+        struct(repo = "cu__wasmtime-c-api-impl-24.0.0", is_dev_dep = False),
     ]
