@@ -701,9 +701,9 @@ dependencies = [
 
 [[package]]
 name = "wasmtime-c-api-impl"
-version = "24.0.6"
+version = "24.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc0fff19223a1fac9db13c4f085c10153de473e1007e4b567b93f2f039c7a8d3"
+checksum = "765e302e7d9125e614aaeec3ad6b6083605393004eca00214106a4ff6b47fc58"
 dependencies = [
  "anyhow",
  "log",
@@ -715,9 +715,9 @@ dependencies = [
 
 [[package]]
 name = "wasmtime-c-api-macros"
-version = "24.0.6"
+version = "24.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7309794ec8b2989bca04df99ad091ecfc5eceb0e1ab310b81f09608d1ed32986"
+checksum = "2d09d02eaa84aa2de5babee7b0296557ad6e4903bb10aa8d135e393e753a43d6"
 dependencies = [
  "proc-macro2",
  "quote",
