@@ -52,18 +52,9 @@ genrule(
         for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
             echo $$symbol | perl -p -e 's!^(_?)(wasm_[a-z_0-9.:-]+)$$!\\1\\2 \\1wasmtime_\\2!' >>prefixed
         done
-        # This should be OBJCOPY, but bazel-zig-cc doesn't define it.
-        """ +
-          # MacOS runners for GitHub do not ship with objcopy. Use the version bundled with the vendored toolchain.
-          select({
-              "@platforms//os:macos": "$(location @llvm_toolchain_llvm//:objcopy) --redefine-syms=prefixed $(<) $@ ",
-              "//conditions:default": "objcopy --redefine-syms=prefixed $(<) $@ ",
-          }),
+        $(OBJCOPY) --redefine-syms=prefixed $(<) $@ 
+        """,
     toolchains = ["@bazel_tools//tools/cpp:current_cc_toolchain"],
-    tools = select({
-        "@platforms//os:macos": ["@llvm_toolchain_llvm//:objcopy"],
-        "//conditions:default": [],
-    }),
 )
 
 # This must match the features defined in `bazel/cargo/wasmtime/Cargo.toml` for
