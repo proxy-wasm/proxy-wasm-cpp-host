@@ -61,7 +61,7 @@ cmake(
     out_data_dirs = [
         "bin",
         "include",
-        "lib",
+        "lib/cmake",
         "libexec",
         "share",
     ],

@@ -316,10 +316,8 @@ void ContextBase::onUpstreamConnectionClose(CloseType close_type) {
 template <typename P> static uint32_t headerSize(const P &p) { return p ? p->size() : 0; }
 
 FilterHeadersStatus ContextBase::onRequestHeaders(uint32_t headers, bool end_of_stream) {
-  std::cerr << "MattRachel: ContextBase::onRequestHeaders" << std::endl;
   CHECK_FAIL_HTTP(FilterHeadersStatus::Continue, FilterHeadersStatus::StopAllIterationAndWatermark);
   if (!wasm_->on_request_headers_abi_01_ && !wasm_->on_request_headers_abi_02_) {
-    std::cerr << "MattRachel: WE ARE HITTING THIS ERROR: FilterHeadersStatus" << std::endl;
     return FilterHeadersStatus::Continue;
   }
   DeferAfterCallActions actions(this);

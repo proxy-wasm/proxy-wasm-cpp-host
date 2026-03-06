@@ -57,7 +57,7 @@ cmake(
             # "-DWAMR_BUILD_LINUX_PERF=1",
         ],
         "//conditions:default": [
-            "-DWAMR_BUILD_AOT=0",
+            "-DWAMR_BUILD_AOT=1",
             "-DWAMR_BUILD_FAST_INTERP=1",
             "-DWAMR_BUILD_INTERP=1",
             "-DWAMR_BUILD_JIT=0",

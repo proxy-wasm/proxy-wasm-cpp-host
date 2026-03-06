@@ -63,7 +63,6 @@ public:
   }
 
   void trace(std::string_view message) override {
-    std::cout << "TRACE from integration: " << message << std::endl;
     trace_log_ += std::string(message) + "\n";
   }
 
