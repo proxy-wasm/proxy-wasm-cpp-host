@@ -139,8 +139,6 @@ def proxy_wasm_cpp_host_repositories():
         name = "rules_rust",
         integrity = "sha256-u8dkwlLQYSgbI1knek1GSA4tz69yr8HObgCtpYzL/Uw=",
         urls = ["https://github.com/bazelbuild/rules_rust/releases/download/0.69.0/rules_rust-0.69.0.tar.gz"],
-        patches = ["@proxy_wasm_cpp_host//bazel/external:rules_rust.patch"],
-        patch_args = ["-p1"],
     )
 
     # Core deps. Keep them updated.
