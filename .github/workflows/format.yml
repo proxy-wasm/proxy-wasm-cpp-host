@@ -90,10 +90,8 @@ jobs:
 
     - uses: bazel-contrib/setup-bazel@77a1d3d18379c7cb0a7e3b9fcaaa4d94f1029763 # 0.18.0
       with:
-        bazelisk-cache: true
         disk-cache: ${{ github.job }}
-        external-cache: false
-        repository-cache: true
+        cache-save: ${{ github.event_name != 'pull_request' }}
 
     - name: Format (bazel query)
       run: |
@@ -131,10 +129,8 @@ jobs:
 
     - uses: bazel-contrib/setup-bazel@77a1d3d18379c7cb0a7e3b9fcaaa4d94f1029763 # 0.18.0
       with:
-        bazelisk-cache: true
         disk-cache: ${{ github.job }}
-        external-cache: false
-        repository-cache: true
+        cache-save: ${{ github.event_name != 'pull_request' }}
 
     - name: Bazel build
       run: >
