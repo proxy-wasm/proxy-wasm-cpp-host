@@ -140,6 +140,15 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallVoid<5> *f)
   }
 }
 
+void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<0> *f) {
+  if (function_name == "__main_void") {
+    *f = nullptr;
+  } else if (!wasm_vm_->integration()->getNullVmFunction(function_name, true, 0, this, f)) {
+    error("Missing getFunction for: " + std::string(function_name));
+    *f = nullptr;
+  }
+}
+
 void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<1> *f) {
   auto *plugin = this;
   if (function_name == "malloc") {
