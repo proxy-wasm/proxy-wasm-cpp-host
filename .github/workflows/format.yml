@@ -95,10 +95,6 @@ jobs:
         external-cache: false
         repository-cache: true
 
-    - name: Format (bazel query)
-      run: |
-        bazel query 'deps(//bazel/cargo/...)'
-
     - name: Format (rules_rust)
       run: |
         bazel run //bazel/cargo/wasmsign:crates_vendor

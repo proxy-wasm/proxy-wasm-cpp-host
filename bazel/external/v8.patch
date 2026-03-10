@@ -136,7 +136,7 @@ index 05630ab7035..7f14a987148 100644
          "@fast_float//:fast_float",
 -        ":lib_fp16",
 -        ":simdutf",
-+        "@fp16//:FP16",
++        "@fp16//:fp16",
 +        "@simdutf//:simdutf",
          ":v8_libbase",
          "@abseil-cpp//absl/container:btree",
