@@ -27,11 +27,11 @@ on:
         description: 'Target platforms (comma-separated)'
         required: false
         default: 'linux/s390x'
-      draft:
-        description: 'Draft mode (true: build only, false: build and push)'
+      publish:
+        description: 'Publish to ghcr.io'
         type: boolean
         required: false
-        default: true
+        default: false
 
 jobs:
   publish:
@@ -46,12 +46,14 @@ jobs:
     - name: Generate tag
       id: tag
       run: |
+       echo "org=${ORG,,}" >> $GITHUB_OUTPUT
        echo "tag=$TAG" >> $GITHUB_OUTPUT
       env:
+        ORG: "${{ github.repository_owner }}"
         TAG: "ubuntu-${{ github.event.inputs.ubuntu_version }}-bazel-${{ github.event.inputs.bazel_version }}"
 
     - name: Login to GitHub Container Registry
-      if: ${{ !github.event.inputs.draft }}
+      if: ${{ github.event.inputs.publish == 'true' }}
       uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
       with:
         registry: ghcr.io
@@ -70,11 +72,11 @@ jobs:
         context: .
         file: bazel/external/Dockerfile.bazel
         platforms: ${{ github.event.inputs.platforms }}
-        tags: ghcr.io/proxy-wasm/build-tools:${{ steps.tag.outputs.tag }}
+        tags: ghcr.io/${{ steps.tag.outputs.org }}/build-tools:${{ steps.tag.outputs.tag }}
         build-args: |
           UBUNTU_VERSION=${{ github.event.inputs.ubuntu_version }}
           BAZEL_VERSION=${{ github.event.inputs.bazel_version }}
-        push: ${{ !github.event.inputs.draft }}
-        load: ${{ github.event.inputs.draft }}
+        push: ${{ github.event.inputs.publish == 'true' }}
+        load: ${{ github.event.inputs.publish == 'false' }}
         cache-from: type=gha,scope=build-tools-${{ steps.tag.outputs.tag }}
         cache-to: type=gha,mode=max,scope=build-tools-${{ steps.tag.outputs.tag }}
