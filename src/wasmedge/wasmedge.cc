@@ -317,12 +317,12 @@ bool WasmEdge::load(std::string_view bytecode, std::string_view precompiled,
   initStore();
   WasmEdge_ASTModuleContext *mod = nullptr;
   WasmEdge_Result res;
-  
+
   // Try to use precompiled AOT bytecode if available
   if (!precompiled.empty()) {
-    res = WasmEdge_LoaderParseFromBuffer(
-        loader_.get(), &mod, reinterpret_cast<const uint8_t *>(precompiled.data()), 
-        precompiled.size());
+    res = WasmEdge_LoaderParseFromBuffer(loader_.get(), &mod,
+                                         reinterpret_cast<const uint8_t *>(precompiled.data()),
+                                         precompiled.size());
     if (WasmEdge_ResultOK(res)) {
       // Precompiled module loaded successfully, skip validation
       ast_module_ = mod;
@@ -334,7 +334,7 @@ bool WasmEdge::load(std::string_view bytecode, std::string_view precompiled,
       mod = nullptr;
     }
   }
-  
+
   // Load regular WASM bytecode
   res = WasmEdge_LoaderParseFromBuffer(
       loader_.get(), &mod, reinterpret_cast<const uint8_t *>(bytecode.data()), bytecode.size());

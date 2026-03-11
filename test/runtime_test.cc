@@ -24,6 +24,11 @@
 
 #include "test/utility.h"
 
+#if defined(PROXY_WASM_HOST_ENGINE_WASMEDGE)
+#include "wasmedge/wasmedge.h"
+#include <fstream>
+#endif
+
 namespace proxy_wasm {
 namespace {
 
@@ -246,6 +251,51 @@ TEST_P(TestVm, Callback) {
   Word res = run2(wasm.vm_context(), Word{0});
   EXPECT_EQ(res.u32(), 100100); // 10000 (global) + 100 (in callback)
 }
+
+#if defined(PROXY_WASM_HOST_ENGINE_WASMEDGE)
+TEST_P(TestVm, WasmEdgeAOTCompile) {
+  if (engine_ != "wasmedge") {
+    return;
+  }
+
+  auto source = readTestWasmFile("clock.wasm");
+  ASSERT_FALSE(source.empty());
+
+  std::string input_file = "test_input.wasm";
+  std::string aot_file = "test_aot_compiled.wasm";
+
+  std::ofstream out(input_file, std::ios::binary);
+  out.write(source.data(), source.size());
+  out.close();
+
+  WasmEdge_ConfigureContext *conf_cxt = WasmEdge_ConfigureCreate();
+  WasmEdge_CompilerContext *compiler_cxt = WasmEdge_CompilerCreate(conf_cxt);
+  WasmEdge_Result res =
+      WasmEdge_CompilerCompile(compiler_cxt, input_file.c_str(), aot_file.c_str());
+  ASSERT_TRUE(WasmEdge_ResultOK(res))
+      << "AOT compilation failed: " << WasmEdge_ResultGetMessage(res);
+  WasmEdge_CompilerDelete(compiler_cxt);
+  WasmEdge_ConfigureDelete(conf_cxt);
+
+  std::ifstream aot_in(aot_file, std::ios::binary);
+  std::string aot_bytecode((std::istreambuf_iterator<char>(aot_in)),
+                           std::istreambuf_iterator<char>());
+  aot_in.close();
+  ASSERT_FALSE(aot_bytecode.empty());
+
+  auto wasm = TestWasm(std::move(vm_));
+  ASSERT_TRUE(wasm.load(aot_bytecode, false));
+  ASSERT_TRUE(wasm.initialize());
+
+  WasmCallVoid<0> run;
+  wasm.wasm_vm()->getFunction("run", &run);
+  ASSERT_TRUE(run != nullptr);
+  run(wasm.vm_context());
+
+  std::remove(input_file.c_str());
+  std::remove(aot_file.c_str());
+}
+#endif
 
 } // namespace
 } // namespace proxy_wasm
