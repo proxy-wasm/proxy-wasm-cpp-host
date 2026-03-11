@@ -48,12 +48,10 @@ jobs:
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-    - uses: bazel-contrib/setup-bazel@77a1d3d18379c7cb0a7e3b9fcaaa4d94f1029763 # 0.18.0
+    - uses: bazel-contrib/setup-bazel@083175551ceeceebc757ebee2127fde78840ca77 # 0.18.0
       with:
-        bazelisk-cache: true
         disk-cache: ${{ github.job }}
-        external-cache: true
-        repository-cache: true
+        cache-save: ${{ github.event_name != 'pull_request' }}
 
     - name: Bazel build
       run: >
@@ -78,7 +76,7 @@ jobs:
         done
 
     - name: Upload test data
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: test_data
         path: bazel-bin/test/test_data/*.wasm
@@ -283,15 +281,14 @@ jobs:
       if: startsWith(matrix.run_under, 'docker')
       uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
-    - uses: bazel-contrib/setup-bazel@77a1d3d18379c7cb0a7e3b9fcaaa4d94f1029763 # 0.18.0
+    - uses: bazel-contrib/setup-bazel@083175551ceeceebc757ebee2127fde78840ca77 # 0.18.0
+      if: ${{ matrix.cache }}
       with:
-        bazelisk-cache: true
         disk-cache: ${{ github.job }}-${{ steps.job-hash.outputs.hash }}
-        external-cache: true
-        repository-cache: true
+        cache-save: ${{ github.event_name != 'pull_request' }}
 
     - name: Download test data
-      uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+      uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
       with:
         name: test_data
         path: test/test_data/
@@ -307,7 +304,7 @@ jobs:
 
     - name: Build local Docker image
       if: ${{ startsWith(matrix.run_under, 'docker') }}
-      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+      uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
       with:
         context: .
         file: bazel/external/Dockerfile.bazel
