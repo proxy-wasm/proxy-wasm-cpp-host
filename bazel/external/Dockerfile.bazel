@@ -153,6 +153,7 @@ ARG DEPS_RUNTIME="\
         python3 \
         python3-dev \
         unzip \
+        cmake \
         zip"
 ARG TARGETARCH
 RUN apt-get update && \
