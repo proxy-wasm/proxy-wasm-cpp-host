@@ -284,7 +284,7 @@ TEST_P(TestVm, WasmEdgeAOTCompile) {
   ASSERT_FALSE(aot_bytecode.empty());
 
   auto wasm = TestWasm(std::move(vm_));
-  ASSERT_TRUE(wasm.load(aot_bytecode, false));
+  ASSERT_TRUE(wasm.load(aot_bytecode, true));
   ASSERT_TRUE(wasm.initialize());
 
   WasmCallVoid<0> run;
