@@ -26,7 +26,7 @@ filegroup(
 cmake(
     name = "wasmedge_lib",
     cache_entries = {
-        "WASMEDGE_USE_LLVM": "Off",
+        "WASMEDGE_USE_LLVM": "On",
         "WASMEDGE_BUILD_SHARED_LIB": "Off",
         "WASMEDGE_BUILD_STATIC_LIB": "On",
         "WASMEDGE_BUILD_TOOLS": "Off",
