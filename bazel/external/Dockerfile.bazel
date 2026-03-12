@@ -142,6 +142,7 @@ FROM ubuntu:${UBUNTU_VERSION} AS test-runtime
 ARG DEPS_RUNTIME="\
         ca-certificates \
         clang \
+        cmake \
         git \
         libbz2-dev \
         libffi-dev \
