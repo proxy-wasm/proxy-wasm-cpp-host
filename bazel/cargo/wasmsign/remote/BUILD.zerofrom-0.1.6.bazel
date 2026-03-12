@@ -40,7 +40,7 @@ rust_library(
     crate_root = "src/lib.rs",
     edition = "2021",
     proc_macro_deps = [
-        "@cu__zerofrom-derive-0.1.6//:zerofrom_derive",
+        "@ws__zerofrom-derive-0.1.6//:zerofrom_derive",
     ],
     rustc_env_files = [
         ":cargo_toml_env_vars",

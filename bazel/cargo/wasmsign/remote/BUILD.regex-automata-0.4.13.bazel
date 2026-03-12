@@ -75,8 +75,8 @@ rust_library(
     ],
     version = "0.4.13",
     deps = [
-        "@cu__aho-corasick-1.1.4//:aho_corasick",
-        "@cu__memchr-2.7.6//:memchr",
-        "@cu__regex-syntax-0.8.8//:regex_syntax",
+        "@ws__aho-corasick-1.1.4//:aho_corasick",
+        "@ws__memchr-2.7.6//:memchr",
+        "@ws__regex-syntax-0.8.8//:regex_syntax",
     ],
 )

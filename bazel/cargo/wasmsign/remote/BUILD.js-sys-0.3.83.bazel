@@ -55,7 +55,7 @@ rust_library(
     ],
     version = "0.3.83",
     deps = [
-        "@cu__once_cell-1.21.3//:once_cell",
-        "@cu__wasm-bindgen-0.2.106//:wasm_bindgen",
+        "@ws__once_cell-1.21.3//:once_cell",
+        "@ws__wasm-bindgen-0.2.106//:wasm_bindgen",
     ],
 )

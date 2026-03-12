@@ -23,7 +23,7 @@ rust_library(
         allow_empty = True,
     ),
     aliases = {
-        "@cu__rustls-pki-types-1.13.2//:rustls_pki_types": "pki_types",
+        "@ws__rustls-pki-types-1.13.2//:rustls_pki_types": "pki_types",
     },
     compile_data = glob(
         include = ["**"],
@@ -54,6 +54,6 @@ rust_library(
     ],
     version = "1.0.4",
     deps = [
-        "@cu__rustls-pki-types-1.13.2//:rustls_pki_types",
+        "@ws__rustls-pki-types-1.13.2//:rustls_pki_types",
     ],
 )

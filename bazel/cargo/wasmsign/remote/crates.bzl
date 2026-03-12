@@ -22,11 +22,11 @@ def crate_repositories():
     """
     maybe(
         crates_vendor_remote_repository,
-        name = "cu",
+        name = "ws",
         build_file = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmsign/remote:BUILD.bazel"),
         defs_module = Label("@proxy_wasm_cpp_host//bazel/cargo/wasmsign/remote:defs.bzl"),
     )
 
-    direct_deps = [struct(repo = "cu", is_dev_dep = False)]
+    direct_deps = [struct(repo = "ws", is_dev_dep = False)]
     direct_deps.extend(_crate_repositories())
     return direct_deps

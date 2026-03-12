@@ -51,6 +51,6 @@ rust_library(
     ],
     version = "1.0.1+wasi-0.2.4",
     deps = [
-        "@cu__wit-bindgen-0.46.0//:wit_bindgen",
+        "@ws__wit-bindgen-0.46.0//:wit_bindgen",
     ],
 )

@@ -56,6 +56,6 @@ rust_library(
     ],
     version = "1.13.2",
     deps = [
-        "@cu__zeroize-1.8.2//:zeroize",
+        "@ws__zeroize-1.8.2//:zeroize",
     ],
 )

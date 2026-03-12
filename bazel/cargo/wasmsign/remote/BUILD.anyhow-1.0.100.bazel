@@ -59,7 +59,7 @@ rust_library(
     ],
     version = "1.0.100",
     deps = [
-        "@cu__anyhow-1.0.100//:build_script_build",
+        "@ws__anyhow-1.0.100//:build_script_build",
     ],
 )
 

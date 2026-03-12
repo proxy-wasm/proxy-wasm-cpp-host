@@ -54,6 +54,6 @@ rust_library(
     ],
     version = "0.16.2",
     deps = [
-        "@cu__terminal_size-0.4.3//:terminal_size",
+        "@ws__terminal_size-0.4.3//:terminal_size",
     ],
 )
