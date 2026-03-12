@@ -382,20 +382,6 @@ def proxy_wasm_cpp_host_repositories():
         sha256 = "2ccb49bb3bfa4d86907ad4c80d1147aef6156c7b6e3f7f14ed02a39de9761155",
         strip_prefix = "wasmtime-24.0.0",
         url = "https://github.com/bytecodealliance/wasmtime/archive/v24.0.0.tar.gz",
-        # Prefix wasm_c_api functions for coexistence with other runtimes.
-        patch_cmds = ["""
-          find ./crates/c-api -type f -exec sed -i.bak   \
-             -e 's/\\ wasm_/\\ wasmtime_wasm_/g'                 \
-             -e 's/\\*wasm_/\\*wasmtime_wasm_/g'                 \
-             -e 's/^wasm_/wasmtime_wasm_/g'                      \
-             -e 's/<wasm_/<wasmtime_wasm_/g'                     \
-             -e 's/\\.wasm_/\\.wasmtime_wasm_/g'                 \
-             -e 's/\\&wasm_/\\&wasmtime_wasm_/g'                 \
-             -e 's/\\[wasm_/\\[wasmtime_wasm_/g'                 \
-             -e 's/wasmtime_config_wasm_/wasmtime_config_wasmtime_wasm_/g' \
-             -e 's/(wasm_/(wasmtime_wasm_/g' {} \\;
-          cat >src/lib.rs <<EOF
-pub use wasmtime_c_api;
-EOF
-        """],
+        patches = ["@proxy_wasm_cpp_host//bazel/external:prefixed_wasmtime.patch"],
+        patch_args = ["-p1"],
     )
