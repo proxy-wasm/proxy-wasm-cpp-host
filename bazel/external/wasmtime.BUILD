@@ -70,6 +70,7 @@ genrule(
     srcs = ["crates/c-api/include/wasmtime/conf.h.in"],
     outs = ["crates/c-api/include/wasmtime/conf.h"],
     cmd = """
+      TMPDIR=$${{TMPDIR:-"$$(mktemp -d)"}}
       cat < $< > $$TMPDIR/working_file
       for enabled_feature in $$(echo "{}"); do
         perl -pi -e "s/#cmakedefine WASMTIME_FEATURE_$$enabled_feature/#define WASMTIME_FEATURE_$$enabled_feature 1/" $$TMPDIR/working_file

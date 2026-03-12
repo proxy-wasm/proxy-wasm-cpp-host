@@ -201,7 +201,7 @@ genrule(
         for file in $(SRCS); do
            sed -e 's/wasm_/wasmtime_wasm_/g' \
                -e 's/wasmtime\\/types.h/wasmtime\\/prefixed_types.h/g' \
-           $$file >$(@D)/$$(dirname $$file)/prefixed_$$(basename $$file)
+           $$file >$(@D)/src/wasmtime/prefixed_$$(basename $$file)
         done
         """,
 )
