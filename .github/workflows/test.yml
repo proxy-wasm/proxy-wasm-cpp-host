@@ -48,12 +48,10 @@ jobs:
     steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-    - uses: bazel-contrib/setup-bazel@77a1d3d18379c7cb0a7e3b9fcaaa4d94f1029763 # 0.18.0
+    - uses: bazel-contrib/setup-bazel@083175551ceeceebc757ebee2127fde78840ca77 # 0.18.0
       with:
-        bazelisk-cache: true
         disk-cache: ${{ github.job }}
-        external-cache: true
-        repository-cache: true
+        cache-save: ${{ github.event_name != 'pull_request' }}
 
     - name: Bazel build
       run: >
@@ -78,7 +76,7 @@ jobs:
         done
 
     - name: Upload test data
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
       with:
         name: test_data
         path: bazel-bin/test/test_data/*.wasm
@@ -240,11 +238,10 @@ jobs:
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: s390x
-          platform: linux/s390x
           action: test
           flags: --config=clang --test_timeout=1800
           # s390x build-tools image built from bazel/external/Dockerfile.bazel
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x proxy-wasm/build-tools:local-ci
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x ghcr.io/proxy-wasm/build-tools:ubuntu-24.04-bazel-7.7.1
           cache: true
         - name: 'Wasmtime on macOS/x86_64'
           engine: 'wasmtime'
@@ -266,32 +263,18 @@ jobs:
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
       run: sudo apt update -y && sudo apt install -y ${{ matrix.deps }}
 
-    # Needed for s390x test which runs on a GHCR Docker Ubuntu image.
-    - name: Login to GitHub Container Registry
-      if: startsWith(matrix.run_under, 'docker')
-      uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
       uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
 
-    - name: Set up Docker Buildx
-      if: startsWith(matrix.run_under, 'docker')
-      uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
-
-    - uses: bazel-contrib/setup-bazel@77a1d3d18379c7cb0a7e3b9fcaaa4d94f1029763 # 0.18.0
+    - uses: bazel-contrib/setup-bazel@083175551ceeceebc757ebee2127fde78840ca77 # 0.18.0
+      if: ${{ matrix.cache }}
       with:
-        bazelisk-cache: true
         disk-cache: ${{ github.job }}-${{ steps.job-hash.outputs.hash }}
-        external-cache: true
-        repository-cache: true
+        cache-save: ${{ github.event_name != 'pull_request' }}
 
     - name: Download test data
-      uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+      uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
       with:
         name: test_data
         path: test/test_data/
@@ -304,18 +287,6 @@ jobs:
         for i in $(cd test/test_data && ls -1 *.wasm | sed 's/\.wasm$//g'); do \
           echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD; \
         done
-
-    - name: Build local Docker image
-      if: ${{ startsWith(matrix.run_under, 'docker') }}
-      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
-      with:
-        context: .
-        file: bazel/external/Dockerfile.bazel
-        platforms: ${{ matrix.platform }}
-        tags: proxy-wasm/build-tools:local-ci
-        load: true
-        cache-from: type=gha,scope=build-tools-${{ matrix.platform }}
-        cache-to: type=gha,mode=max,scope=build-tools-${{ matrix.platform }}
 
     - name: Bazel build/test
       shell: bash
