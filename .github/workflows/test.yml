@@ -238,11 +238,10 @@ jobs:
           repo: 'com_github_bytecodealliance_wasmtime'
           os: ubuntu-24.04-16core
           arch: s390x
-          platform: linux/s390x
           action: test
           flags: --config=clang --test_timeout=1800
           # s390x build-tools image built from bazel/external/Dockerfile.bazel
-          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x proxy-wasm/build-tools:local-ci
+          run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x ghcr.io/proxy-wasm/build-tools:ubuntu-24.04-bazel-7.7.1
           cache: true
         - name: 'Wasmtime on macOS/x86_64'
           engine: 'wasmtime'
@@ -264,22 +263,9 @@ jobs:
       if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
       run: sudo apt update -y && sudo apt install -y ${{ matrix.deps }}
 
-    # Needed for s390x test which runs on a GHCR Docker Ubuntu image.
-    - name: Login to GitHub Container Registry
-      if: startsWith(matrix.run_under, 'docker')
-      uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
       uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
-
-    - name: Set up Docker Buildx
-      if: startsWith(matrix.run_under, 'docker')
-      uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
     - uses: bazel-contrib/setup-bazel@083175551ceeceebc757ebee2127fde78840ca77 # 0.18.0
       if: ${{ matrix.cache }}
@@ -301,18 +287,6 @@ jobs:
         for i in $(cd test/test_data && ls -1 *.wasm | sed 's/\.wasm$//g'); do \
           echo "filegroup(name = \"$i\", srcs = [\"$i.wasm\"])" >> test/test_data/BUILD; \
         done
-
-    - name: Build local Docker image
-      if: ${{ startsWith(matrix.run_under, 'docker') }}
-      uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
-      with:
-        context: .
-        file: bazel/external/Dockerfile.bazel
-        platforms: ${{ matrix.platform }}
-        tags: proxy-wasm/build-tools:local-ci
-        load: true
-        cache-from: type=gha,scope=build-tools-${{ matrix.platform }}
-        cache-to: type=gha,mode=max,scope=build-tools-${{ matrix.platform }}
 
     - name: Bazel build/test
       shell: bash
