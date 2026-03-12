@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "wasmtime_cranelift",
+    name = "cranelift_codegen_shared",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,14 +34,8 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "gc",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
-    proc_macro_deps = [
-        "@cu__wasmtime-versioned-export-macros-24.0.0//:wasmtime_versioned_export_macros",
-    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -50,27 +44,10 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=wasmtime-cranelift",
+        "crate-name=cranelift-codegen-shared",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "24.0.0",
-    deps = [
-        "@cu__anyhow-1.0.86//:anyhow",
-        "@cu__cfg-if-1.0.0//:cfg_if",
-        "@cu__cranelift-codegen-0.111.0//:cranelift_codegen",
-        "@cu__cranelift-control-0.111.0//:cranelift_control",
-        "@cu__cranelift-entity-0.111.0//:cranelift_entity",
-        "@cu__cranelift-frontend-0.111.0//:cranelift_frontend",
-        "@cu__cranelift-native-0.111.0//:cranelift_native",
-        "@cu__cranelift-wasm-0.111.0//:cranelift_wasm",
-        "@cu__gimli-0.29.0//:gimli",
-        "@cu__log-0.4.22//:log",
-        "@cu__object-0.36.2//:object",
-        "@cu__target-lexicon-0.12.16//:target_lexicon",
-        "@cu__thiserror-1.0.63//:thiserror",
-        "@cu__wasmparser-0.215.0//:wasmparser",
-        "@cu__wasmtime-environ-24.0.0//:wasmtime_environ",
-    ],
+    version = "0.111.6",
 )

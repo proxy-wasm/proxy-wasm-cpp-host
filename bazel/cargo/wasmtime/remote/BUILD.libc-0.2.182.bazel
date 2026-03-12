@@ -99,7 +99,7 @@ rust_library(
         "//conditions:default": [],
     }),
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2021",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -113,9 +113,9 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.155",
+    version = "0.2.182",
     deps = [
-        "@cu__libc-0.2.155//:build_script_build",
+        "@cu__libc-0.2.182//:build_script_build",
     ],
 )
 
@@ -212,7 +212,7 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2015",
+    edition = "2021",
     pkg_name = "libc",
     rustc_env_files = [
         ":cargo_toml_env_vars",
@@ -227,7 +227,7 @@ cargo_build_script(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.2.155",
+    version = "0.2.182",
     visibility = ["//visibility:private"],
 )
 

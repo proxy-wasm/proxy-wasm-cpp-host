@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "cranelift_frontend",
+    name = "wasmtime_slab",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,10 +34,6 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-        "std",
-    ],
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_env_files = [
@@ -48,16 +44,10 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=cranelift-frontend",
+        "crate-name=wasmtime-slab",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.111.0",
-    deps = [
-        "@cu__cranelift-codegen-0.111.0//:cranelift_codegen",
-        "@cu__log-0.4.22//:log",
-        "@cu__smallvec-1.13.2//:smallvec",
-        "@cu__target-lexicon-0.12.16//:target_lexicon",
-    ],
+    version = "24.0.6",
 )

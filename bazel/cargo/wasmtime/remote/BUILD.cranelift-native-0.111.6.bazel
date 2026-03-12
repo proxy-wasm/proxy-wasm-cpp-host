@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "env_logger",
+    name = "cranelift_native",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,11 +35,8 @@ rust_library(
         ],
     ),
     crate_features = [
-        "auto-color",
-        "color",
         "default",
-        "humantime",
-        "regex",
+        "std",
     ],
     crate_root = "src/lib.rs",
     edition = "2021",
@@ -51,17 +48,25 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=env_logger",
+        "crate-name=cranelift-native",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.10.2",
+    version = "0.111.6",
     deps = [
-        "@cu__humantime-2.1.0//:humantime",
-        "@cu__is-terminal-0.4.12//:is_terminal",
-        "@cu__log-0.4.22//:log",
-        "@cu__regex-1.10.5//:regex",
-        "@cu__termcolor-1.4.1//:termcolor",
-    ],
+        "@cu__cranelift-codegen-0.111.6//:cranelift_codegen",
+        "@cu__target-lexicon-0.12.16//:target_lexicon",
+    ] + select({
+        "@rules_rust//rust/platform:riscv64gc-unknown-linux-gnu": [
+            "@cu__libc-0.2.182//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
+        ],
+        "@rules_rust//rust/platform:riscv64gc-unknown-none-elf": [
+            "@cu__libc-0.2.182//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
+        ],
+        "@rules_rust//rust/platform:s390x-unknown-linux-gnu": [
+            "@cu__libc-0.2.182//:libc",  # cfg(any(target_arch = "s390x", target_arch = "riscv64"))
+        ],
+        "//conditions:default": [],
+    }),
 )
