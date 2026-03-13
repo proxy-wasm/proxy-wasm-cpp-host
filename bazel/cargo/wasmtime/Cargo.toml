@@ -21,6 +21,8 @@ rust-version = "1.78.0"
 [lib]
 path = "fake_lib.rs"
 
+# Note: Any changes here are only reflected after running
+# `bazel run //bazel/cargo/wasmtime:crates_vendor -- --repin`
 [dependencies]
 # Fixes testdata build error due to missing crate_features = ["std"]
 log = {version = "0.4.29", default-features = false, features = ['std']}
