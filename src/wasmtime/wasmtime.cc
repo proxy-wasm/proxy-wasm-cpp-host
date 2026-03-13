@@ -21,6 +21,7 @@
 #include <string>
 
 #include "include/proxy-wasm/limits.h"
+#include "include/proxy-wasm/word.h"
 
 #include "crates/c-api/include/wasmtime.hh" // IWYU pragma: keep
 
@@ -67,6 +68,19 @@ template <> std::string printValue(const proxy_wasm::Word &value) {
 std::string printValues() { return ""; }
 template <typename Arg, typename... Args> std::string printValues(Arg arg, Args... args) {
   return printValue(arg) + ((", " + printValue(args)) + ... + "");
+}
+
+template <typename... Args> void InPlaceConvertWasmToHostEndianness(Args &...args) {
+  (void(args = wasmtoh(convertWordToUint32(args), true)), ...);
+}
+proxy_wasm::Word ConvertWasmToHostEndianness(const proxy_wasm::Word &arg) {
+  return proxy_wasm::Word(wasmtoh(convertWordToUint32(arg), true));
+}
+template <typename... Args> void InPlaceConvertHostToWasmEndianness(Args &...args) {
+  (void(args = htowasm(convertWordToUint32(args), true)), ...);
+}
+template <typename... Args> auto ConvertHostToWasmEndianness(const Args &...args) {
+  return std::make_tuple((htowasm(convertWordToUint32(args), true))...);
 }
 
 } // namespace
@@ -280,6 +294,7 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
       module_name, function_name,
       [this, function,
        function_name = std::string(module_name) + "." + std::string(function_name)](Args... args) {
+        InPlaceConvertWasmToHostEndianness(args...);
         const bool log = cmpLogLevel(LogLevel::trace);
         if (log) {
           integration()->trace("[vm->host] " + function_name + "(" + printValues(args...) + ")");
@@ -301,6 +316,7 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
       module_name, function_name,
       [this, function,
        function_name = std::string(module_name) + "." + std::string(function_name)](Args... args) {
+        InPlaceConvertWasmToHostEndianness(args...);
         const bool log = cmpLogLevel(LogLevel::trace);
         if (log) {
           integration()->trace("[vm->host] " + function_name + "(" + printValues(args...) + ")");
@@ -309,7 +325,7 @@ void Wasmtime::registerHostFunctionImpl(std::string_view module_name,
         if (log) {
           integration()->trace("[vm<-host] " + function_name + " return: " + printValue(result));
         }
-        return result;
+        return ConvertHostToWasmEndianness(result);
       });
   if (!result) {
     fail(FailState::ConfigureFailed, "Failed to register host function: " + result.err().message());
@@ -337,6 +353,7 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
       integration()->trace("[host->vm] " + std::string(function_name) + "(" + printValues(args...) +
                            ")");
     }
+    InPlaceConvertHostToWasmEndianness(args...);
     TrapResult<std::monostate> result = func.call(store_->context(), {args...});
     if (!result) {
       fail(FailState::RuntimeError,
@@ -369,17 +386,19 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
       integration()->trace("[host->vm] " + std::string(function_name) + "(" + printValues(args...) +
                            ")");
     }
+    InPlaceConvertHostToWasmEndianness(args...);
     TrapResult<R> result = func.call(store_->context(), {args...});
     if (!result) {
       fail(FailState::RuntimeError,
            "Function: " + std::string(function_name) + " failed: " + result.err().message());
       return R{};
     }
+    R result_host = ConvertWasmToHostEndianness(result.ok());
     if (log) {
       integration()->trace("[host<-vm] " + std::string(function_name) +
-                           " return: " + printValue(result.unwrap()));
+                           " return: " + printValue(result_host));
     }
-    return result.ok();
+    return result_host;
   };
 };
 
