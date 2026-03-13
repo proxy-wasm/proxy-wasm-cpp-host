@@ -51,6 +51,6 @@ rust_library(
     ],
     version = "0.61.2",
     deps = [
-        "@cu__windows-link-0.2.1//:windows_link",
+        "@ws__windows-link-0.2.1//:windows_link",
     ],
 )

@@ -20,5 +20,7 @@ version = "0.1.2"
 [lib]
 path = "fake_lib.rs"
 
+# Note: Any changes here are only reflected after running
+# `bazel run //bazel/cargo/wasmsign:crates_vendor -- --repin`
 [dependencies]
 wasmsign2-cli = "0.2.6"

@@ -54,8 +54,8 @@ rust_proc_macro(
     ],
     version = "1.0.228",
     deps = [
-        "@cu__proc-macro2-1.0.103//:proc_macro2",
-        "@cu__quote-1.0.42//:quote",
-        "@cu__syn-2.0.111//:syn",
+        "@ws__proc-macro2-1.0.103//:proc_macro2",
+        "@ws__quote-1.0.42//:quote",
+        "@ws__syn-2.0.111//:syn",
     ],
 )

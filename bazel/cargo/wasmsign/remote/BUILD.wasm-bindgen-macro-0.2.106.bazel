@@ -51,7 +51,7 @@ rust_proc_macro(
     ],
     version = "0.2.106",
     deps = [
-        "@cu__quote-1.0.42//:quote",
-        "@cu__wasm-bindgen-macro-support-0.2.106//:wasm_bindgen_macro_support",
+        "@ws__quote-1.0.42//:quote",
+        "@ws__wasm-bindgen-macro-support-0.2.106//:wasm_bindgen_macro_support",
     ],
 )

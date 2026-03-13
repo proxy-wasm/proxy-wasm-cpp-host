@@ -64,8 +64,8 @@ rust_library(
     ],
     version = "2.0.111",
     deps = [
-        "@cu__proc-macro2-1.0.103//:proc_macro2",
-        "@cu__quote-1.0.42//:quote",
-        "@cu__unicode-ident-1.0.12//:unicode_ident",
+        "@ws__proc-macro2-1.0.103//:proc_macro2",
+        "@ws__quote-1.0.42//:quote",
+        "@ws__unicode-ident-1.0.12//:unicode_ident",
     ],
 )

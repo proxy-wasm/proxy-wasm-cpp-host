@@ -58,7 +58,7 @@ rust_library(
     ],
     version = "1.12.0",
     deps = [
-        "@cu__portable-atomic-1.12.0//:build_script_build",
+        "@ws__portable-atomic-1.12.0//:build_script_build",
     ],
 )
 

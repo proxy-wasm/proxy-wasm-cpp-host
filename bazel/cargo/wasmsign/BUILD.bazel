@@ -30,7 +30,7 @@ crates_vendor(
     generate_target_compatible_with = False,
     manifests = [":Cargo.toml"],
     mode = "remote",
-    repository_name = "cu",  # shorten generated paths for Windows...
+    repository_name = "ws",  # shorten generated paths for Windows...
     tags = ["manual"],
     vendor_path = "remote",
 )

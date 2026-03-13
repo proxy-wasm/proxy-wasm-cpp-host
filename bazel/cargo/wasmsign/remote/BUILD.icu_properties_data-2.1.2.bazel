@@ -55,7 +55,7 @@ rust_library(
     ],
     version = "2.1.2",
     deps = [
-        "@cu__icu_properties_data-2.1.2//:build_script_build",
+        "@ws__icu_properties_data-2.1.2//:build_script_build",
     ],
 )
 

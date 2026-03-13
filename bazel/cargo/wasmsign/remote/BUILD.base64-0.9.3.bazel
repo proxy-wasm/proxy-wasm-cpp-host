@@ -51,7 +51,7 @@ rust_library(
     ],
     version = "0.9.3",
     deps = [
-        "@cu__byteorder-1.5.0//:byteorder",
-        "@cu__safemem-0.3.3//:safemem",
+        "@ws__byteorder-1.5.0//:byteorder",
+        "@ws__safemem-0.3.3//:safemem",
     ],
 )
