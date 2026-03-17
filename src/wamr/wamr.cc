@@ -462,6 +462,10 @@ template <> void assignVal(uint64_t t, wasm_val_t &val) {
   val.kind = WASM_I64;
   val.of.i64 = static_cast<int64_t>(t);
 }
+template <> void assignVal(float t, wasm_val_t &val) {
+  val.kind = WASM_F32;
+  val.of.f32 = static_cast<float>(t);
+}
 template <> void assignVal(double t, wasm_val_t &val) {
   val.kind = WASM_F64;
   val.of.f64 = t;

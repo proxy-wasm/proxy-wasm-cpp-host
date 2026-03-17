@@ -435,6 +435,10 @@ template <> void assignVal(uint64_t t, wasm_val_t &val) {
   val.kind = WASM_I64;
   val.of.i64 = static_cast<int64_t>(t);
 }
+template <> void assignVal(float t, wasm_val_t &val) {
+  val.kind = WASM_F32;
+  val.of.f32 = t;
+}
 template <> void assignVal(double t, wasm_val_t &val) {
   val.kind = WASM_F64;
   val.of.f64 = t;
@@ -459,6 +463,7 @@ template <> auto convertArgToValTypePtr<uint32_t>() { return wasm_valtype_new_i3
 template <> auto convertArgToValTypePtr<int64_t>() { return wasm_valtype_new_i64(); };
 template <> auto convertArgToValTypePtr<uint64_t>() { return wasm_valtype_new_i64(); };
 template <> auto convertArgToValTypePtr<double>() { return wasm_valtype_new_f64(); };
+template <> auto convertArgToValTypePtr<float>() { return wasm_valtype_new_f32(); };
 
 template <typename T> T convertValueTypeToArg(wasm_val_t val);
 template <> uint32_t convertValueTypeToArg<uint32_t>(wasm_val_t val) {

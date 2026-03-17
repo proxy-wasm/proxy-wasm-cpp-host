@@ -190,6 +190,34 @@ TEST_P(TestVm, Trap2) {
   }
 }
 
+TEST_P(TestVm, BigendianValuesTranslatedProperly) {
+  auto source = readTestWasmFile("bigendian.wasm");
+  ASSERT_FALSE(source.empty());
+  auto wasm = TestWasm(std::move(vm_));
+  ASSERT_TRUE(wasm.load(source, false));
+  ASSERT_TRUE(wasm.initialize());
+  auto *context = dynamic_cast<TestContext *>(wasm.vm_context());
+  ASSERT_NE(context, nullptr);
+  WasmCall_WWlfd test_bigendian;
+  wasm.wasm_vm()->getFunction("test_bigendian", &test_bigendian);
+  WasmCall_WWlfd test_bigendian_negatives;
+  wasm.wasm_vm()->getFunction("test_bigendian_negatives", &test_bigendian_negatives);
+  WasmCallWord<0> test_buffer_from_wasm;
+  wasm.wasm_vm()->getFunction("test_bigendian_buffer_from_wasm", &test_buffer_from_wasm);
+  WasmCallWord<0> test_buffer_from_host;
+  wasm.wasm_vm()->getFunction("test_bigendian_buffer_from_host", &test_buffer_from_host);
+
+  ASSERT_FALSE(test_bigendian(context, 3333333333U, 11111111111111111111UL, 1111, 1111111111));
+  ASSERT_FALSE(
+      test_bigendian_negatives(context, -1111111111, -1111111111111111111, -1111, -1111111111));
+
+  ASSERT_FALSE(test_buffer_from_wasm(context));
+  context->isLogged("hello from little-endian wasm land!");
+
+  context->setBuffer(0, "hello from host land endianness!");
+  ASSERT_FALSE(test_buffer_from_host(context));
+}
+
 class TestCounterContext : public TestContext {
 public:
   TestCounterContext(WasmBase *wasm) : TestContext(wasm) {}
