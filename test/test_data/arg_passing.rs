@@ -25,56 +25,66 @@ pub extern "C" fn proxy_on_memory_allocate(size: usize) -> *mut u8 {
     Box::into_raw(slice) as *mut u8
 }
 
+extern "C" {
+    fn proxy_log(level: u32, message_data: *const u8, message_size: usize) -> bool;
+}
+
+fn log(message: &str) {
+    unsafe {
+        proxy_log(/*error*/ 4, message.as_bytes().as_ptr(), message.len());
+    }
+}
+
 #[no_mangle]
-pub extern "C" fn test_bigendian(uint32: u32, uint64: u64, float32: f32, float64: f64) -> i32 {
+pub extern "C" fn test_primitives(uint32: u32, uint64: u64, float32: f32, float64: f64) -> i32 {
     if uint32 != 3333333333 {
-        println!("uint32 was not little-endian: {}", uint32);
+        log(&format!("unexpected uint32 value: {}", uint32));
         return 1;
     }
     if uint64 != 11111111111111111111 {
-        println!("uint64 was not little-endian: {}", uint32);
+        log(&format!("unexpected uint64 value: {}", uint32));
         return 2;
     }
     if float32 < 1110.0 || float32 > 1112.0 {
-        println!("float32 was not little-endian: {}", float32);
+        log(&format!("unexpected float32 value: {}", float32));
         return 3;
     }
     if float64 < 1111111110.0 || float64 > 1111111112.0 {
-        println!("float64 was not little-endian: {}", float64);
+        log(&format!("unexpected float64 value: {}", float64));
         return 4;
     }
     return 0;
 }
 
 #[no_mangle]
-pub extern "C" fn test_bigendian_negatives(
+pub extern "C" fn test_negative_primitives(
     int32: i32,
     int64: i64,
     float32: f32,
     float64: f64,
 ) -> i32 {
     if int32 != -1111111111 {
+        log(&format!("unexpected int32 value: {}", int32));
         return 1;
     }
     if int64 != -1111111111111111111 {
+        log(&format!("unexpected int64 value: {}", int32));
         return 2;
     }
     if float32 > -1110.0 || float32 < -1112.0 {
+        log(&format!("unexpected float32 value: {}", float32));
         return 3;
     }
     if float64 > -1111111110.0 || float64 < -1111111112.0 {
+        log(&format!("unexpected float64 value: {}", float64));
         return 4;
     }
     return 0;
 }
 
-extern "C" {
-    fn proxy_log(level: u32, message_data: *const u8, message_size: usize) -> bool;
-}
-
 #[no_mangle]
-pub extern "C" fn test_bigendian_buffer_from_wasm() -> bool {
-    let message = "hello from little-endian wasm land!";
+pub extern "C" fn test_buffer_from_wasm() -> bool {
+    let message = "hello from wasm land!";
     unsafe {
         match proxy_log(/*info*/ 2, message.as_ptr(), message.len()) {
             false => false,
@@ -94,7 +104,7 @@ extern "C" {
 }
 
 #[no_mangle]
-pub extern "C" fn test_bigendian_buffer_from_host() -> bool {
+pub extern "C" fn test_buffer_from_host() -> bool {
     let mut return_data: *mut u8 = std::ptr::null_mut();
     let mut return_size: usize = 0;
     unsafe {
@@ -105,7 +115,7 @@ pub extern "C" fn test_bigendian_buffer_from_host() -> bool {
                 }
                 let result =
                     String::from_utf8(Vec::from_raw_parts(return_data, return_size, return_size));
-                if result.unwrap() != "hello from host land endianness" {
+                if result.unwrap() != "hello from host land" {
                     panic!("message did not match expectation");
                 }
                 false

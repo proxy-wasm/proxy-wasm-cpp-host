@@ -58,8 +58,8 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
-    name = "bigendian.wasm",
-    srcs = ["bigendian.rs"],
+    name = "arg_passing.wasm",
+    srcs = ["arg_passing.rs"],
 )
 
 wasm_rust_binary(
