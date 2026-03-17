@@ -113,7 +113,7 @@ public:
   void setBuffer(int32_t buffer_type, std::string buffer) {
     auto [it, inserted] = buffers_.emplace(buffer_type, std::make_unique<proxy_wasm::BufferBase>());
     std::unique_ptr<char[]> arr = std::make_unique<char[]>(buffer.size() + 1);
-    std::strcpy(arr.get(), buffer.c_str());
+    strcpy(arr.get(), buffer.c_str());
     it->second->set(std::move(arr), buffer.size() + 1);
   }
 
