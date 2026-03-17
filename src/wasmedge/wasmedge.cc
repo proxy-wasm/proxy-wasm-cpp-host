@@ -49,6 +49,7 @@ template <> WasmEdge_Value makeVal(uint64_t t) {
   return WasmEdge_ValueGenI64(static_cast<int64_t>(t));
 }
 template <> WasmEdge_Value makeVal(double t) { return WasmEdge_ValueGenF64(t); }
+template <> WasmEdge_Value makeVal(float t) { return WasmEdge_ValueGenF32(t); }
 
 // Helper function to print values.
 std::string printValue(const WasmEdge_Value &value) {
@@ -144,6 +145,7 @@ template <> WasmEdge_ValType convArgToValType<uint32_t>() { return WasmEdge_ValT
 template <> WasmEdge_ValType convArgToValType<int64_t>() { return WasmEdge_ValTypeGenI64(); }
 template <> WasmEdge_ValType convArgToValType<uint64_t>() { return WasmEdge_ValTypeGenI64(); }
 template <> WasmEdge_ValType convArgToValType<double>() { return WasmEdge_ValTypeGenF64(); }
+template <> WasmEdge_ValType convArgToValType<float>() { return WasmEdge_ValTypeGenF32(); }
 
 // Helper templates to convert valtype to arg.
 template <typename T> T convValTypeToArg(WasmEdge_Value val);
