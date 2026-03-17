@@ -70,8 +70,8 @@ cc_test(
     timeout = "long",
     srcs = ["runtime_test.cc"],
     data = [
-        "//test/test_data:callback.wasm",
         "//test/test_data:arg_passing.wasm",
+        "//test/test_data:callback.wasm",
         "//test/test_data:clock.wasm",
         "//test/test_data:resource_limits.wasm",
         "//test/test_data:trap.wasm",
