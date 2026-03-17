@@ -67,12 +67,14 @@ template <size_t N>
 using WasmCallVoid = std::function<WasmCallInFuncType<N, void, ContextBase *, Word>>;
 template <size_t N>
 using WasmCallWord = std::function<WasmCallInFuncType<N, Word, ContextBase *, Word>>;
+using WasmCall_WWlfd = std::function<Word(ContextBase *, Word, uint64_t, float, double)>;
 
 #define FOR_ALL_WASM_VM_EXPORTS(_f)                                                                \
   _f(proxy_wasm::WasmCallVoid<0>) _f(proxy_wasm::WasmCallVoid<1>) _f(proxy_wasm::WasmCallVoid<2>)  \
       _f(proxy_wasm::WasmCallVoid<3>) _f(proxy_wasm::WasmCallVoid<5>)                              \
           _f(proxy_wasm::WasmCallWord<0>) _f(proxy_wasm::WasmCallWord<1>)                          \
-              _f(proxy_wasm::WasmCallWord<2>) _f(proxy_wasm::WasmCallWord<3>)
+              _f(proxy_wasm::WasmCallWord<2>) _f(proxy_wasm::WasmCallWord<3>)                      \
+                  _f(proxy_wasm::WasmCall_WWlfd)
 
 // These are templates and its helper for constructing signatures of functions callbacks from Wasm
 // VMs.

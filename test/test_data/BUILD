@@ -58,6 +58,11 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
+    name = "bigendian.wasm",
+    srcs = ["bigendian.rs"],
+)
+
+wasm_rust_binary(
     name = "resource_limits.wasm",
     srcs = ["resource_limits.rs"],
 )
