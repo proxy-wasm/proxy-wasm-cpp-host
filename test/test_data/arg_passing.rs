@@ -62,6 +62,11 @@ pub extern "C" fn test_return_u32() -> u32 {
 }
 
 #[no_mangle]
+pub extern "C" fn test_return_i32() -> i32 {
+    return -1111111111;
+}
+
+#[no_mangle]
 pub extern "C" fn test_return_u64(_: f32) -> u64 {
     return 11111111111111111111;
 }

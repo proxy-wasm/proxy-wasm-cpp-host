@@ -64,7 +64,14 @@ TEST_P(ArgPassingTest, WasmCallReturnsWordValue) {
   WasmCallWord<0> test_return_u32;
   wasm_->wasm_vm()->getFunction("test_return_u32", &test_return_u32);
 
-  EXPECT_EQ(test_return_u32(context_), 3333333333U) << context_->getLog();
+  EXPECT_EQ(test_return_u32(context_).u32(), 3333333333U) << context_->getLog();
+}
+
+TEST_P(ArgPassingTest, WasmCallReturnsNegativeWordValue) {
+  WasmCallWord<0> test_return_i32;
+  wasm_->wasm_vm()->getFunction("test_return_i32", &test_return_i32);
+
+  EXPECT_EQ(test_return_i32(context_).u32(), -1111111111) << context_->getLog();
 }
 
 TEST_P(ArgPassingTest, WasmCallReturnsLongValue) {
