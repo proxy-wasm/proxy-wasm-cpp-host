@@ -24,8 +24,16 @@ namespace proxy_wasm {
 // Use byteswap functions only when compiling for big-endian platforms.
 #if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) &&                                    \
     __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define htowasm(x, vm_uses_wasm_byte_order) ((vm_uses_wasm_byte_order) ? __builtin_bswap32(x) : (x))
-#define wasmtoh(x, vm_uses_wasm_byte_order) ((vm_uses_wasm_byte_order) ? __builtin_bswap32(x) : (x))
+static inline float bswap(float x) {
+  return std::bit_cast<float>(__builtin_bswap32(std::bit_cast<int32_t>(x)));
+}
+static inline double bswap(double x) {
+  return std::bit_cast<double>(__builtin_bswap64(std::bit_cast<int64_t>(x)));
+}
+static inline uint32_t bswap(uint32_t x) { return __builtin_bswap32(x); }
+static inline auto bswap(auto x) { return __builtin_bswap64(x); }
+#define htowasm(x, vm_uses_wasm_byte_order) ((vm_uses_wasm_byte_order) ? bswap(x) : (x))
+#define wasmtoh(x, vm_uses_wasm_byte_order) ((vm_uses_wasm_byte_order) ? bswap(x) : (x))
 #else
 #define htowasm(x, vm_uses_wasm_byte_order) (x)
 #define wasmtoh(x, vm_uses_wasm_byte_order) (x)
