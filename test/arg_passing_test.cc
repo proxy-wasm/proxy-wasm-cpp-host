@@ -140,5 +140,7 @@ TEST_P(ArgPassingTest, WasmCallReadsBufferPassedByHost) {
   ASSERT_TRUE(test_buffer_from_host(context_)) << context_->getLog();
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(ArgPassingTest);
+
 } // namespace
 } // namespace proxy_wasm
