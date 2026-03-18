@@ -70,17 +70,17 @@ template <typename Arg, typename... Args> std::string printValues(Arg arg, Args.
   return printValue(arg) + ((", " + printValue(args)) + ... + "");
 }
 
-template <typename... Args> void InPlaceConvertWasmToHostEndianness(Args &...args) {
-  (void(args = wasmtoh(convertWordToUint32(args), true)), ...);
+auto ConvertWasmToHostEndianness(const auto &arg) {
+  return wasmtoh(convertWordToUint32(arg), true);
 }
-proxy_wasm::Word ConvertWasmToHostEndianness(const proxy_wasm::Word &arg) {
-  return proxy_wasm::Word(wasmtoh(convertWordToUint32(arg), true));
+void InPlaceConvertWasmToHostEndianness(auto &...args) {
+  (void(args = ConvertWasmToHostEndianness(args)), ...);
 }
-template <typename... Args> void InPlaceConvertHostToWasmEndianness(Args &...args) {
-  (void(args = htowasm(convertWordToUint32(args), true)), ...);
+auto ConvertHostToWasmEndianness(const auto &arg) {
+  return htowasm(convertWordToUint32(arg), true);
 }
-template <typename... Args> auto ConvertHostToWasmEndianness(const Args &...args) {
-  return std::make_tuple((htowasm(convertWordToUint32(args), true))...);
+void InPlaceConvertHostToWasmEndianness(auto &...args) {
+  (void(args = ConvertHostToWasmEndianness(args)), ...);
 }
 
 } // namespace
@@ -387,18 +387,18 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
                            ")");
     }
     InPlaceConvertHostToWasmEndianness(args...);
-    TrapResult<R> result = func.call(store_->context(), {args...});
-    if (!result) {
+    TrapResult<R> result_wasm = func.call(store_->context(), {args...});
+    if (!result_wasm) {
       fail(FailState::RuntimeError,
-           "Function: " + std::string(function_name) + " failed: " + result.err().message());
+           "Function: " + std::string(function_name) + " failed: " + result_wasm.err().message());
       return R{};
     }
-    R result_host = ConvertWasmToHostEndianness(result.ok());
+    R result = ConvertWasmToHostEndianness(result_wasm.ok());
     if (log) {
       integration()->trace("[host<-vm] " + std::string(function_name) +
-                           " return: " + printValue(result_host));
+                           " return: " + printValue(result));
     }
-    return result_host;
+    return result;
   };
 };
 
