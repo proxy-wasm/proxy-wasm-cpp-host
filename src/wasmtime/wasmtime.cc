@@ -476,6 +476,7 @@ template <> int64_t convertValueTypeToArg<int64_t>(wasm_val_t val) { return val.
 template <> uint64_t convertValueTypeToArg<uint64_t>(wasm_val_t val) {
   return static_cast<uint64_t>(val.of.i64);
 }
+template <> float convertValueTypeToArg<float>(wasm_val_t val) { return val.of.f32; }
 template <> double convertValueTypeToArg<double>(wasm_val_t val) { return val.of.f64; }
 
 template <typename T, typename U, std::size_t... I>
