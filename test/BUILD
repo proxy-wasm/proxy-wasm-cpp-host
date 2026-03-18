@@ -86,6 +86,22 @@ cc_test(
 )
 
 cc_test(
+    name = "arg_passing_test",
+    timeout = "long",
+    srcs = ["arg_passing_test.cc"],
+    data = [
+        "//test/test_data:arg_passing.wasm",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "exports_test",
     srcs = ["exports_test.cc"],
     data = [

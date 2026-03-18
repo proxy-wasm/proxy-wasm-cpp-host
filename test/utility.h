@@ -102,6 +102,8 @@ public:
     return WasmResult::Ok;
   }
 
+  std::string_view getLog() const { return log_; }
+
   WasmResult getProperty(std::string_view path, std::string *result) override {
     if (path == "plugin_root_id") {
       *result = root_id_;

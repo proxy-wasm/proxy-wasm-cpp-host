@@ -190,34 +190,6 @@ TEST_P(TestVm, Trap2) {
   }
 }
 
-TEST_P(TestVm, PassingValuesAcrossWasmBoundary) {
-  auto source = readTestWasmFile("arg_passing.wasm");
-  ASSERT_FALSE(source.empty());
-  auto wasm = TestWasm(std::move(vm_));
-  ASSERT_TRUE(wasm.load(source, false));
-  ASSERT_TRUE(wasm.initialize());
-  auto *context = dynamic_cast<TestContext *>(wasm.vm_context());
-  ASSERT_NE(context, nullptr);
-  WasmCall_WWlfd test_primitives;
-  wasm.wasm_vm()->getFunction("test_primitives", &test_primitives);
-  WasmCall_WWlfd test_negative_primitives;
-  wasm.wasm_vm()->getFunction("test_negative_primitives", &test_negative_primitives);
-  WasmCallWord<0> test_buffer_from_wasm;
-  wasm.wasm_vm()->getFunction("test_buffer_from_wasm", &test_buffer_from_wasm);
-  WasmCallWord<0> test_buffer_from_host;
-  wasm.wasm_vm()->getFunction("test_buffer_from_host", &test_buffer_from_host);
-
-  ASSERT_FALSE(test_primitives(context, 3333333333U, 11111111111111111111UL, 1111, 1111111111));
-  ASSERT_FALSE(
-      test_negative_primitives(context, -1111111111, -1111111111111111111, -1111, -1111111111));
-
-  ASSERT_FALSE(test_buffer_from_wasm(context));
-  context->isLogged("hello from wasm land!");
-
-  context->setBuffer(0, "hello from host land!");
-  ASSERT_FALSE(test_buffer_from_host(context));
-}
-
 class TestCounterContext : public TestContext {
 public:
   TestCounterContext(WasmBase *wasm) : TestContext(wasm) {}
