@@ -489,18 +489,21 @@ template <> auto convertArgToValTypePtr<Word>() { return wasm_valtype_new_i32();
 template <> auto convertArgToValTypePtr<uint32_t>() { return wasm_valtype_new_i32(); };
 template <> auto convertArgToValTypePtr<int64_t>() { return wasm_valtype_new_i64(); };
 template <> auto convertArgToValTypePtr<uint64_t>() { return wasm_valtype_new_i64(); };
-template <> auto convertArgToValTypePtr<double>() { return wasm_valtype_new_f64(); };
 template <> auto convertArgToValTypePtr<float>() { return wasm_valtype_new_f32(); };
+template <> auto convertArgToValTypePtr<double>() { return wasm_valtype_new_f64(); };
 
 template <typename T> T convertValueTypeToArg(wasm_val_t val);
 template <> uint32_t convertValueTypeToArg<uint32_t>(wasm_val_t val) {
   return static_cast<uint32_t>(val.of.i32);
 }
-template <> Word convertValueTypeToArg<Word>(wasm_val_t val) { return val.of.i32; }
+template <> Word convertValueTypeToArg<Word>(wasm_val_t val) {
+  return std::bit_cast<uint32_t>(val.of.i32);
+}
 template <> int64_t convertValueTypeToArg<int64_t>(wasm_val_t val) { return val.of.i64; }
 template <> uint64_t convertValueTypeToArg<uint64_t>(wasm_val_t val) {
   return static_cast<uint64_t>(val.of.i64);
 }
+template <> float convertValueTypeToArg<float>(wasm_val_t val) { return val.of.f32; }
 template <> double convertValueTypeToArg<double>(wasm_val_t val) { return val.of.f64; }
 
 template <typename T, typename U, std::size_t... I>

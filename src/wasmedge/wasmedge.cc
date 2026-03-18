@@ -152,13 +152,16 @@ template <typename T> T convValTypeToArg(WasmEdge_Value val);
 template <> uint32_t convValTypeToArg<uint32_t>(WasmEdge_Value val) {
   return static_cast<uint32_t>(WasmEdge_ValueGetI32(val));
 }
-template <> Word convValTypeToArg<Word>(WasmEdge_Value val) { return WasmEdge_ValueGetI32(val); }
+template <> Word convValTypeToArg<Word>(WasmEdge_Value val) {
+  return std::bit_cast<uint32_t>(WasmEdge_ValueGetI32(val));
+}
 template <> int64_t convValTypeToArg<int64_t>(WasmEdge_Value val) {
   return WasmEdge_ValueGetI64(val);
 }
 template <> uint64_t convValTypeToArg<uint64_t>(WasmEdge_Value val) {
   return static_cast<uint64_t>(WasmEdge_ValueGetI64(val));
 }
+template <> float convValTypeToArg<float>(WasmEdge_Value val) { return WasmEdge_ValueGetF32(val); }
 template <> double convValTypeToArg<double>(WasmEdge_Value val) {
   return WasmEdge_ValueGetF64(val);
 }
