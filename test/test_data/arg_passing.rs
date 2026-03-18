@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use std::time::{SystemTime, UNIX_EPOCH};
-
 extern "C" {
     fn proxy_log(level: u32, message_data: *const u8, message_size: usize) -> bool;
 }
