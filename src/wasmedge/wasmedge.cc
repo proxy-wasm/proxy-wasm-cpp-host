@@ -144,8 +144,8 @@ template <> WasmEdge_ValType convArgToValType<Word>() { return WasmEdge_ValTypeG
 template <> WasmEdge_ValType convArgToValType<uint32_t>() { return WasmEdge_ValTypeGenI32(); }
 template <> WasmEdge_ValType convArgToValType<int64_t>() { return WasmEdge_ValTypeGenI64(); }
 template <> WasmEdge_ValType convArgToValType<uint64_t>() { return WasmEdge_ValTypeGenI64(); }
-template <> WasmEdge_ValType convArgToValType<double>() { return WasmEdge_ValTypeGenF64(); }
 template <> WasmEdge_ValType convArgToValType<float>() { return WasmEdge_ValTypeGenF32(); }
+template <> WasmEdge_ValType convArgToValType<double>() { return WasmEdge_ValTypeGenF64(); }
 
 // Helper templates to convert valtype to arg.
 template <typename T> T convValTypeToArg(WasmEdge_Value val);
