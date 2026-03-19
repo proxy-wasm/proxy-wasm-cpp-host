@@ -29,6 +29,8 @@ class ArgPassingContext : public TestContext {
 public:
   using TestContext::TestContext;
   WasmResult getHeaderMapPairs(WasmHeaderMapType /* type */, Pairs * /* result */) override {
+    // GetHeaderMapPairs passes this value as the hostcall return value as
+    // opposed to output parameter.
     return static_cast<WasmResult>(3333333333U);
   }
 };
