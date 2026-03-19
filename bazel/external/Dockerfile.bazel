@@ -97,7 +97,6 @@ ARG DEPS_BUILDER="\
         ca-certificates \
         clang \
         curl \
-        git \
         openjdk-21-jdk \
         python3 \
         unzip \
@@ -109,15 +108,24 @@ RUN apt-get update && \
         mkdir -p /tmp/src/bazel && \
         wget --progress=dot:giga -O /tmp/bazel-dist.zip https://github.com/bazelbuild/bazel/releases/download/${BAZEL_VERSION}/bazel-${BAZEL_VERSION}-dist.zip && \
         unzip /tmp/bazel-dist.zip -d /tmp/src/bazel && \
-        rm -f /tmp/bazel-dist.zip /tmp/src/bazel/MODULE.bazel.lock
+        rm -f /tmp/bazel-dist.zip
 ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-${TARGETARCH}
 WORKDIR /tmp/src/bazel
-# Patch MODULE.bazel and tools/cpp/unix_cc_configure.bzl to:
+# For Bazel v7.7.1 - patch MODULE.bazel and tools/cpp/unix_cc_configure.bzl to:
 # - Force bazel_features v1.11.0 (avoids bzlmod macro requirement during bootstrap)
 # - Configure C++ toolchain compilation flags to avoid GCC segmentation faults on s390x under QEMU emulation
 COPY bazel/external/bazel-v7.7.1.patch /tmp/bazel-v7.7.1.patch
-RUN git apply /tmp/bazel-v7.7.1.patch && \
-    rm -rf derived/repository_cache
+RUN if [ "${BAZEL_VERSION}" = "7.7.1" ]; then \
+        patch -p1 </tmp/bazel-v7.7.1.patch; \
+        rm -rf MODULE.bazel.lock derived/repository_cache; \
+    fi
+# For Bazel v9.0.1 - patch protobuf/upb to fix SIGSEGV on s390x:
+# - https://github.com/protocolbuffers/protobuf/pull/25363
+# - https://github.com/protocolbuffers/protobuf/pull/25683
+COPY bazel/external/bazel-v9.0.1.patch /tmp/bazel-v9.0.1.patch
+RUN if [ "${BAZEL_VERSION}" = "9.0.1" ]; then \
+        patch -p1 </tmp/bazel-v9.0.1.patch; \
+    fi
 # Additional compilation flags for bootstrap build to avoid GCC crashes under QEMU emulation
 # Note: .bazelrc is ignored during bootstrap (BAZELRC=/dev/null), so flags must be in EXTRA_BAZEL_ARGS
 # Use -c dbg and --host_compilation_mode=dbg to avoid default -O2 from opt mode
@@ -126,8 +134,8 @@ RUN git apply /tmp/bazel-v7.7.1.patch && \
 ENV CC=clang
 ENV CXX=clang++
 ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk \
-    --jobs=1 \
-    --local_ram_resources=2048 \
+    --jobs=HOST_CPUS*.5 \
+    --local_resources=memory=8192 \
     -c dbg \
     --host_compilation_mode=dbg \
     --copt=-O0 --host_copt=-O0 \
@@ -135,7 +143,7 @@ ENV EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk \
 RUN bash ./compile.sh && \
         cp /tmp/src/bazel/output/bazel /tmp/bazel && \
         chmod +x /tmp/bazel && \
-        rm -rf /tmp/src/bazel /tmp/bazel-v7.7.1.patch
+        rm -rf /tmp/src/bazel /tmp/bazel-*.patch
 
 # Stage 2: minimal runtime for executing tests
 FROM ubuntu:${UBUNTU_VERSION} AS test-runtime
