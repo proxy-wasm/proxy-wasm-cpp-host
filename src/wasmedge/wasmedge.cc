@@ -244,7 +244,7 @@ public:
   }
 
   std::string_view getEngineName() override { return "wasmedge"; }
-  std::string_view getPrecompiledSectionName() override { return ""; }
+  std::string_view getPrecompiledSectionName() override { return "wasmedge"; }
 
   Cloneable cloneable() override { return Cloneable::NotCloneable; }
   std::unique_ptr<WasmVm> clone() override { return nullptr; }
@@ -312,11 +312,31 @@ private:
   std::unordered_set<std::string> module_functions_;
 };
 
-bool WasmEdge::load(std::string_view bytecode, std::string_view /*precompiled*/,
+bool WasmEdge::load(std::string_view bytecode, std::string_view precompiled,
                     const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
   initStore();
   WasmEdge_ASTModuleContext *mod = nullptr;
-  WasmEdge_Result res = WasmEdge_LoaderParseFromBuffer(
+  WasmEdge_Result res;
+
+  // Try to use precompiled AOT bytecode if available
+  if (!precompiled.empty()) {
+    res = WasmEdge_LoaderParseFromBuffer(loader_.get(), &mod,
+                                         reinterpret_cast<const uint8_t *>(precompiled.data()),
+                                         precompiled.size());
+    if (WasmEdge_ResultOK(res)) {
+      // Precompiled module loaded successfully, skip validation
+      ast_module_ = mod;
+      return true;
+    }
+    // If precompiled load failed, fall through to regular bytecode
+    if (mod != nullptr) {
+      WasmEdge_ASTModuleDelete(mod);
+      mod = nullptr;
+    }
+  }
+
+  // Load regular WASM bytecode
+  res = WasmEdge_LoaderParseFromBuffer(
       loader_.get(), &mod, reinterpret_cast<const uint8_t *>(bytecode.data()), bytecode.size());
   if (!WasmEdge_ResultOK(res)) {
     return false;
