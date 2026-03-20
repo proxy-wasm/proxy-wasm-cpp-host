@@ -265,7 +265,7 @@ jobs:
 
     - name: Activate Docker/QEMU
       if: startsWith(matrix.run_under, 'docker')
-      uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
+      uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
 
     - uses: bazel-contrib/setup-bazel@083175551ceeceebc757ebee2127fde78840ca77 # 0.18.0
       if: ${{ matrix.cache }}
@@ -274,7 +274,7 @@ jobs:
         cache-save: ${{ github.event_name != 'pull_request' }}
 
     - name: Download test data
-      uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
         name: test_data
         path: test/test_data/

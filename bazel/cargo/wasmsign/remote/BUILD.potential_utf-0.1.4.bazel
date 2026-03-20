@@ -54,6 +54,6 @@ rust_library(
     ],
     version = "0.1.4",
     deps = [
-        "@cu__zerovec-0.11.5//:zerovec",
+        "@ws__zerovec-0.11.5//:zerovec",
     ],
 )
