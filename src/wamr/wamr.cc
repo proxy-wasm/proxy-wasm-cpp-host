@@ -497,7 +497,7 @@ template <> uint32_t convertValueTypeToArg<uint32_t>(wasm_val_t val) {
   return static_cast<uint32_t>(val.of.i32);
 }
 template <> Word convertValueTypeToArg<Word>(wasm_val_t val) {
-  return std::bit_cast<uint32_t>(val.of.i32);
+  return static_cast<uint32_t>(val.of.i32);
 }
 template <> int64_t convertValueTypeToArg<int64_t>(wasm_val_t val) { return val.of.i64; }
 template <> uint64_t convertValueTypeToArg<uint64_t>(wasm_val_t val) {
