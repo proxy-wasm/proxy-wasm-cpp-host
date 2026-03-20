@@ -58,6 +58,11 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
+    name = "arg_passing.wasm",
+    srcs = ["arg_passing.rs"],
+)
+
+wasm_rust_binary(
     name = "resource_limits.wasm",
     srcs = ["resource_limits.rs"],
 )
