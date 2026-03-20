@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "gtest/gtest.h"
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -101,12 +102,28 @@ public:
     return WasmResult::Ok;
   }
 
+  std::string_view getLog() const { return log_; }
+
   WasmResult getProperty(std::string_view path, std::string *result) override {
     if (path == "plugin_root_id") {
       *result = root_id_;
       return WasmResult::Ok;
     }
     return unimplemented();
+  }
+
+  void setBuffer(int32_t buffer_type, std::string buffer) {
+    auto [it, inserted] = buffers_.emplace(buffer_type, std::make_unique<proxy_wasm::BufferBase>());
+    std::unique_ptr<char[]> arr = std::make_unique<char[]>(buffer.size() + 1);
+    strcpy(arr.get(), buffer.c_str());
+    it->second->set(std::move(arr), buffer.size() + 1);
+  }
+
+  BufferInterface *getBuffer(WasmBufferType type) override {
+    if (auto it = buffers_.find(static_cast<int>(type)); it != buffers_.end()) {
+      return it->second.get();
+    }
+    return nullptr;
   }
 
   bool isLogEmpty() { return log_.empty(); }
@@ -133,6 +150,7 @@ public:
   void set_allow_on_headers_stop_iteration(bool allow) { allow_on_headers_stop_iteration_ = allow; }
 
 private:
+  std::unordered_map<int32_t, std::unique_ptr<proxy_wasm::BufferBase>> buffers_;
   std::string log_;
   static std::string global_log_;
 };
