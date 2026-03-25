@@ -48,8 +48,8 @@ template <> WasmEdge_Value makeVal(uint32_t t) {
 template <> WasmEdge_Value makeVal(uint64_t t) {
   return WasmEdge_ValueGenI64(static_cast<int64_t>(t));
 }
-template <> WasmEdge_Value makeVal(double t) { return WasmEdge_ValueGenF64(t); }
 template <> WasmEdge_Value makeVal(float t) { return WasmEdge_ValueGenF32(t); }
+template <> WasmEdge_Value makeVal(double t) { return WasmEdge_ValueGenF64(t); }
 
 // Helper function to print values.
 std::string printValue(const WasmEdge_Value &value) {

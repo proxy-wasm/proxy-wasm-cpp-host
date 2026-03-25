@@ -25,7 +25,7 @@
 namespace proxy_wasm {
 namespace {
 
-class ArgPassingContext : public TestContext {
+class EndiannessContext : public TestContext {
 public:
   using TestContext::TestContext;
   WasmResult getHeaderMapPairs(WasmHeaderMapType /* type */, Pairs * /* result */) override {
@@ -35,55 +35,62 @@ public:
   }
 };
 
-class ArgPassingWasm : public TestWasm {
+class EndiannessWasm : public TestWasm {
 public:
   using TestWasm::TestWasm;
-  ContextBase *createVmContext() override { return new ArgPassingContext(this); };
+  ContextBase *createVmContext() override { return new EndiannessContext(this); };
 };
 
-class ArgPassingTest : public TestVm {
+class EndiannessTest : public TestVm {
 public:
   void SetUp() {
-    auto source = readTestWasmFile("arg_passing.wasm");
+    auto source = readTestWasmFile("endianness.wasm");
     ASSERT_FALSE(source.empty());
     wasm_.emplace(std::move(vm_));
     ASSERT_TRUE(wasm_->load(source, false));
     ASSERT_TRUE(wasm_->initialize());
-    context_ = dynamic_cast<ArgPassingContext *>(wasm_->vm_context());
+    context_ = dynamic_cast<EndiannessContext *>(wasm_->vm_context());
     ASSERT_NE(context_, nullptr);
   }
 
-  std::optional<ArgPassingWasm> wasm_;
-  ArgPassingContext *context_;
+  std::optional<EndiannessWasm> wasm_;
+  EndiannessContext *context_;
 };
 
-INSTANTIATE_TEST_SUITE_P(WasmEngines, ArgPassingTest, testing::ValuesIn(getWasmEngines()),
+INSTANTIATE_TEST_SUITE_P(WasmEngines, EndiannessTest, testing::ValuesIn(getWasmEngines()),
                          [](const testing::TestParamInfo<std::string> &info) {
                            return info.param;
                          });
 
-TEST_P(ArgPassingTest, WasmCallReturnsWordValue) {
+TEST_P(EndiannessTest, WasmCallReturnsWordValue) {
   WasmCallWord<0> test_return_u32;
   wasm_->wasm_vm()->getFunction("test_return_u32", &test_return_u32);
 
   EXPECT_EQ(test_return_u32(context_).u32(), 3333333333U) << context_->getLog();
 }
 
-TEST_P(ArgPassingTest, WasmCallReturnsNegativeWordValue) {
+TEST_P(EndiannessTest, WasmCallReturnsNegativeWordValue) {
   WasmCallWord<0> test_return_i32;
   wasm_->wasm_vm()->getFunction("test_return_i32", &test_return_i32);
 
   EXPECT_EQ(test_return_i32(context_).u32(), -1111111111) << context_->getLog();
 }
 
-TEST_P(ArgPassingTest, WasmCallReturnsLongValue) {
+TEST_P(EndiannessTest, WasmCallReturnsUnsignedLongValue) {
   WasmCall_lf test_return_u64;
   wasm_->wasm_vm()->getFunction("test_return_u64", &test_return_u64);
 
   EXPECT_EQ(test_return_u64(context_, 1.0), 11111111111111111111UL) << context_->getLog();
 }
 
-TEST_P(ArgPassingTest, WasmCallReturnsFloatValue) {
+TEST_P(EndiannessTest, WasmCallReturnsNegativeLongValue) {
+  WasmCall_lf test_return_i64;
+  wasm_->wasm_vm()->getFunction("test_return_i64", &test_return_i64);
+
+  EXPECT_EQ(test_return_i64(context_, 1.0), -111111111111111111L) << context_->getLog();
+}
+
+TEST_P(EndiannessTest, WasmCallReturnsFloatValue) {
   WasmCall_fff test_return_f32;
   wasm_->wasm_vm()->getFunction("test_return_f32", &test_return_f32);
 
@@ -92,7 +99,7 @@ TEST_P(ArgPassingTest, WasmCallReturnsFloatValue) {
       << context_->getLog();
 }
 
-TEST_P(ArgPassingTest, WasmCallReturnsDoubleValue) {
+TEST_P(EndiannessTest, WasmCallReturnsDoubleValue) {
   WasmCall_dfff test_return_f64;
   wasm_->wasm_vm()->getFunction("test_return_f64", &test_return_f64);
 
@@ -101,14 +108,14 @@ TEST_P(ArgPassingTest, WasmCallReturnsDoubleValue) {
       << context_->getLog();
 }
 
-TEST_P(ArgPassingTest, HostCallReturnsWordValue) {
+TEST_P(EndiannessTest, HostCallReturnsWordValue) {
   WasmCallWord<0> test_host_return;
   wasm_->wasm_vm()->getFunction("test_host_return", &test_host_return);
 
   EXPECT_TRUE(test_host_return(context_)) << context_->getLog();
 }
 
-TEST_P(ArgPassingTest, HostPassesPrimitiveValues) {
+TEST_P(EndiannessTest, HostPassesPrimitiveValues) {
   WasmCall_WWlfd test_primitives;
   wasm_->wasm_vm()->getFunction("test_primitives", &test_primitives);
 
@@ -116,7 +123,7 @@ TEST_P(ArgPassingTest, HostPassesPrimitiveValues) {
       << context_->getLog();
 }
 
-TEST_P(ArgPassingTest, HostPassesNegativePrimitiveValues) {
+TEST_P(EndiannessTest, HostPassesNegativePrimitiveValues) {
   WasmCall_WWlfd test_negative_primitives;
   wasm_->wasm_vm()->getFunction("test_negative_primitives", &test_negative_primitives);
 
@@ -125,7 +132,7 @@ TEST_P(ArgPassingTest, HostPassesNegativePrimitiveValues) {
       << context_->getLog();
 }
 
-TEST_P(ArgPassingTest, HostReadsPointersToWasmMemory) {
+TEST_P(EndiannessTest, HostReadsPointersToWasmMemory) {
   WasmCallWord<0> test_buffer_from_wasm;
   wasm_->wasm_vm()->getFunction("test_buffer_from_wasm", &test_buffer_from_wasm);
 
@@ -134,7 +141,7 @@ TEST_P(ArgPassingTest, HostReadsPointersToWasmMemory) {
   context_->isLogged("hello from wasm land!");
 }
 
-TEST_P(ArgPassingTest, WasmCallReadsBufferPassedByHost) {
+TEST_P(EndiannessTest, WasmCallReadsBufferPassedByHost) {
   context_->setBuffer(0, "hello from host land!");
   WasmCallWord<0> test_buffer_from_host;
   wasm_->wasm_vm()->getFunction("test_buffer_from_host", &test_buffer_from_host);
@@ -142,7 +149,7 @@ TEST_P(ArgPassingTest, WasmCallReadsBufferPassedByHost) {
   ASSERT_TRUE(test_buffer_from_host(context_)) << context_->getLog();
 }
 
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(ArgPassingTest);
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(EndiannessTest);
 
 } // namespace
 } // namespace proxy_wasm

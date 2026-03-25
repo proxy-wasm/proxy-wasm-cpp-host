@@ -58,8 +58,8 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
-    name = "arg_passing.wasm",
-    srcs = ["arg_passing.rs"],
+    name = "endianness.wasm",
+    srcs = ["endianness.rs"],
 )
 
 wasm_rust_binary(

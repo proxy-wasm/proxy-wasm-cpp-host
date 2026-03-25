@@ -70,7 +70,6 @@ cc_test(
     timeout = "long",
     srcs = ["runtime_test.cc"],
     data = [
-        "//test/test_data:arg_passing.wasm",
         "//test/test_data:callback.wasm",
         "//test/test_data:clock.wasm",
         "//test/test_data:resource_limits.wasm",
@@ -86,11 +85,11 @@ cc_test(
 )
 
 cc_test(
-    name = "arg_passing_test",
+    name = "endianness_test",
     timeout = "long",
-    srcs = ["arg_passing_test.cc"],
+    srcs = ["endianness_test.cc"],
     data = [
-        "//test/test_data:arg_passing.wasm",
+        "//test/test_data:endianness.wasm",
     ],
     linkstatic = 1,
     deps = [

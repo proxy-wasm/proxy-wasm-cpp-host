@@ -244,8 +244,8 @@ template <> constexpr auto convertArgToValKind<Word>() { return wasm::ValKind::I
 template <> constexpr auto convertArgToValKind<uint32_t>() { return wasm::ValKind::I32; };
 template <> constexpr auto convertArgToValKind<int64_t>() { return wasm::ValKind::I64; };
 template <> constexpr auto convertArgToValKind<uint64_t>() { return wasm::ValKind::I64; };
-template <> constexpr auto convertArgToValKind<double>() { return wasm::ValKind::F64; };
 template <> constexpr auto convertArgToValKind<float>() { return wasm::ValKind::F32; };
+template <> constexpr auto convertArgToValKind<double>() { return wasm::ValKind::F64; };
 
 template <typename T, std::size_t... I>
 constexpr auto convertArgsTupleToValTypesImpl(std::index_sequence<I...> /*comptime*/) {
