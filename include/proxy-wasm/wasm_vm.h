@@ -123,7 +123,7 @@ using WasmCallback_WWmW = Word (*)(Word, uint64_t, Word);
 using WasmCallback_WWWWWWllWW = Word (*)(Word, Word, Word, Word, Word, int64_t, int64_t, Word,
                                          Word);
 using WasmCallback_dd = double (*)(double);
-// Additional callback types for new WASI functions
+// Additional callback types for WASIp1 functions
 using WasmCallback_WWWWmm = Word (*)(Word, Word, Word, Word, uint64_t, uint64_t);
 using WasmCallback_WWWWmmW = Word (*)(Word, Word, Word, Word, uint64_t, uint64_t, Word);
 using WasmCallback_WWmm = Word (*)(Word, uint64_t, uint64_t);

@@ -1106,7 +1106,7 @@ Word wasi_unstable_fd_tell(Word fd, Word retptr0) {
   }
 
   // For stdout and stderr, we'll just return 0 as the offset
-  if (!context->wasm()->setDatatype(retptr0, uint64_t(0))) {
+  if (!context->wasm()->setDatatype(retptr0, 0UL)) {
     return 21; // __WASI_EFAULT
   }
 
@@ -1200,7 +1200,7 @@ Word wasi_unstable_sock_accept(Word fd, Word flags, Word retptr0) {
   // Since we don't have socket support in proxy-wasm, we can just return an error.
 
   // Set the returned file descriptor to an invalid value
-  if (!context->wasm()->setDatatype(retptr0, uint32_t(0))) {
+  if (!context->wasm()->setDatatype(retptr0, 0UL)) {
     return 21; // __WASI_EFAULT
   }
 
@@ -1222,7 +1222,7 @@ Word wasi_unstable_sock_recv(Word fd, Word ri_data_ptr, Word ri_data_len, Word r
   }
 
   // Set the output flags to 0
-  if (!context->wasm()->setDatatype(retptr1, uint16_t(0))) {
+  if (!context->wasm()->setDatatype(retptr1, static_cast<uint16_t>(0))) {
     return 21; // __WASI_EFAULT
   }
 
