@@ -259,6 +259,28 @@ void NullPlugin::getFunction(std::string_view function_name, WasmCallWord<3> *f)
   }
 }
 
+void NullPlugin::getFunction(std::string_view function_name, WasmCall_lf *f) {
+  error("Unexpected getFunction for testing signature WasmCall_lf: " + std::string(function_name));
+  *f = nullptr;
+}
+
+void NullPlugin::getFunction(std::string_view function_name, WasmCall_fff *f) {
+  error("Unexpected getFunction for testing signature WasmCall_fff: " + std::string(function_name));
+  *f = nullptr;
+}
+
+void NullPlugin::getFunction(std::string_view function_name, WasmCall_dfff *f) {
+  error("Unexpected getFunction for testing signature WasmCall_dfff: " +
+        std::string(function_name));
+  *f = nullptr;
+}
+
+void NullPlugin::getFunction(std::string_view function_name, WasmCall_WWlfd *f) {
+  error("Unexpected getFunction for testing signature WasmCall_WWlfd: " +
+        std::string(function_name));
+  *f = nullptr;
+}
+
 null_plugin::Context *NullPlugin::ensureContext(uint64_t context_id, uint64_t root_context_id) {
   auto e = context_map_.insert(std::make_pair(context_id, nullptr));
   if (e.second) {
