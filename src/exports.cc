@@ -913,11 +913,8 @@ Word wasi_unstable_clock_res_get(Word clock_id, Word result_resolution_uint64_pt
 Word wasi_unstable_fd_advise(Word fd, uint64_t offset, uint64_t len, Word advice) {
   // fd_advise is used to provide advice about the expected behavior of the application with respect
   // to a file. Since we don't have a real file system in proxy-wasm, we can just return success
-  // without doing anything. This is similar to how other file-related functions are implemented in
-  // this codebase.
-
-  // We could check if fd is valid (e.g., stdout/stderr), but since this is just a hint and not
-  // required for correctness, we'll just return success for any fd.
+  // without doing anything. We could check if fd is valid (e.g., stdout/stderr), but since this is
+  // just a hint and not required for correctness, we'll just return success for any fd.
 
   return 0; // __WASI_ESUCCESS
 }
@@ -926,8 +923,8 @@ Word wasi_unstable_fd_advise(Word fd, uint64_t offset, uint64_t len, Word advice
 // len);
 Word wasi_unstable_fd_allocate(Word fd, uint64_t offset, uint64_t len) {
   // fd_allocate is used to ensure that space is allocated for a file.
-  // Since we don't have a real file system in proxy-wasm, we can just return success without doing
-  // anything. This is similar to how other file-related functions are implemented in this codebase.
+  // Since we don't have a real file system in proxy-wasm, we can just return success for
+  // stdout/stderr and an error for other file descriptors.
 
   // We only support stdout and stderr in proxy-wasm, which don't need allocation
   if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
@@ -965,8 +962,7 @@ Word wasi_unstable_fd_fdstat_set_rights(Word fd, uint64_t fs_rights_base,
     return 8; // __WASI_ERRNO_BADF - Bad file descriptor
   }
 
-  // For stdout and stderr, we don't actually change any rights, but we can pretend it succeeded
-  // This is similar to how other file-related functions are implemented in this codebase
+  // For stdout and stderr, we don't actually change any rights, but we can pretend it succeeded.
   return 0; // __WASI_ESUCCESS
 }
 
@@ -981,8 +977,7 @@ Word wasi_unstable_fd_filestat_set_size(Word fd, uint64_t size) {
     return 8; // __WASI_ERRNO_BADF - Bad file descriptor
   }
 
-  // For stdout and stderr, we don't actually change any size, but we can pretend it succeeded
-  // This is similar to how other file-related functions are implemented in this codebase
+  // For stdout and stderr, we don't actually change any size, but we can pretend it succeeded.
   return 0; // __WASI_ESUCCESS
 }
 
@@ -999,7 +994,6 @@ Word wasi_unstable_fd_filestat_set_times(Word fd, uint64_t atim, uint64_t mtim, 
   }
 
   // For stdout and stderr, we don't actually change any times, but we can pretend it succeeded
-  // This is similar to how other file-related functions are implemented in this codebase
   return 0; // __WASI_ESUCCESS
 }
 
@@ -1008,8 +1002,8 @@ Word wasi_unstable_fd_filestat_set_times(Word fd, uint64_t atim, uint64_t mtim, 
 Word wasi_unstable_fd_pread(Word fd, Word iovs_ptr, Word iovs_len, uint64_t offset,
                             Word nread_ptr) {
   // fd_pread is used to read from a file descriptor at a given offset.
-  // Since we don't have a real file system in proxy-wasm, we can just return an error.
-  // This is similar to how fd_read is implemented in this codebase.
+  // Since we don't have a real file system in proxy-wasm, we can just return success for
+  // stdout/stderr and an error for other file descriptors.
 
   // We don't support reading from any files in proxy-wasm
   return 52; // __WASI_ERRNO_ENOSYS - Function not implemented
@@ -1023,7 +1017,6 @@ Word wasi_unstable_fd_pwrite(Word fd, Word iovs_ptr, Word iovs_len, uint64_t off
 
   // fd_pwrite is used to write to a file descriptor at a given offset.
   // In proxy-wasm, we only support writing to stdout and stderr, and we don't support offsets.
-  // We'll implement this similar to fd_write but return an error for non-stdout/stderr fds.
 
   // Check if fd is stdout or stderr
   if (fd != 1 /* stdout */ && fd != 2 /* stderr */) {
@@ -1031,7 +1024,6 @@ Word wasi_unstable_fd_pwrite(Word fd, Word iovs_ptr, Word iovs_len, uint64_t off
   }
 
   // For stdout and stderr, we'll just ignore the offset and write the data
-  // This is similar to how fd_write is implemented in this codebase
   Word nwritten(0);
   auto result = writevImpl(fd, iovs_ptr, iovs_len, &nwritten);
   if (result != 0) { // __WASI_ESUCCESS
