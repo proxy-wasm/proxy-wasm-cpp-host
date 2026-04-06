@@ -1282,6 +1282,9 @@ Word wasi_unstable_poll_oneoff(Word /*in*/, Word /*out*/, Word /*nsubscriptions*
     return 21; // __WASI_EFAULT - If there is a failure setting memory
   }
 
+  // Go runtime requires poll_oneoff to return ESUCCESS. See
+  // https://github.com/golang/go/blob/0886e65b119e5be88846b1580451dc2b0d6f6fd0/src/runtime/os_wasip1.go#L186-L188
+  // and more context in github.com/proxy-wasm/proxy-wasm-cpp-host/issues/497.
   return 0; // __WASI_ESUCCESS
 }
 
