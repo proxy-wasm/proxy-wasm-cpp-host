@@ -46,6 +46,11 @@ jobs:
     runs-on: ubuntu-24.04-16core
 
     steps:
+    - name: Free up disk space
+      run: |
+        sudo rm -rf /usr/share/dotnet /usr/share/swift /usr/local/.ghcup /usr/local/julia* /usr/local/lib/android /usr/local/share/chromium /opt/microsoft /opt/google /usr/lib/firefox /opt/hostedtoolcache
+        echo "Free disk space: " $(df -h /)
+
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - uses: bazel-contrib/setup-bazel@c5acdfb288317d0b5c0bbd7a396a3dc868bb0f86 # 0.19.0
@@ -252,6 +257,11 @@ jobs:
           flags: --config=hermetic-llvm
 
     steps:
+    - name: Free up disk space
+      run: |
+        sudo rm -rf /usr/share/dotnet /usr/share/swift /usr/local/.ghcup /usr/local/julia* /usr/local/lib/android /usr/local/share/chromium /opt/microsoft /opt/google /usr/lib/firefox /opt/hostedtoolcache
+        echo "Free disk space: " $(df -h /)
+
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
     - name: Compute job hash
