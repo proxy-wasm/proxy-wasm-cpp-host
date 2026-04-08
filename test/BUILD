@@ -85,6 +85,22 @@ cc_test(
 )
 
 cc_test(
+    name = "endianness_test",
+    timeout = "long",
+    srcs = ["endianness_test.cc"],
+    data = [
+        "//test/test_data:endianness.wasm",
+    ],
+    linkstatic = 1,
+    deps = [
+        ":utility_lib",
+        "//:lib",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "exports_test",
     srcs = ["exports_test.cc"],
     data = [

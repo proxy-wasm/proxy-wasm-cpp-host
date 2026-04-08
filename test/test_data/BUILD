@@ -58,6 +58,11 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
+    name = "endianness.wasm",
+    srcs = ["endianness.rs"],
+)
+
+wasm_rust_binary(
     name = "resource_limits.wasm",
     srcs = ["resource_limits.rs"],
 )

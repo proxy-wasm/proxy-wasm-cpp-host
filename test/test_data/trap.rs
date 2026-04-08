@@ -27,7 +27,7 @@ pub extern "C" fn trigger() {
 
 #[no_mangle]
 pub extern "C" fn trigger2(_val: i32) -> i32 {
-    three();
+    five();
     0
 }
 
@@ -43,5 +43,15 @@ fn two() {
 
 #[inline(never)]
 fn three() {
+    four()
+}
+
+#[inline(never)]
+fn four() {
+    five();
+}
+
+#[inline(never)]
+fn five() {
     panic!("trap!");
 }
