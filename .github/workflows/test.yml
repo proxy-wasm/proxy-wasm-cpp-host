@@ -258,6 +258,7 @@ jobs:
 
     steps:
     - name: Free up disk space
+      if: ${{ matrix.deps != '' && startsWith(matrix.os, 'ubuntu') }}
       run: |
         sudo rm -rf /usr/share/dotnet /usr/share/swift /usr/local/.ghcup /usr/local/julia* /usr/local/lib/android /usr/local/share/chromium /opt/microsoft /opt/google /usr/lib/firefox /opt/hostedtoolcache
         echo "Free disk space: " $(df -h /)
