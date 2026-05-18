@@ -373,9 +373,9 @@ def proxy_wasm_cpp_host_repositories():
         http_archive,
         name = "com_github_bytecodealliance_wasmtime",
         build_file = "@proxy_wasm_cpp_host//bazel/external:wasmtime.BUILD",
-        sha256 = "c7c2f13eeb7c513352e4e65940cb88ee69d9d1e6c92bb40a3886e71dc7c24d66",
-        strip_prefix = "wasmtime-42.0.1",
-        url = "https://github.com/bytecodealliance/wasmtime/archive/v42.0.1.tar.gz",
+        sha256 = "bcfafdb58721d460c7bd1b4a0f1b7480145e38be5a6824a1656a7803f20d6667",
+        strip_prefix = "wasmtime-44.0.1",
+        url = "https://github.com/bytecodealliance/wasmtime/archive/v44.0.1.tar.gz",
         patches = ["@proxy_wasm_cpp_host//bazel/external:prefixed_wasmtime.patch"],
         patch_args = ["-p1"],
     )
