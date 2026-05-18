@@ -241,11 +241,11 @@ uint64_t Wasmtime::getMemorySize() {
 std::optional<std::string_view> Wasmtime::getMemory(uint64_t pointer, uint64_t size) {
   assert(store_.has_value());
   assert(memory_.has_value());
-  ::wasmtime::Span<uint8_t> data = memory_->data(store_->context());
-  if (pointer + size > data.size()) {
+  ::wasmtime::Span<uint8_t> memory = memory_->data(store_->context());
+  if (pointer + size > memory.size()) {
     return std::nullopt;
   }
-  return std::string_view(reinterpret_cast<char *>(data.data() + pointer), size);
+  return std::string_view(reinterpret_cast<char *>(memory.data() + pointer), size);
 }
 
 bool Wasmtime::setMemory(uint64_t pointer, uint64_t size, const void *data) {
