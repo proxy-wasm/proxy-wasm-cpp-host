@@ -21,7 +21,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "anyhow",
+    name = "generic_array",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -39,10 +39,10 @@ rust_library(
         ],
     ),
     crate_features = [
-        "std",
+        "more_lengths",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2015",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -51,14 +51,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=anyhow",
+        "crate-name=generic-array",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.102",
+    version = "0.14.7",
     deps = [
-        "@cu__anyhow-1.0.102//:build_script_build",
+        "@cu__generic-array-0.14.7//:build_script_build",
+        "@cu__typenum-1.20.0//:typenum",
     ],
 )
 
@@ -82,7 +83,7 @@ cargo_build_script(
         ],
     ),
     crate_features = [
-        "std",
+        "more_lengths",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -98,8 +99,8 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2021",
-    pkg_name = "anyhow",
+    edition = "2015",
+    pkg_name = "generic-array",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -108,13 +109,16 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=anyhow",
+        "crate-name=generic-array",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.102",
+    version = "0.14.7",
     visibility = ["//visibility:private"],
+    deps = [
+        "@cu__version_check-0.9.5//:version_check",
+    ],
 )
 
 alias(

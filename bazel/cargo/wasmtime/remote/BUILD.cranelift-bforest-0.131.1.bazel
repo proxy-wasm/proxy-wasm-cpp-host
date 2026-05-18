@@ -17,11 +17,14 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "hashbrown",
+    name = "cranelift_bforest",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
     ),
+    aliases = {
+        "@cu__wasmtime-internal-core-44.0.1//:wasmtime_internal_core": "wasmtime_core",
+    },
     compile_data = glob(
         include = ["**"],
         allow_empty = True,
@@ -34,11 +37,8 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default-hasher",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -47,13 +47,14 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=hashbrown",
+        "crate-name=cranelift-bforest",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.16.1",
+    version = "0.131.1",
     deps = [
-        "@cu__foldhash-0.2.0//:foldhash",
+        "@cu__cranelift-entity-0.131.1//:cranelift_entity",
+        "@cu__wasmtime-internal-core-44.0.1//:wasmtime_internal_core",
     ],
 )

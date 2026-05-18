@@ -38,7 +38,7 @@ rust_library(
         "default-hasher",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -52,7 +52,7 @@ rust_library(
         "noclippy",
         "norustfmt",
     ],
-    version = "0.16.1",
+    version = "0.17.1",
     deps = [
         "@cu__foldhash-0.2.0//:foldhash",
     ],

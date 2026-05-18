@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "hashbrown",
+    name = "cpufeatures",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -34,11 +34,8 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default-hasher",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2018",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -47,13 +44,31 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=hashbrown",
+        "crate-name=cpufeatures",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.16.1",
-    deps = [
-        "@cu__foldhash-0.2.0//:foldhash",
-    ],
+    version = "0.2.17",
+    deps = select({
+        "@rules_rust//rust/platform:aarch64-apple-darwin": [
+            "@cu__libc-0.2.182//:libc",  # cfg(all(target_arch = "aarch64", target_vendor = "apple"))
+        ],
+        "@rules_rust//rust/platform:aarch64-apple-ios": [
+            "@cu__libc-0.2.182//:libc",  # cfg(all(target_arch = "aarch64", target_vendor = "apple"))
+        ],
+        "@rules_rust//rust/platform:aarch64-apple-ios-sim": [
+            "@cu__libc-0.2.182//:libc",  # cfg(all(target_arch = "aarch64", target_vendor = "apple"))
+        ],
+        "@rules_rust//rust/platform:aarch64-linux-android": [
+            "@cu__libc-0.2.182//:libc",  # aarch64-linux-android
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-linux-gnu": [
+            "@cu__libc-0.2.182//:libc",  # cfg(all(target_arch = "aarch64", target_os = "linux"))
+        ],
+        "@rules_rust//rust/platform:aarch64-unknown-nixos-gnu": [
+            "@cu__libc-0.2.182//:libc",  # cfg(all(target_arch = "aarch64", target_os = "linux"))
+        ],
+        "//conditions:default": [],
+    }),
 )
