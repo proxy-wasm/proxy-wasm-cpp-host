@@ -361,7 +361,7 @@ bool WasmEdge::link(std::string_view /*debug_name*/) {
     res = WasmEdge_ExecutorRegisterImport(executor_.get(), store_.get(), it.second->cxt_);
     if (!WasmEdge_ResultOK(res)) {
       fail(FailState::UnableToInitializeCode,
-           std::string("Failed to link Wasm module due to import: ") + it.first);
+           std::string("Failed to load Wasm module due to import: ") + it.first);
       return false;
     }
   }
@@ -370,7 +370,7 @@ bool WasmEdge::link(std::string_view /*debug_name*/) {
   res = WasmEdge_ExecutorInstantiate(executor_.get(), &mod, store_.get(), ast_module_.get());
   if (!WasmEdge_ResultOK(res)) {
     fail(FailState::UnableToInitializeCode,
-         std::string("Failed to link Wasm module: ") + std::string(WasmEdge_ResultGetMessage(res)));
+         std::string("Failed to load Wasm module: ") + std::string(WasmEdge_ResultGetMessage(res)));
     return false;
   }
   // Get the function and memory exports.

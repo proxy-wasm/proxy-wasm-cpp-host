@@ -72,6 +72,7 @@ cc_test(
     data = [
         "//test/test_data:callback.wasm",
         "//test/test_data:clock.wasm",
+        "//test/test_data:invalid_import_type.wasm",
         "//test/test_data:resource_limits.wasm",
         "//test/test_data:trap.wasm",
     ],
