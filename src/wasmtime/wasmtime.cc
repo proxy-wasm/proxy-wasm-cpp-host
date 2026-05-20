@@ -166,10 +166,10 @@ void Wasmtime::initStore() {
   }
   store_.emplace(*engine());
   store_->limiter(PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES,
-                  /*table_elements=*/std::numeric_limits<int64_t>::max(),
-                  /*instances=*/std::numeric_limits<int64_t>::max(),
-                  /*tables=*/std::numeric_limits<int64_t>::max(),
-                  /*memories=*/std::numeric_limits<int64_t>::max());
+                  /*table_elements=*/10000,
+                  /*instances=*/1,
+                  /*tables=*/10000,
+                  /*memories=*/1);
 }
 
 bool Wasmtime::load(std::string_view bytecode, std::string_view /*precompiled*/,
