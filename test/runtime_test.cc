@@ -230,7 +230,7 @@ TEST_P(TestVm, SerializeAndDeserializeRoundTripWorks) {
 }
 
 TEST_P(TestVm, ImportWithMismatchingTypeFailsLink) {
-  auto source = readTestWasmFile("invalid_import_type.wasm");
+  auto source = readTestWasmFile("incorrect_import_type.wasm");
   ASSERT_FALSE(source.empty());
   auto wasm = TestWasm(std::move(vm_));
   auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
@@ -241,7 +241,8 @@ TEST_P(TestVm, ImportWithMismatchingTypeFailsLink) {
   EXPECT_TRUE(host->isErrorLogged("Failed to load Wasm module"));
   // TODO: WasmEdge logs the failing import to stderr, but not to the Proxy-Wasm integration logger.
   if (engine_ != "wasmedge") {
-    EXPECT_TRUE(host->isErrorLogged("proxy_log"));
+    // The function that has the incorrect type
+    EXPECT_TRUE(host->isErrorLogged("proxy_done"));
   }
 }
 

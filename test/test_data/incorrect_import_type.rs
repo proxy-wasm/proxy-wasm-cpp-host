@@ -14,7 +14,7 @@
 
 extern "C" {
     // Wrong type!
-    fn proxy_log(level: u32, message_data: *const u8) -> u32;
+    fn proxy_done(incorrect_arg: u32) -> u32;
 }
 
 #[no_mangle]
@@ -23,7 +23,7 @@ pub extern "C" fn proxy_abi_version_0_2_0() {}
 #[no_mangle]
 pub extern "C" fn proxy_on_memory_allocate(size: usize) -> *mut u8 {
     unsafe {
-        proxy_log(0, "my_message".as_ptr());
+        proxy_done(1234);
     }
     std::ptr::null_mut()
 }

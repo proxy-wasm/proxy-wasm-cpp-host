@@ -48,8 +48,8 @@ wasm_rust_binary(
 )
 
 wasm_rust_binary(
-    name = "invalid_import_type.wasm",
-    srcs = ["invalid_import_type.rs"],
+    name = "incorrect_import_type.wasm",
+    srcs = ["incorrect_import_type.rs"],
 )
 
 wasm_rust_binary(
