@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "include/proxy-wasm/limits.h"
+#include "include/proxy-wasm/bytecode_util.h"
 
 #include "absl/strings/str_format.h"
 #include "include/v8-initialization.h"
@@ -78,6 +79,7 @@ public:
 
   bool load(std::string_view bytecode, std::string_view precompiled,
             const std::unordered_map<uint32_t, std::string> &function_names) override;
+  std::optional<std::string> serialize(std::string_view original_bytecode) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
 
@@ -311,6 +313,20 @@ bool V8::load(std::string_view bytecode, std::string_view precompiled,
   function_names_index_ = function_names;
 
   return true;
+}
+
+std::optional<std::string> V8::serialize(std::string_view original_bytecode) {
+  if (module_ == nullptr) {
+    return std::nullopt;
+  }
+  wasm::vec<byte_t> serialized = module_->serialize();
+  if (serialized.invalid()) {
+    integration()->error("Failed to serialize wasm module.");
+    return std::nullopt;
+  }
+  return BytecodeUtil::writeModuleWithCustomSection(
+      original_bytecode, getPrecompiledSectionName(),
+      std::string_view(serialized.get(), serialized.size()));
 }
 
 std::unique_ptr<WasmVm> V8::clone() {

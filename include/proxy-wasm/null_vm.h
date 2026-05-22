@@ -34,6 +34,9 @@ struct NullVm : public WasmVm {
   // WasmVm
   std::string_view getEngineName() override { return "null"; }
   Cloneable cloneable() override { return Cloneable::InstantiatedModule; };
+  std::optional<std::string> serialize(std::string_view original_bytecode) override {
+    return std::nullopt;
+  }
   std::unique_ptr<WasmVm> clone() override;
   bool load(std::string_view plugin_name, std::string_view precompiled,
             const std::unordered_map<uint32_t, std::string> &function_names) override;

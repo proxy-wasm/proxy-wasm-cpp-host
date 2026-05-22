@@ -61,15 +61,25 @@ public:
                                    std::unordered_map<uint32_t, std::string> &ret);
 
   /**
-   * getStrippedSource gets Wasm module without Custom Sections to save some memory in workers.
+   * getStrippedSource gets Wasm module without precompiled sections to save some memory in workers.
    * @param bytecode is the original bytecode.
    * @param ret is the reference to the stripped bytecode or a copy of the original bytecode.
    * @return indicates whether parsing succeeded or not.
    */
   static bool getStrippedSource(std::string_view bytecode, std::string &ret);
 
-private:
-  static bool parseVarint(const char *&pos, const char *end, uint32_t &ret);
+  /**
+   * writeModuleWithCustomSection returns a new wasm module comprised of the supplied module with
+   * the supplied custom section overwriting any existing custom sections containing precompiled
+   * precompiled content.
+   * @param bytecode is the bytecode to add the custom section to.
+   * @param section_name is the section name to add/overwrite.
+   * @param section_contents are the contents of the new section.
+   * @return a string containing the sum of the original bytecode with the new section.
+   */
+  static std::optional<std::string> writeModuleWithCustomSection(std::string_view bytecode,
+                                                                 std::string_view section_name,
+                                                                 std::string_view section_contents);
 };
 
 } // namespace proxy_wasm

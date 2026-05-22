@@ -14,6 +14,7 @@
 
 #include "gtest/gtest.h"
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <thread>
@@ -192,6 +193,29 @@ TEST_P(TestVm, Trap2) {
     EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
     EXPECT_TRUE(host->isErrorLogged(" - trigger2"));
   }
+}
+
+TEST_P(TestVm, SerializeAndDeserializeRoundTripWorks) {
+  if (engine_ != "v8" && engine_ != "wasmtime") {
+    return;
+  }
+  auto source = readTestWasmFile("clock.wasm");
+  ASSERT_FALSE(source.empty());
+  TestWasm wasm(std::move(vm_));
+  std::chrono::time_point<std::chrono::system_clock> load_1_start =
+      std::chrono::system_clock::now();
+  ASSERT_TRUE(wasm.load(source, false));
+  std::chrono::time_point<std::chrono::system_clock> load_1_end = std::chrono::system_clock::now();
+
+  std::optional<std::string> serialized = wasm.wasm_vm()->serialize(source);
+  ASSERT_NE(serialized, std::nullopt);
+  TestWasm new_wasm(makeVm(engine_));
+  std::chrono::time_point<std::chrono::system_clock> load_2_start =
+      std::chrono::system_clock::now();
+  ASSERT_TRUE(wasm.load(*serialized, true));
+  std::chrono::time_point<std::chrono::system_clock> load_2_end = std::chrono::system_clock::now();
+
+  EXPECT_LT((load_2_end - load_2_start) * 2, load_1_end - load_1_start);
 }
 
 class TestCounterContext : public TestContext {

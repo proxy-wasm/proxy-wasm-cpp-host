@@ -37,6 +37,8 @@ namespace proxy_wasm {
 
 namespace {
 
+constexpr uint32_t kAsmMagicBytes = 0x6d736100; // Little-endian for "\0asm"
+
 // Map from Wasm key to the thread-local Wasm instance.
 thread_local std::unordered_map<std::string, std::weak_ptr<WasmHandleBase>> local_wasms;
 // Wasm key queue to track stale entries in `local_wasms`.

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "include/proxy-wasm/bytecode_util.h"
+#include <string>
 
 #if !defined(_MSC_VER)
 #include <cxxabi.h>
@@ -21,6 +22,102 @@
 #include <cstring>
 
 namespace proxy_wasm {
+namespace {
+
+constexpr char kCustomSectionType = '\0';
+
+bool parseVarint(const char *&pos, const char *end, uint32_t &ret) {
+  uint32_t shift = 0;
+  uint32_t total = 0;
+  uint32_t v;
+  char b;
+  while (pos < end) {
+    if (pos + 1 > end) {
+      // overread
+      return false;
+    }
+    b = *pos++;
+    v = (b & 0x7f);
+    if (shift == 28 && v > 3) {
+      // overflow
+      return false;
+    }
+    total += v << shift;
+    if ((b & 0x80) == 0) {
+      ret = total;
+      return true;
+    }
+    shift += 7;
+    if (shift > 28) {
+      // overflow
+      return false;
+    }
+  }
+  return false;
+}
+
+std::vector<uint8_t> encodeVarint(uint32_t value) {
+  std::vector<uint8_t> ret;
+  while (value >= 0x80) {
+    ret.push_back(static_cast<uint8_t>(value | 0x80));
+    value >>= 7;
+  }
+  ret.push_back(static_cast<uint8_t>(value));
+  return ret;
+}
+
+bool stripMatchingSections(std::string_view bytecode,
+                           std::string_view section_name_substring_to_match, std::string &ret) {
+  // Check Wasm header.
+  if (!BytecodeUtil::checkWasmHeader(bytecode)) {
+    return false;
+  }
+
+  // Skip the Wasm header.
+  const char *pos = bytecode.data() + 8;
+  const char *end = bytecode.data() + bytecode.size();
+  while (pos < end) {
+    const auto *const section_start = pos;
+    if (pos + 1 > end) {
+      return false;
+    }
+    const auto section_type = *pos++;
+    uint32_t section_len = 0;
+    if (!parseVarint(pos, end, section_len) || pos + section_len > end) {
+      return false;
+    }
+    if (section_type == kCustomSectionType) {
+      const auto *const section_data_start = pos;
+      uint32_t section_name_len = 0;
+      if (!parseVarint(pos, end, section_name_len) || pos + section_name_len > end) {
+        return false;
+      }
+      auto section_name = std::string_view(pos, section_name_len);
+      if (section_name.find(section_name_substring_to_match) != std::string::npos) {
+        // If this is the first "precompiled_" section, then save everything
+        // before it, otherwise skip it.
+        if (ret.empty()) {
+          const char *start = bytecode.data();
+          ret.append(start, section_start);
+        }
+      }
+      pos = section_data_start + section_len;
+    } else {
+      pos += section_len;
+      // Save this section if we already saw a custom "precompiled_" section.
+      if (!ret.empty()) {
+        ret.append(section_start, pos);
+      }
+    }
+  }
+  if (ret.empty()) {
+    // Copy the original source code if it is empty.
+    ret = std::string(bytecode);
+  }
+  return true;
+}
+
+} // namespace
 
 bool BytecodeUtil::checkWasmHeader(std::string_view bytecode) {
   // Wasm file header is 8 bytes (magic number + version).
@@ -115,11 +212,11 @@ bool BytecodeUtil::getCustomSection(std::string_view bytecode, std::string_view 
     if (!parseVarint(pos, end, section_len) || pos + section_len > end) {
       return false;
     }
-    if (section_type == 0) {
+    if (section_type == kCustomSectionType) {
       // Custom section.
       const char *section_end = pos + section_len;
       uint32_t section_name_len = 0;
-      if (!BytecodeUtil::parseVarint(pos, section_end, section_name_len) ||
+      if (!parseVarint(pos, section_end, section_name_len) ||
           pos + section_name_len > section_end) {
         return false;
       }
@@ -195,83 +292,35 @@ bool BytecodeUtil::getFunctionNameIndex(std::string_view bytecode,
 }
 
 bool BytecodeUtil::getStrippedSource(std::string_view bytecode, std::string &ret) {
-  // Check Wasm header.
-  if (!checkWasmHeader(bytecode)) {
-    return false;
-  }
-
-  // Skip the Wasm header.
-  const char *pos = bytecode.data() + 8;
-  const char *end = bytecode.data() + bytecode.size();
-  while (pos < end) {
-    const auto *const section_start = pos;
-    if (pos + 1 > end) {
-      return false;
-    }
-    const auto section_type = *pos++;
-    uint32_t section_len = 0;
-    if (!parseVarint(pos, end, section_len) || pos + section_len > end) {
-      return false;
-    }
-    if (section_type == 0 /* custom section */) {
-      const auto *const section_data_start = pos;
-      uint32_t section_name_len = 0;
-      if (!parseVarint(pos, end, section_name_len) || pos + section_name_len > end) {
-        return false;
-      }
-      auto section_name = std::string_view(pos, section_name_len);
-      if (section_name.find("precompiled_") != std::string::npos) {
-        // If this is the first "precompiled_" section, then save everything
-        // before it, otherwise skip it.
-        if (ret.empty()) {
-          const char *start = bytecode.data();
-          ret.append(start, section_start);
-        }
-      }
-      pos = section_data_start + section_len;
-    } else {
-      pos += section_len;
-      // Save this section if we already saw a custom "precompiled_" section.
-      if (!ret.empty()) {
-        ret.append(section_start, pos);
-      }
-    }
-  }
-  if (ret.empty()) {
-    // Copy the original source code if it is empty.
-    ret = std::string(bytecode);
-  }
-  return true;
+  return stripMatchingSections(bytecode, "precompiled_", ret);
 }
 
-bool BytecodeUtil::parseVarint(const char *&pos, const char *end, uint32_t &ret) {
-  uint32_t shift = 0;
-  uint32_t total = 0;
-  uint32_t v;
-  char b;
-  while (pos < end) {
-    if (pos + 1 > end) {
-      // overread
-      return false;
-    }
-    b = *pos++;
-    v = (b & 0x7f);
-    if (shift == 28 && v > 3) {
-      // overflow
-      return false;
-    }
-    total += v << shift;
-    if ((b & 0x80) == 0) {
-      ret = total;
-      return true;
-    }
-    shift += 7;
-    if (shift > 28) {
-      // overflow
-      return false;
-    }
+std::optional<std::string>
+BytecodeUtil::writeModuleWithCustomSection(std::string_view bytecode, std::string_view section_name,
+                                           std::string_view section_contents) {
+  if (!checkWasmHeader(bytecode)) {
+    return std::nullopt;
   }
-  return false;
+  std::vector<uint8_t> section_name_len = encodeVarint(section_name.size());
+  std::vector<uint8_t> section_size =
+      encodeVarint(section_name_len.size() + section_name.size() + section_contents.size());
+  int appended_contents_size = /*section_type*/ 1 + section_size.size() + section_name_len.size() +
+                               section_name.size() + section_contents.size();
+  std::string output;
+  // Copy wasm header.
+  if (!stripMatchingSections(bytecode, section_name, output)) {
+    // `bytecode` was an invalid wasm module.
+    return std::nullopt;
+  }
+  output.reserve(output.size() + appended_contents_size);
+  output.push_back(kCustomSectionType);
+  output.append(
+      std::string_view(reinterpret_cast<char *>(section_size.data()), section_size.size()));
+  output.append(
+      std::string_view(reinterpret_cast<char *>(section_name_len.data()), section_name_len.size()));
+  output.append(section_name);
+  output.append(section_contents);
+  return output;
 }
 
 } // namespace proxy_wasm

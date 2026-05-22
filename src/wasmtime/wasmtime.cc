@@ -20,9 +20,11 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 
 #include "include/proxy-wasm/limits.h"
 #include "include/proxy-wasm/word.h"
+#include "include/proxy-wasm/bytecode_util.h"
 
 #include "crates/c-api/include/wasmtime.hh" // IWYU pragma: keep
 
@@ -96,10 +98,11 @@ public:
 
   std::string_view getEngineName() override { return "wasmtime"; }
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
-  std::string_view getPrecompiledSectionName() override { return ""; }
+  std::string_view getPrecompiledSectionName() override;
 
   bool load(std::string_view bytecode, std::string_view precompiled,
             const std::unordered_map<uint32_t, std::string> &function_names) override;
+  std::optional<std::string> serialize(std::string_view original_bytecode) override;
   bool link(std::string_view debug_name) override;
   std::unique_ptr<WasmVm> clone() override;
   uint64_t getMemorySize() override;
@@ -202,6 +205,21 @@ bool Wasmtime::load(std::string_view bytecode, std::string_view precompiled,
   }
   module_.emplace(module.ok());
   return true;
+}
+
+std::optional<std::string> Wasmtime::serialize(std::string_view original_bytecode) {
+  if (!module_.has_value()) {
+    return std::nullopt;
+  }
+  Result<std::vector<uint8_t>> serialized = module_->serialize();
+  if (!serialized) {
+    integration()->error("Failed to serialize wasm module: " + serialized.err().message());
+    return std::nullopt;
+  }
+  return BytecodeUtil::writeModuleWithCustomSection(
+      original_bytecode, getPrecompiledSectionName(),
+      std::string_view(reinterpret_cast<char *>(serialized.ok_ref().data()),
+                       serialized.ok_ref().size()));
 }
 
 std::unique_ptr<WasmVm> Wasmtime::clone() {
@@ -429,6 +447,9 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
 };
 
 void Wasmtime::warm() { initStore(); }
+
+// Wasmtime sticks
+std::string_view Wasmtime::getPrecompiledSectionName() { return "precompiled_wasmtime_bytecode"; }
 
 } // namespace wasmtime
 

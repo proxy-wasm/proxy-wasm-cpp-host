@@ -236,6 +236,14 @@ public:
                     const std::unordered_map<uint32_t, std::string> &function_names) = 0;
 
   /**
+   * Serializes the loaded wasm module to a string. Returns true on success. The resulting string
+   * may be saved to storage and passed as a precompiled wasm module to another instance.
+   * @param original_bytecode the bytecode to append the serialized section to.
+   * @return a string containing the serialized wasm module, or nullopt if serialization failed.
+   */
+  virtual std::optional<std::string> serialize(std::string_view original_bytecode) = 0;
+
+  /**
    * Link the WASM code to the host-provided functions, e.g. the ABI. Prior to linking, the module
    * should be loaded and the ABI callbacks registered (see above). Linking should be done once
    * after load().

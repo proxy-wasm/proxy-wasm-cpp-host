@@ -60,6 +60,9 @@ public:
   std::string_view getPrecompiledSectionName() override { return "wamr-aot"; }
 
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
+  std::optional<std::string> serialize(std::string_view original_bytecode) override {
+    return std::nullopt;
+  }
   std::unique_ptr<WasmVm> clone() override;
 
   bool load(std::string_view bytecode, std::string_view precompiled,
