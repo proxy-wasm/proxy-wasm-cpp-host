@@ -172,21 +172,35 @@ void Wasmtime::initStore() {
                   /*memories=*/1);
 }
 
-bool Wasmtime::load(std::string_view bytecode, std::string_view /*precompiled*/,
+bool Wasmtime::load(std::string_view bytecode, std::string_view precompiled,
                     const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
+
   initStore();
   if (!store_.has_value()) {
     return false;
   }
 
-  Result<Module> module =
-      Module::compile(*engine(), std::span((uint8_t *)bytecode.data(), bytecode.size()));
+  Result<Module> module(::wasmtime::Error("Unable to load Wasm module: zero-length."));
+  if (!precompiled.empty()) {
+    module = Module::deserialize(*engine(),
+                                 std::span((uint8_t *)precompiled.data(), precompiled.size()));
+    if (module) {
+      module_.emplace(module.ok());
+      return true;
+    }
+  }
+  if (bytecode.empty()) {
+    fail(FailState::UnableToInitializeCode,
+         "Failed to deserialize Wasm module: " + module.err().message());
+    return false;
+  }
+  module = Module::compile(*engine(), std::span((uint8_t *)bytecode.data(), bytecode.size()));
   if (!module) {
-    fail(FailState::UnableToInitializeCode, "Failed to load Wasm code: " + module.err().message());
+    fail(FailState::UnableToInitializeCode,
+         "Failed to load Wasm module: " + module.err().message());
     return false;
   }
   module_.emplace(module.ok());
-
   return true;
 }
 
