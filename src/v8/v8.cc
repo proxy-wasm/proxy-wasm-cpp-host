@@ -358,30 +358,12 @@ std::unique_ptr<WasmVm> V8::clone() {
   return clone;
 }
 
-#if defined(__linux__) && defined(__x86_64__)
-#define WEE8_PLATFORM "linux_x86_64"
-#elif defined(__linux__) && defined(__aarch64__)
-#define WEE8_PLATFORM "linux_aarch64"
-#elif defined(__linux__) && (defined(__ppc64le__) || defined(__PPC64LE__))
-#define WEE8_PLATFORM "linux_ppc64le"
-#elif defined(__linux__) && defined(__s390x__)
-#define WEE8_PLATFORM "linux_s390x"
-#elif defined(__APPLE__) && defined(__x86_64__)
-#define WEE8_PLATFORM "macos_x86_64"
-#elif defined(__APPLE__) && defined(__arm64__)
-#define WEE8_PLATFORM "macos_arm64"
-#elif defined(_WIN64) && defined(_M_X64)
-#define WEE8_PLATFORM "windows_x64"
-#else
-#define WEE8_PLATFORM ""
-#endif
-
 std::string_view V8::getPrecompiledSectionName() {
   static const auto name =
-      sizeof(WEE8_PLATFORM) - 1 > 0
+      sizeof(PROXY_WASM_PLATFORM) - 1 > 0
           ? ("precompiled_wee8_v" + std::to_string(V8_MAJOR_VERSION) + "." +
              std::to_string(V8_MINOR_VERSION) + "." + std::to_string(V8_BUILD_NUMBER) + "." +
-             std::to_string(V8_PATCH_LEVEL) + "_" + WEE8_PLATFORM)
+             std::to_string(V8_PATCH_LEVEL) + "_" + PROXY_WASM_PLATFORM)
           : "";
   return name;
 }

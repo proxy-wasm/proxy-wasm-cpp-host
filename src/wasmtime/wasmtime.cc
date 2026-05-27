@@ -26,6 +26,7 @@
 #include "include/proxy-wasm/word.h"
 #include "include/proxy-wasm/bytecode_util.h"
 
+#include "crates/c-api/include/wasmtime.h"  // IWYU pragma: keep
 #include "crates/c-api/include/wasmtime.hh" // IWYU pragma: keep
 
 namespace wasmtime::detail {
@@ -449,7 +450,13 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
 void Wasmtime::warm() { initStore(); }
 
 // Wasmtime sticks
-std::string_view Wasmtime::getPrecompiledSectionName() { return "precompiled_wasmtime_bytecode"; }
+std::string_view Wasmtime::getPrecompiledSectionName() {
+  static const auto name =
+      sizeof(PROXY_WASM_PLATFORM) - 1 > 0
+          ? ("precompiled_wasmtime_v" + std::string(WASMTIME_VERSION) + "_" + PROXY_WASM_PLATFORM)
+          : "";
+  return name;
+}
 
 } // namespace wasmtime
 
