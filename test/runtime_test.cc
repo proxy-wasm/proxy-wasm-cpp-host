@@ -203,11 +203,11 @@ TEST_P(TestVm, SerializeAndDeserializeRoundTripWorks) {
   ASSERT_FALSE(source.empty());
   TestWasm wasm(std::move(vm_));
 
-  std::chrono::time_point<std::chrono::system_clock> unprecompiled_load_start =
-      std::chrono::system_clock::now();
+  std::chrono::time_point<std::chrono::steady_clock> unprecompiled_load_start =
+      std::chrono::steady_clock::now();
   ASSERT_TRUE(wasm.load(source, false));
-  std::chrono::time_point<std::chrono::system_clock> unprecompiled_load_end =
-      std::chrono::system_clock::now();
+  std::chrono::time_point<std::chrono::steady_clock> unprecompiled_load_end =
+      std::chrono::steady_clock::now();
 
   std::optional<std::string> serialized = wasm.wasm_vm()->serialize(source);
   ASSERT_NE(serialized, std::nullopt);
@@ -216,11 +216,11 @@ TEST_P(TestVm, SerializeAndDeserializeRoundTripWorks) {
   ASSERT_TRUE(TestWasm(makeVm(engine_)).load(*serialized, false));
 
   // Loads faster now that it is precompiled:
-  std::chrono::time_point<std::chrono::system_clock> precompiled_load_start =
-      std::chrono::system_clock::now();
+  std::chrono::time_point<std::chrono::steady_clock> precompiled_load_start =
+      std::chrono::steady_clock::now();
   ASSERT_TRUE(TestWasm(makeVm(engine_)).load(*serialized, true));
-  std::chrono::time_point<std::chrono::system_clock> precompiled_load_end =
-      std::chrono::system_clock::now();
+  std::chrono::time_point<std::chrono::steady_clock> precompiled_load_end =
+      std::chrono::steady_clock::now();
 
   EXPECT_LT((precompiled_load_end - precompiled_load_start) * 2,
             (unprecompiled_load_end - unprecompiled_load_start));
