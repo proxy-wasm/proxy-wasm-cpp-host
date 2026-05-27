@@ -222,6 +222,8 @@ TEST_P(TestVm, SerializeAndDeserializeRoundTripWorks) {
   std::chrono::time_point<std::chrono::steady_clock> precompiled_load_end =
       std::chrono::steady_clock::now();
 
+  std::cout << "Precompiled load time: " << precompiled_load_end - precompiled_load_start << "\n"
+            << "Unprecompiled load time: " << unprecompiled_load_end - unprecompiled_load_start;
   EXPECT_LT((precompiled_load_end - precompiled_load_start) * 2,
             (unprecompiled_load_end - unprecompiled_load_start));
 }
