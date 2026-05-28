@@ -449,7 +449,6 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
 
 void Wasmtime::warm() { initStore(); }
 
-// Wasmtime sticks
 std::string_view Wasmtime::getPrecompiledSectionName() {
   static const auto name =
       sizeof(PROXY_WASM_PLATFORM) - 1 > 0
