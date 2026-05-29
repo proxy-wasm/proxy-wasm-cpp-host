@@ -14,6 +14,7 @@
 
 load("@aspect_rules_lint//format:repositories.bzl", "rules_lint_dependencies")
 load("@bazel_lib//lib:repositories.bzl", "bazel_lib_dependencies", "bazel_lib_register_toolchains")
+load("@com_google_benchmark//:bazel/benchmark_deps.bzl", "benchmark_deps")
 load("@com_google_googletest//:googletest_deps.bzl", "googletest_deps")
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 load("@envoy_toolshed//sysroot:sysroot.bzl", "setup_sysroots")
@@ -31,6 +32,7 @@ def proxy_wasm_cpp_host_dependencies():
     # Bazel extensions.
     googletest_deps()
     rules_foreign_cc_dependencies()
+    benchmark_deps()
 
     rules_lint_dependencies()
 
