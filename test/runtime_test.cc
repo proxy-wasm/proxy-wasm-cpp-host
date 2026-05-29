@@ -14,6 +14,7 @@
 
 #include "gtest/gtest.h"
 
+#include <chrono>
 #include <memory>
 #include <string>
 #include <thread>
@@ -192,6 +193,40 @@ TEST_P(TestVm, Trap2) {
     EXPECT_TRUE(host->isErrorLogged(" - std::panicking::begin_panic"));
     EXPECT_TRUE(host->isErrorLogged(" - trigger2"));
   }
+}
+
+TEST_P(TestVm, SerializeAndDeserializeRoundTripWorks) {
+  if (engine_ != "v8" && engine_ != "wasmtime") {
+    return;
+  }
+  auto source = readTestWasmFile("clock.wasm");
+  ASSERT_FALSE(source.empty());
+  TestWasm wasm(std::move(vm_));
+
+  auto unprecompiled_load_start = std::chrono::steady_clock::now();
+  ASSERT_TRUE(wasm.load(source, false));
+  auto unprecompiled_load_end = std::chrono::steady_clock::now();
+
+  std::optional<std::string> serialized = wasm.wasm_vm()->serialize(source);
+  ASSERT_NE(serialized, std::nullopt);
+
+  // Still loads with allow_precompiled == false:
+  ASSERT_TRUE(TestWasm(makeVm(engine_)).load(*serialized, false));
+
+  // Loads faster now that it is precompiled:
+  auto precompiled_load_start = std::chrono::steady_clock::now();
+  ASSERT_TRUE(TestWasm(makeVm(engine_)).load(*serialized, true));
+  auto precompiled_load_end = std::chrono::steady_clock::now();
+
+  auto precompiled = std::chrono::duration_cast<std::chrono::nanoseconds>(precompiled_load_end -
+                                                                          precompiled_load_start)
+                         .count();
+  auto unprecompiled = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                           unprecompiled_load_end - unprecompiled_load_start)
+                           .count();
+  std::cout << "[" << engine_ << "] \"precompiled\" load time: " << precompiled << "ns\n"
+            << "[" << engine_ << "] \"unprecompiled\" load time: " << unprecompiled << "ns\n";
+  EXPECT_LT(precompiled * 2, unprecompiled);
 }
 
 class TestCounterContext : public TestContext {

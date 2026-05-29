@@ -123,4 +123,32 @@ TEST(TestBytecodeUtil, getAbiVersion) {
   EXPECT_EQ(actual, proxy_wasm::AbiVersion::ProxyWasm_0_2_0);
 }
 
+TEST(TestWriteModuleWithCustomSection, HasCustomSection) {
+  const std::string source = readTestWasmFile("abi_export.wasm");
+
+  std::optional<std::string> result = BytecodeUtil::writeModuleWithCustomSection(
+      source, "my_custom_section", "my_custom_section_contents");
+  ASSERT_NE(result, std::nullopt);
+
+  std::string_view custom_section_contents;
+  ASSERT_TRUE(
+      BytecodeUtil::getCustomSection(*result, "my_custom_section", custom_section_contents));
+  EXPECT_EQ(custom_section_contents, "my_custom_section_contents");
+}
+
+TEST(TestWriteModuleWithCustomSection, OverwritesCustomSectionWithSameName) {
+  const std::string source = readTestWasmFile("abi_export.wasm");
+
+  std::optional<std::string> result = BytecodeUtil::writeModuleWithCustomSection(
+      source, "my_custom_section", "my_custom_section_contents");
+  ASSERT_NE(result, std::nullopt);
+  result = BytecodeUtil::writeModuleWithCustomSection(*result, "my_custom_section", "new_contents");
+  ASSERT_NE(result, std::nullopt);
+
+  std::string_view custom_section_contents;
+  ASSERT_TRUE(
+      BytecodeUtil::getCustomSection(*result, "my_custom_section", custom_section_contents));
+  EXPECT_EQ(custom_section_contents, "new_contents");
+}
+
 } // namespace proxy_wasm

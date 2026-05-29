@@ -29,6 +29,25 @@
 
 namespace proxy_wasm {
 
+#ifdef PROXY_WASM_PLATFORM
+#elif defined(__linux__) && defined(__x86_64__)
+#define PROXY_WASM_PLATFORM "linux_x86_64"
+#elif defined(__linux__) && defined(__aarch64__)
+#define PROXY_WASM_PLATFORM "linux_aarch64"
+#elif defined(__linux__) && (defined(__ppc64le__) || defined(__PPC64LE__))
+#define PROXY_WASM_PLATFORM "linux_ppc64le"
+#elif defined(__linux__) && defined(__s390x__)
+#define PROXY_WASM_PLATFORM "linux_s390x"
+#elif defined(__APPLE__) && defined(__x86_64__)
+#define PROXY_WASM_PLATFORM "macos_x86_64"
+#elif defined(__APPLE__) && defined(__arm64__)
+#define PROXY_WASM_PLATFORM "macos_arm64"
+#elif defined(_WIN64) && defined(_M_X64)
+#define PROXY_WASM_PLATFORM "windows_x64"
+#else
+#define PROXY_WASM_PLATFORM ""
+#endif
+
 class ContextBase;
 
 // These are templates and its helper for constructing signatures of functions calling into Wasm
@@ -234,6 +253,14 @@ public:
    */
   virtual bool load(std::string_view bytecode, std::string_view precompiled,
                     const std::unordered_map<uint32_t, std::string> &function_names) = 0;
+
+  /**
+   * Serializes the loaded wasm module to a string. Returns true on success. The resulting string
+   * may be saved to storage and passed as a precompiled wasm module to another instance.
+   * @param original_bytecode the bytecode to append the serialized section to.
+   * @return a string containing the serialized wasm module, or nullopt if serialization failed.
+   */
+  virtual std::optional<std::string> serialize(std::string_view original_bytecode) = 0;
 
   /**
    * Link the WASM code to the host-provided functions, e.g. the ABI. Prior to linking, the module
