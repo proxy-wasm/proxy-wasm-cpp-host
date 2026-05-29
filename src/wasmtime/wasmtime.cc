@@ -178,13 +178,13 @@ void Wasmtime::initStore() {
 
 bool Wasmtime::load(std::string_view bytecode, std::string_view precompiled,
                     const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
-
   initStore();
   if (!store_.has_value()) {
     return false;
   }
 
-  Result<Module> module(::wasmtime::Error("Unable to load Wasm module: zero-length."));
+  // Error message used if both precompiled and bytecode are empty.
+  Result<Module> module(::wasmtime::Error("Unable to load Wasm module: empty"));
   if (!precompiled.empty()) {
     module = Module::deserialize(*engine(),
                                  std::span((uint8_t *)precompiled.data(), precompiled.size()));
