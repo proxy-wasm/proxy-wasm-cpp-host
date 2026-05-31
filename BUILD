@@ -133,6 +133,7 @@ cc_library(
         "PROXY_WASM_HOST_ENGINE_V8",
     ],
     deps = [
+        ":base_lib",
         ":wasm_vm_headers",
         "//bazel:wee8_no_pointer_compression",
     ],
@@ -220,6 +221,7 @@ cc_library(
         ],
     }),
     deps = [
+        ":base_lib",
         ":wasm_vm_headers",
         "@com_github_bytecodealliance_wasmtime//:wasmtime_lib",
     ],

@@ -252,6 +252,9 @@ public:
   std::string_view getPrecompiledSectionName() override { return ""; }
 
   Cloneable cloneable() override { return Cloneable::NotCloneable; }
+  std::optional<std::string> serialize(std::string_view original_bytecode) override {
+    return std::nullopt;
+  }
   std::unique_ptr<WasmVm> clone() override { return nullptr; }
 
   bool load(std::string_view bytecode, std::string_view precompiled,

@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "include/proxy-wasm/limits.h"
+#include "include/proxy-wasm/bytecode_util.h"
 
 #include "absl/strings/str_format.h"
 #include "include/v8-initialization.h"
@@ -78,6 +79,7 @@ public:
 
   bool load(std::string_view bytecode, std::string_view precompiled,
             const std::unordered_map<uint32_t, std::string> &function_names) override;
+  std::optional<std::string> serialize(std::string_view original_bytecode) override;
   std::string_view getPrecompiledSectionName() override;
   bool link(std::string_view debug_name) override;
 
@@ -313,6 +315,20 @@ bool V8::load(std::string_view bytecode, std::string_view precompiled,
   return true;
 }
 
+std::optional<std::string> V8::serialize(std::string_view original_bytecode) {
+  if (module_ == nullptr) {
+    return std::nullopt;
+  }
+  wasm::vec<byte_t> serialized = module_->serialize();
+  if (serialized.invalid()) {
+    integration()->error("Failed to serialize wasm module.");
+    return std::nullopt;
+  }
+  return BytecodeUtil::writeModuleWithCustomSection(
+      original_bytecode, getPrecompiledSectionName(),
+      std::string_view(serialized.get(), serialized.size()));
+}
+
 std::unique_ptr<WasmVm> V8::clone() {
   assert(shared_module_ != nullptr);
 
@@ -342,18 +358,12 @@ std::unique_ptr<WasmVm> V8::clone() {
   return clone;
 }
 
-#if defined(__linux__) && defined(__x86_64__)
-#define WEE8_PLATFORM "linux_x86_64"
-#else
-#define WEE8_PLATFORM ""
-#endif
-
 std::string_view V8::getPrecompiledSectionName() {
   static const auto name =
-      sizeof(WEE8_PLATFORM) - 1 > 0
+      sizeof(PROXY_WASM_PLATFORM) - 1 > 0
           ? ("precompiled_wee8_v" + std::to_string(V8_MAJOR_VERSION) + "." +
              std::to_string(V8_MINOR_VERSION) + "." + std::to_string(V8_BUILD_NUMBER) + "." +
-             std::to_string(V8_PATCH_LEVEL) + "_" + WEE8_PLATFORM)
+             std::to_string(V8_PATCH_LEVEL) + "_" + PROXY_WASM_PLATFORM)
           : "";
   return name;
 }

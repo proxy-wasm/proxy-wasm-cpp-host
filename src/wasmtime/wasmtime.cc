@@ -20,10 +20,13 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 
 #include "include/proxy-wasm/limits.h"
 #include "include/proxy-wasm/word.h"
+#include "include/proxy-wasm/bytecode_util.h"
 
+#include "crates/c-api/include/wasmtime.h"  // IWYU pragma: keep
 #include "crates/c-api/include/wasmtime.hh" // IWYU pragma: keep
 
 namespace wasmtime::detail {
@@ -96,10 +99,11 @@ public:
 
   std::string_view getEngineName() override { return "wasmtime"; }
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
-  std::string_view getPrecompiledSectionName() override { return ""; }
+  std::string_view getPrecompiledSectionName() override;
 
   bool load(std::string_view bytecode, std::string_view precompiled,
             const std::unordered_map<uint32_t, std::string> &function_names) override;
+  std::optional<std::string> serialize(std::string_view original_bytecode) override;
   bool link(std::string_view debug_name) override;
   std::unique_ptr<WasmVm> clone() override;
   uint64_t getMemorySize() override;
@@ -172,22 +176,51 @@ void Wasmtime::initStore() {
                   /*memories=*/1);
 }
 
-bool Wasmtime::load(std::string_view bytecode, std::string_view /*precompiled*/,
+bool Wasmtime::load(std::string_view bytecode, std::string_view precompiled,
                     const std::unordered_map<uint32_t, std::string> & /*function_names*/) {
   initStore();
   if (!store_.has_value()) {
     return false;
   }
 
-  Result<Module> module =
-      Module::compile(*engine(), std::span((uint8_t *)bytecode.data(), bytecode.size()));
+  // Error message used if both precompiled and bytecode are empty.
+  Result<Module> module(::wasmtime::Error("Unable to load Wasm module: empty"));
+  if (!precompiled.empty()) {
+    module = Module::deserialize(*engine(),
+                                 std::span((uint8_t *)precompiled.data(), precompiled.size()));
+    if (module) {
+      module_.emplace(module.ok());
+      return true;
+    }
+  }
+  if (bytecode.empty()) {
+    fail(FailState::UnableToInitializeCode,
+         "Failed to deserialize Wasm module: " + module.err().message());
+    return false;
+  }
+  module = Module::compile(*engine(), std::span((uint8_t *)bytecode.data(), bytecode.size()));
   if (!module) {
-    fail(FailState::UnableToInitializeCode, "Failed to load Wasm code: " + module.err().message());
+    fail(FailState::UnableToInitializeCode,
+         "Failed to load Wasm module: " + module.err().message());
     return false;
   }
   module_.emplace(module.ok());
-
   return true;
+}
+
+std::optional<std::string> Wasmtime::serialize(std::string_view original_bytecode) {
+  if (!module_.has_value()) {
+    return std::nullopt;
+  }
+  Result<std::vector<uint8_t>> serialized = module_->serialize();
+  if (!serialized) {
+    integration()->error("Failed to serialize wasm module: " + serialized.err().message());
+    return std::nullopt;
+  }
+  return BytecodeUtil::writeModuleWithCustomSection(
+      original_bytecode, getPrecompiledSectionName(),
+      std::string_view(reinterpret_cast<char *>(serialized.ok_ref().data()),
+                       serialized.ok_ref().size()));
 }
 
 std::unique_ptr<WasmVm> Wasmtime::clone() {
@@ -415,6 +448,14 @@ void Wasmtime::getModuleFunctionImpl(std::string_view function_name,
 };
 
 void Wasmtime::warm() { initStore(); }
+
+std::string_view Wasmtime::getPrecompiledSectionName() {
+  static const auto name =
+      sizeof(PROXY_WASM_PLATFORM) - 1 > 0
+          ? ("precompiled_wasmtime_v" + std::string(WASMTIME_VERSION) + "_" + PROXY_WASM_PLATFORM)
+          : "";
+  return name;
+}
 
 } // namespace wasmtime
 
