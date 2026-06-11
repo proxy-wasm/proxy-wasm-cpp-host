@@ -74,8 +74,9 @@ TEST_P(TestVm, Init) {
 #if defined(THREAD_SANITIZER) || defined(MEMORY_SANITIZER) || defined(ADDRESS_SANITIZER) ||        \
     defined(HWADDRESS_SANITIZER) || defined(THREAD_SANITIZER)
   expected_warm_time_ns *= 10;
-#endif
+#else
   EXPECT_LE(warm * expected_warm_time_speedup_factor, cold);
+#endif
   EXPECT_LT(warm, expected_warm_time_ns);
 }
 
@@ -190,6 +191,10 @@ void BM_WarmVmStart(benchmark::State &state, auto makeVm) {
 }
 
 TEST(TestVm, Benchmarks) {
+#if defined(THREAD_SANITIZER) || defined(MEMORY_SANITIZER) || defined(ADDRESS_SANITIZER) ||        \
+    defined(HWADDRESS_SANITIZER) || defined(THREAD_SANITIZER)
+  GTEST_SKIP() << "Disabled due to sanitizer.";
+#endif
   for (std::string engine : getWasmEngines()) {
     benchmark::RegisterBenchmark(
         "BM_WarmVmStart/" + engine,
