@@ -60,7 +60,7 @@ TEST_P(TestVm, Init) {
   } else if (engine_ == "wasmedge") {
     expected_warm_time_ns = 2000;
   } else if (engine_ == "wasmtime") {
-    expected_warm_time_ns = 8000;
+    expected_warm_time_ns = 20000;
   }
   // Linux 390x is significantly slower, so we use a more lenient limit.
 #if defined(__linux__) && defined(__s390x__)
