@@ -188,32 +188,17 @@ void BM_WarmVmStart(benchmark::State &state, auto makeVm) {
     warm_vm->warm();
   }
 }
-#ifdef PROXY_WASM_HOST_ENGINE_V8
-static void BM_V8WarmVmStart(benchmark::State &state) {
-  BM_WarmVmStart(state, []() { return proxy_wasm::createV8Vm(); });
-}
-BENCHMARK(BM_V8WarmVmStart);
-#endif
-#ifdef PROXY_WASM_HOST_ENGINE_WASMTIME
-static void BM_WasmtimeWarmVmStart(benchmark::State &state) {
-  BM_WarmVmStart(state, []() { return proxy_wasm::createWasmtimeVm(); });
-}
-BENCHMARK(BM_WasmtimeWarmVmStart);
-#endif
-#ifdef PROXY_WASM_HOST_ENGINE_WASMEDGE
-static void BM_WasmEdgeWarmVmStart(benchmark::State &state) {
-  BM_WarmVmStart(state, []() { return proxy_wasm::createWasmEdgeVm(); });
-}
-BENCHMARK(BM_WasmEdgeWarmVmStart);
-#endif
-#ifdef PROXY_WASM_HOST_ENGINE_WAMR
-static void BM_WamrWarmVmStart(benchmark::State &state) {
-  BM_WarmVmStart(state, []() { return proxy_wasm::createWamrVm(); });
-}
-BENCHMARK(BM_WamrWarmVmStart);
-#endif
 
-TEST(TestVm, Benchmarks) { benchmark::RunSpecifiedBenchmarks(); }
+TEST(TestVm, Benchmarks) {
+  for (std::string engine : getWasmEngines()) {
+    benchmark::RegisterBenchmark(
+        "BM_WarmVmStart/" + engine,
+        [](benchmark::State &state, auto makeVm) { BM_WarmVmStart(state, makeVm); },
+        [engine]() { return TestVm::makeVm(engine); });
+  }
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
+}
 
 } // namespace
 } // namespace proxy_wasm
