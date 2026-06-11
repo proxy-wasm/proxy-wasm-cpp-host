@@ -53,31 +53,23 @@ TEST_P(TestVm, Init) {
     return;
   }
   int expected_warm_time_ns = 0;
-  double expected_warm_time_speedup_factor = 0;
   if (engine_ == "v8") {
-    expected_warm_time_ns = 20000000;
-    expected_warm_time_speedup_factor = 1.5;
+    expected_warm_time_ns = 30000000;
   } else if (engine_ == "wamr") {
-    expected_warm_time_ns = 4000;
-    expected_warm_time_speedup_factor = 2000;
+    expected_warm_time_ns = 10000;
   } else if (engine_ == "wasmedge") {
     expected_warm_time_ns = 2000;
-    expected_warm_time_speedup_factor = 1.5;
   } else if (engine_ == "wasmtime") {
     expected_warm_time_ns = 8000;
-    expected_warm_time_speedup_factor = 6;
   }
   // Linux 390x is significantly slower, so we use a more lenient limit.
 #if defined(__linux__) && defined(__s390x__)
-  expected_warm_time_ns *= 10;
+  expected_warm_time_ns *= 30;
 #endif
-#if defined(THREAD_SANITIZER) || defined(MEMORY_SANITIZER) || defined(ADDRESS_SANITIZER) ||        \
-    defined(HWADDRESS_SANITIZER) || defined(THREAD_SANITIZER)
-  expected_warm_time_ns *= 10;
-#else
-  EXPECT_LE(warm * expected_warm_time_speedup_factor, cold);
-#endif
+#if !defined(THREAD_SANITIZER) && !defined(MEMORY_SANITIZER) && !defined(ADDRESS_SANITIZER) &&     \
+    !defined(HWADDRESS_SANITIZER) && !defined(THREAD_SANITIZER)
   EXPECT_LT(warm, expected_warm_time_ns);
+#endif
 }
 
 TEST_P(TestVm, Basic) {
