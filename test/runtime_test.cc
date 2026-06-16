@@ -148,7 +148,7 @@ TEST_P(TestVm, WasmMemoryLimitCustomOption) {
     return;
   }
   WasmtimeOptions options = {
-      .max_wasm_memory_size_bytes = 20 * 1024 * 1024,  // 20 MiB
+      .max_wasm_memory_size_bytes = 20 * 1024 * 1024, // 20 MiB
   };
 
   // Re-create the VM with custom options
@@ -166,14 +166,11 @@ TEST_P(TestVm, WasmMemoryLimitCustomOption) {
   ASSERT_TRUE(infinite_memory != nullptr);
   infinite_memory(wasm.vm_context());
 
-  EXPECT_GE(wasm.wasm_vm()->getMemorySize(),
-            options.max_wasm_memory_size_bytes * 0.95);
-  EXPECT_LE(wasm.wasm_vm()->getMemorySize(),
-            options.max_wasm_memory_size_bytes);
+  EXPECT_GE(wasm.wasm_vm()->getMemorySize(), options.max_wasm_memory_size_bytes * 0.95);
+  EXPECT_LE(wasm.wasm_vm()->getMemorySize(), options.max_wasm_memory_size_bytes);
 
   // Check integration logs to ensure it still trapped
-  auto* host =
-      dynamic_cast<TestIntegration*>(wasm.wasm_vm()->integration().get());
+  auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
   EXPECT_TRUE(host->isErrorLogged("Function: infinite_memory failed"));
   EXPECT_TRUE(host->isErrorLogged("unreachable"));
 }

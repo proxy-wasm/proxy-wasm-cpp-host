@@ -95,7 +95,7 @@ void InPlaceConvertHostToWasmEndianness(auto &...args) {
 
 class Wasmtime : public WasmVm {
 public:
- Wasmtime(WasmtimeOptions options) : options_(std::move(options)) {}
+  Wasmtime(WasmtimeOptions options) : options_(std::move(options)) {}
 
   std::string_view getEngineName() override { return "wasmtime"; }
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
@@ -461,8 +461,7 @@ std::string_view Wasmtime::getPrecompiledSectionName() {
 
 } // namespace wasmtime
 
-std::unique_ptr<WasmVm> createWasmtimeVm(
-    WasmtimeOptions options) {
+std::unique_ptr<WasmVm> createWasmtimeVm(WasmtimeOptions options) {
   return std::make_unique<wasmtime::Wasmtime>(options);
 }
 
