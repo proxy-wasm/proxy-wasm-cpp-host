@@ -20,7 +20,7 @@
 namespace proxy_wasm {
 
 struct WasmtimeOptions {
-  uint64_t max_wasm_memory_size_bytes = PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES; // 18 MiB
+  uint64_t max_wasm_memory_size_bytes = PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES;
 };
 
 std::unique_ptr<WasmVm> createWasmtimeVm(WasmtimeOptions options = {});

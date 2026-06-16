@@ -462,7 +462,7 @@ std::string_view Wasmtime::getPrecompiledSectionName() {
 } // namespace wasmtime
 
 std::unique_ptr<WasmVm> createWasmtimeVm(WasmtimeOptions options) {
-  return std::make_unique<wasmtime::Wasmtime>(options);
+  return std::make_unique<wasmtime::Wasmtime>(std::move(options));
 }
 
 } // namespace proxy_wasm
