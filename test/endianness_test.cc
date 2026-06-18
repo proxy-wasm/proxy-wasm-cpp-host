@@ -33,6 +33,10 @@ public:
     // opposed to output parameter.
     return static_cast<WasmResult>(3333333333U);
   }
+  uint32_t getLogLevel() override {
+    // Asymmetric byte pattern to catch host-endian writes via setDatatype.
+    return 0x02000001U;
+  }
 };
 
 class EndiannessWasm : public TestWasm {
@@ -147,6 +151,13 @@ TEST_P(EndiannessTest, WasmCallReadsBufferPassedByHost) {
   wasm_->wasm_vm()->getFunction("test_buffer_from_host", &test_buffer_from_host);
 
   ASSERT_TRUE(test_buffer_from_host(context_)) << context_->getLog();
+}
+
+TEST_P(EndiannessTest, HostCallSetDatatype) {
+  WasmCallWord<0> test_host_set_datatype;
+  wasm_->wasm_vm()->getFunction("test_host_set_datatype", &test_host_set_datatype);
+
+  EXPECT_TRUE(test_host_set_datatype(context_)) << context_->getLog();
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(EndiannessTest);

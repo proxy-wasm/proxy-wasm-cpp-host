@@ -33,7 +33,7 @@ pub extern "C" fn _initialize() {
 }
 
 #[no_mangle]
-pub extern "C" fn proxy_abi_version_0_2_0() {}
+pub extern "C" fn proxy_abi_version_0_2_1() {}
 
 #[no_mangle]
 pub extern "C" fn proxy_on_memory_allocate(size: usize) -> *mut u8 {
@@ -176,4 +176,24 @@ pub extern "C" fn test_buffer_from_host() -> bool {
             status => panic!("unexpected status: {}", status as u32),
         }
     }
+}
+
+extern "C" {
+    // proxy_get_log_level writes the host log level to Wasm memory via setDatatype.
+    fn proxy_get_log_level(return_level: *mut u32) -> u32;
+}
+
+#[no_mangle]
+pub extern "C" fn test_host_set_datatype() -> u32 {
+    let mut level: u32 = 0;
+    unsafe {
+        let status = proxy_get_log_level(&mut level);
+        if status != 0 {
+            panic!("unexpected status: {}", status);
+        }
+        if level != 0x02000001 {
+            panic!("unexpected level: {}", level);
+        }
+    }
+    return 1;
 }
