@@ -15,9 +15,14 @@
 #pragma once
 
 #include "include/proxy-wasm/wasm_vm.h"
+#include "include/proxy-wasm/limits.h"
 
 namespace proxy_wasm {
 
-std::unique_ptr<WasmVm> createWasmtimeVm();
+struct WasmtimeOptions {
+  uint64_t max_wasm_memory_size_bytes = PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES;
+};
+
+std::unique_ptr<WasmVm> createWasmtimeVm(WasmtimeOptions options = {});
 
 } // namespace proxy_wasm
