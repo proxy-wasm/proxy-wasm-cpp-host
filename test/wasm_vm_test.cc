@@ -93,6 +93,31 @@ TEST_P(TestVm, Memory) {
   ASSERT_EQ(200, static_cast<int32_t>(word.u64_));
 }
 
+TEST_P(TestVm, SetDatatypeWritesLittleEndian) {
+  if (engine_ == "null") {
+    // NullVm stores host-endian values in memory.
+    return;
+  }
+  auto source = readTestWasmFile("abi_export.wasm");
+  ASSERT_FALSE(source.empty());
+  auto local_vm = makeVm(engine_);
+  TestWasm wasm(std::move(local_vm));
+  ASSERT_TRUE(wasm.load(source, false));
+  ASSERT_TRUE(wasm.initialize());
+
+  const uint64_t ptr = 0x1000;
+  const uint32_t value = 0x02000001U;
+
+  ASSERT_TRUE(wasm.setDatatype(ptr, value));
+
+  auto mem = wasm.wasm_vm()->getMemory(ptr, sizeof(uint32_t));
+  ASSERT_TRUE(mem.has_value());
+  EXPECT_EQ(static_cast<uint8_t>(mem->data()[0]), 0x01U);
+  EXPECT_EQ(static_cast<uint8_t>(mem->data()[1]), 0x00U);
+  EXPECT_EQ(static_cast<uint8_t>(mem->data()[2]), 0x00U);
+  EXPECT_EQ(static_cast<uint8_t>(mem->data()[3]), 0x02U);
+}
+
 TEST_P(TestVm, Clone) {
   if (vm_->cloneable() == proxy_wasm::Cloneable::NotCloneable) {
     return;

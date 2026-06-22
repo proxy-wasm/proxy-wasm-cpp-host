@@ -448,7 +448,8 @@ inline bool WasmBase::copyToPointerSize(std::string_view s, uint64_t ptr_ptr, ui
 }
 
 template <typename T> inline bool WasmBase::setDatatype(uint64_t ptr, const T &t) {
-  return wasm_vm_->setMemory(ptr, sizeof(T), &t);
+  T value = htowasm(t, wasm_vm_->usesWasmByteOrder());
+  return wasm_vm_->setMemory(ptr, sizeof(T), &value);
 }
 
 } // namespace proxy_wasm
