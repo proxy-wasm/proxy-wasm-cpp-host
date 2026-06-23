@@ -17,11 +17,14 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "mach2",
+    name = "wasmtime_environ",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
     ),
+    aliases = {
+        "@cu__wasmtime-internal-core-45.0.2//:wasmtime_internal_core": "wasmtime_core",
+    },
     compile_data = glob(
         include = ["**"],
         allow_empty = True,
@@ -35,10 +38,16 @@ rust_library(
         ],
     ),
     crate_features = [
-        "default",
+        "compile",
+        "gc",
+        "gc-drc",
+        "std",
     ],
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2024",
+    proc_macro_deps = [
+        "@cu__serde_derive-1.0.228//:serde_derive",
+    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -47,31 +56,30 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=mach2",
+        "crate-name=wasmtime-environ",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.4.2",
-    deps = select({
-        "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:aarch64-apple-ios": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:aarch64-apple-ios-sim": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:i686-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-ios": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "//conditions:default": [],
-    }),
+    version = "45.0.2",
+    deps = [
+        "@cu__anyhow-1.0.102//:anyhow",
+        "@cu__cranelift-bforest-0.132.2//:cranelift_bforest",
+        "@cu__cranelift-bitset-0.132.2//:cranelift_bitset",
+        "@cu__cranelift-entity-0.132.2//:cranelift_entity",
+        "@cu__gimli-0.33.0//:gimli",
+        "@cu__hashbrown-0.17.1//:hashbrown",
+        "@cu__indexmap-2.14.0//:indexmap",
+        "@cu__log-0.4.29//:log",
+        "@cu__object-0.39.1//:object",
+        "@cu__postcard-1.1.3//:postcard",
+        "@cu__serde-1.0.228//:serde",
+        "@cu__sha2-0.10.9//:sha2",
+        "@cu__smallvec-1.15.1//:smallvec",
+        "@cu__target-lexicon-0.13.5//:target_lexicon",
+        "@cu__wasm-encoder-0.248.0//:wasm_encoder",
+        "@cu__wasmparser-0.248.0//:wasmparser",
+        "@cu__wasmprinter-0.248.0//:wasmprinter",
+        "@cu__wasmtime-internal-core-45.0.2//:wasmtime_internal_core",
+    ],
 )

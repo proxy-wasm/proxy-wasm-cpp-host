@@ -1,6 +1,6 @@
-From 64044f8cb9481c2c5e7964340bcde448373f8274 Mon Sep 17 00:00:00 2001
+From 8fbe953bab4ebbaf014c80d5fa4a92b2c9393bae Mon Sep 17 00:00:00 2001
 From: Matt Leon <mattleon@google.com>
-Date: Thu, 12 Mar 2026 18:09:21 -0400
+Date: Tue, 23 Jun 2026 11:23:01 -0400
 Subject: [PATCH] Prefix wasmtime API with wasmtime_
 
 This patch is generated from the following commands:
@@ -24,9 +24,10 @@ EOF
 Signed-off-by: Matt Leon <mattleon@google.com>
 ---
  crates/c-api/doxygen.conf.in                  |   2 +-
- crates/c-api/include/doc-wasm.h               | 842 +++++++++---------
+ crates/c-api/include/doc-wasm.h               | 880 +++++++++---------
  crates/c-api/include/wasi.h                   |   2 +-
- crates/c-api/include/wasm.h                   | 582 ++++++------
+ crates/c-api/include/wasm.h                   | 594 ++++++------
+ crates/c-api/include/wasmtime/_func_class.hh  |   6 +-
  crates/c-api/include/wasmtime/async.h         |  12 +-
  .../include/wasmtime/component/component.h    |   8 +-
  .../include/wasmtime/component/component.hh   |   4 +-
@@ -36,15 +37,16 @@ Signed-off-by: Matt Leon <mattleon@google.com>
  .../include/wasmtime/component/types/module.h |  12 +-
  crates/c-api/include/wasmtime/component/val.h |  10 +-
  .../c-api/include/wasmtime/component/val.hh   |  20 +-
- crates/c-api/include/wasmtime/config.h        |  50 +-
- crates/c-api/include/wasmtime/config.hh       | 100 +--
- crates/c-api/include/wasmtime/engine.h        |   6 +-
+ crates/c-api/include/wasmtime/config.h        |  66 +-
+ crates/c-api/include/wasmtime/config.hh       | 124 +--
+ crates/c-api/include/wasmtime/engine.h        |   8 +-
  crates/c-api/include/wasmtime/engine.hh       |  10 +-
  crates/c-api/include/wasmtime/error.h         |   4 +-
  crates/c-api/include/wasmtime/error.hh        |   4 +-
+ crates/c-api/include/wasmtime/exnref.h        |   2 +-
  crates/c-api/include/wasmtime/extern.h        |   2 +-
  crates/c-api/include/wasmtime/func.h          |  14 +-
- crates/c-api/include/wasmtime/func.hh         |   8 +-
+ crates/c-api/include/wasmtime/func.hh         |   4 +-
  crates/c-api/include/wasmtime/global.h        |   4 +-
  crates/c-api/include/wasmtime/instance.h      |   4 +-
  crates/c-api/include/wasmtime/instance.hh     |   2 +-
@@ -57,28 +59,37 @@ Signed-off-by: Matt Leon <mattleon@google.com>
  crates/c-api/include/wasmtime/sharedmemory.h  |   6 +-
  crates/c-api/include/wasmtime/store.h         |   2 +-
  crates/c-api/include/wasmtime/table.h         |   4 +-
+ crates/c-api/include/wasmtime/tag.h           |   4 +-
  crates/c-api/include/wasmtime/trap.h          |  16 +-
  crates/c-api/include/wasmtime/trap.hh         |  28 +-
- crates/c-api/include/wasmtime/types/export.hh |  18 +-
- crates/c-api/include/wasmtime/types/extern.hh |  12 +-
- crates/c-api/include/wasmtime/types/func.hh   |  30 +-
+ .../include/wasmtime/types/_val_class.hh      |  34 +-
+ .../c-api/include/wasmtime/types/arrayref.h   |   2 +-
+ crates/c-api/include/wasmtime/types/exnref.h  |   6 +-
+ crates/c-api/include/wasmtime/types/exnref.hh |  10 +-
+ crates/c-api/include/wasmtime/types/export.hh |  20 +-
+ crates/c-api/include/wasmtime/types/extern.hh |  14 +-
+ crates/c-api/include/wasmtime/types/func.hh   |  32 +-
  crates/c-api/include/wasmtime/types/global.hh |  24 +-
- crates/c-api/include/wasmtime/types/import.hh |  20 +-
+ crates/c-api/include/wasmtime/types/import.hh |  22 +-
  crates/c-api/include/wasmtime/types/memory.hh |  28 +-
+ .../c-api/include/wasmtime/types/structref.h  |   4 +-
+ .../c-api/include/wasmtime/types/structref.hh |   2 +-
  crates/c-api/include/wasmtime/types/table.hh  |  34 +-
- crates/c-api/include/wasmtime/types/val.hh    |  26 +-
+ crates/c-api/include/wasmtime/types/tag.hh    |  20 +-
+ crates/c-api/include/wasmtime/types/val.h     |  14 +-
  crates/c-api/include/wasmtime/wat.h           |   2 +-
  crates/c-api/include/wasmtime/wat.hh          |   4 +-
  crates/c-api/src/async.rs                     |  30 +-
- crates/c-api/src/component/component.rs       |  14 +-
+ crates/c-api/src/component/component.rs       |  38 +-
  crates/c-api/src/component/linker.rs          |   4 +-
  crates/c-api/src/component/types/component.rs |  18 +-
  crates/c-api/src/component/types/instance.rs  |   6 +-
  crates/c-api/src/component/types/module.rs    |  18 +-
  crates/c-api/src/component/val.rs             |  24 +-
- crates/c-api/src/config.rs                    | 130 +--
+ crates/c-api/src/config.rs                    | 136 +--
  crates/c-api/src/engine.rs                    |  18 +-
  crates/c-api/src/error.rs                     |   6 +-
+ crates/c-api/src/exnref.rs                    |   6 +-
  crates/c-api/src/extern.rs                    |  52 +-
  crates/c-api/src/func.rs                      | 124 +--
  crates/c-api/src/global.rs                    |  48 +-
@@ -91,26 +102,37 @@ Signed-off-by: Matt Leon <mattleon@google.com>
  crates/c-api/src/sharedmemory.rs              |   8 +-
  crates/c-api/src/store.rs                     |  16 +-
  crates/c-api/src/table.rs                     |  74 +-
+ crates/c-api/src/tag.rs                       |   8 +-
  crates/c-api/src/trap.rs                      |  82 +-
  crates/c-api/src/types.rs                     |   4 +-
+ crates/c-api/src/types/exn.rs                 |   8 +-
  crates/c-api/src/types/export.rs              |  34 +-
- crates/c-api/src/types/extern.rs              |  88 +-
- crates/c-api/src/types/func.rs                |  50 +-
- crates/c-api/src/types/global.rs              |  50 +-
+ crates/c-api/src/types/extern.rs              |  90 +-
+ crates/c-api/src/types/func.rs                |  46 +-
+ crates/c-api/src/types/global.rs              |  46 +-
  crates/c-api/src/types/import.rs              |  42 +-
  crates/c-api/src/types/memory.rs              |  52 +-
- crates/c-api/src/types/table.rs               |  44 +-
- crates/c-api/src/types/val.rs                 |  28 +-
- crates/c-api/src/val.rs                       |  64 +-
- crates/c-api/src/vec.rs                       | 178 ++--
+ crates/c-api/src/types/structref.rs           |   2 +-
+ crates/c-api/src/types/table.rs               |  42 +-
+ crates/c-api/src/types/tag.rs                 |  50 +-
+ crates/c-api/src/types/val.rs                 |  38 +-
+ crates/c-api/src/val.rs                       |  68 +-
+ crates/c-api/src/vec.rs                       | 192 ++--
  crates/c-api/src/wasi.rs                      |   2 +-
  crates/c-api/src/wat2wasm.rs                  |   4 +-
+ crates/c-api/tests/async.cc                   |   4 +-
+ crates/c-api/tests/component/async.cc         |   6 +-
+ crates/c-api/tests/component/types.cc         |   2 +-
  crates/c-api/tests/config.cc                  |  32 +-
- src/lib.rs                                    |  11 +-
- 84 files changed, 1840 insertions(+), 1849 deletions(-)
+ crates/c-api/tests/exception.cc               |   2 +-
+ crates/c-api/tests/gc.cc                      |  20 +-
+ crates/c-api/tests/instance.cc                |   4 +-
+ crates/c-api/tests/tag_type.cc                |  26 +-
+ src/lib.rs                                    |  14 +-
+ 106 files changed, 2021 insertions(+), 2033 deletions(-)
 
 diff --git a/crates/c-api/doxygen.conf.in b/crates/c-api/doxygen.conf.in
-index 6ee6fe7b74..c105985a8d 100644
+index 1c9f33a548..34ca261950 100644
 --- a/crates/c-api/doxygen.conf.in
 +++ b/crates/c-api/doxygen.conf.in
 @@ -945,7 +945,7 @@ EXCLUDE_SYMBOLS        = assertions \
@@ -123,7 +145,7 @@ index 6ee6fe7b74..c105985a8d 100644
                           CASE_KIND_PRINT_NAME \
                           CASE_KIND_TO_C \
 diff --git a/crates/c-api/include/doc-wasm.h b/crates/c-api/include/doc-wasm.h
-index d7911f0e9a..deade2c8c9 100644
+index 4a92d15d77..8cad7c8c57 100644
 --- a/crates/c-api/include/doc-wasm.h
 +++ b/crates/c-api/include/doc-wasm.h
 @@ -52,7 +52,7 @@
@@ -269,8 +291,8 @@ index d7911f0e9a..deade2c8c9 100644
 + * \fn wasmtime_wasm_name_new_empty
   * \brief Convenience alias
   *
-- * \fn wasm_name_new_new_uninitialized
-+ * \fn wasmtime_wasm_name_new_new_uninitialized
+- * \fn wasm_name_new_uninitialized
++ * \fn wasmtime_wasm_name_new_uninitialized
   * \brief Convenience alias
   *
 - * \fn wasm_name_new_from_string
@@ -778,11 +800,92 @@ index d7911f0e9a..deade2c8c9 100644
   */
  
  /**
+- * \struct wasm_tagtype_t
++ * \struct wasmtime_wasm_tagtype_t
+  * \brief An opaque object representing the type of a tag.
+  *
+- * \typedef wasm_tagtype_t
++ * \typedef wasmtime_wasm_tagtype_t
+  * \brief Convenience alias for #wasm_tagtype_t
+  *
+- * \struct wasm_tagtype_vec_t
++ * \struct wasmtime_wasm_tagtype_vec_t
+  * \brief A list of #wasm_tagtype_t values.
+  *
+- * \var wasm_tagtype_vec_t::size
++ * \var wasmtime_wasm_tagtype_vec_t::size
+  * \brief Length of this vector.
+  *
+- * \var wasm_tagtype_vec_t::data
++ * \var wasmtime_wasm_tagtype_vec_t::data
+  * \brief Pointer to the base of this vector
+  *
+- * \typedef wasm_tagtype_vec_t
++ * \typedef wasmtime_wasm_tagtype_vec_t
+  * \brief Convenience alias for #wasm_tagtype_vec_t
+  *
+- * \fn void wasm_tagtype_delete(wasm_tagtype_t *);
++ * \fn void wasmtime_wasm_tagtype_delete(wasmtime_wasm_tagtype_t *);
+  * \brief Deletes a type.
+  *
+- * \fn void wasm_tagtype_vec_new_empty(wasm_tagtype_vec_t *out);
++ * \fn void wasmtime_wasm_tagtype_vec_new_empty(wasmtime_wasm_tagtype_vec_t *out);
+  * \brief Creates an empty vector.
+  *
+  * See #wasm_byte_vec_new_empty for more information.
+  *
+- * \fn void wasm_tagtype_vec_new_uninitialized(wasm_tagtype_vec_t *out, size_t);
++ * \fn void wasmtime_wasm_tagtype_vec_new_uninitialized(wasmtime_wasm_tagtype_vec_t *out, size_t);
+  * \brief Creates a vector with the given capacity.
+  *
+  * See #wasm_byte_vec_new_uninitialized for more information.
+  *
+- * \fn void wasm_tagtype_vec_new(wasm_tagtype_vec_t *out, size_t, wasm_tagtype_t *const[]);
++ * \fn void wasmtime_wasm_tagtype_vec_new(wasmtime_wasm_tagtype_vec_t *out, size_t, wasmtime_wasm_tagtype_t *const[]);
+  * \brief Creates a vector with the provided contents.
+  *
+  * See #wasm_byte_vec_new for more information.
+  *
+- * \fn void wasm_tagtype_vec_copy(wasm_tagtype_vec_t *out, const wasm_tagtype_vec_t *)
++ * \fn void wasmtime_wasm_tagtype_vec_copy(wasmtime_wasm_tagtype_vec_t *out, const wasmtime_wasm_tagtype_vec_t *)
+  * \brief Copies one vector to another
+  *
+  * See #wasm_byte_vec_copy for more information.
+  *
+- * \fn void wasm_tagtype_vec_delete(wasm_tagtype_vec_t *out)
++ * \fn void wasmtime_wasm_tagtype_vec_delete(wasmtime_wasm_tagtype_vec_t *out)
+  * \brief Deallocates memory for a vector.
+  *
+  * See #wasm_byte_vec_delete for more information.
+  *
+- * \fn wasm_tagtype_t* wasm_tagtype_copy(const wasm_tagtype_t *)
++ * \fn wasmtime_wasm_tagtype_t* wasmtime_wasm_tagtype_copy(const wasmtime_wasm_tagtype_t *)
+  * \brief Creates a new value which matches the provided one.
+  *
+  * The caller is responsible for deleting the returned value.
+  *
+- * \fn wasm_tagtype_t* wasm_tagtype_new(wasm_functype_t *)
++ * \fn wasmtime_wasm_tagtype_t* wasmtime_wasm_tagtype_new(wasmtime_wasm_functype_t *)
+  * \brief Creates a new tag type.
+  *
+  * This function takes ownership of the #wasm_functype_t argument.
+  *
+  * The caller is responsible for deallocating the returned type.
+  *
+- * \fn const wasm_functype_t* wasm_tagtype_functype(const wasm_tagtype_t *);
++ * \fn const wasmtime_wasm_functype_t* wasmtime_wasm_tagtype_functype(const wasmtime_wasm_tagtype_t *);
+  * \brief Returns the function type of this tag type.
+  *
+  * The returned #wasm_functype_t is owned by the #wasm_tagtype_t parameter, the
+@@ -678,65 +678,65 @@
+  */
+ 
+ /**
 - * \struct wasm_externtype_t
 + * \struct wasmtime_wasm_externtype_t
   * \brief An opaque object representing the type of a external value. Can be
   * seen as a superclass of #wasm_functype_t, #wasm_tabletype_t,
-  * #wasm_globaltype_t, and #wasm_memorytype_t.
+  * #wasm_globaltype_t, #wasm_memorytype_t, and #wasm_tagtype_t.
   *
 - * \typedef wasm_externtype_t
 + * \typedef wasmtime_wasm_externtype_t
@@ -855,7 +958,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Classifier for #wasm_externtype_t
   *
   * This is returned from #wasm_extern_kind and #wasm_externtype_kind to
-@@ -678,104 +678,104 @@
+@@ -759,130 +759,130 @@
   */
  
  /**
@@ -887,6 +990,13 @@ index d7911f0e9a..deade2c8c9 100644
   * The returned value is owned by the #wasm_memorytype_t argument and should not
   * be deleted.
   *
+- * \fn wasm_externtype_t* wasm_tagtype_as_externtype(wasm_tagtype_t *)
++ * \fn wasmtime_wasm_externtype_t* wasmtime_wasm_tagtype_as_externtype(wasmtime_wasm_tagtype_t *)
+  * \brief Converts a #wasm_tagtype_t to a #wasm_externtype_t
+  *
+  * The returned value is owned by the #wasm_tagtype_t argument and should not
+  * be deleted.
+  *
 - * \fn const wasm_externtype_t* wasm_functype_as_externtype_const(const wasm_functype_t *)
 + * \fn const wasmtime_wasm_externtype_t* wasmtime_wasm_functype_as_externtype_const(const wasmtime_wasm_functype_t *)
   * \brief Converts a #wasm_functype_t to a #wasm_externtype_t
@@ -915,6 +1025,13 @@ index d7911f0e9a..deade2c8c9 100644
   * The returned value is owned by the #wasm_memorytype_t argument and should not
   * be deleted.
   *
+- * \fn const wasm_externtype_t* wasm_tagtype_as_externtype_const(const wasm_tagtype_t *)
++ * \fn const wasmtime_wasm_externtype_t* wasmtime_wasm_tagtype_as_externtype_const(const wasmtime_wasm_tagtype_t *)
+  * \brief Converts a #wasm_tagtype_t to a #wasm_externtype_t
+  *
+  * The returned value is owned by the #wasm_tagtype_t argument and should not
+  * be deleted.
+  *
 - * \fn wasm_functype_t* wasm_externtype_as_functype(wasm_externtype_t *)
 + * \fn wasmtime_wasm_functype_t* wasmtime_wasm_externtype_as_functype(wasmtime_wasm_externtype_t *)
   * \brief Attempts to convert a #wasm_externtype_t to a #wasm_functype_t
@@ -938,6 +1055,14 @@ index d7911f0e9a..deade2c8c9 100644
   * The returned value is owned by the #wasm_memorytype_t argument and should not
   * be deleted. Returns `NULL` if the provided argument is not a
   * #wasm_memorytype_t.
+  *
+- * \fn wasm_tagtype_t* wasm_externtype_as_tagtype(wasm_externtype_t *)
++ * \fn wasmtime_wasm_tagtype_t* wasmtime_wasm_externtype_as_tagtype(wasmtime_wasm_externtype_t *)
+  * \brief Attempts to convert a #wasm_externtype_t to a #wasm_tagtype_t
+  *
+  * The returned value is owned by the #wasm_tagtype_t argument and should not
+  * be deleted. Returns `NULL` if the provided argument is not a
+  * #wasm_tagtype_t.
   *
 - * \fn wasm_globaltype_t* wasm_externtype_as_globaltype(wasm_externtype_t *)
 + * \fn wasmtime_wasm_globaltype_t* wasmtime_wasm_externtype_as_globaltype(wasmtime_wasm_externtype_t *)
@@ -971,12 +1096,20 @@ index d7911f0e9a..deade2c8c9 100644
   * be deleted. Returns `NULL` if the provided argument is not a
   * #wasm_memorytype_t.
   *
+- * \fn const wasm_tagtype_t* wasm_externtype_as_tagtype_const(const wasm_externtype_t *)
++ * \fn const wasmtime_wasm_tagtype_t* wasmtime_wasm_externtype_as_tagtype_const(const wasmtime_wasm_externtype_t *)
+  * \brief Attempts to convert a #wasm_externtype_t to a #wasm_tagtype_t
+  *
+  * The returned value is owned by the #wasm_tagtype_t argument and should not
+  * be deleted. Returns `NULL` if the provided argument is not a
+  * #wasm_tagtype_t.
+  *
 - * \fn const wasm_globaltype_t* wasm_externtype_as_globaltype_const(const wasm_externtype_t *)
 + * \fn const wasmtime_wasm_globaltype_t* wasmtime_wasm_externtype_as_globaltype_const(const wasmtime_wasm_externtype_t *)
   * \brief Attempts to convert a #wasm_externtype_t to a #wasm_globaltype_t
   *
   * The returned value is owned by the #wasm_globaltype_t argument and should not
-@@ -784,58 +784,58 @@
+@@ -891,58 +891,58 @@
   */
  
  /**
@@ -1049,7 +1182,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Creates a new import type.
   *
   * This function takes ownership of the `module`, `name`, and
-@@ -843,13 +843,13 @@
+@@ -950,13 +950,13 @@
   * returned value. Note that `name` can be `NULL` where in the module linking
   * proposal the import name can be omitted.
   *
@@ -1065,7 +1198,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Returns the name this import is importing from.
   *
   * The returned memory is owned by the #wasm_importtype_t argument, the caller
-@@ -857,7 +857,7 @@
+@@ -964,7 +964,7 @@
   * that the import name is not provided. This is for imports with the module
   * linking proposal that only have the module specified.
   *
@@ -1074,7 +1207,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Returns the type of item this import is importing.
   *
   * The returned memory is owned by the #wasm_importtype_t argument, the caller
-@@ -865,71 +865,71 @@
+@@ -972,71 +972,71 @@
   */
  
  /**
@@ -1162,7 +1295,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Returns the type of this export.
   *
   * The returned memory is owned by the #wasm_exporttype_t argument, the caller
-@@ -937,7 +937,7 @@
+@@ -1044,7 +1044,7 @@
   */
  
  /**
@@ -1171,7 +1304,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Representation of a WebAssembly value.
   *
   * Note that this structure is intended to represent the way to communicate
-@@ -948,78 +948,78 @@
+@@ -1055,78 +1055,78 @@
   * #wasm_val_delete function does not delete the memory holding the #wasm_val_t
   * itself, but only the memory pointed to by #wasm_val_t.
   *
@@ -1269,7 +1402,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Copies a #wasm_val_t to a new one.
   *
   * The second argument to this function is copied to the first. The caller is
-@@ -1029,142 +1029,142 @@
+@@ -1136,142 +1136,142 @@
   */
  
  /**
@@ -1450,7 +1583,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Creates a new #wasm_trap_t with the provided message.
   *
   * This function will create a new trap within the given #wasm_store_t with the
-@@ -1178,20 +1178,20 @@
+@@ -1285,20 +1285,20 @@
   *
   * The caller is responsible for deallocating the trap returned.
   *
@@ -1474,7 +1607,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Returns the trace of wasm frames for this trap.
   *
   * The caller is responsible for deallocating the returned list of frames.
-@@ -1201,103 +1201,103 @@
+@@ -1308,103 +1308,103 @@
   */
  
  /**
@@ -1608,7 +1741,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Creates a shareable module from the provided module.
   *
   * > Note that this API is not necessary in Wasmtime because #wasm_module_t can
-@@ -1306,7 +1306,7 @@
+@@ -1413,7 +1413,7 @@
   * This function does not take ownership of the argument, but the caller is
   * expected to deallocate the returned #wasm_shared_module_t.
   *
@@ -1617,7 +1750,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Attempts to create a #wasm_module_t from the shareable module.
   *
   * > Note that this API is not necessary in Wasmtime because #wasm_module_t can
-@@ -1318,7 +1318,7 @@
+@@ -1425,7 +1425,7 @@
   * This function may fail if the engines associated with the #wasm_store_t or
   * #wasm_shared_module_t are different.
   *
@@ -1626,7 +1759,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Compiles a raw WebAssembly binary to a #wasm_module_t.
   *
   * This function will validate and compile the provided binary. The returned
-@@ -1330,14 +1330,14 @@
+@@ -1437,14 +1437,14 @@
   * This function may fail if the provided binary is not a WebAssembly binary or
   * if it does not pass validation. In these cases this function returns `NULL`.
   *
@@ -1643,7 +1776,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Returns the list of imports that this module expects.
   *
   * The list of imports returned are the types of items expected to be passed to
-@@ -1348,7 +1348,7 @@
+@@ -1455,7 +1455,7 @@
   * `out` is passed to the caller. Note that `out` is treated as uninitialized
   * when passed to this function.
   *
@@ -1652,7 +1785,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Returns the list of exports that this module provides.
   *
   * The list of exports returned are in the same order as the items returned by
-@@ -1358,14 +1358,14 @@
+@@ -1465,14 +1465,14 @@
   * of `out` is passed to the caller. Note that `out` is treated as
   * uninitialized when passed to this function.
   *
@@ -1669,7 +1802,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Deserializes a previously-serialized module.
   *
   * The input bytes must have been created from a previous call to
-@@ -1373,13 +1373,13 @@
+@@ -1480,13 +1480,13 @@
   */
  
  /**
@@ -1686,7 +1819,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Type definition for functions passed to #wasm_func_new.
   *
   * This is the type signature of a host function created with #wasm_func_new.
-@@ -1397,49 +1397,49 @@
+@@ -1504,49 +1504,49 @@
   * Ownership of the results and the trap returned, if any, is passed to the
   * caller of this function.
   *
@@ -1749,7 +1882,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Creates a new WebAssembly function with host functionality.
   *
   * This function creates a new #wasm_func_t from a host-provided function. The
-@@ -1449,10 +1449,10 @@
+@@ -1556,10 +1556,10 @@
   * The returned #wasm_func_t is expected to be deleted by the caller. This
   * function does not take ownership of its arguments.
   *
@@ -1764,7 +1897,7 @@ index d7911f0e9a..deade2c8c9 100644
   *    void *env,
   *    void (*finalizer)(void *));
   * \brief Creates a new WebAssembly function with host functionality.
-@@ -1469,18 +1469,18 @@
+@@ -1576,18 +1576,18 @@
   * deallocated automatically by calling `finalizer`). This function yields
   * ownership of the returned #wasm_func_t to the caller.
   *
@@ -1787,7 +1920,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Calls the provided function with the arguments given.
   *
   * This function is used to call WebAssembly from the host. The parameter array
-@@ -1504,48 +1504,48 @@
+@@ -1611,48 +1611,48 @@
   */
  
  /**
@@ -1850,7 +1983,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Creates a new WebAssembly global.
   *
   * This function is used to create a wasm global from the host, typically to
-@@ -1560,18 +1560,18 @@
+@@ -1667,18 +1667,18 @@
   * This function does not take ownership of any of its arguments. The caller is
   * expected to deallocate the returned value.
   *
@@ -1872,7 +2005,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Sets the value of this global.
   *
   * This function will set the value of a global to a new value. This function
-@@ -1583,51 +1583,51 @@
+@@ -1690,51 +1690,51 @@
   */
  
  /**
@@ -1939,7 +2072,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Creates a new WebAssembly table.
   *
   * Creates a new host-defined table of values. This table has the type provided
-@@ -1638,12 +1638,12 @@
+@@ -1745,12 +1745,12 @@
   *
   * Does not take ownship of the `init` value.
   *
@@ -1954,7 +2087,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Gets an element from this table.
   *
   * Attempts to get a value at an index in this table. This function returns
-@@ -1651,7 +1651,7 @@
+@@ -1758,7 +1758,7 @@
   *
   * Gives ownership of the resulting `wasm_ref_t*`.
   *
@@ -1963,7 +2096,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Sets an element in this table.
   *
   * Attempts to set a value at an index in this table. This function does nothing
-@@ -1663,10 +1663,10 @@
+@@ -1770,10 +1770,10 @@
   *
   * Does not take ownership of the given `wasm_ref_t*`.
   *
@@ -1976,7 +2109,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Attempts to grow this table by `delta` elements.
   *
   * This function will grow the table by `delta` elements, initializing all new
-@@ -1683,72 +1683,72 @@
+@@ -1790,72 +1790,72 @@
   */
  
  /**
@@ -2069,7 +2202,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Attempts to grow this memory by `delta` wasm pages.
   *
   * This function is similar to the `memory.grow` instruction in wasm itself. It
-@@ -1757,151 +1757,151 @@
+@@ -1864,151 +1864,151 @@
   */
  
  /**
@@ -2254,7 +2387,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Converts a #wasm_extern_t to #wasm_func_t.
   *
   * The returned #wasm_func_t is owned by the #wasm_extern_t argument. Callers
-@@ -1910,7 +1910,7 @@
+@@ -2017,7 +2017,7 @@
   *
   * If the #wasm_extern_t argument isn't a #wasm_func_t then `NULL` is returned.
   *
@@ -2263,7 +2396,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Converts a #wasm_extern_t to #wasm_table_t.
   *
   * The returned #wasm_table_t is owned by the #wasm_extern_t argument. Callers
-@@ -1919,7 +1919,7 @@
+@@ -2026,7 +2026,7 @@
   *
   * If the #wasm_extern_t argument isn't a #wasm_table_t then `NULL` is returned.
   *
@@ -2272,7 +2405,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Converts a #wasm_extern_t to #wasm_memory_t.
   *
   * The returned #wasm_memory_t is owned by the #wasm_extern_t argument. Callers
-@@ -1928,7 +1928,7 @@
+@@ -2035,7 +2035,7 @@
   *
   * If the #wasm_extern_t argument isn't a #wasm_memory_t then `NULL` is returned.
   *
@@ -2281,7 +2414,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Converts a #wasm_extern_t to #wasm_global_t.
   *
   * The returned #wasm_global_t is owned by the #wasm_extern_t argument. Callers
-@@ -1937,7 +1937,7 @@
+@@ -2044,7 +2044,7 @@
   *
   * If the #wasm_extern_t argument isn't a #wasm_global_t then `NULL` is returned.
   *
@@ -2290,7 +2423,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Converts a #wasm_extern_t to #wasm_func_t.
   *
   * The returned #wasm_func_t is owned by the #wasm_extern_t argument. Callers
-@@ -1946,7 +1946,7 @@
+@@ -2053,7 +2053,7 @@
   *
   * If the #wasm_extern_t argument isn't a #wasm_func_t then `NULL` is returned.
   *
@@ -2299,7 +2432,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Converts a #wasm_extern_t to #wasm_table_t.
   *
   * The returned #wasm_table_t is owned by the #wasm_extern_t argument. Callers
-@@ -1955,7 +1955,7 @@
+@@ -2062,7 +2062,7 @@
   *
   * If the #wasm_extern_t argument isn't a #wasm_table_t then `NULL` is returned.
   *
@@ -2308,7 +2441,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Converts a #wasm_extern_t to #wasm_memory_t.
   *
   * The returned #wasm_memory_t is owned by the #wasm_extern_t argument. Callers
-@@ -1964,7 +1964,7 @@
+@@ -2071,7 +2071,7 @@
   *
   * If the #wasm_extern_t argument isn't a #wasm_memory_t then `NULL` is returned.
   *
@@ -2317,7 +2450,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Converts a #wasm_extern_t to #wasm_global_t.
   *
   * The returned #wasm_global_t is owned by the #wasm_extern_t argument. Callers
-@@ -1975,48 +1975,48 @@
+@@ -2082,48 +2082,48 @@
   */
  
  /**
@@ -2380,7 +2513,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Instantiates a module with the provided imports.
   *
   * This function will instantiate the provided #wasm_module_t into the provided
-@@ -2035,7 +2035,7 @@
+@@ -2142,7 +2142,7 @@
   * This function does not take ownership of any of its arguments, and the
   * returned #wasm_instance_t and #wasm_trap_t are owned by the caller.
   *
@@ -2389,7 +2522,7 @@ index d7911f0e9a..deade2c8c9 100644
   * \brief Returns the exports of an instance.
   *
   * This function returns a list of #wasm_extern_t values, which will be owned by
-@@ -2052,20 +2052,20 @@
+@@ -2159,20 +2159,20 @@
   * \brief Used to initialize a vector type from a C array.
   *
   * \def WASM_I32_VAL
@@ -2417,10 +2550,10 @@ index d7911f0e9a..deade2c8c9 100644
 + * \brief Used to initialize a null externref wasmtime_wasm_val_t value.
   */
 diff --git a/crates/c-api/include/wasi.h b/crates/c-api/include/wasi.h
-index 5f341dee67..7787eb74f2 100644
+index 2e87d90743..7cda26ba7b 100644
 --- a/crates/c-api/include/wasi.h
 +++ b/crates/c-api/include/wasi.h
-@@ -119,7 +119,7 @@ WASI_API_EXTERN bool wasi_config_set_stdin_file(wasi_config_t *config,
+@@ -136,7 +136,7 @@ WASI_API_EXTERN bool wasi_config_set_stdin_file(wasi_config_t *config,
   * This function takes ownership of the `binary` argument.
   */
  WASI_API_EXTERN void wasi_config_set_stdin_bytes(wasi_config_t *config,
@@ -2430,7 +2563,7 @@ index 5f341dee67..7787eb74f2 100644
  /**
   * \brief Configures this process's own stdin stream to be used as stdin for
 diff --git a/crates/c-api/include/wasm.h b/crates/c-api/include/wasm.h
-index c8b3cb7d31..11941904f6 100644
+index dc43a26a42..0f957ad1ea 100644
 --- a/crates/c-api/include/wasm.h
 +++ b/crates/c-api/include/wasm.h
 @@ -52,9 +52,9 @@ typedef double float64_t;
@@ -2507,13 +2640,13 @@ index c8b3cb7d31..11941904f6 100644
 -#define wasm_name wasm_byte_vec
 -#define wasm_name_new wasm_byte_vec_new
 -#define wasm_name_new_empty wasm_byte_vec_new_empty
--#define wasm_name_new_new_uninitialized wasm_byte_vec_new_uninitialized
+-#define wasm_name_new_uninitialized wasm_byte_vec_new_uninitialized
 -#define wasm_name_copy wasm_byte_vec_copy
 -#define wasm_name_delete wasm_byte_vec_delete
 +#define wasmtime_wasm_name wasmtime_wasm_byte_vec
 +#define wasmtime_wasm_name_new wasmtime_wasm_byte_vec_new
 +#define wasmtime_wasm_name_new_empty wasmtime_wasm_byte_vec_new_empty
-+#define wasmtime_wasm_name_new_new_uninitialized wasmtime_wasm_byte_vec_new_uninitialized
++#define wasmtime_wasm_name_new_uninitialized wasmtime_wasm_byte_vec_new_uninitialized
 +#define wasmtime_wasm_name_copy wasmtime_wasm_byte_vec_copy
 +#define wasmtime_wasm_name_delete wasmtime_wasm_byte_vec_delete
  
@@ -2638,7 +2771,7 @@ index c8b3cb7d31..11941904f6 100644
  }
  
  
-@@ -215,100 +215,100 @@ static inline bool wasm_valtype_is_ref(const wasm_valtype_t* t) {
+@@ -215,59 +215,59 @@ static inline bool wasm_valtype_is_ref(const wasm_valtype_t* t) {
  
  WASM_DECLARE_TYPE(functype)
  
@@ -2694,6 +2827,17 @@ index c8b3cb7d31..11941904f6 100644
 +WASM_API_EXTERN const wasmtime_wasm_limits_t* wasmtime_wasm_memorytype_limits(const wasmtime_wasm_memorytype_t*);
  
  
+ // Tag Types
+ 
+ WASM_DECLARE_TYPE(tagtype)
+ 
+-WASM_API_EXTERN own wasm_tagtype_t* wasm_tagtype_new(own wasm_functype_t*);
++WASM_API_EXTERN own wasmtime_wasm_tagtype_t* wasmtime_wasm_tagtype_new(own wasmtime_wasm_functype_t*);
+ 
+-WASM_API_EXTERN const wasm_functype_t* wasm_tagtype_functype(const wasm_tagtype_t*);
++WASM_API_EXTERN const wasmtime_wasm_functype_t* wasmtime_wasm_tagtype_functype(const wasmtime_wasm_tagtype_t*);
+ 
+ 
  // Extern Types
  
  WASM_DECLARE_TYPE(externtype)
@@ -2705,7 +2849,8 @@ index c8b3cb7d31..11941904f6 100644
    WASM_EXTERN_FUNC,
    WASM_EXTERN_GLOBAL,
    WASM_EXTERN_TABLE,
-   WASM_EXTERN_MEMORY,
+@@ -275,54 +275,54 @@ enum wasm_externkind_enum {
+   WASM_EXTERN_TAG,
  };
  
 -WASM_API_EXTERN wasm_externkind_t wasm_externtype_kind(const wasm_externtype_t*);
@@ -2715,37 +2860,45 @@ index c8b3cb7d31..11941904f6 100644
 -WASM_API_EXTERN wasm_externtype_t* wasm_globaltype_as_externtype(wasm_globaltype_t*);
 -WASM_API_EXTERN wasm_externtype_t* wasm_tabletype_as_externtype(wasm_tabletype_t*);
 -WASM_API_EXTERN wasm_externtype_t* wasm_memorytype_as_externtype(wasm_memorytype_t*);
+-WASM_API_EXTERN wasm_externtype_t* wasm_tagtype_as_externtype(wasm_tagtype_t*);
 +WASM_API_EXTERN wasmtime_wasm_externtype_t* wasmtime_wasm_functype_as_externtype(wasmtime_wasm_functype_t*);
 +WASM_API_EXTERN wasmtime_wasm_externtype_t* wasmtime_wasm_globaltype_as_externtype(wasmtime_wasm_globaltype_t*);
 +WASM_API_EXTERN wasmtime_wasm_externtype_t* wasmtime_wasm_tabletype_as_externtype(wasmtime_wasm_tabletype_t*);
 +WASM_API_EXTERN wasmtime_wasm_externtype_t* wasmtime_wasm_memorytype_as_externtype(wasmtime_wasm_memorytype_t*);
++WASM_API_EXTERN wasmtime_wasm_externtype_t* wasmtime_wasm_tagtype_as_externtype(wasmtime_wasm_tagtype_t*);
  
 -WASM_API_EXTERN wasm_functype_t* wasm_externtype_as_functype(wasm_externtype_t*);
 -WASM_API_EXTERN wasm_globaltype_t* wasm_externtype_as_globaltype(wasm_externtype_t*);
 -WASM_API_EXTERN wasm_tabletype_t* wasm_externtype_as_tabletype(wasm_externtype_t*);
 -WASM_API_EXTERN wasm_memorytype_t* wasm_externtype_as_memorytype(wasm_externtype_t*);
+-WASM_API_EXTERN wasm_tagtype_t* wasm_externtype_as_tagtype(wasm_externtype_t*);
 +WASM_API_EXTERN wasmtime_wasm_functype_t* wasmtime_wasm_externtype_as_functype(wasmtime_wasm_externtype_t*);
 +WASM_API_EXTERN wasmtime_wasm_globaltype_t* wasmtime_wasm_externtype_as_globaltype(wasmtime_wasm_externtype_t*);
 +WASM_API_EXTERN wasmtime_wasm_tabletype_t* wasmtime_wasm_externtype_as_tabletype(wasmtime_wasm_externtype_t*);
 +WASM_API_EXTERN wasmtime_wasm_memorytype_t* wasmtime_wasm_externtype_as_memorytype(wasmtime_wasm_externtype_t*);
++WASM_API_EXTERN wasmtime_wasm_tagtype_t* wasmtime_wasm_externtype_as_tagtype(wasmtime_wasm_externtype_t*);
  
 -WASM_API_EXTERN const wasm_externtype_t* wasm_functype_as_externtype_const(const wasm_functype_t*);
 -WASM_API_EXTERN const wasm_externtype_t* wasm_globaltype_as_externtype_const(const wasm_globaltype_t*);
 -WASM_API_EXTERN const wasm_externtype_t* wasm_tabletype_as_externtype_const(const wasm_tabletype_t*);
 -WASM_API_EXTERN const wasm_externtype_t* wasm_memorytype_as_externtype_const(const wasm_memorytype_t*);
+-WASM_API_EXTERN const wasm_externtype_t* wasm_tagtype_as_externtype_const(const wasm_tagtype_t*);
 +WASM_API_EXTERN const wasmtime_wasm_externtype_t* wasmtime_wasm_functype_as_externtype_const(const wasmtime_wasm_functype_t*);
 +WASM_API_EXTERN const wasmtime_wasm_externtype_t* wasmtime_wasm_globaltype_as_externtype_const(const wasmtime_wasm_globaltype_t*);
 +WASM_API_EXTERN const wasmtime_wasm_externtype_t* wasmtime_wasm_tabletype_as_externtype_const(const wasmtime_wasm_tabletype_t*);
 +WASM_API_EXTERN const wasmtime_wasm_externtype_t* wasmtime_wasm_memorytype_as_externtype_const(const wasmtime_wasm_memorytype_t*);
++WASM_API_EXTERN const wasmtime_wasm_externtype_t* wasmtime_wasm_tagtype_as_externtype_const(const wasmtime_wasm_tagtype_t*);
  
 -WASM_API_EXTERN const wasm_functype_t* wasm_externtype_as_functype_const(const wasm_externtype_t*);
 -WASM_API_EXTERN const wasm_globaltype_t* wasm_externtype_as_globaltype_const(const wasm_externtype_t*);
 -WASM_API_EXTERN const wasm_tabletype_t* wasm_externtype_as_tabletype_const(const wasm_externtype_t*);
 -WASM_API_EXTERN const wasm_memorytype_t* wasm_externtype_as_memorytype_const(const wasm_externtype_t*);
+-WASM_API_EXTERN const wasm_tagtype_t* wasm_externtype_as_tagtype_const(const wasm_externtype_t*);
 +WASM_API_EXTERN const wasmtime_wasm_functype_t* wasmtime_wasm_externtype_as_functype_const(const wasmtime_wasm_externtype_t*);
 +WASM_API_EXTERN const wasmtime_wasm_globaltype_t* wasmtime_wasm_externtype_as_globaltype_const(const wasmtime_wasm_externtype_t*);
 +WASM_API_EXTERN const wasmtime_wasm_tabletype_t* wasmtime_wasm_externtype_as_tabletype_const(const wasmtime_wasm_externtype_t*);
 +WASM_API_EXTERN const wasmtime_wasm_memorytype_t* wasmtime_wasm_externtype_as_memorytype_const(const wasmtime_wasm_externtype_t*);
++WASM_API_EXTERN const wasmtime_wasm_tagtype_t* wasmtime_wasm_externtype_as_tagtype_const(const wasmtime_wasm_externtype_t*);
  
  
  // Import Types
@@ -2781,7 +2934,7 @@ index c8b3cb7d31..11941904f6 100644
  
  
  ///////////////////////////////////////////////////////////////////////////////
-@@ -316,21 +316,21 @@ WASM_API_EXTERN const wasm_externtype_t* wasm_exporttype_type(const wasm_exportt
+@@ -330,21 +330,21 @@ WASM_API_EXTERN const wasm_externtype_t* wasm_exporttype_type(const wasm_exportt
  
  // Values
  
@@ -2810,7 +2963,7 @@ index c8b3cb7d31..11941904f6 100644
  
  WASM_DECLARE_VEC(val, )
  
-@@ -340,28 +340,28 @@ WASM_DECLARE_VEC(val, )
+@@ -354,28 +354,28 @@ WASM_DECLARE_VEC(val, )
  #define WASM_DECLARE_REF_BASE(name) \
    WASM_DECLARE_OWN(name) \
    \
@@ -2851,7 +3004,7 @@ index c8b3cb7d31..11941904f6 100644
  
  
  WASM_DECLARE_REF_BASE(ref)
-@@ -371,121 +371,121 @@ WASM_DECLARE_REF_BASE(ref)
+@@ -385,121 +385,121 @@ WASM_DECLARE_REF_BASE(ref)
  
  WASM_DECLARE_OWN(frame)
  WASM_DECLARE_VEC(frame, *)
@@ -3024,7 +3177,7 @@ index c8b3cb7d31..11941904f6 100644
  
  
  // Externals
-@@ -493,40 +493,40 @@ WASM_API_EXTERN bool wasm_memory_grow(wasm_memory_t*, wasm_memory_pages_t delta)
+@@ -507,40 +507,40 @@ WASM_API_EXTERN bool wasm_memory_grow(wasm_memory_t*, wasm_memory_pages_t delta)
  WASM_DECLARE_REF(extern)
  WASM_DECLARE_VEC(extern, *)
  
@@ -3087,7 +3240,7 @@ index c8b3cb7d31..11941904f6 100644
  
  
  ///////////////////////////////////////////////////////////////////////////////
-@@ -540,159 +540,159 @@ WASM_API_EXTERN void wasm_instance_exports(const wasm_instance_t*, own wasm_exte
+@@ -554,159 +554,159 @@ WASM_API_EXTERN void wasm_instance_exports(const wasm_instance_t*, own wasm_exte
  
  // Value Type construction short-hands
  
@@ -3351,7 +3504,7 @@ index c8b3cb7d31..11941904f6 100644
  #if UINTPTR_MAX == UINT32_MAX
    out->kind = WASM_I32;
    out->of.i32 = (intptr_t)p;
-@@ -702,7 +702,7 @@ static inline void wasm_val_init_ptr(own wasm_val_t* out, void* p) {
+@@ -716,7 +716,7 @@ static inline void wasm_val_init_ptr(own wasm_val_t* out, void* p) {
  #endif
  }
  
@@ -3360,8 +3513,36 @@ index c8b3cb7d31..11941904f6 100644
  #if UINTPTR_MAX == UINT32_MAX
    return (void*)(intptr_t)val->of.i32;
  #elif UINTPTR_MAX == UINT64_MAX
+diff --git a/crates/c-api/include/wasmtime/_func_class.hh b/crates/c-api/include/wasmtime/_func_class.hh
+index e59d8a1cdf..c63142e4d4 100644
+--- a/crates/c-api/include/wasmtime/_func_class.hh
++++ b/crates/c-api/include/wasmtime/_func_class.hh
+@@ -114,12 +114,12 @@ class Func {
+   wasmtime_func_t func;
+ 
+   template <typename F>
+-  static wasm_trap_t *raw_callback(void *env, wasmtime_caller_t *caller,
++  static wasmtime_wasm_trap_t *raw_callback(void *env, wasmtime_caller_t *caller,
+                                    const wasmtime_val_t *args, size_t nargs,
+                                    wasmtime_val_t *results, size_t nresults);
+ 
+   template <typename F>
+-  static wasm_trap_t *
++  static wasmtime_wasm_trap_t *
+   raw_callback_unchecked(void *env, wasmtime_caller_t *caller,
+                          wasmtime_val_raw_t *args_and_results,
+                          size_t nargs_and_results) {
+@@ -345,7 +345,7 @@ public:
+     if (ptr == nullptr)
+       ptr = reinterpret_cast<wasmtime_val_raw_t *>(alignof(wasmtime_val_raw_t));
+     WasmTypeList<Params>::store(cx, ptr, params);
+-    wasm_trap_t *trap = nullptr;
++    wasmtime_wasm_trap_t *trap = nullptr;
+     auto *error = wasmtime_func_call_unchecked(cx.capi(), &f.func, ptr,
+                                                storage.size(), &trap);
+     if (error != nullptr) {
 diff --git a/crates/c-api/include/wasmtime/async.h b/crates/c-api/include/wasmtime/async.h
-index 9ac7588888..5aca5ba886 100644
+index d65dedd089..6997b63029 100644
 --- a/crates/c-api/include/wasmtime/async.h
 +++ b/crates/c-api/include/wasmtime/async.h
 @@ -150,7 +150,7 @@ typedef struct wasmtime_async_continuation_t {
@@ -3419,7 +3600,7 @@ index 9ac7588888..5aca5ba886 100644
  
  #ifdef __cplusplus
 diff --git a/crates/c-api/include/wasmtime/component/component.h b/crates/c-api/include/wasmtime/component/component.h
-index de22e7fd2b..c560902e2d 100644
+index ae79a334fb..8ce83b1f75 100644
 --- a/crates/c-api/include/wasmtime/component/component.h
 +++ b/crates/c-api/include/wasmtime/component/component.h
 @@ -40,7 +40,7 @@ typedef struct wasmtime_component_t wasmtime_component_t;
@@ -3459,10 +3640,10 @@ index de22e7fd2b..c560902e2d 100644
                                      wasmtime_component_t **component_out);
  
 diff --git a/crates/c-api/include/wasmtime/component/component.hh b/crates/c-api/include/wasmtime/component/component.hh
-index 0463516d19..80ca585abf 100644
+index 76e36ef912..bf8e5242e9 100644
 --- a/crates/c-api/include/wasmtime/component/component.hh
 +++ b/crates/c-api/include/wasmtime/component/component.hh
-@@ -130,7 +130,7 @@ class Component {
+@@ -133,7 +133,7 @@ class Component {
     * quickly recreate this component in a different process perhaps.
     */
    Result<std::vector<uint8_t>> serialize() const {
@@ -3471,7 +3652,7 @@ index 0463516d19..80ca585abf 100644
      auto *error = wasmtime_component_serialize(ptr.get(), &bytes);
      if (error != nullptr) {
        return Error(error);
-@@ -138,7 +138,7 @@ class Component {
+@@ -141,7 +141,7 @@ class Component {
      std::vector<uint8_t> ret;
      Span<uint8_t> raw(reinterpret_cast<uint8_t *>(bytes.data), bytes.size);
      ret.assign(raw.begin(), raw.end());
@@ -3481,10 +3662,10 @@ index 0463516d19..80ca585abf 100644
    }
  #endif // WASMTIME_FEATURE_COMPILER
 diff --git a/crates/c-api/include/wasmtime/component/linker.h b/crates/c-api/include/wasmtime/component/linker.h
-index 5a125f655f..cab5e8aa66 100644
+index aa6f76aa98..378fa6af6d 100644
 --- a/crates/c-api/include/wasmtime/component/linker.h
 +++ b/crates/c-api/include/wasmtime/component/linker.h
-@@ -33,7 +33,7 @@ typedef struct wasmtime_component_linker_instance_t
+@@ -34,7 +34,7 @@ typedef struct wasmtime_component_linker_instance_t
   * \return a pointer to the newly created #wasmtime_component_linker_t
   */
  WASM_API_EXTERN wasmtime_component_linker_t *
@@ -3494,7 +3675,7 @@ index 5a125f655f..cab5e8aa66 100644
  /**
   * \brief Configures whether this linker allows later definitions to shadow
 diff --git a/crates/c-api/include/wasmtime/component/types/component.h b/crates/c-api/include/wasmtime/component/types/component.h
-index 246495ab10..1f0edb4b8e 100644
+index aea22f4178..3e3de50f61 100644
 --- a/crates/c-api/include/wasmtime/component/types/component.h
 +++ b/crates/c-api/include/wasmtime/component/types/component.h
 @@ -36,7 +36,7 @@ void wasmtime_component_type_delete(wasmtime_component_type_t *ty);
@@ -3591,7 +3772,7 @@ index 1d5a99e4c0..8979bf4236 100644
      struct wasmtime_component_item_t *type_ret);
  
 diff --git a/crates/c-api/include/wasmtime/component/types/module.h b/crates/c-api/include/wasmtime/component/types/module.h
-index 117d9a413d..eec580848a 100644
+index 456b75e902..6a8dfb58b5 100644
 --- a/crates/c-api/include/wasmtime/component/types/module.h
 +++ b/crates/c-api/include/wasmtime/component/types/module.h
 @@ -31,30 +31,30 @@ void wasmtime_module_type_delete(wasmtime_module_type_t *ty);
@@ -3632,18 +3813,19 @@ index 117d9a413d..eec580848a 100644
  #ifdef __cplusplus
  } // extern "C"
 diff --git a/crates/c-api/include/wasmtime/component/val.h b/crates/c-api/include/wasmtime/component/val.h
-index 2021651273..746eb1a92f 100644
+index c6a31469f7..bcdc507233 100644
 --- a/crates/c-api/include/wasmtime/component/val.h
 +++ b/crates/c-api/include/wasmtime/component/val.h
-@@ -295,14 +295,14 @@ DECLARE_VEC(wasmtime_component_vallist, struct wasmtime_component_val)
+@@ -299,7 +299,7 @@ DECLARE_VEC(wasmtime_component_vallist, struct wasmtime_component_val)
  DECLARE_VEC(wasmtime_component_valrecord,
              struct wasmtime_component_valrecord_entry)
  DECLARE_VEC(wasmtime_component_valtuple, struct wasmtime_component_val)
 -DECLARE_VEC(wasmtime_component_valflags, wasm_name_t)
 +DECLARE_VEC(wasmtime_component_valflags, wasmtime_wasm_name_t)
+ DECLARE_VEC(wasmtime_component_valmap, struct wasmtime_component_valmap_entry)
  
  #undef DECLARE_VEC
- 
+@@ -307,7 +307,7 @@ DECLARE_VEC(wasmtime_component_valmap, struct wasmtime_component_valmap_entry)
  /// Represents a variant type
  typedef struct {
    /// The discriminant of the variant
@@ -3652,7 +3834,7 @@ index 2021651273..746eb1a92f 100644
    /// The payload of the variant
    struct wasmtime_component_val *val;
  } wasmtime_component_valvariant_t;
-@@ -345,7 +345,7 @@ typedef union {
+@@ -350,7 +350,7 @@ typedef union {
    uint32_t character;
    /// Field used if #wasmtime_component_val_t::kind is
    /// #WASMTIME_COMPONENT_STRING
@@ -3661,7 +3843,7 @@ index 2021651273..746eb1a92f 100644
    /// Field used if #wasmtime_component_val_t::kind is #WASMTIME_COMPONENT_LIST
    wasmtime_component_vallist_t list;
    /// Field used if #wasmtime_component_val_t::kind is
-@@ -357,7 +357,7 @@ typedef union {
+@@ -362,7 +362,7 @@ typedef union {
    /// #WASMTIME_COMPONENT_VARIANT
    wasmtime_component_valvariant_t variant;
    /// Field used if #wasmtime_component_val_t::kind is #WASMTIME_COMPONENT_ENUM
@@ -3670,7 +3852,7 @@ index 2021651273..746eb1a92f 100644
    /// Field used if #wasmtime_component_val_t::kind is
    /// #WASMTIME_COMPONENT_OPTION
    struct wasmtime_component_val *option;
-@@ -384,7 +384,7 @@ typedef struct wasmtime_component_val {
+@@ -391,7 +391,7 @@ typedef struct wasmtime_component_val {
  /// with kind #WASMTIME_COMPONENT_RECORD
  typedef struct wasmtime_component_valrecord_entry {
    /// The name of this entry
@@ -3680,7 +3862,7 @@ index 2021651273..746eb1a92f 100644
    wasmtime_component_val_t val;
  } wasmtime_component_valrecord_entry_t;
 diff --git a/crates/c-api/include/wasmtime/component/val.hh b/crates/c-api/include/wasmtime/component/val.hh
-index ffc377ab2e..56bd9cc9a4 100644
+index 93a55e7689..3267c84bbb 100644
 --- a/crates/c-api/include/wasmtime/component/val.hh
 +++ b/crates/c-api/include/wasmtime/component/val.hh
 @@ -254,7 +254,7 @@ class Variant {
@@ -3727,7 +3909,7 @@ index ffc377ab2e..56bd9cc9a4 100644
  
    /// \brief Returns the name of this flag.
    std::string_view name() const { return std::string_view{raw.data, raw.size}; }
-@@ -589,7 +589,7 @@ public:
+@@ -646,7 +646,7 @@ public:
    static Val string(std::string_view v) {
      wasmtime_component_val_t raw;
      raw.kind = WASMTIME_COMPONENT_STRING;
@@ -3736,7 +3918,7 @@ index ffc377ab2e..56bd9cc9a4 100644
      return Val(std::move(raw));
    }
  
-@@ -633,7 +633,7 @@ public:
+@@ -690,7 +690,7 @@ public:
    static Val enum_(std::string_view discriminant) {
      wasmtime_component_val_t raw;
      raw.kind = WASMTIME_COMPONENT_ENUM;
@@ -3745,7 +3927,7 @@ index ffc377ab2e..56bd9cc9a4 100644
                        discriminant.data());
      return Val(std::move(raw));
    }
-@@ -846,7 +846,7 @@ inline Record::Record(std::vector<std::pair<std::string_view, Val>> entries) {
+@@ -918,7 +918,7 @@ inline Record::Record(std::vector<std::pair<std::string_view, Val>> entries) {
    wasmtime_component_valrecord_new_uninit(&raw, entries.size());
    auto dst = raw.data;
    for (auto &&[name, val] : entries) {
@@ -3754,7 +3936,7 @@ index ffc377ab2e..56bd9cc9a4 100644
      new (&dst->val) Val(std::move(val));
      dst++;
    }
-@@ -867,7 +867,7 @@ inline Tuple::Tuple(std::vector<Val> values) {
+@@ -949,7 +949,7 @@ inline Tuple::Tuple(std::vector<Val> values) {
  }
  
  inline Variant::Variant(std::string_view discriminant, std::optional<Val> x) {
@@ -3764,10 +3946,10 @@ index ffc377ab2e..56bd9cc9a4 100644
      raw.val = wasmtime_component_val_new(&x->raw);
    } else {
 diff --git a/crates/c-api/include/wasmtime/config.h b/crates/c-api/include/wasmtime/config.h
-index af5f3e0f06..0c65f83cd4 100644
+index 1575fcaa40..075e17d11c 100644
 --- a/crates/c-api/include/wasmtime/config.h
 +++ b/crates/c-api/include/wasmtime/config.h
-@@ -88,7 +88,7 @@ enum wasmtime_profiling_strategy_enum { // ProfilingStrategy
+@@ -128,7 +128,7 @@ enum wasmtime_regalloc_algorithm_enum { // RegallocAlgorithm
  };
  
  #define WASMTIME_CONFIG_PROP(ret, name, ty)                                    \
@@ -3776,7 +3958,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures whether DWARF debug information is constructed at runtime
-@@ -148,7 +148,7 @@ WASMTIME_CONFIG_PROP(void, max_wasm_stack, size_t)
+@@ -188,7 +188,7 @@ WASMTIME_CONFIG_PROP(void, max_wasm_stack, size_t)
   *
   * This setting is `false` by default.
   */
@@ -3785,16 +3967,16 @@ index af5f3e0f06..0c65f83cd4 100644
  
  #endif // WASMTIME_FEATURE_THREADS
  
-@@ -164,7 +164,7 @@ WASMTIME_CONFIG_PROP(void, shared_memory, bool)
+@@ -204,7 +204,7 @@ WASMTIME_CONFIG_PROP(void, shared_memory, bool)
   *
   * This setting is `false` by default.
   */
 -WASMTIME_CONFIG_PROP(void, wasm_tail_call, bool)
 +WASMTIME_CONFIG_PROP(void, wasmtime_wasm_tail_call, bool)
  
- /**
-  * \brief Configures whether the WebAssembly reference types proposal is
-@@ -172,7 +172,7 @@ WASMTIME_CONFIG_PROP(void, wasm_tail_call, bool)
+ #ifdef WASMTIME_FEATURE_GC
+ 
+@@ -214,7 +214,7 @@ WASMTIME_CONFIG_PROP(void, wasm_tail_call, bool)
   *
   * This setting is `false` by default.
   */
@@ -3803,7 +3985,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures whether the WebAssembly typed function reference types
-@@ -180,14 +180,14 @@ WASMTIME_CONFIG_PROP(void, wasm_reference_types, bool)
+@@ -222,14 +222,14 @@ WASMTIME_CONFIG_PROP(void, wasm_reference_types, bool)
   *
   * This setting is `false` by default.
   */
@@ -3818,9 +4000,9 @@ index af5f3e0f06..0c65f83cd4 100644
 -WASMTIME_CONFIG_PROP(void, wasm_gc, bool)
 +WASMTIME_CONFIG_PROP(void, wasmtime_wasm_gc, bool)
  
- /**
-  * \brief Configures whether the WebAssembly SIMD proposal is
-@@ -195,7 +195,7 @@ WASMTIME_CONFIG_PROP(void, wasm_gc, bool)
+ #endif // WASMTIME_FEATURE_GC
+ 
+@@ -247,7 +247,7 @@ WASMTIME_CONFIG_PROP(void, gc_support, bool)
   *
   * This setting is `false` by default.
   */
@@ -3829,7 +4011,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures whether the WebAssembly relaxed SIMD proposal is
-@@ -203,7 +203,7 @@ WASMTIME_CONFIG_PROP(void, wasm_simd, bool)
+@@ -255,7 +255,7 @@ WASMTIME_CONFIG_PROP(void, wasm_simd, bool)
   *
   * This setting is `false` by default.
   */
@@ -3838,7 +4020,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures whether the WebAssembly relaxed SIMD proposal is
-@@ -211,7 +211,7 @@ WASMTIME_CONFIG_PROP(void, wasm_relaxed_simd, bool)
+@@ -263,7 +263,7 @@ WASMTIME_CONFIG_PROP(void, wasm_relaxed_simd, bool)
   *
   * This setting is `false` by default.
   */
@@ -3847,7 +4029,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures whether the WebAssembly bulk memory proposal is
-@@ -219,7 +219,7 @@ WASMTIME_CONFIG_PROP(void, wasm_relaxed_simd_deterministic, bool)
+@@ -271,7 +271,7 @@ WASMTIME_CONFIG_PROP(void, wasm_relaxed_simd_deterministic, bool)
   *
   * This setting is `false` by default.
   */
@@ -3856,7 +4038,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures whether the WebAssembly multi value proposal is
-@@ -227,7 +227,7 @@ WASMTIME_CONFIG_PROP(void, wasm_bulk_memory, bool)
+@@ -279,7 +279,7 @@ WASMTIME_CONFIG_PROP(void, wasm_bulk_memory, bool)
   *
   * This setting is `true` by default.
   */
@@ -3865,7 +4047,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures whether the WebAssembly multi-memory proposal is
-@@ -235,7 +235,7 @@ WASMTIME_CONFIG_PROP(void, wasm_multi_value, bool)
+@@ -287,7 +287,7 @@ WASMTIME_CONFIG_PROP(void, wasm_multi_value, bool)
   *
   * This setting is `false` by default.
   */
@@ -3874,7 +4056,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures whether the WebAssembly memory64 proposal is
-@@ -243,7 +243,7 @@ WASMTIME_CONFIG_PROP(void, wasm_multi_memory, bool)
+@@ -295,7 +295,7 @@ WASMTIME_CONFIG_PROP(void, wasm_multi_memory, bool)
   *
   * This setting is `false` by default.
   */
@@ -3883,24 +4065,25 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures whether the WebAssembly wide-arithmetic proposal is
-@@ -251,14 +251,14 @@ WASMTIME_CONFIG_PROP(void, wasm_memory64, bool)
+@@ -303,7 +303,7 @@ WASMTIME_CONFIG_PROP(void, wasm_memory64, bool)
   *
   * This setting is `false` by default.
   */
 -WASMTIME_CONFIG_PROP(void, wasm_wide_arithmetic, bool)
 +WASMTIME_CONFIG_PROP(void, wasmtime_wasm_wide_arithmetic, bool)
  
- /**
-  * \brief Configures whether the WebAssembly exceptions proposal is enabled.
+ #ifdef WASMTIME_FEATURE_GC
+ 
+@@ -312,7 +312,7 @@ WASMTIME_CONFIG_PROP(void, wasm_wide_arithmetic, bool)
   *
   * This setting is `false` by default.
   */
 -WASMTIME_CONFIG_PROP(void, wasm_exceptions, bool)
 +WASMTIME_CONFIG_PROP(void, wasmtime_wasm_exceptions, bool)
  
- /**
-  * \brief Configures whether the WebAssembly custom-page-sizes proposal is
-@@ -266,7 +266,7 @@ WASMTIME_CONFIG_PROP(void, wasm_exceptions, bool)
+ #endif // WASMTIME_FEATURE_GC
+ 
+@@ -322,7 +322,7 @@ WASMTIME_CONFIG_PROP(void, wasm_exceptions, bool)
   *
   * This setting is `false` by default.
   */
@@ -3909,7 +4092,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  #ifdef WASMTIME_FEATURE_COMPILER
  
-@@ -276,7 +276,7 @@ WASMTIME_CONFIG_PROP(void, wasm_custom_page_sizes, bool)
+@@ -332,7 +332,7 @@ WASMTIME_CONFIG_PROP(void, wasm_custom_page_sizes, bool)
   *
   * This setting is `false` by default.
   */
@@ -3918,7 +4101,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  /**
   * \brief Configures how JIT code will be compiled.
-@@ -406,7 +406,7 @@ WASMTIME_CONFIG_PROP(void, native_unwind_info, bool)
+@@ -471,7 +471,7 @@ WASMTIME_CONFIG_PROP(void, native_unwind_info, bool)
   * cache could not be enabled.
   */
  WASM_API_EXTERN wasmtime_error_t *
@@ -3927,7 +4110,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  #endif // WASMTIME_FEATURE_CACHE
  
-@@ -435,7 +435,7 @@ WASMTIME_CONFIG_PROP(wasmtime_error_t *, target, const char *)
+@@ -500,7 +500,7 @@ WASMTIME_CONFIG_PROP(wasmtime_error_t *, target, const char *)
   * For more information see the Rust documentation at
   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.cranelift_flag_enable
   */
@@ -3936,7 +4119,7 @@ index af5f3e0f06..0c65f83cd4 100644
                                                             const char *);
  
  /**
-@@ -447,7 +447,7 @@ WASM_API_EXTERN void wasmtime_config_cranelift_flag_enable(wasm_config_t *,
+@@ -512,7 +512,7 @@ WASM_API_EXTERN void wasmtime_config_cranelift_flag_enable(wasm_config_t *,
   * For more information see the Rust documentation at
   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.cranelift_flag_set
   */
@@ -3945,7 +4128,7 @@ index af5f3e0f06..0c65f83cd4 100644
                                                          const char *key,
                                                          const char *value);
  
-@@ -527,7 +527,7 @@ typedef struct wasmtime_linear_memory {
+@@ -592,7 +592,7 @@ typedef struct wasmtime_linear_memory {
   * https://docs.wasmtime.dev/api/wasmtime/trait.MemoryCreator.html#tymethod.new_memory
   */
  typedef wasmtime_error_t *(*wasmtime_new_memory_callback_t)(
@@ -3954,7 +4137,7 @@ index af5f3e0f06..0c65f83cd4 100644
      size_t reserved_size_in_bytes, size_t guard_size_in_bytes,
      wasmtime_linear_memory_t *memory_ret);
  
-@@ -561,7 +561,7 @@ typedef struct wasmtime_memory_creator {
+@@ -626,7 +626,7 @@ typedef struct wasmtime_memory_creator {
   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.with_host_memory
   */
  WASM_API_EXTERN void
@@ -3963,7 +4146,7 @@ index af5f3e0f06..0c65f83cd4 100644
                                          wasmtime_memory_creator_t *);
  
  /**
-@@ -801,7 +801,7 @@ WASMTIME_POOLING_ALLOCATION_CONFIG_PROP(total_gc_heaps, uint32_t)
+@@ -866,7 +866,7 @@ WASMTIME_POOLING_ALLOCATION_CONFIG_PROP(total_gc_heaps, uint32_t)
   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.allocation_strategy.
   */
  WASM_API_EXTERN void wasmtime_pooling_allocation_strategy_set(
@@ -3972,7 +4155,7 @@ index af5f3e0f06..0c65f83cd4 100644
  
  #endif // WASMTIME_FEATURE_POOLING_ALLOCATOR
  
-@@ -812,9 +812,9 @@ WASM_API_EXTERN void wasmtime_pooling_allocation_strategy_set(
+@@ -877,9 +877,9 @@ WASM_API_EXTERN void wasmtime_pooling_allocation_strategy_set(
   * enabled for compilation.
   *
   * For more information see the Rust documentation at
@@ -3982,13 +4165,59 @@ index af5f3e0f06..0c65f83cd4 100644
 -WASMTIME_CONFIG_PROP(void, wasm_component_model, bool)
 +WASMTIME_CONFIG_PROP(void, wasmtime_wasm_component_model, bool)
  
+ /**
+  * \brief Specifies whether support for concurrent execution of WebAssembly is
+@@ -895,9 +895,9 @@ WASMTIME_CONFIG_PROP(void, concurrency_support, bool)
+  * enabled for compilation.
+  *
+  * For more information see the Rust documentation at
+- * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasm_component_model_map.
++ * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasmtime_wasm_component_model_map.
+  */
+-WASMTIME_CONFIG_PROP(void, wasm_component_model_map, bool)
++WASMTIME_CONFIG_PROP(void, wasmtime_wasm_component_model_map, bool)
+ 
  #endif // WASMTIME_FEATURE_COMPONENT_MODEL
  
+@@ -908,27 +908,27 @@ WASMTIME_CONFIG_PROP(void, wasm_component_model_map, bool)
+  * be enabled.
+  *
+  * For more information see the Rust documentation at
+- * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasm_component_model_async.
++ * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasmtime_wasm_component_model_async.
+  */
+-WASMTIME_CONFIG_PROP(void, wasm_component_model_async, bool)
++WASMTIME_CONFIG_PROP(void, wasmtime_wasm_component_model_async, bool)
+ 
+ /**
+  * \brief Configures whether async built-in intrinsics are enabled for the
+  * component model.
+  *
+  * For more information see the Rust documentation at
+- * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasm_component_model_more_async_builtins.
++ * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasmtime_wasm_component_model_more_async_builtins.
+  */
+-WASMTIME_CONFIG_PROP(void, wasm_component_model_more_async_builtins, bool)
++WASMTIME_CONFIG_PROP(void, wasmtime_wasm_component_model_more_async_builtins, bool)
+ 
+ /**
+  * \brief Configures whether stackful coroutine support is enabled for async
+  * components.
+  *
+  * For more information see the Rust documentation at
+- * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasm_component_model_async_stackful.
++ * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasmtime_wasm_component_model_async_stackful.
+  */
+-WASMTIME_CONFIG_PROP(void, wasm_component_model_async_stackful, bool)
++WASMTIME_CONFIG_PROP(void, wasmtime_wasm_component_model_async_stackful, bool)
+ 
+ #endif // WASMTIME_FEATURE_COMPONENT_MODEL_ASYNC
+ 
 diff --git a/crates/c-api/include/wasmtime/config.hh b/crates/c-api/include/wasmtime/config.hh
-index 59d549899d..e90c3db7e5 100644
+index 02c1888a0d..7068de699a 100644
 --- a/crates/c-api/include/wasmtime/config.hh
 +++ b/crates/c-api/include/wasmtime/config.hh
-@@ -244,10 +244,10 @@ class PoolAllocationConfig {
+@@ -270,10 +270,10 @@ class PoolAllocationConfig {
   * documentation](https://docs.wasmtime.dev/api/wasmtime/struct.Config.html).
   */
  class Config {
@@ -4001,7 +4230,7 @@ index 59d549899d..e90c3db7e5 100644
  
    /// \brief Configures whether dwarf debuginfo is emitted for assisting
    /// in-process debugging.
-@@ -283,9 +283,9 @@ class Config {
+@@ -309,9 +309,9 @@ class Config {
  #ifdef WASMTIME_FEATURE_THREADS
    /// \brief Configures whether the WebAssembly threads proposal is enabled
    ///
@@ -4014,7 +4243,7 @@ index 59d549899d..e90c3db7e5 100644
    }
  #endif // WASMTIME_FEATURE_THREADS
  
-@@ -298,114 +298,114 @@ class Config {
+@@ -324,130 +324,130 @@ class Config {
  
    /// \brief Configures whether the WebAssembly tail call proposal is enabled
    ///
@@ -4026,6 +4255,7 @@ index 59d549899d..e90c3db7e5 100644
 +    wasmtime_config_wasmtime_wasm_tail_call_set(ptr.get(), enable);
    }
  
+ #ifdef WASMTIME_FEATURE_GC
    /// \brief Configures whether the WebAssembly reference types proposal is
    /// enabled
    ///
@@ -4036,6 +4266,7 @@ index 59d549899d..e90c3db7e5 100644
 +  void wasmtime_wasm_reference_types(bool enable) {
 +    wasmtime_config_wasmtime_wasm_reference_types_set(ptr.get(), enable);
    }
+ #endif // WASMTIME_FEATURE_GC
  
    /// \brief Configures whether the WebAssembly simd proposal is enabled
    ///
@@ -4108,6 +4339,7 @@ index 59d549899d..e90c3db7e5 100644
 +    wasmtime_config_wasmtime_wasm_memory64_set(ptr.get(), enable);
    }
  
+ #ifdef WASMTIME_FEATURE_GC
    /// \brief Configures whether the WebAssembly Garbage Collection proposal will
    /// be enabled
    ///
@@ -4115,7 +4347,9 @@ index 59d549899d..e90c3db7e5 100644
 -  void wasm_gc(bool enable) { wasmtime_config_wasm_gc_set(ptr.get(), enable); }
 +  /// https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasmtime_wasm_gc
 +  void wasmtime_wasm_gc(bool enable) { wasmtime_config_wasmtime_wasm_gc_set(ptr.get(), enable); }
+ #endif // WASMTIME_FEATURE_GC
  
+ #ifdef WASMTIME_FEATURE_GC
    /// \brief Configures whether the WebAssembly function references proposal
    /// will be enabled
    ///
@@ -4126,6 +4360,7 @@ index 59d549899d..e90c3db7e5 100644
 +  void wasmtime_wasm_function_references(bool enable) {
 +    wasmtime_config_wasmtime_wasm_function_references_set(ptr.get(), enable);
    }
+ #endif // WASMTIME_FEATURE_GC
  
    /// \brief Configures whether the WebAssembly wide arithmetic proposal will be
    /// enabled
@@ -4138,6 +4373,7 @@ index 59d549899d..e90c3db7e5 100644
 +    wasmtime_config_wasmtime_wasm_wide_arithmetic_set(ptr.get(), enable);
    }
  
+ #ifdef WASMTIME_FEATURE_GC
    /// \brief Configures whether the WebAssembly exceptions proposal will be
    /// enabled
    ///
@@ -4148,6 +4384,7 @@ index 59d549899d..e90c3db7e5 100644
 +  void wasmtime_wasm_exceptions(bool enable) {
 +    wasmtime_config_wasmtime_wasm_exceptions_set(ptr.get(), enable);
    }
+ #endif // WASMTIME_FEATURE_GC
  
    /// \brief Configures whether the WebAssembly custom-page-sizes proposal will
    /// be enabled
@@ -4171,9 +4408,20 @@ index 59d549899d..e90c3db7e5 100644
 +  void wasmtime_wasm_component_model(bool enable) {
 +    wasmtime_config_wasmtime_wasm_component_model_set(ptr.get(), enable);
    }
+ 
+   /// \brief Configures whether the WebAssembly component model map type will be
+   /// enabled
+   ///
+-  /// https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasm_component_model_map
+-  void wasm_component_model_map(bool enable) {
+-    wasmtime_config_wasm_component_model_map_set(ptr.get(), enable);
++  /// https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasmtime_wasm_component_model_map
++  void wasmtime_wasm_component_model_map(bool enable) {
++    wasmtime_config_wasmtime_wasm_component_model_map_set(ptr.get(), enable);
+   }
  #endif // WASMTIME_FEATURE_COMPONENT_MODEL
  
-@@ -577,7 +577,7 @@ private:
+@@ -627,7 +627,7 @@ private:
  
    template <typename T>
    static wasmtime_error_t *
@@ -4182,37 +4430,80 @@ index 59d549899d..e90c3db7e5 100644
                   size_t maximum, size_t reserved_size_in_bytes,
                   size_t guard_size_in_bytes,
                   wasmtime_linear_memory_t *memory_ret) {
+@@ -687,20 +687,20 @@ public:
+   /**
+    * \brief Configures whether component-model async support is enabled.
+    *
+-   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasm_component_model_async
++   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasmtime_wasm_component_model_async
+    */
+-  void wasm_component_model_async(bool enable) {
+-    wasmtime_config_wasm_component_model_async_set(ptr.get(), enable);
++  void wasmtime_wasm_component_model_async(bool enable) {
++    wasmtime_config_wasmtime_wasm_component_model_async_set(ptr.get(), enable);
+   }
+ 
+   /**
+    * \brief Configures whether async built-in intrinsics are enabled for the
+    * component model.
+    *
+-   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasm_component_model_more_async_builtins
++   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasmtime_wasm_component_model_more_async_builtins
+    */
+-  void wasm_component_model_more_async_builtins(bool enable) {
+-    wasmtime_config_wasm_component_model_more_async_builtins_set(ptr.get(),
++  void wasmtime_wasm_component_model_more_async_builtins(bool enable) {
++    wasmtime_config_wasmtime_wasm_component_model_more_async_builtins_set(ptr.get(),
+                                                                  enable);
+   }
+ 
+@@ -708,10 +708,10 @@ public:
+    * \brief Configures whether stackful coroutine support is enabled for async
+    * components.
+    *
+-   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasm_component_model_async_stackful
++   * https://docs.wasmtime.dev/api/wasmtime/struct.Config.html#method.wasmtime_wasm_component_model_async_stackful
+    */
+-  void wasm_component_model_async_stackful(bool enable) {
+-    wasmtime_config_wasm_component_model_async_stackful_set(ptr.get(), enable);
++  void wasmtime_wasm_component_model_async_stackful(bool enable) {
++    wasmtime_config_wasmtime_wasm_component_model_async_stackful_set(ptr.get(), enable);
+   }
+ #endif // WASMTIME_FEATURE_COMPONENT_MODEL_ASYNC
+ };
 diff --git a/crates/c-api/include/wasmtime/engine.h b/crates/c-api/include/wasmtime/engine.h
-index 4695b59271..d0ccbde6a3 100644
+index e198fcf2a1..445832287d 100644
 --- a/crates/c-api/include/wasmtime/engine.h
 +++ b/crates/c-api/include/wasmtime/engine.h
-@@ -19,7 +19,7 @@ extern "C" {
+@@ -19,8 +19,8 @@ extern "C" {
   * This function clones the reference-counted pointer to the internal object,
   * and must be freed using #wasm_engine_delete.
   */
--WASM_API_EXTERN wasm_engine_t *wasmtime_engine_clone(wasm_engine_t *engine);
-+WASM_API_EXTERN wasmtime_wasm_engine_t *wasmtime_engine_clone(wasmtime_wasm_engine_t *engine);
+-WASM_API_EXTERN wasm_engine_t *
+-wasmtime_engine_clone(const wasm_engine_t *engine);
++WASM_API_EXTERN wasmtime_wasm_engine_t *
++wasmtime_engine_clone(const wasmtime_wasm_engine_t *engine);
  
  /**
   * \brief Increments the engine-local epoch variable.
-@@ -33,13 +33,13 @@ WASM_API_EXTERN wasm_engine_t *wasmtime_engine_clone(wasm_engine_t *engine);
-  *
+@@ -35,13 +35,13 @@ wasmtime_engine_clone(const wasm_engine_t *engine);
   * See also #wasmtime_config_epoch_interruption_set.
   */
--WASM_API_EXTERN void wasmtime_engine_increment_epoch(wasm_engine_t *engine);
-+WASM_API_EXTERN void wasmtime_engine_increment_epoch(wasmtime_wasm_engine_t *engine);
+ WASM_API_EXTERN void
+-wasmtime_engine_increment_epoch(const wasm_engine_t *engine);
++wasmtime_engine_increment_epoch(const wasmtime_wasm_engine_t *engine);
  
  /**
   * \brief Returns whether this engine is using the Pulley interpreter to execute
   * WebAssembly code.
   */
--WASM_API_EXTERN bool wasmtime_engine_is_pulley(wasm_engine_t *engine);
-+WASM_API_EXTERN bool wasmtime_engine_is_pulley(wasmtime_wasm_engine_t *engine);
+-WASM_API_EXTERN bool wasmtime_engine_is_pulley(const wasm_engine_t *engine);
++WASM_API_EXTERN bool wasmtime_engine_is_pulley(const wasmtime_wasm_engine_t *engine);
  
  #ifdef __cplusplus
  } // extern "C"
 diff --git a/crates/c-api/include/wasmtime/engine.hh b/crates/c-api/include/wasmtime/engine.hh
-index ab9f8ac2fc..4947893146 100644
+index c8682c22f0..183af0e25c 100644
 --- a/crates/c-api/include/wasmtime/engine.hh
 +++ b/crates/c-api/include/wasmtime/engine.hh
 @@ -21,15 +21,15 @@ namespace wasmtime {
@@ -4259,7 +4550,7 @@ index ad91725436..e0cc880a04 100644
  #ifdef __cplusplus
  } // extern "C"
 diff --git a/crates/c-api/include/wasmtime/error.hh b/crates/c-api/include/wasmtime/error.hh
-index 91c9bae12a..17734b6c57 100644
+index 447d08ae9c..613cc50df5 100644
 --- a/crates/c-api/include/wasmtime/error.hh
 +++ b/crates/c-api/include/wasmtime/error.hh
 @@ -31,10 +31,10 @@ class Error {
@@ -4275,17 +4566,30 @@ index 91c9bae12a..17734b6c57 100644
      return ret;
    }
  
+diff --git a/crates/c-api/include/wasmtime/exnref.h b/crates/c-api/include/wasmtime/exnref.h
+index eaf6140754..71823c0560 100644
+--- a/crates/c-api/include/wasmtime/exnref.h
++++ b/crates/c-api/include/wasmtime/exnref.h
+@@ -136,7 +136,7 @@ wasmtime_exnref_field(wasmtime_context_t *store, const wasmtime_exnref_t *exn,
+  * \param exn the exception to throw
+  * \return a trap to return from the host callback (caller-owned)
+  */
+-WASM_API_EXTERN wasm_trap_t *
++WASM_API_EXTERN wasmtime_wasm_trap_t *
+ wasmtime_context_set_exception(wasmtime_context_t *store,
+                                const wasmtime_exnref_t *exn);
+ 
 diff --git a/crates/c-api/include/wasmtime/extern.h b/crates/c-api/include/wasmtime/extern.h
-index 51675b970d..3b9fc10a48 100644
+index 4c7d976f3b..72c9eacdec 100644
 --- a/crates/c-api/include/wasmtime/extern.h
 +++ b/crates/c-api/include/wasmtime/extern.h
-@@ -157,7 +157,7 @@ void wasmtime_extern_delete(wasmtime_extern_t *val);
+@@ -163,7 +163,7 @@ WASM_API_EXTERN void wasmtime_extern_delete(wasmtime_extern_t *val);
  ///
  /// Does not take ownership of `context` or `val`, but the returned
  /// #wasm_externtype_t is an owned value that needs to be deleted.
--wasm_externtype_t *wasmtime_extern_type(wasmtime_context_t *context,
-+wasmtime_wasm_externtype_t *wasmtime_extern_type(wasmtime_context_t *context,
-                                         wasmtime_extern_t *val);
+-WASM_API_EXTERN wasm_externtype_t *
++WASM_API_EXTERN wasmtime_wasm_externtype_t *
+ wasmtime_extern_type(wasmtime_context_t *context, const wasmtime_extern_t *val);
  
  #ifdef __cplusplus
 diff --git a/crates/c-api/include/wasmtime/func.h b/crates/c-api/include/wasmtime/func.h
@@ -4356,47 +4660,29 @@ index 41ff907c37..932c396497 100644
  /**
   * \brief Loads a #wasmtime_extern_t from the caller's context
 diff --git a/crates/c-api/include/wasmtime/func.hh b/crates/c-api/include/wasmtime/func.hh
-index 84ec28e1d0..19b7496e96 100644
+index cfbe8856c4..ec84cf51b3 100644
 --- a/crates/c-api/include/wasmtime/func.hh
 +++ b/crates/c-api/include/wasmtime/func.hh
-@@ -342,7 +342,7 @@ class Func {
-   wasmtime_func_t func;
+@@ -218,7 +218,7 @@ struct WasmHostFunc<T, std::void_t<decltype(&T::operator())>>
+ using namespace detail;
  
-   template <typename F>
--  static wasm_trap_t *raw_callback(void *env, wasmtime_caller_t *caller,
-+  static wasmtime_wasm_trap_t *raw_callback(void *env, wasmtime_caller_t *caller,
-                                    const wasmtime_val_t *args, size_t nargs,
-                                    wasmtime_val_t *results, size_t nresults) {
-     static_assert(alignof(Val) == alignof(wasmtime_val_t));
-@@ -361,7 +361,7 @@ class Func {
-   }
+ template <typename F>
+-inline wasm_trap_t *Func::raw_callback(void *env, wasmtime_caller_t *caller,
++inline wasmtime_wasm_trap_t *Func::raw_callback(void *env, wasmtime_caller_t *caller,
+                                        const wasmtime_val_t *args, size_t nargs,
+                                        wasmtime_val_t *results,
+                                        size_t nresults) {
+@@ -248,7 +248,7 @@ Func::call(Store::Context cx, const I &begin, const I &end) const {
+   size_t nresults = this->type(cx)->results().size();
+   std::vector<wasmtime_val_t> raw_results(nresults);
  
-   template <typename F>
--  static wasm_trap_t *
-+  static wasmtime_wasm_trap_t *
-   raw_callback_unchecked(void *env, wasmtime_caller_t *caller,
-                          wasmtime_val_raw_t *args_and_results,
-                          size_t nargs_and_results) {
-@@ -509,7 +509,7 @@ public:
-     size_t nresults = this->type(cx)->results().size();
-     std::vector<wasmtime_val_t> raw_results(nresults);
- 
--    wasm_trap_t *trap = nullptr;
-+    wasmtime_wasm_trap_t *trap = nullptr;
-     auto *error =
-         wasmtime_func_call(cx.ptr, &func, raw_params.data(), raw_params.size(),
-                            raw_results.data(), raw_results.capacity(), &trap);
-@@ -617,7 +617,7 @@ public:
-     if (ptr == nullptr)
-       ptr = reinterpret_cast<wasmtime_val_raw_t *>(alignof(wasmtime_val_raw_t));
-     WasmTypeList<Params>::store(cx, ptr, params);
--    wasm_trap_t *trap = nullptr;
-+    wasmtime_wasm_trap_t *trap = nullptr;
-     auto *error = wasmtime_func_call_unchecked(cx.capi(), &f.func, ptr,
-                                                storage.size(), &trap);
-     if (error != nullptr) {
+-  wasm_trap_t *trap = nullptr;
++  wasmtime_wasm_trap_t *trap = nullptr;
+   auto *error =
+       wasmtime_func_call(cx.ptr, &func, raw_params.data(), raw_params.size(),
+                          raw_results.data(), raw_results.capacity(), &trap);
 diff --git a/crates/c-api/include/wasmtime/global.h b/crates/c-api/include/wasmtime/global.h
-index 8b20af9150..7df9b0e025 100644
+index e851d0c7d7..edf27502df 100644
 --- a/crates/c-api/include/wasmtime/global.h
 +++ b/crates/c-api/include/wasmtime/global.h
 @@ -34,7 +34,7 @@ extern "C" {
@@ -4418,7 +4704,7 @@ index 8b20af9150..7df9b0e025 100644
                       const wasmtime_global_t *global);
  
 diff --git a/crates/c-api/include/wasmtime/instance.h b/crates/c-api/include/wasmtime/instance.h
-index db65ea87c7..bfd8985c77 100644
+index 4900112839..43a4bfbd6b 100644
 --- a/crates/c-api/include/wasmtime/instance.h
 +++ b/crates/c-api/include/wasmtime/instance.h
 @@ -66,7 +66,7 @@ WASM_API_EXTERN wasmtime_error_t *
@@ -4440,10 +4726,10 @@ index db65ea87c7..bfd8985c77 100644
  /**
   * \brief Get the module (as a shallow clone) for a instance_pre.
 diff --git a/crates/c-api/include/wasmtime/instance.hh b/crates/c-api/include/wasmtime/instance.hh
-index 1aa75a060f..78ffeba1bc 100644
+index f9c9870823..61aa23470b 100644
 --- a/crates/c-api/include/wasmtime/instance.hh
 +++ b/crates/c-api/include/wasmtime/instance.hh
-@@ -63,7 +63,7 @@ public:
+@@ -64,7 +64,7 @@ public:
        detail::cvt_extern(item, last);
      }
      wasmtime_instance_t instance;
@@ -4453,7 +4739,7 @@ index 1aa75a060f..78ffeba1bc 100644
                                          raw_imports.size(), &instance, &trap);
      if (error != nullptr) {
 diff --git a/crates/c-api/include/wasmtime/linker.h b/crates/c-api/include/wasmtime/linker.h
-index e58dcadfb5..57da84665a 100644
+index f3bb0a19de..434f23b6c5 100644
 --- a/crates/c-api/include/wasmtime/linker.h
 +++ b/crates/c-api/include/wasmtime/linker.h
 @@ -43,7 +43,7 @@ typedef struct wasmtime_linker wasmtime_linker_t;
@@ -4493,7 +4779,7 @@ index e58dcadfb5..57da84665a 100644
  /**
   * \brief Defines automatic instantiations of a #wasm_module_t in this linker.
 diff --git a/crates/c-api/include/wasmtime/linker.hh b/crates/c-api/include/wasmtime/linker.hh
-index d0caca235e..6b667b7246 100644
+index 86f93f8d0f..136af688dc 100644
 --- a/crates/c-api/include/wasmtime/linker.hh
 +++ b/crates/c-api/include/wasmtime/linker.hh
 @@ -80,7 +80,7 @@ class Linker {
@@ -4506,7 +4792,7 @@ index d0caca235e..6b667b7246 100644
                                                &instance, &trap);
      if (error != nullptr) {
 diff --git a/crates/c-api/include/wasmtime/memory.h b/crates/c-api/include/wasmtime/memory.h
-index 2aac6b7289..c5320f72fd 100644
+index 221951e439..d95cc73706 100644
 --- a/crates/c-api/include/wasmtime/memory.h
 +++ b/crates/c-api/include/wasmtime/memory.h
 @@ -25,7 +25,7 @@ extern "C" {
@@ -4580,7 +4866,7 @@ index 2aac6b7289..c5320f72fd 100644
                       const wasmtime_memory_t *memory);
  
 diff --git a/crates/c-api/include/wasmtime/module.h b/crates/c-api/include/wasmtime/module.h
-index 7f42432cf8..de3b7eb294 100644
+index e9552949f9..511a408346 100644
 --- a/crates/c-api/include/wasmtime/module.h
 +++ b/crates/c-api/include/wasmtime/module.h
 @@ -44,9 +44,9 @@ typedef struct wasmtime_module wasmtime_module_t;
@@ -4595,7 +4881,7 @@ index 7f42432cf8..de3b7eb294 100644
                                                        wasmtime_module_t **ret);
  
  #endif // WASMTIME_FEATURE_COMPILER
-@@ -66,13 +66,13 @@ WASM_API_EXTERN wasmtime_module_t *wasmtime_module_clone(wasmtime_module_t *m);
+@@ -67,13 +67,13 @@ wasmtime_module_clone(const wasmtime_module_t *m);
   * \brief Same as #wasm_module_imports, but for #wasmtime_module_t.
   */
  WASM_API_EXTERN void wasmtime_module_imports(const wasmtime_module_t *module,
@@ -4611,7 +4897,7 @@ index 7f42432cf8..de3b7eb294 100644
  
  #ifdef WASMTIME_FEATURE_COMPILER
  
-@@ -89,8 +89,8 @@ WASM_API_EXTERN void wasmtime_module_exports(const wasmtime_module_t *module,
+@@ -90,8 +90,8 @@ WASM_API_EXTERN void wasmtime_module_exports(const wasmtime_module_t *module,
   * describes why the binary did not validate.
   */
  WASM_API_EXTERN wasmtime_error_t *
@@ -4622,16 +4908,16 @@ index 7f42432cf8..de3b7eb294 100644
  
  /**
   * \brief This function serializes compiled module artifacts as blob data.
-@@ -106,7 +106,7 @@ wasmtime_module_validate(wasm_engine_t *engine, const uint8_t *wasm,
-  * expected to deallocate the returned #wasmtime_error_t and #wasm_byte_vec_t.
+@@ -108,7 +108,7 @@ wasmtime_module_validate(wasm_engine_t *engine, const uint8_t *wasm,
   */
  WASM_API_EXTERN wasmtime_error_t *
--wasmtime_module_serialize(wasmtime_module_t *module, wasm_byte_vec_t *ret);
-+wasmtime_module_serialize(wasmtime_module_t *module, wasmtime_wasm_byte_vec_t *ret);
+ wasmtime_module_serialize(const wasmtime_module_t *module,
+-                          wasm_byte_vec_t *ret);
++                          wasmtime_wasm_byte_vec_t *ret);
  
  #endif // WASMTIME_FEATURE_COMPILER
  
-@@ -121,7 +121,7 @@ wasmtime_module_serialize(wasmtime_module_t *module, wasm_byte_vec_t *ret);
+@@ -123,7 +123,7 @@ wasmtime_module_serialize(const wasmtime_module_t *module,
   * (e.g. only that of `wasmtime_module_serialize`)
   */
  WASM_API_EXTERN wasmtime_error_t *
@@ -4640,7 +4926,7 @@ index 7f42432cf8..de3b7eb294 100644
                              size_t bytes_len, wasmtime_module_t **ret);
  
  /**
-@@ -139,7 +139,7 @@ wasmtime_module_deserialize(wasm_engine_t *engine, const uint8_t *bytes,
+@@ -141,7 +141,7 @@ wasmtime_module_deserialize(wasm_engine_t *engine, const uint8_t *bytes,
   * (e.g. only that of `wasmtime_module_serialize`)
   */
  WASM_API_EXTERN wasmtime_error_t *
@@ -4650,10 +4936,10 @@ index 7f42432cf8..de3b7eb294 100644
  
  /**
 diff --git a/crates/c-api/include/wasmtime/module.hh b/crates/c-api/include/wasmtime/module.hh
-index 4a28439de8..80f5b963de 100644
+index efdaeba5d1..e2067e8e67 100644
 --- a/crates/c-api/include/wasmtime/module.hh
 +++ b/crates/c-api/include/wasmtime/module.hh
-@@ -147,7 +147,7 @@ class Module {
+@@ -150,7 +150,7 @@ class Module {
     * quickly recreate this module in a different process perhaps.
     */
    Result<std::vector<uint8_t>> serialize() const {
@@ -4662,7 +4948,7 @@ index 4a28439de8..80f5b963de 100644
      auto *error = wasmtime_module_serialize(ptr.get(), &bytes);
      if (error != nullptr) {
        return Error(error);
-@@ -156,7 +156,7 @@ class Module {
+@@ -159,7 +159,7 @@ class Module {
      // NOLINTNEXTLINE TODO can this be done without triggering lints?
      Span<uint8_t> raw(reinterpret_cast<uint8_t *>(bytes.data), bytes.size);
      ret.assign(raw.begin(), raw.end());
@@ -4727,7 +5013,7 @@ index 3065a0ef1a..08beccc095 100644
  
  /**
 diff --git a/crates/c-api/include/wasmtime/store.h b/crates/c-api/include/wasmtime/store.h
-index aefe31c959..35b16cc9f5 100644
+index 0fbbc1bd3f..22284bda7e 100644
 --- a/crates/c-api/include/wasmtime/store.h
 +++ b/crates/c-api/include/wasmtime/store.h
 @@ -69,7 +69,7 @@ typedef struct wasmtime_context wasmtime_context_t;
@@ -4761,11 +5047,33 @@ index 7a648691ca..c63b087317 100644
  wasmtime_table_type(const wasmtime_context_t *store,
                      const wasmtime_table_t *table);
  
+diff --git a/crates/c-api/include/wasmtime/tag.h b/crates/c-api/include/wasmtime/tag.h
+index 9335a6a05a..c078e0b2ee 100644
+--- a/crates/c-api/include/wasmtime/tag.h
++++ b/crates/c-api/include/wasmtime/tag.h
+@@ -50,7 +50,7 @@ typedef struct wasmtime_tag {
+  * \return NULL on success, otherwise an error describing the failure.
+  */
+ WASM_API_EXTERN wasmtime_error_t *wasmtime_tag_new(wasmtime_context_t *store,
+-                                                   const wasm_tagtype_t *tt,
++                                                   const wasmtime_wasm_tagtype_t *tt,
+                                                    wasmtime_tag_t *ret);
+ 
+ /**
+@@ -58,7 +58,7 @@ WASM_API_EXTERN wasmtime_error_t *wasmtime_tag_new(wasmtime_context_t *store,
+  *
+  * The returned #wasm_tagtype_t is owned by the caller.
+  */
+-WASM_API_EXTERN wasm_tagtype_t *
++WASM_API_EXTERN wasmtime_wasm_tagtype_t *
+ wasmtime_tag_type(const wasmtime_context_t *store, const wasmtime_tag_t *tag);
+ 
+ /**
 diff --git a/crates/c-api/include/wasmtime/trap.h b/crates/c-api/include/wasmtime/trap.h
-index 9f251363e7..1dd82280b3 100644
+index a1f5880aa0..ba43ee0b59 100644
 --- a/crates/c-api/include/wasmtime/trap.h
 +++ b/crates/c-api/include/wasmtime/trap.h
-@@ -119,7 +119,7 @@ enum wasmtime_trap_code_enum {
+@@ -148,7 +148,7 @@ enum wasmtime_trap_code_enum {
   *
   * The #wasm_trap_t returned is owned by the caller.
   */
@@ -4774,7 +5082,7 @@ index 9f251363e7..1dd82280b3 100644
  
  /**
   * \brief Creates a new trap from the given trap code.
-@@ -128,7 +128,7 @@ WASM_API_EXTERN wasm_trap_t *wasmtime_trap_new(const char *msg, size_t msg_len);
+@@ -157,7 +157,7 @@ WASM_API_EXTERN wasm_trap_t *wasmtime_trap_new(const char *msg, size_t msg_len);
   *
   * The #wasm_trap_t returned is owned by the caller.
   */
@@ -4783,7 +5091,7 @@ index 9f251363e7..1dd82280b3 100644
  
  /**
   * \brief Attempts to extract the trap code from this trap.
-@@ -136,10 +136,10 @@ WASM_API_EXTERN wasm_trap_t *wasmtime_trap_new_code(wasmtime_trap_code_t code);
+@@ -165,10 +165,10 @@ WASM_API_EXTERN wasm_trap_t *wasmtime_trap_new_code(wasmtime_trap_code_t code);
   * Returns `true` if the trap is an instruction trap triggered while
   * executing Wasm. If `true` is returned then the trap code is returned
   * through the `code` pointer. If `false` is returned then this is not
@@ -4796,7 +5104,7 @@ index 9f251363e7..1dd82280b3 100644
                                          wasmtime_trap_code_t *code);
  
  /**
-@@ -150,8 +150,8 @@ WASM_API_EXTERN bool wasmtime_trap_code(const wasm_trap_t *,
+@@ -179,8 +179,8 @@ WASM_API_EXTERN bool wasmtime_trap_code(const wasm_trap_t *,
   *
   * The lifetime of the returned name is the same as the #wasm_frame_t itself.
   */
@@ -4807,7 +5115,7 @@ index 9f251363e7..1dd82280b3 100644
  
  /**
   * \brief Returns a human-readable name for this frame's module.
-@@ -161,8 +161,8 @@ wasmtime_frame_func_name(const wasm_frame_t *);
+@@ -190,8 +190,8 @@ wasmtime_frame_func_name(const wasm_frame_t *);
   *
   * The lifetime of the returned name is the same as the #wasm_frame_t itself.
   */
@@ -4904,8 +5212,190 @@ index b20d828cab..86322bb30d 100644
      return Trace(frames);
    }
  
+diff --git a/crates/c-api/include/wasmtime/types/_val_class.hh b/crates/c-api/include/wasmtime/types/_val_class.hh
+index bcc11e89c8..fe8e882fff 100644
+--- a/crates/c-api/include/wasmtime/types/_val_class.hh
++++ b/crates/c-api/include/wasmtime/types/_val_class.hh
+@@ -21,10 +21,10 @@ class ValType {
+   friend class GlobalType;
+   friend class FuncType;
+   struct deleter {
+-    void operator()(wasm_valtype_t *p) const { wasm_valtype_delete(p); }
++    void operator()(wasmtime_wasm_valtype_t *p) const { wasmtime_wasm_valtype_delete(p); }
+   };
+ 
+-  std::unique_ptr<wasm_valtype_t, deleter> ptr;
++  std::unique_ptr<wasmtime_wasm_valtype_t, deleter> ptr;
+ 
+ public:
+   /// \brief Non-owning reference to a `ValType`, must not be used after the
+@@ -32,11 +32,11 @@ public:
+   class Ref {
+     friend class ValType;
+ 
+-    const wasm_valtype_t *ptr;
++    const wasmtime_wasm_valtype_t *ptr;
+ 
+   public:
+     /// \brief Instantiates from the raw C API representation.
+-    Ref(const wasm_valtype_t *ptr) : ptr(ptr) {}
++    Ref(const wasmtime_wasm_valtype_t *ptr) : ptr(ptr) {}
+     /// Copy constructor
+     Ref(const ValType &ty) : Ref(ty.ptr.get()) {}
+ 
+@@ -49,11 +49,11 @@ public:
+   /// \brief Non-owning reference to a list of `ValType` instances. Must not be
+   /// used after the original owner is deleted.
+   class ListRef {
+-    const wasm_valtype_vec_t *list;
++    const wasmtime_wasm_valtype_vec_t *list;
+ 
+   public:
+     /// Creates a list from the raw underlying C API.
+-    ListRef(const wasm_valtype_vec_t *list) : list(list) {}
++    ListRef(const wasmtime_wasm_valtype_vec_t *list) : list(list) {}
+ 
+     /// This list iterates over a list of `ValType::Ref` instances.
+     typedef const Ref *iterator;
+@@ -75,7 +75,7 @@ public:
+ private:
+   Ref ref;
+   wasmtime_valtype_t wasmtime_ty;
+-  ValType(wasm_valtype_t *ptr) : ptr(ptr), ref(ptr) {
++  ValType(wasmtime_wasm_valtype_t *ptr) : ptr(ptr), ref(ptr) {
+     wasmtime_valtype_new(ptr, &wasmtime_ty);
+   }
+   ValType(wasmtime_valtype_t *ty)
+@@ -86,12 +86,12 @@ private:
+ 
+ public:
+   /// Copies a `Ref` to a new owned value.
+-  ValType(Ref other) : ValType(wasm_valtype_copy(other.ptr)) {}
++  ValType(Ref other) : ValType(wasmtime_wasm_valtype_copy(other.ptr)) {}
+   /// Copies one type to a new one.
+-  ValType(const ValType &other) : ValType(wasm_valtype_copy(other.ptr.get())) {}
++  ValType(const ValType &other) : ValType(wasmtime_wasm_valtype_copy(other.ptr.get())) {}
+   /// Copies the contents of another type into this one.
+   ValType &operator=(const ValType &other) {
+-    ptr.reset(wasm_valtype_copy(other.ptr.get()));
++    ptr.reset(wasmtime_wasm_valtype_copy(other.ptr.get()));
+     ref = ptr.get();
+     wasmtime_valtype_delete(&wasmtime_ty);
+     wasmtime_valtype_clone(&other.wasmtime_ty, &wasmtime_ty);
+@@ -115,16 +115,16 @@ public:
+   }
+ 
+   /// Convenience constructor for the `i32` value type.
+-  static ValType i32() { return ValType(wasm_valtype_new(WASM_I32)); }
++  static ValType i32() { return ValType(wasmtime_wasm_valtype_new(WASM_I32)); }
+ 
+   /// Convenience constructor for the `i64` value type.
+-  static ValType i64() { return ValType(wasm_valtype_new(WASM_I64)); }
++  static ValType i64() { return ValType(wasmtime_wasm_valtype_new(WASM_I64)); }
+ 
+   /// Convenience constructor for the `f32` value type.
+-  static ValType f32() { return ValType(wasm_valtype_new(WASM_F32)); }
++  static ValType f32() { return ValType(wasmtime_wasm_valtype_new(WASM_F32)); }
+ 
+   /// Convenience constructor for the `f64` value type.
+-  static ValType f64() { return ValType(wasm_valtype_new(WASM_F64)); }
++  static ValType f64() { return ValType(wasmtime_wasm_valtype_new(WASM_F64)); }
+ 
+   /// Convenience constructor for the `v128` value type.
+   static ValType v128() {
+@@ -134,11 +134,11 @@ public:
+   }
+ 
+   /// Convenience constructor for the `funcref` value type.
+-  static ValType funcref() { return ValType(wasm_valtype_new(WASM_FUNCREF)); }
++  static ValType funcref() { return ValType(wasmtime_wasm_valtype_new(WASM_FUNCREF)); }
+ 
+   /// Convenience constructor for the `externref` value type.
+   static ValType externref() {
+-    return ValType(wasm_valtype_new(WASM_EXTERNREF));
++    return ValType(wasmtime_wasm_valtype_new(WASM_EXTERNREF));
+   }
+ 
+   /// Convenience constructor for the `anyref` value type.
+@@ -171,7 +171,7 @@ public:
+   const wasmtime_valtype_t *wasmtime_capi() const { return &wasmtime_ty; }
+ 
+   /// \brief Returns the underlying C API representation of this type.
+-  const wasm_valtype_t *capi() const { return ptr.get(); }
++  const wasmtime_wasm_valtype_t *capi() const { return ptr.get(); }
+ 
+   /// \brief Returns if this is the `i32` wasm type.
+   bool is_i32() const { return wasmtime_ty.kind == WASMTIME_VALTYPE_KIND_I32; }
+diff --git a/crates/c-api/include/wasmtime/types/arrayref.h b/crates/c-api/include/wasmtime/types/arrayref.h
+index 20b5be0089..62549318e9 100644
+--- a/crates/c-api/include/wasmtime/types/arrayref.h
++++ b/crates/c-api/include/wasmtime/types/arrayref.h
+@@ -33,7 +33,7 @@ typedef struct wasmtime_array_type wasmtime_array_type_t;
+  * \return Returns a new array type.
+  */
+ WASM_API_EXTERN wasmtime_array_type_t *
+-wasmtime_array_type_new(const wasm_engine_t *engine,
++wasmtime_array_type_new(const wasmtime_wasm_engine_t *engine,
+                         const wasmtime_field_type_t *field);
+ 
+ /**
+diff --git a/crates/c-api/include/wasmtime/types/exnref.h b/crates/c-api/include/wasmtime/types/exnref.h
+index cb5ab48324..df36b9bf91 100644
+--- a/crates/c-api/include/wasmtime/types/exnref.h
++++ b/crates/c-api/include/wasmtime/types/exnref.h
+@@ -20,8 +20,8 @@ typedef struct wasmtime_exn_type wasmtime_exn_type_t;
+ /// Fills in `out` on success and returns `NULL`. Otherwise returns an
+ /// error and does not modify `out`.
+ WASM_API_EXTERN wasmtime_error_t *
+-wasmtime_exn_type_new(const wasm_engine_t *engine,
+-                      const wasm_valtype_vec_t *params,
++wasmtime_exn_type_new(const wasmtime_wasm_engine_t *engine,
++                      const wasmtime_wasm_valtype_vec_t *params,
+                       wasmtime_exn_type_t **out);
+ 
+ /// \brief Deletes an exception type.
+@@ -33,7 +33,7 @@ WASM_API_EXTERN wasmtime_exn_type_t *
+ wasmtime_exn_type_copy(const wasmtime_exn_type_t *ty);
+ 
+ /// \brief Returns tag type associated with this exception type.
+-WASM_API_EXTERN wasm_tagtype_t *
++WASM_API_EXTERN wasmtime_wasm_tagtype_t *
+ wasmtime_exn_type_tag_type(const wasmtime_exn_type_t *ty);
+ 
+ #ifdef __cplusplus
+diff --git a/crates/c-api/include/wasmtime/types/exnref.hh b/crates/c-api/include/wasmtime/types/exnref.hh
+index bf2867c613..6f2985e09a 100644
+--- a/crates/c-api/include/wasmtime/types/exnref.hh
++++ b/crates/c-api/include/wasmtime/types/exnref.hh
+@@ -29,11 +29,11 @@ public:
+   /// Creates a new exception type with the given parameter types.
+   static Result<ExnType> create(const Engine &engine,
+                                 const std::initializer_list<ValType> &params) {
+-    std::vector<const wasm_valtype_t *> tmp;
++    std::vector<const wasmtime_wasm_valtype_t *> tmp;
+     for (const auto &param : params)
+       tmp.push_back(param.capi());
+-    wasm_valtype_vec_t params_vec;
+-    params_vec.data = const_cast<wasm_valtype_t **>(tmp.data());
++    wasmtime_wasm_valtype_vec_t params_vec;
++    params_vec.data = const_cast<wasmtime_wasm_valtype_t **>(tmp.data());
+     params_vec.size = tmp.size();
+     wasmtime_exn_type_t *result = nullptr;
+     auto error = wasmtime_exn_type_new(engine.capi(), &params_vec, &result);
+@@ -44,9 +44,9 @@ public:
+ 
+   /// Returns the tag type associated with this exception type.
+   TagType tag_type() const {
+-    wasm_tagtype_t *raw = wasmtime_exn_type_tag_type(capi());
++    wasmtime_wasm_tagtype_t *raw = wasmtime_exn_type_tag_type(capi());
+     auto result = TagType(TagType::Ref(raw));
+-    wasm_tagtype_delete(raw);
++    wasmtime_wasm_tagtype_delete(raw);
+     return result;
+   }
+ };
 diff --git a/crates/c-api/include/wasmtime/types/export.hh b/crates/c-api/include/wasmtime/types/export.hh
-index 80d7ac957e..2f34b2cec5 100644
+index d326e81c8e..04d8d08802 100644
 --- a/crates/c-api/include/wasmtime/types/export.hh
 +++ b/crates/c-api/include/wasmtime/types/export.hh
 @@ -16,9 +16,9 @@ namespace wasmtime {
@@ -4921,15 +5411,18 @@ index 80d7ac957e..2f34b2cec5 100644
  
    /// \brief Non-owning reference to an `ExportType`.
    ///
-@@ -26,17 +26,17 @@ class ExportType {
+@@ -26,19 +26,19 @@ class ExportType {
    class Ref {
      friend class ExternType;
  
 -    const wasm_exporttype_t *ptr;
 +    const wasmtime_wasm_exporttype_t *ptr;
  
--    const wasm_externtype_t *raw_type() { return wasm_exporttype_type(ptr); }
-+    const wasmtime_wasm_externtype_t *raw_type() { return wasmtime_wasm_exporttype_type(ptr); }
+-    const wasm_externtype_t *raw_type() const {
+-      return wasm_exporttype_type(ptr);
++    const wasmtime_wasm_externtype_t *raw_type() const {
++      return wasmtime_wasm_exporttype_type(ptr);
+     }
  
    public:
      /// Creates a new reference from the raw underlying C API representation.
@@ -4937,13 +5430,13 @@ index 80d7ac957e..2f34b2cec5 100644
 +    Ref(const wasmtime_wasm_exporttype_t *ptr) : ptr(ptr) {}
  
      /// Returns the name of this export.
-     std::string_view name() {
+     std::string_view name() const {
 -      const auto *name = wasm_exporttype_name(ptr);
 +      const auto *name = wasmtime_wasm_exporttype_name(ptr);
        return std::string_view(name->data, name->size);
      }
    };
-@@ -47,7 +47,7 @@ class ExportType {
+@@ -49,7 +49,7 @@ class ExportType {
    /// An owned list of `ExportType` instances.
    class List {
      friend class Module;
@@ -4952,7 +5445,7 @@ index 80d7ac957e..2f34b2cec5 100644
  
    public:
      /// Creates an empty list
-@@ -60,7 +60,7 @@ class ExportType {
+@@ -62,7 +62,7 @@ class ExportType {
      List(List &&other) noexcept : list(other.list) { other.list.size = 0; }
      ~List() {
        if (list.size > 0) {
@@ -4962,10 +5455,10 @@ index 80d7ac957e..2f34b2cec5 100644
      }
  
 diff --git a/crates/c-api/include/wasmtime/types/extern.hh b/crates/c-api/include/wasmtime/types/extern.hh
-index 88412a0e42..fab0cfa6f8 100644
+index 755c3f8265..b19422f90e 100644
 --- a/crates/c-api/include/wasmtime/types/extern.hh
 +++ b/crates/c-api/include/wasmtime/types/extern.hh
-@@ -49,16 +49,16 @@ public:
+@@ -50,18 +50,18 @@ public:
    }
  
  private:
@@ -4985,15 +5478,18 @@ index 88412a0e42..fab0cfa6f8 100644
      case WASM_EXTERN_MEMORY:
 -      return wasm_externtype_as_memorytype_const(ptr);
 +      return wasmtime_wasm_externtype_as_memorytype_const(ptr);
+     case WASM_EXTERN_TAG:
+-      return wasm_externtype_as_tagtype_const(ptr);
++      return wasmtime_wasm_externtype_as_tagtype_const(ptr);
      }
      std::abort();
    }
 diff --git a/crates/c-api/include/wasmtime/types/func.hh b/crates/c-api/include/wasmtime/types/func.hh
-index a3bc2a6868..c42de6ae3a 100644
+index 1425b0800f..06cd166c87 100644
 --- a/crates/c-api/include/wasmtime/types/func.hh
 +++ b/crates/c-api/include/wasmtime/types/func.hh
-@@ -17,34 +17,34 @@ class FuncType {
-   friend class Linker;
+@@ -18,34 +18,34 @@ class FuncType {
+   friend class TagType;
  
    struct deleter {
 -    void operator()(wasm_functype_t *p) const { wasm_functype_delete(p); }
@@ -5034,7 +5530,7 @@ index a3bc2a6868..c42de6ae3a 100644
  
  public:
    /// Creates a new function type from the given list of parameters and results.
-@@ -55,13 +55,13 @@ public:
+@@ -56,13 +56,13 @@ public:
    }
  
    /// Copies a reference into a uniquely owned function type.
@@ -5051,7 +5547,7 @@ index a3bc2a6868..c42de6ae3a 100644
      return *this;
    }
    ~FuncType() = default;
-@@ -73,10 +73,10 @@ public:
+@@ -74,10 +74,10 @@ public:
    /// Creates a new function type from the given list of parameters and results.
    template <typename P, typename R>
    static FuncType from_iters(P params, R results) {
@@ -5066,7 +5562,7 @@ index a3bc2a6868..c42de6ae3a 100644
      size_t i = 0;
  
      for (auto val : params) {
-@@ -87,7 +87,7 @@ public:
+@@ -88,7 +88,7 @@ public:
        result_vec.data[i++] = val.ptr.release(); // NOLINT
      }
  
@@ -5075,6 +5571,15 @@ index a3bc2a6868..c42de6ae3a 100644
    }
  
    /// \brief Returns the underlying `Ref`, a non-owning reference pointing to
+@@ -101,7 +101,7 @@ public:
+   /**
+    * \brief Releases the underlying C API pointer.
+    */
+-  wasm_functype_t *capi_release() {
++  wasmtime_wasm_functype_t *capi_release() {
+     ref = nullptr;
+     return ptr.release();
+   }
 diff --git a/crates/c-api/include/wasmtime/types/global.hh b/crates/c-api/include/wasmtime/types/global.hh
 index d10e0e46d4..21843cdfb1 100644
 --- a/crates/c-api/include/wasmtime/types/global.hh
@@ -5144,10 +5649,10 @@ index d10e0e46d4..21843cdfb1 100644
    }
    ~GlobalType() = default;
 diff --git a/crates/c-api/include/wasmtime/types/import.hh b/crates/c-api/include/wasmtime/types/import.hh
-index efc20873f5..8fb8cf9a8d 100644
+index 2432923bba..38d2089d1f 100644
 --- a/crates/c-api/include/wasmtime/types/import.hh
 +++ b/crates/c-api/include/wasmtime/types/import.hh
-@@ -16,33 +16,33 @@ namespace wasmtime {
+@@ -16,35 +16,35 @@ namespace wasmtime {
   */
  class ImportType {
  /// bridge between wasm.h and wasmtime.h conventions
@@ -5167,8 +5672,11 @@ index efc20873f5..8fb8cf9a8d 100644
 +    const wasmtime_wasm_importtype_t *ptr;
  
      // TODO: can this circle be broken another way?
--    const wasm_externtype_t *raw_type() { return wasm_importtype_type(ptr); }
-+    const wasmtime_wasm_externtype_t *raw_type() { return wasmtime_wasm_importtype_type(ptr); }
+-    const wasm_externtype_t *raw_type() const {
+-      return wasm_importtype_type(ptr);
++    const wasmtime_wasm_externtype_t *raw_type() const {
++      return wasmtime_wasm_importtype_type(ptr);
+     }
  
    public:
      /// Creates a new reference from the raw underlying C API representation.
@@ -5176,20 +5684,20 @@ index efc20873f5..8fb8cf9a8d 100644
 +    Ref(const wasmtime_wasm_importtype_t *ptr) : ptr(ptr) {}
  
      /// Returns the module name associated with this import.
-     std::string_view module() {
+     std::string_view module() const {
 -      const auto *name = wasm_importtype_module(ptr);
 +      const auto *name = wasmtime_wasm_importtype_module(ptr);
        return std::string_view(name->data, name->size);
      }
  
      /// Returns the field name associated with this import.
-     std::string_view name() {
+     std::string_view name() const {
 -      const auto *name = wasm_importtype_name(ptr);
 +      const auto *name = wasmtime_wasm_importtype_name(ptr);
        return std::string_view(name->data, name->size);
      }
    };
-@@ -53,7 +53,7 @@ class ImportType {
+@@ -55,7 +55,7 @@ class ImportType {
    /// An owned list of `ImportType` instances.
    class List {
      friend class Module;
@@ -5198,7 +5706,7 @@ index efc20873f5..8fb8cf9a8d 100644
  
    public:
      /// Creates an empty list
-@@ -66,7 +66,7 @@ class ImportType {
+@@ -68,7 +68,7 @@ class ImportType {
      List(List &&other) noexcept : list(other.list) { other.list.size = 0; }
      ~List() {
        if (list.size > 0) {
@@ -5315,6 +5823,41 @@ index 3d08b9f685..617d34b077 100644
        auto *err = wasmtime_memorytype_new(
            _min, _max.has_value(), _max.has_value() ? *_max : 0, _memory64,
            _shared, _page_size_log2, &p);
+diff --git a/crates/c-api/include/wasmtime/types/structref.h b/crates/c-api/include/wasmtime/types/structref.h
+index 5d56592579..1d026bdd34 100644
+--- a/crates/c-api/include/wasmtime/types/structref.h
++++ b/crates/c-api/include/wasmtime/types/structref.h
+@@ -31,7 +31,7 @@ typedef struct wasmtime_storage_type {
+   wasmtime_storage_type_kind_t kind;
+   /// if `kind` is `WASMTIME_STORAGE_TYPE_KIND_VALTYPE`, then this is
+   /// set.
+-  wasm_valtype_t *valtype;
++  wasmtime_wasm_valtype_t *valtype;
+ } wasmtime_storage_type_t;
+ 
+ /// \brief Clone a storage type into `out`.
+@@ -90,7 +90,7 @@ typedef struct wasmtime_struct_type wasmtime_struct_type_t;
+  * types).
+  */
+ WASM_API_EXTERN wasmtime_struct_type_t *
+-wasmtime_struct_type_new(const wasm_engine_t *engine,
++wasmtime_struct_type_new(const wasmtime_wasm_engine_t *engine,
+                          const wasmtime_field_type_t *fields, size_t nfields);
+ 
+ /**
+diff --git a/crates/c-api/include/wasmtime/types/structref.hh b/crates/c-api/include/wasmtime/types/structref.hh
+index 7beaa2f3eb..e2ea3f91c9 100644
+--- a/crates/c-api/include/wasmtime/types/structref.hh
++++ b/crates/c-api/include/wasmtime/types/structref.hh
+@@ -12,7 +12,7 @@ namespace wasmtime {
+ 
+ inline StorageType::StorageType(const ValType &ty) {
+   this->ty.kind = WASMTIME_STORAGE_TYPE_KIND_VALTYPE;
+-  this->ty.valtype = wasm_valtype_copy(ty.capi());
++  this->ty.valtype = wasmtime_wasm_valtype_copy(ty.capi());
+ }
+ 
+ } // namespace wasmtime
 diff --git a/crates/c-api/include/wasmtime/types/table.hh b/crates/c-api/include/wasmtime/types/table.hh
 index 1bb8b68609..21ed61025f 100644
 --- a/crates/c-api/include/wasmtime/types/table.hh
@@ -5410,85 +5953,118 @@ index 1bb8b68609..21ed61025f 100644
      return *this;
    }
    ~TableType() = default;
-diff --git a/crates/c-api/include/wasmtime/types/val.hh b/crates/c-api/include/wasmtime/types/val.hh
-index 2b063e176b..11657d9f67 100644
---- a/crates/c-api/include/wasmtime/types/val.hh
-+++ b/crates/c-api/include/wasmtime/types/val.hh
-@@ -70,12 +70,12 @@ class ValType {
-   friend class FuncType;
+diff --git a/crates/c-api/include/wasmtime/types/tag.hh b/crates/c-api/include/wasmtime/types/tag.hh
+index 6f47342761..adf510cf58 100644
+--- a/crates/c-api/include/wasmtime/types/tag.hh
++++ b/crates/c-api/include/wasmtime/types/tag.hh
+@@ -21,21 +21,21 @@ class TagType {
+   friend class Tag;
  
    struct deleter {
--    void operator()(wasm_valtype_t *p) const { wasm_valtype_delete(p); }
-+    void operator()(wasmtime_wasm_valtype_t *p) const { wasmtime_wasm_valtype_delete(p); }
+-    void operator()(wasm_tagtype_t *p) const { wasm_tagtype_delete(p); }
++    void operator()(wasmtime_wasm_tagtype_t *p) const { wasmtime_wasm_tagtype_delete(p); }
    };
  
--  std::unique_ptr<wasm_valtype_t, deleter> ptr;
-+  std::unique_ptr<wasmtime_wasm_valtype_t, deleter> ptr;
+-  std::unique_ptr<wasm_tagtype_t, deleter> ptr;
++  std::unique_ptr<wasmtime_wasm_tagtype_t, deleter> ptr;
  
--  static wasm_valkind_t kind_to_c(ValKind kind) {
-+  static wasmtime_wasm_valkind_t kind_to_c(ValKind kind) {
-     switch (kind) {
- #define CASE_KIND_TO_C(kind, ignore, ckind)                                    \
-   case ValKind::kind:                                                          \
-@@ -93,17 +93,17 @@ public:
+ public:
+   /// Non-owning reference to a `TagType`, must not be used after the original
+   /// owner is deleted.
    class Ref {
-     friend class ValType;
- 
--    const wasm_valtype_t *ptr;
-+    const wasmtime_wasm_valtype_t *ptr;
- 
-   public:
-     /// \brief Instantiates from the raw C API representation.
--    Ref(const wasm_valtype_t *ptr) : ptr(ptr) {}
-+    Ref(const wasmtime_wasm_valtype_t *ptr) : ptr(ptr) {}
-     /// Copy constructor
-     Ref(const ValType &ty) : Ref(ty.ptr.get()) {}
- 
-     /// \brief Returns the corresponding "kind" for this type.
-     ValKind kind() const {
--      switch (wasm_valtype_kind(ptr)) {
-+      switch (wasmtime_wasm_valtype_kind(ptr)) {
- #define CASE_C_TO_KIND(kind, ignore, ckind)                                    \
-   case ckind:                                                                  \
-     return ValKind::kind;
-@@ -117,11 +117,11 @@ public:
-   /// \brief Non-owning reference to a list of `ValType` instances. Must not be
-   /// used after the original owner is deleted.
-   class ListRef {
--    const wasm_valtype_vec_t *list;
-+    const wasmtime_wasm_valtype_vec_t *list;
+     friend class TagType;
+-    const wasm_tagtype_t *ptr;
++    const wasmtime_wasm_tagtype_t *ptr;
  
    public:
-     /// Creates a list from the raw underlying C API.
--    ListRef(const wasm_valtype_vec_t *list) : list(list) {}
-+    ListRef(const wasmtime_wasm_valtype_vec_t *list) : list(list) {}
+     /// Creates a reference from the raw underlying C API representation.
+-    Ref(const wasm_tagtype_t *ptr) : ptr(ptr) {}
++    Ref(const wasmtime_wasm_tagtype_t *ptr) : ptr(ptr) {}
+     /// Creates a reference to the provided `TagType`.
+     Ref(const TagType &ty) : Ref(ty.ptr.get()) {}
  
-     /// This list iterates over a list of `ValType::Ref` instances.
-     typedef const Ref *iterator;
-@@ -142,18 +142,18 @@ public:
+@@ -43,27 +43,27 @@ public:
+     ///
+     /// The caller owns the returned `FuncType`.
+     FuncType functype() const {
+-      return FuncType(wasm_functype_copy(wasm_tagtype_functype(ptr)));
++      return FuncType(wasmtime_wasm_functype_copy(wasmtime_wasm_tagtype_functype(ptr)));
+     }
+   };
  
  private:
    Ref ref;
--  ValType(wasm_valtype_t *ptr) : ptr(ptr), ref(ptr) {}
-+  ValType(wasmtime_wasm_valtype_t *ptr) : ptr(ptr), ref(ptr) {}
+-  TagType(wasm_tagtype_t *ptr) : ptr(ptr), ref(ptr) {}
++  TagType(wasmtime_wasm_tagtype_t *ptr) : ptr(ptr), ref(ptr) {}
  
  public:
-   /// Creates a new type from its kind.
--  ValType(ValKind kind) : ValType(wasm_valtype_new(kind_to_c(kind))) {}
-+  ValType(ValKind kind) : ValType(wasmtime_wasm_valtype_new(kind_to_c(kind))) {}
-   /// Copies a `Ref` to a new owned value.
--  ValType(Ref other) : ValType(wasm_valtype_copy(other.ptr)) {}
-+  ValType(Ref other) : ValType(wasmtime_wasm_valtype_copy(other.ptr)) {}
-   /// Copies one type to a new one.
--  ValType(const ValType &other) : ValType(wasm_valtype_copy(other.ptr.get())) {}
-+  ValType(const ValType &other) : ValType(wasmtime_wasm_valtype_copy(other.ptr.get())) {}
-   /// Copies the contents of another type into this one.
-   ValType &operator=(const ValType &other) {
--    ptr.reset(wasm_valtype_copy(other.ptr.get()));
-+    ptr.reset(wasmtime_wasm_valtype_copy(other.ptr.get()));
-     ref = other.ref;
+   /// Creates a new tag type from the given function type.
+   /// Copies `functype` so the original is not consumed.
+   explicit TagType(const FuncType &functype)
+-      : TagType(wasm_tagtype_new(wasm_functype_copy(functype.ptr.get()))) {}
++      : TagType(wasmtime_wasm_tagtype_new(wasmtime_wasm_functype_copy(functype.ptr.get()))) {}
+ 
+   /// Copies a reference into a uniquely owned tag type.
+-  TagType(Ref other) : TagType(wasm_tagtype_copy(other.ptr)) {}
++  TagType(Ref other) : TagType(wasmtime_wasm_tagtype_copy(other.ptr)) {}
+   /// Copies another tag type into this one.
+-  TagType(const TagType &other) : TagType(wasm_tagtype_copy(other.ptr.get())) {}
++  TagType(const TagType &other) : TagType(wasmtime_wasm_tagtype_copy(other.ptr.get())) {}
+   /// Copies another tag type into this one.
+   TagType &operator=(const TagType &other) {
+-    ptr.reset(wasm_tagtype_copy(other.ptr.get()));
++    ptr.reset(wasmtime_wasm_tagtype_copy(other.ptr.get()));
+     ref = ptr.get();
      return *this;
    }
+diff --git a/crates/c-api/include/wasmtime/types/val.h b/crates/c-api/include/wasmtime/types/val.h
+index 595da01c50..03b5e27d11 100644
+--- a/crates/c-api/include/wasmtime/types/val.h
++++ b/crates/c-api/include/wasmtime/types/val.h
+@@ -18,11 +18,11 @@ extern "C" {
+ #endif
+ 
+ /// \brief Returns a new value type representing the wasm `v128` type.
+-WASM_API_EXTERN wasm_valtype_t *wasmtime_wasm_valtype_v128(void);
++WASM_API_EXTERN wasmtime_wasm_valtype_t *wasmtime_wasm_valtype_v128(void);
+ 
+ /// \brief Returns whether `a` is logically equal to `b`.
+-WASM_API_EXTERN bool wasmtime_wasm_valtype_equal(const wasm_valtype_t *a,
+-                                                 const wasm_valtype_t *b);
++WASM_API_EXTERN bool wasmtime_wasm_valtype_equal(const wasmtime_wasm_valtype_t *a,
++                                                 const wasmtime_wasm_valtype_t *b);
+ 
+ /// \brief Discriminant located in `wasmtime_heaptype_t.kind`
+ typedef uint8_t wasmtime_heaptype_kind_t;
+@@ -63,7 +63,7 @@ typedef uint8_t wasmtime_heaptype_kind_t;
+ /// \brief Payload of the `wasmtime_heaptype_t` union.
+ typedef union wasmtime_heaptype_union {
+   /// \brief Used with `WASMTIME_HEAPTYPE_KIND_CONCRETE_FUNC`.
+-  wasm_functype_t *concrete_func;
++  wasmtime_wasm_functype_t *concrete_func;
+   /// \brief Used with `WASMTIME_HEAPTYPE_KIND_CONCRETE_ARRAY`.
+   wasmtime_array_type_t *concrete_array;
+   /// \brief Used with `WASMTIME_HEAPTYPE_KIND_CONCRETE_STRUCT`.
+@@ -137,7 +137,7 @@ typedef struct wasmtime_valtype {
+ } wasmtime_valtype_t;
+ 
+ /// \brief Creates a new type in `out` from the type in `ty`.
+-WASM_API_EXTERN void wasmtime_valtype_new(const wasm_valtype_t *ty,
++WASM_API_EXTERN void wasmtime_valtype_new(const wasmtime_wasm_valtype_t *ty,
+                                           wasmtime_valtype_t *out);
+ 
+ /// \brief Clones `ty` into `out`.
+@@ -152,8 +152,8 @@ WASM_API_EXTERN void wasmtime_valtype_delete(wasmtime_valtype_t *ty);
+ /// \brief Converts `ty` into a `wasm_valtype_t` and returns a pointer to it.
+ ///
+ /// The caller must deallocate the returned value.
+-WASM_API_EXTERN wasm_valtype_t *
+-wasmtime_valtype_to_wasm(const wasm_engine_t *engine,
++WASM_API_EXTERN wasmtime_wasm_valtype_t *
++wasmtime_valtype_to_wasm(const wasmtime_wasm_engine_t *engine,
+                          const wasmtime_valtype_t *ty);
+ 
+ #ifdef __cplusplus
 diff --git a/crates/c-api/include/wasmtime/wat.h b/crates/c-api/include/wasmtime/wat.h
 index 8d4547d33a..5bdead2946 100644
 --- a/crates/c-api/include/wasmtime/wat.h
@@ -5525,10 +6101,10 @@ index 3e1c04bda7..0e74b59a89 100644
  }
  
 diff --git a/crates/c-api/src/async.rs b/crates/c-api/src/async.rs
-index 22f83106c7..cf5ea81eec 100644
+index 054f89735e..3b0ba824a6 100644
 --- a/crates/c-api/src/async.rs
 +++ b/crates/c-api/src/async.rs
-@@ -13,13 +13,13 @@ use wasmtime::{
+@@ -11,13 +11,13 @@ use wasmtime::{AsContextMut, Func, Instance, Result, StackCreator, StackMemory,
  
  use crate::{
      WASMTIME_I32, WasmtimeCaller, WasmtimeStoreContextMut, bad_utf8, handle_result, to_str,
@@ -5544,7 +6120,7 @@ index 22f83106c7..cf5ea81eec 100644
      c.config.async_stack_size(size);
  }
  
-@@ -49,7 +49,7 @@ pub type wasmtime_func_async_callback_t = extern "C" fn(
+@@ -47,7 +47,7 @@ pub type wasmtime_func_async_callback_t = extern "C" fn(
      usize,
      *mut wasmtime_val_t,
      usize,
@@ -5553,7 +6129,7 @@ index 22f83106c7..cf5ea81eec 100644
      &mut wasmtime_async_continuation_t,
  );
  
-@@ -206,11 +206,11 @@ pub extern "C" fn wasmtime_call_future_poll(future: &mut wasmtime_call_future_t)
+@@ -210,11 +210,11 @@ pub extern "C" fn wasmtime_call_future_poll(future: &mut wasmtime_call_future_t)
  
  fn handle_call_error(
      err: wasmtime::Error,
@@ -5567,7 +6143,7 @@ index 22f83106c7..cf5ea81eec 100644
      } else {
          *err_ret = Box::into_raw(Box::new(wasmtime_error_t::from(err)));
      }
-@@ -221,10 +221,10 @@ async fn do_func_call_async(
+@@ -226,10 +226,10 @@ async fn do_func_call_async(
      func: &Func,
      args: impl ExactSizeIterator<Item = Val>,
      results: &mut [MaybeUninit<wasmtime_val_t>],
@@ -5580,7 +6156,7 @@ index 22f83106c7..cf5ea81eec 100644
      let (wt_params, wt_results) = translate_args(&mut params, args, results.len());
      let result = func.call_async(&mut store, wt_params, wt_results).await;
  
-@@ -234,7 +234,7 @@ async fn do_func_call_async(
+@@ -239,7 +239,7 @@ async fn do_func_call_async(
                  crate::initialize(slot, wasmtime_val_t::from_val(&mut store, *val));
              }
              params.truncate(0);
@@ -5589,7 +6165,7 @@ index 22f83106c7..cf5ea81eec 100644
          }
          Err(err) => handle_call_error(err, trap_ret, err_ret),
      }
-@@ -248,7 +248,7 @@ pub unsafe extern "C" fn wasmtime_func_call_async<'a>(
+@@ -253,7 +253,7 @@ pub unsafe extern "C" fn wasmtime_func_call_async<'a>(
      nargs: usize,
      results: *mut MaybeUninit<wasmtime_val_t>,
      nresults: usize,
@@ -5597,8 +6173,8 @@ index 22f83106c7..cf5ea81eec 100644
 +    trap_ret: &'a mut *mut wasmtime_wasm_trap_t,
      err_ret: &'a mut *mut wasmtime_error_t,
  ) -> Box<wasmtime_call_future_t<'a>> {
-     let mut scope = RootScope::new(store);
-@@ -275,7 +275,7 @@ pub unsafe extern "C" fn wasmtime_linker_define_async_func(
+     let _ = &mut store;
+@@ -282,7 +282,7 @@ pub unsafe extern "C" fn wasmtime_linker_define_async_func(
      module_len: usize,
      name: *const u8,
      name_len: usize,
@@ -5607,7 +6183,7 @@ index 22f83106c7..cf5ea81eec 100644
      callback: crate::wasmtime_func_async_callback_t,
      data: *mut c_void,
      finalizer: Option<extern "C" fn(*mut std::ffi::c_void)>,
-@@ -296,7 +296,7 @@ async fn do_linker_instantiate_async(
+@@ -303,7 +303,7 @@ async fn do_linker_instantiate_async(
      store: WasmtimeStoreContextMut<'_>,
      module: &wasmtime_module_t,
      instance_ptr: &mut Instance,
@@ -5616,7 +6192,7 @@ index 22f83106c7..cf5ea81eec 100644
      err_ret: &mut *mut wasmtime_error_t,
  ) {
      let result = linker.linker.instantiate_async(store, &module.module).await;
-@@ -312,7 +312,7 @@ pub extern "C" fn wasmtime_linker_instantiate_async<'a>(
+@@ -319,7 +319,7 @@ pub extern "C" fn wasmtime_linker_instantiate_async<'a>(
      store: WasmtimeStoreContextMut<'a>,
      module: &'a wasmtime_module_t,
      instance_ptr: &'a mut Instance,
@@ -5625,7 +6201,7 @@ index 22f83106c7..cf5ea81eec 100644
      err_ret: &'a mut *mut wasmtime_error_t,
  ) -> Box<crate::wasmtime_call_future_t<'a>> {
      let fut = Box::pin(do_linker_instantiate_async(
-@@ -330,7 +330,7 @@ async fn do_instance_pre_instantiate_async(
+@@ -337,7 +337,7 @@ async fn do_instance_pre_instantiate_async(
      instance_pre: &wasmtime_instance_pre_t,
      store: WasmtimeStoreContextMut<'_>,
      instance_ptr: &mut Instance,
@@ -5634,7 +6210,7 @@ index 22f83106c7..cf5ea81eec 100644
      err_ret: &mut *mut wasmtime_error_t,
  ) {
      let result = instance_pre.underlying.instantiate_async(store).await;
-@@ -345,7 +345,7 @@ pub extern "C" fn wasmtime_instance_pre_instantiate_async<'a>(
+@@ -352,7 +352,7 @@ pub extern "C" fn wasmtime_instance_pre_instantiate_async<'a>(
      instance_pre: &'a wasmtime_instance_pre_t,
      store: WasmtimeStoreContextMut<'a>,
      instance_ptr: &'a mut Instance,
@@ -5643,7 +6219,7 @@ index 22f83106c7..cf5ea81eec 100644
      err_ret: &'a mut *mut wasmtime_error_t,
  ) -> Box<crate::wasmtime_call_future_t<'a>> {
      let fut = Box::pin(do_instance_pre_instantiate_async(
-@@ -439,7 +439,7 @@ unsafe impl StackCreator for CHostStackCreator {
+@@ -446,7 +446,7 @@ unsafe impl StackCreator for CHostStackCreator {
  
  #[unsafe(no_mangle)]
  pub unsafe extern "C" fn wasmtime_config_host_stack_creator_set(
@@ -5653,10 +6229,10 @@ index 22f83106c7..cf5ea81eec 100644
  ) {
      c.config.with_host_stack(Arc::new(CHostStackCreator {
 diff --git a/crates/c-api/src/component/component.rs b/crates/c-api/src/component/component.rs
-index cfededb3dc..3a824a58af 100644
+index 49c522806f..d99b29cfe9 100644
 --- a/crates/c-api/src/component/component.rs
 +++ b/crates/c-api/src/component/component.rs
-@@ -1,13 +1,13 @@
+@@ -1,48 +1,48 @@
  use crate::{
 -    wasm_byte_vec_t, wasm_config_t, wasm_engine_t, wasmtime_component_type_t, wasmtime_error_t,
 +    wasmtime_wasm_byte_vec_t, wasmtime_wasm_config_t, wasmtime_wasm_engine_t, wasmtime_component_type_t, wasmtime_error_t,
@@ -5672,8 +6248,55 @@ index cfededb3dc..3a824a58af 100644
 +    c.config.wasmtime_wasm_component_model(enable);
  }
  
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasmtime_config_wasm_component_model_map_set(
+-    c: &mut wasm_config_t,
++pub extern "C" fn wasmtime_config_wasmtime_wasm_component_model_map_set(
++    c: &mut wasmtime_wasm_config_t,
+     enable: bool,
+ ) {
+-    c.config.wasm_component_model_map(enable);
++    c.config.wasmtime_wasm_component_model_map(enable);
+ }
+ 
+ #[unsafe(no_mangle)]
+ #[cfg(feature = "component-model-async")]
+-pub extern "C" fn wasmtime_config_wasm_component_model_async_set(
+-    c: &mut wasm_config_t,
++pub extern "C" fn wasmtime_config_wasmtime_wasm_component_model_async_set(
++    c: &mut wasmtime_wasm_config_t,
+     enable: bool,
+ ) {
+-    c.config.wasm_component_model_async(enable);
++    c.config.wasmtime_wasm_component_model_async(enable);
+ }
+ 
+ #[unsafe(no_mangle)]
+ #[cfg(feature = "component-model-async")]
+-pub extern "C" fn wasmtime_config_wasm_component_model_more_async_builtins_set(
+-    c: &mut wasm_config_t,
++pub extern "C" fn wasmtime_config_wasmtime_wasm_component_model_more_async_builtins_set(
++    c: &mut wasmtime_wasm_config_t,
+     enable: bool,
+ ) {
+-    c.config.wasm_component_model_more_async_builtins(enable);
++    c.config.wasmtime_wasm_component_model_more_async_builtins(enable);
+ }
+ 
+ #[unsafe(no_mangle)]
+ #[cfg(feature = "component-model-async")]
+-pub extern "C" fn wasmtime_config_wasm_component_model_async_stackful_set(
+-    c: &mut wasm_config_t,
++pub extern "C" fn wasmtime_config_wasmtime_wasm_component_model_async_stackful_set(
++    c: &mut wasmtime_wasm_config_t,
+     enable: bool,
+ ) {
+-    c.config.wasm_component_model_async_stackful(enable);
++    c.config.wasmtime_wasm_component_model_async_stackful(enable);
+ }
+ 
  #[derive(Clone)]
-@@ -19,7 +19,7 @@ pub struct wasmtime_component_t {
+@@ -54,7 +54,7 @@ pub struct wasmtime_component_t {
  #[unsafe(no_mangle)]
  #[cfg(any(feature = "cranelift", feature = "winch"))]
  pub unsafe extern "C" fn wasmtime_component_new(
@@ -5682,7 +6305,7 @@ index cfededb3dc..3a824a58af 100644
      buf: *const u8,
      len: usize,
      component_out: &mut *mut wasmtime_component_t,
-@@ -34,7 +34,7 @@ pub unsafe extern "C" fn wasmtime_component_new(
+@@ -69,7 +69,7 @@ pub unsafe extern "C" fn wasmtime_component_new(
  #[cfg(any(feature = "cranelift", feature = "winch"))]
  pub extern "C" fn wasmtime_component_serialize(
      component: &wasmtime_component_t,
@@ -5691,7 +6314,7 @@ index cfededb3dc..3a824a58af 100644
  ) -> Option<Box<wasmtime_error_t>> {
      crate::handle_result(component.component.serialize(), |buffer| {
          ret.set_buffer(buffer);
-@@ -43,7 +43,7 @@ pub extern "C" fn wasmtime_component_serialize(
+@@ -78,7 +78,7 @@ pub extern "C" fn wasmtime_component_serialize(
  
  #[unsafe(no_mangle)]
  pub unsafe extern "C" fn wasmtime_component_deserialize(
@@ -5700,7 +6323,7 @@ index cfededb3dc..3a824a58af 100644
      buf: *const u8,
      len: usize,
      component_out: &mut *mut wasmtime_component_t,
-@@ -59,7 +59,7 @@ pub unsafe extern "C" fn wasmtime_component_deserialize(
+@@ -94,7 +94,7 @@ pub unsafe extern "C" fn wasmtime_component_deserialize(
  
  #[unsafe(no_mangle)]
  pub unsafe extern "C" fn wasmtime_component_deserialize_file(
@@ -5710,7 +6333,7 @@ index cfededb3dc..3a824a58af 100644
      component_out: &mut *mut wasmtime_component_t,
  ) -> Option<Box<wasmtime_error_t>> {
 diff --git a/crates/c-api/src/component/linker.rs b/crates/c-api/src/component/linker.rs
-index b17045a081..9afe27bed2 100644
+index 3823b8b693..a9f6f38d33 100644
 --- a/crates/c-api/src/component/linker.rs
 +++ b/crates/c-api/src/component/linker.rs
 @@ -1,5 +1,5 @@
@@ -5902,7 +6525,7 @@ index 2cf58aaae6..552e69d1b3 100644
          CExternType::new(item),
      )))
 diff --git a/crates/c-api/src/component/val.rs b/crates/c-api/src/component/val.rs
-index 00c2c6a639..a20b46192a 100644
+index 98bbaef070..e65b61362d 100644
 --- a/crates/c-api/src/component/val.rs
 +++ b/crates/c-api/src/component/val.rs
 @@ -1,5 +1,5 @@
@@ -5921,7 +6544,7 @@ index 00c2c6a639..a20b46192a 100644
          new: wasmtime_component_valflags_new,
          empty: wasmtime_component_valflags_new_empty,
          uninit: wasmtime_component_valflags_new_uninit,
-@@ -66,14 +66,14 @@ impl From<&[Val]> for wasmtime_component_vallist_t {
+@@ -98,7 +98,7 @@ impl From<&[(Val, Val)]> for wasmtime_component_valmap_t {
  #[derive(Clone)]
  #[repr(C)]
  pub struct wasmtime_component_valrecord_entry_t {
@@ -5930,6 +6553,7 @@ index 00c2c6a639..a20b46192a 100644
      val: wasmtime_component_val_t,
  }
  
+@@ -112,7 +112,7 @@ pub struct wasmtime_component_valmap_entry_t {
  impl Default for wasmtime_component_valrecord_entry_t {
      fn default() -> Self {
          Self {
@@ -5938,7 +6562,7 @@ index 00c2c6a639..a20b46192a 100644
              val: Default::default(),
          }
      }
-@@ -91,7 +91,7 @@ impl From<&wasmtime_component_valrecord_entry_t> for (String, Val) {
+@@ -130,7 +130,7 @@ impl From<&wasmtime_component_valrecord_entry_t> for (String, Val) {
  impl From<&(String, Val)> for wasmtime_component_valrecord_entry_t {
      fn from((name, val): &(String, Val)) -> Self {
          Self {
@@ -5947,7 +6571,7 @@ index 00c2c6a639..a20b46192a 100644
              val: wasmtime_component_val_t::from(val),
          }
      }
-@@ -145,7 +145,7 @@ impl From<&[String]> for wasmtime_component_valflags_t {
+@@ -184,7 +184,7 @@ impl From<&[String]> for wasmtime_component_valflags_t {
      fn from(value: &[String]) -> Self {
          value
              .iter()
@@ -5956,7 +6580,7 @@ index 00c2c6a639..a20b46192a 100644
              .collect::<Vec<_>>()
              .into()
      }
-@@ -154,14 +154,14 @@ impl From<&[String]> for wasmtime_component_valflags_t {
+@@ -193,14 +193,14 @@ impl From<&[String]> for wasmtime_component_valflags_t {
  #[repr(C)]
  #[derive(Clone)]
  pub struct wasmtime_component_valvariant_t {
@@ -5973,7 +6597,7 @@ index 00c2c6a639..a20b46192a 100644
              val: value
                  .as_ref()
                  .map(|x| Box::new(wasmtime_component_val_t::from(x.as_ref()))),
-@@ -224,12 +224,12 @@ pub enum wasmtime_component_val_t {
+@@ -263,12 +263,12 @@ pub enum wasmtime_component_val_t {
      F32(f32),
      F64(f64),
      Char(u32),
@@ -5988,7 +6612,7 @@ index 00c2c6a639..a20b46192a 100644
      Option(Option<Box<Self>>),
      Result(wasmtime_component_valresult_t),
      Flags(wasmtime_component_valflags_t),
-@@ -295,14 +295,14 @@ impl From<&Val> for wasmtime_component_val_t {
+@@ -340,14 +340,14 @@ impl From<&Val> for wasmtime_component_val_t {
              Val::Float32(x) => wasmtime_component_val_t::F32(*x),
              Val::Float64(x) => wasmtime_component_val_t::F64(*x),
              Val::Char(x) => wasmtime_component_val_t::Char(*x as _),
@@ -6006,7 +6630,7 @@ index 00c2c6a639..a20b46192a 100644
                  x.as_ref()
                      .map(|x| Box::new(wasmtime_component_val_t::from(x.as_ref()))),
 diff --git a/crates/c-api/src/config.rs b/crates/c-api/src/config.rs
-index cf132c7490..c00c427cfa 100644
+index abecac59a9..43ca519a7d 100644
 --- a/crates/c-api/src/config.rs
 +++ b/crates/c-api/src/config.rs
 @@ -2,7 +2,7 @@
@@ -6032,7 +6656,7 @@ index cf132c7490..c00c427cfa 100644
  
  #[repr(u8)]
  #[derive(Clone)]
-@@ -47,113 +47,113 @@ pub enum wasmtime_profiling_strategy_t {
+@@ -55,121 +55,121 @@ pub enum wasmtime_regalloc_algorithm_t {
  }
  
  #[unsafe(no_mangle)]
@@ -6090,6 +6714,7 @@ index cf132c7490..c00c427cfa 100644
  }
  
  #[unsafe(no_mangle)]
+ #[cfg(feature = "gc")]
 -pub extern "C" fn wasmtime_config_wasm_reference_types_set(c: &mut wasm_config_t, enable: bool) {
 -    c.config.wasm_reference_types(enable);
 +pub extern "C" fn wasmtime_config_wasmtime_wasm_reference_types_set(c: &mut wasmtime_wasm_config_t, enable: bool) {
@@ -6097,6 +6722,7 @@ index cf132c7490..c00c427cfa 100644
  }
  
  #[unsafe(no_mangle)]
+ #[cfg(feature = "gc")]
 -pub extern "C" fn wasmtime_config_wasm_function_references_set(
 -    c: &mut wasm_config_t,
 +pub extern "C" fn wasmtime_config_wasmtime_wasm_function_references_set(
@@ -6108,10 +6734,17 @@ index cf132c7490..c00c427cfa 100644
  }
  
  #[unsafe(no_mangle)]
+ #[cfg(feature = "gc")]
 -pub extern "C" fn wasmtime_config_wasm_gc_set(c: &mut wasm_config_t, enable: bool) {
 -    c.config.wasm_gc(enable);
 +pub extern "C" fn wasmtime_config_wasmtime_wasm_gc_set(c: &mut wasmtime_wasm_config_t, enable: bool) {
 +    c.config.wasmtime_wasm_gc(enable);
+ }
+ 
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasmtime_config_gc_support_set(c: &mut wasm_config_t, enable: bool) {
++pub extern "C" fn wasmtime_config_gc_support_set(c: &mut wasmtime_wasm_config_t, enable: bool) {
+     c.config.gc_support(enable);
  }
  
  #[unsafe(no_mangle)]
@@ -6181,7 +6814,7 @@ index cf132c7490..c00c427cfa 100644
      strategy: wasmtime_strategy_t,
  ) {
      use wasmtime_strategy_t::*;
-@@ -165,14 +165,14 @@ pub extern "C" fn wasmtime_config_strategy_set(
+@@ -182,14 +182,14 @@ pub extern "C" fn wasmtime_config_strategy_set(
  
  #[unsafe(no_mangle)]
  #[cfg(feature = "parallel-compilation")]
@@ -6198,7 +6831,7 @@ index cf132c7490..c00c427cfa 100644
      enable: bool,
  ) {
      c.config.cranelift_debug_verifier(enable);
-@@ -181,7 +181,7 @@ pub extern "C" fn wasmtime_config_cranelift_debug_verifier_set(
+@@ -198,7 +198,7 @@ pub extern "C" fn wasmtime_config_cranelift_debug_verifier_set(
  #[unsafe(no_mangle)]
  #[cfg(any(feature = "cranelift", feature = "winch"))]
  pub extern "C" fn wasmtime_config_cranelift_nan_canonicalization_set(
@@ -6207,7 +6840,7 @@ index cf132c7490..c00c427cfa 100644
      enable: bool,
  ) {
      c.config.cranelift_nan_canonicalization(enable);
-@@ -190,7 +190,7 @@ pub extern "C" fn wasmtime_config_cranelift_nan_canonicalization_set(
+@@ -207,7 +207,7 @@ pub extern "C" fn wasmtime_config_cranelift_nan_canonicalization_set(
  #[unsafe(no_mangle)]
  #[cfg(any(feature = "cranelift", feature = "winch"))]
  pub extern "C" fn wasmtime_config_cranelift_opt_level_set(
@@ -6216,7 +6849,16 @@ index cf132c7490..c00c427cfa 100644
      opt_level: wasmtime_opt_level_t,
  ) {
      use wasmtime_opt_level_t::*;
-@@ -203,7 +203,7 @@ pub extern "C" fn wasmtime_config_cranelift_opt_level_set(
+@@ -221,7 +221,7 @@ pub extern "C" fn wasmtime_config_cranelift_opt_level_set(
+ #[unsafe(no_mangle)]
+ #[cfg(any(feature = "cranelift", feature = "winch"))]
+ pub extern "C" fn wasmtime_config_cranelift_regalloc_algorithm_set(
+-    c: &mut wasm_config_t,
++    c: &mut wasmtime_wasm_config_t,
+     algo: wasmtime_regalloc_algorithm_t,
+ ) {
+     use wasmtime_regalloc_algorithm_t::*;
+@@ -233,7 +233,7 @@ pub extern "C" fn wasmtime_config_cranelift_regalloc_algorithm_set(
  
  #[unsafe(no_mangle)]
  pub extern "C" fn wasmtime_config_profiler_set(
@@ -6225,7 +6867,7 @@ index cf132c7490..c00c427cfa 100644
      strategy: wasmtime_profiling_strategy_t,
  ) {
      use wasmtime_profiling_strategy_t::*;
-@@ -218,7 +218,7 @@ pub extern "C" fn wasmtime_config_profiler_set(
+@@ -248,7 +248,7 @@ pub extern "C" fn wasmtime_config_profiler_set(
  #[unsafe(no_mangle)]
  #[cfg(feature = "cache")]
  pub unsafe extern "C" fn wasmtime_config_cache_config_load(
@@ -6234,7 +6876,7 @@ index cf132c7490..c00c427cfa 100644
      filename: *const c_char,
  ) -> Option<Box<wasmtime_error_t>> {
      use std::path::Path;
-@@ -241,36 +241,36 @@ pub unsafe extern "C" fn wasmtime_config_cache_config_load(
+@@ -271,36 +271,36 @@ pub unsafe extern "C" fn wasmtime_config_cache_config_load(
  }
  
  #[unsafe(no_mangle)]
@@ -6277,7 +6919,7 @@ index cf132c7490..c00c427cfa 100644
      target: *const c_char,
  ) -> Option<Box<wasmtime_error_t>> {
      let target = CStr::from_ptr(target).to_str().expect("not valid utf-8");
-@@ -278,19 +278,19 @@ pub unsafe extern "C" fn wasmtime_config_target_set(
+@@ -308,19 +308,19 @@ pub unsafe extern "C" fn wasmtime_config_target_set(
  }
  
  #[unsafe(no_mangle)]
@@ -6300,7 +6942,7 @@ index cf132c7490..c00c427cfa 100644
      flag: *const c_char,
  ) {
      let flag = CStr::from_ptr(flag).to_str().expect("not valid utf-8");
-@@ -300,7 +300,7 @@ pub unsafe extern "C" fn wasmtime_config_cranelift_flag_enable(
+@@ -330,7 +330,7 @@ pub unsafe extern "C" fn wasmtime_config_cranelift_flag_enable(
  #[unsafe(no_mangle)]
  #[cfg(any(feature = "cranelift", feature = "winch"))]
  pub unsafe extern "C" fn wasmtime_config_cranelift_flag_set(
@@ -6309,7 +6951,7 @@ index cf132c7490..c00c427cfa 100644
      flag: *const c_char,
      value: *const c_char,
  ) {
-@@ -328,7 +328,7 @@ pub struct wasmtime_linear_memory_t {
+@@ -358,7 +358,7 @@ pub struct wasmtime_linear_memory_t {
  
  pub type wasmtime_new_memory_callback_t = extern "C" fn(
      env: *mut std::ffi::c_void,
@@ -6318,7 +6960,7 @@ index cf132c7490..c00c427cfa 100644
      minimum: usize,
      maximum: usize,
      reserved_size_in_bytes: usize,
-@@ -419,7 +419,7 @@ unsafe impl MemoryCreator for CHostMemoryCreator {
+@@ -449,7 +449,7 @@ unsafe impl MemoryCreator for CHostMemoryCreator {
          let cb = self.new_memory;
          let error = cb(
              self.foreign.data,
@@ -6327,7 +6969,7 @@ index cf132c7490..c00c427cfa 100644
              minimum,
              maximum.unwrap_or(usize::MAX),
              reserved_size_in_bytes.unwrap_or(0),
-@@ -448,7 +448,7 @@ unsafe impl MemoryCreator for CHostMemoryCreator {
+@@ -478,7 +478,7 @@ unsafe impl MemoryCreator for CHostMemoryCreator {
  
  #[unsafe(no_mangle)]
  pub unsafe extern "C" fn wasmtime_config_host_memory_creator_set(
@@ -6336,7 +6978,7 @@ index cf132c7490..c00c427cfa 100644
      creator: &wasmtime_memory_creator_t,
  ) {
      c.config.with_host_memory(Arc::new(CHostMemoryCreator {
-@@ -461,23 +461,23 @@ pub unsafe extern "C" fn wasmtime_config_host_memory_creator_set(
+@@ -491,24 +491,24 @@ pub unsafe extern "C" fn wasmtime_config_host_memory_creator_set(
  }
  
  #[unsafe(no_mangle)]
@@ -6353,6 +6995,7 @@ index cf132c7490..c00c427cfa 100644
  }
  
  #[unsafe(no_mangle)]
+ #[cfg(feature = "gc")]
 -pub extern "C" fn wasmtime_config_wasm_exceptions_set(c: &mut wasm_config_t, enable: bool) {
 -    c.config.wasm_exceptions(enable);
 +pub extern "C" fn wasmtime_config_wasmtime_wasm_exceptions_set(c: &mut wasmtime_wasm_config_t, enable: bool) {
@@ -6367,7 +7010,7 @@ index cf132c7490..c00c427cfa 100644
  }
  
  #[repr(C)]
-@@ -686,7 +686,7 @@ pub extern "C" fn wasmtime_pooling_allocation_config_total_gc_heaps_set(
+@@ -717,7 +717,7 @@ pub extern "C" fn wasmtime_pooling_allocation_config_total_gc_heaps_set(
  #[unsafe(no_mangle)]
  #[cfg(feature = "pooling-allocator")]
  pub extern "C" fn wasmtime_pooling_allocation_strategy_set(
@@ -6376,6 +7019,14 @@ index cf132c7490..c00c427cfa 100644
      pc: &wasmtime_pooling_allocation_config_t,
  ) {
      c.config
+@@ -727,6 +727,6 @@ pub extern "C" fn wasmtime_pooling_allocation_strategy_set(
+ }
+ 
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasmtime_config_concurrency_support_set(c: &mut wasm_config_t, enable: bool) {
++pub extern "C" fn wasmtime_config_concurrency_support_set(c: &mut wasmtime_wasm_config_t, enable: bool) {
+     c.config.concurrency_support(enable);
+ }
 diff --git a/crates/c-api/src/engine.rs b/crates/c-api/src/engine.rs
 index 986a5b5793..d5509c92a8 100644
 --- a/crates/c-api/src/engine.rs
@@ -6466,8 +7117,35 @@ index 9a528a0160..a2cedc9b90 100644
  ) {
      crate::trap::error_trace(&raw.error, out)
  }
+diff --git a/crates/c-api/src/exnref.rs b/crates/c-api/src/exnref.rs
+index 63a192a32a..d701d24e70 100644
+--- a/crates/c-api/src/exnref.rs
++++ b/crates/c-api/src/exnref.rs
+@@ -1,5 +1,5 @@
+ use crate::{
+-    WasmtimeStoreContextMut, handle_result, wasm_trap_t, wasmtime_error_t, wasmtime_val_t,
++    WasmtimeStoreContextMut, handle_result, wasmtime_wasm_trap_t, wasmtime_error_t, wasmtime_val_t,
+ };
+ use std::mem::MaybeUninit;
+ use wasmtime::{AsContextMut, ExnRef, ExnRefPre, ExnType, RootScope, Tag};
+@@ -84,13 +84,13 @@ pub unsafe extern "C" fn wasmtime_exnref_field(
+ pub unsafe extern "C" fn wasmtime_context_set_exception(
+     mut store: WasmtimeStoreContextMut<'_>,
+     exn: &wasmtime_exnref_t,
+-) -> Option<Box<wasm_trap_t>> {
++) -> Option<Box<wasmtime_wasm_trap_t>> {
+     let mut scope = RootScope::new(&mut store);
+     let rooted = exn.as_wasmtime()?.to_rooted(&mut scope);
+     let Err(thrown) = scope
+         .as_context_mut()
+         .throw::<std::convert::Infallible>(rooted);
+-    Some(Box::new(wasm_trap_t::new(wasmtime::Error::new(thrown))))
++    Some(Box::new(wasmtime_wasm_trap_t::new(wasmtime::Error::new(thrown))))
+ }
+ 
+ #[unsafe(no_mangle)]
 diff --git a/crates/c-api/src/extern.rs b/crates/c-api/src/extern.rs
-index b32eb801f1..0a297d0b0d 100644
+index ae54173d8f..5d39debce2 100644
 --- a/crates/c-api/src/extern.rs
 +++ b/crates/c-api/src/extern.rs
 @@ -1,77 +1,77 @@
@@ -6478,7 +7156,7 @@ index b32eb801f1..0a297d0b0d 100644
 +    wasmtime_wasm_global_t, wasmtime_wasm_memory_t, wasmtime_wasm_table_t,
  };
  use std::mem::ManuallyDrop;
- use wasmtime::{Extern, Func, Global, Memory, SharedMemory, Table};
+ use wasmtime::{Extern, Func, Global, Memory, SharedMemory, Table, Tag};
  
  #[derive(Clone)]
 -pub struct wasm_extern_t {
@@ -6502,7 +7180,7 @@ index b32eb801f1..0a297d0b0d 100644
 -            "Shared Memory no implemented for wasm_* types. Please use wasmtime_* types instead"
 +            "Shared Memory no implemented for wasmtime_wasm_* types. Please use wasmtime_* types instead"
          ),
-         Extern::Tag(_) => todo!(), // FIXME: #10252 C embedder API for exceptions and control tags.
+         Extern::Tag(_) => crate::types::WASMTIME_EXTERNTYPE_TAG,
      }
  }
  
@@ -6572,7 +7250,7 @@ index b32eb801f1..0a297d0b0d 100644
  }
  
  #[repr(C)]
-@@ -158,6 +158,6 @@ pub unsafe extern "C" fn wasmtime_extern_delete(e: &mut ManuallyDrop<wasmtime_ex
+@@ -164,6 +164,6 @@ pub unsafe extern "C" fn wasmtime_extern_delete(e: &mut ManuallyDrop<wasmtime_ex
  pub unsafe extern "C" fn wasmtime_extern_type(
      store: WasmtimeStoreContext<'_>,
      e: &wasmtime_extern_t,
@@ -6582,7 +7260,7 @@ index b32eb801f1..0a297d0b0d 100644
 +    Box::new(wasmtime_wasm_externtype_t::from_extern_type(e.to_extern().ty(store)))
  }
 diff --git a/crates/c-api/src/func.rs b/crates/c-api/src/func.rs
-index 4ff396e146..14cfe38dfd 100644
+index dfd0b697e9..2503f0fcd6 100644
 --- a/crates/c-api/src/func.rs
 +++ b/crates/c-api/src/func.rs
 @@ -1,7 +1,7 @@
@@ -6596,7 +7274,7 @@ index 4ff396e146..14cfe38dfd 100644
      wasmtime_val_union,
  };
  use std::any::Any;
-@@ -17,25 +17,25 @@ use wasmtime::{
+@@ -19,25 +19,25 @@ use wasmtime::{RootScope, ThrownException};
  
  #[derive(Clone)]
  #[repr(transparent)]
@@ -6635,7 +7313,7 @@ index 4ff396e146..14cfe38dfd 100644
          match &e.which {
              Extern::Func(_) => Some(unsafe { &*(e as *const _ as *const _) }),
              _ => None,
-@@ -51,25 +51,25 @@ impl wasm_func_t {
+@@ -53,25 +53,25 @@ impl wasm_func_t {
  }
  
  unsafe fn create_function(
@@ -6668,7 +7346,7 @@ index 4ff396e146..14cfe38dfd 100644
              let out = func(&params, &mut out_results);
              if let Some(trap) = out {
                  return Err(trap.error);
-@@ -82,8 +82,8 @@ unsafe fn create_function(
+@@ -84,8 +84,8 @@ unsafe fn create_function(
              Ok(())
          },
      );
@@ -6679,7 +7357,7 @@ index 4ff396e146..14cfe38dfd 100644
              store: store.store.clone(),
              which: func.into(),
          },
-@@ -91,22 +91,22 @@ unsafe fn create_function(
+@@ -93,22 +93,22 @@ unsafe fn create_function(
  }
  
  #[unsafe(no_mangle)]
@@ -6712,7 +7390,7 @@ index 4ff396e146..14cfe38dfd 100644
      let finalizer = crate::ForeignData { data, finalizer };
      create_function(store, ty, move |params, results| {
          let _ = &finalizer; // move entire finalizer into this closure
-@@ -131,11 +131,11 @@ pub(crate) fn translate_args<'a>(
+@@ -133,11 +133,11 @@ pub(crate) fn translate_args<'a>(
  }
  
  #[unsafe(no_mangle)]
@@ -6729,7 +7407,7 @@ index 4ff396e146..14cfe38dfd 100644
      let f = func.func();
      let results = (*results).as_uninit_slice();
      let args = (*args).as_slice();
-@@ -153,14 +153,14 @@ pub unsafe extern "C" fn wasm_func_call(
+@@ -155,14 +155,14 @@ pub unsafe extern "C" fn wasm_func_call(
      match result {
          Ok(Ok(())) => {
              for (slot, val) in results.iter_mut().zip(wt_results.iter().cloned()) {
@@ -6747,7 +7425,7 @@ index 4ff396e146..14cfe38dfd 100644
              Box::into_raw(trap)
          }
      }
-@@ -177,27 +177,27 @@ fn error_from_panic(panic: Box<dyn Any + Send>) -> Error {
+@@ -179,27 +179,27 @@ fn error_from_panic(panic: Box<dyn Any + Send>) -> Error {
  }
  
  #[unsafe(no_mangle)]
@@ -6781,7 +7459,7 @@ index 4ff396e146..14cfe38dfd 100644
      &(*f).ext
  }
  
-@@ -227,19 +227,19 @@ pub type wasmtime_func_callback_t = extern "C" fn(
+@@ -229,19 +229,19 @@ pub type wasmtime_func_callback_t = extern "C" fn(
      usize,
      *mut wasmtime_val_t,
      usize,
@@ -6804,7 +7482,7 @@ index 4ff396e146..14cfe38dfd 100644
      callback: wasmtime_func_callback_t,
      data: *mut c_void,
      finalizer: Option<extern "C" fn(*mut std::ffi::c_void)>,
-@@ -309,7 +309,7 @@ pub(crate) unsafe fn c_callback_to_rust_fn(
+@@ -311,7 +311,7 @@ pub(crate) unsafe fn c_callback_to_rust_fn(
  #[unsafe(no_mangle)]
  pub unsafe extern "C" fn wasmtime_func_new_unchecked(
      store: WasmtimeStoreContextMut<'_>,
@@ -6813,25 +7491,26 @@ index 4ff396e146..14cfe38dfd 100644
      callback: wasmtime_func_unchecked_callback_t,
      data: *mut c_void,
      finalizer: Option<extern "C" fn(*mut std::ffi::c_void)>,
-@@ -349,10 +349,10 @@ pub unsafe extern "C" fn wasmtime_func_call(
+@@ -351,11 +351,11 @@ pub unsafe extern "C" fn wasmtime_func_call(
      nargs: usize,
      results: *mut MaybeUninit<wasmtime_val_t>,
      nresults: usize,
 -    trap_ret: &mut *mut wasm_trap_t,
 +    trap_ret: &mut *mut wasmtime_wasm_trap_t,
  ) -> Option<Box<wasmtime_error_t>> {
-     let mut scope = RootScope::new(&mut store);
--    let mut params = mem::take(&mut scope.as_context_mut().data_mut().wasm_val_storage);
-+    let mut params = mem::take(&mut scope.as_context_mut().data_mut().wasmtime_wasm_val_storage);
+     #[cfg(feature = "gc")]
+     let mut store = RootScope::new(&mut store);
+-    let mut params = mem::take(&mut store.as_context_mut().data_mut().wasm_val_storage);
++    let mut params = mem::take(&mut store.as_context_mut().data_mut().wasmtime_wasm_val_storage);
+ 
      let (wt_params, wt_results) = translate_args(
          &mut params,
-         crate::slice_from_raw_parts(args, nargs)
-@@ -375,13 +375,13 @@ pub unsafe extern "C" fn wasmtime_func_call(
-                 crate::initialize(slot, wasmtime_val_t::from_val(&mut scope, *val));
+@@ -379,13 +379,13 @@ pub unsafe extern "C" fn wasmtime_func_call(
+                 crate::initialize(slot, wasmtime_val_t::from_val(&mut store, *val));
              }
              params.truncate(0);
--            scope.as_context_mut().data_mut().wasm_val_storage = params;
-+            scope.as_context_mut().data_mut().wasmtime_wasm_val_storage = params;
+-            store.as_context_mut().data_mut().wasm_val_storage = params;
++            store.as_context_mut().data_mut().wasmtime_wasm_val_storage = params;
              None
          }
          Ok(Err(trap)) => store_err(trap, trap_ret),
@@ -6842,7 +7521,7 @@ index 4ff396e146..14cfe38dfd 100644
              None
          }
      }
-@@ -393,7 +393,7 @@ pub unsafe extern "C" fn wasmtime_func_call_unchecked(
+@@ -397,7 +397,7 @@ pub unsafe extern "C" fn wasmtime_func_call_unchecked(
      func: &Func,
      args_and_results: *mut ValRaw,
      args_and_results_len: usize,
@@ -6851,19 +7530,19 @@ index 4ff396e146..14cfe38dfd 100644
  ) -> Option<Box<wasmtime_error_t>> {
      let slice = std::ptr::slice_from_raw_parts_mut(args_and_results, args_and_results_len);
      match func.call_unchecked(store, slice) {
-@@ -402,9 +402,9 @@ pub unsafe extern "C" fn wasmtime_func_call_unchecked(
-     }
+@@ -416,9 +416,9 @@ fn is_trap_like_impl(err: &Error) -> bool {
+     err.is::<Trap>()
  }
  
 -fn store_err(err: Error, trap_ret: &mut *mut wasm_trap_t) -> Option<Box<wasmtime_error_t>> {
 +fn store_err(err: Error, trap_ret: &mut *mut wasmtime_wasm_trap_t) -> Option<Box<wasmtime_error_t>> {
-     if err.is::<Trap>() {
+     if is_trap_like_impl(&err) {
 -        *trap_ret = Box::into_raw(Box::new(wasm_trap_t::new(err)));
 +        *trap_ret = Box::into_raw(Box::new(wasmtime_wasm_trap_t::new(err)));
          None
      } else {
          Some(Box::new(wasmtime_error_t::from(err)))
-@@ -415,8 +415,8 @@ fn store_err(err: Error, trap_ret: &mut *mut wasm_trap_t) -> Option<Box<wasmtime
+@@ -429,8 +429,8 @@ fn store_err(err: Error, trap_ret: &mut *mut wasm_trap_t) -> Option<Box<wasmtime
  pub extern "C" fn wasmtime_func_type(
      store: WasmtimeStoreContext<'_>,
      func: &Func,
@@ -6875,10 +7554,10 @@ index 4ff396e146..14cfe38dfd 100644
  
  #[unsafe(no_mangle)]
 diff --git a/crates/c-api/src/global.rs b/crates/c-api/src/global.rs
-index dd3605301b..a020ef78ca 100644
+index 4b35e1c6cf..18869846ca 100644
 --- a/crates/c-api/src/global.rs
 +++ b/crates/c-api/src/global.rs
-@@ -1,20 +1,20 @@
+@@ -1,6 +1,6 @@
  use crate::{
 -    WasmtimeStoreContext, WasmtimeStoreContextMut, handle_result, wasm_extern_t, wasm_globaltype_t,
 -    wasm_store_t, wasm_val_t, wasmtime_error_t, wasmtime_val_t,
@@ -6886,7 +7565,8 @@ index dd3605301b..a020ef78ca 100644
 +    wasmtime_wasm_store_t, wasmtime_wasm_val_t, wasmtime_error_t, wasmtime_val_t,
  };
  use std::mem::MaybeUninit;
- use wasmtime::{Extern, Global, RootScope};
+ #[cfg(feature = "gc")]
+@@ -9,14 +9,14 @@ use wasmtime::{Extern, Global};
  
  #[derive(Clone)]
  #[repr(transparent)]
@@ -6906,7 +7586,7 @@ index dd3605301b..a020ef78ca 100644
          match &e.which {
              Extern::Global(_) => Some(unsafe { &*(e as *const _ as *const _) }),
              _ => None,
-@@ -30,14 +30,14 @@ impl wasm_global_t {
+@@ -32,14 +32,14 @@ impl wasm_global_t {
  }
  
  #[unsafe(no_mangle)]
@@ -6928,7 +7608,7 @@ index dd3605301b..a020ef78ca 100644
                  store: store.store.clone(),
                  which: global.into(),
              },
-@@ -47,32 +47,32 @@ pub unsafe extern "C" fn wasm_global_new(
+@@ -49,32 +49,32 @@ pub unsafe extern "C" fn wasm_global_new(
  }
  
  #[unsafe(no_mangle)]
@@ -6968,7 +7648,7 @@ index dd3605301b..a020ef78ca 100644
      let global = g.global();
      drop(global.set(g.ext.store.context_mut(), val.val()));
  }
-@@ -80,7 +80,7 @@ pub unsafe extern "C" fn wasm_global_set(g: &mut wasm_global_t, val: &wasm_val_t
+@@ -82,7 +82,7 @@ pub unsafe extern "C" fn wasm_global_set(g: &mut wasm_global_t, val: &wasm_val_t
  #[unsafe(no_mangle)]
  pub unsafe extern "C" fn wasmtime_global_new(
      mut store: WasmtimeStoreContextMut<'_>,
@@ -6977,7 +7657,7 @@ index dd3605301b..a020ef78ca 100644
      val: &wasmtime_val_t,
      ret: &mut Global,
  ) -> Option<Box<wasmtime_error_t>> {
-@@ -96,8 +96,8 @@ pub unsafe extern "C" fn wasmtime_global_new(
+@@ -100,8 +100,8 @@ pub unsafe extern "C" fn wasmtime_global_new(
  pub extern "C" fn wasmtime_global_type(
      store: WasmtimeStoreContext<'_>,
      global: &Global,
@@ -6989,10 +7669,10 @@ index dd3605301b..a020ef78ca 100644
  
  #[unsafe(no_mangle)]
 diff --git a/crates/c-api/src/instance.rs b/crates/c-api/src/instance.rs
-index e7a84639e0..c2f6f9146c 100644
+index c22687a133..fd6b5575c3 100644
 --- a/crates/c-api/src/instance.rs
 +++ b/crates/c-api/src/instance.rs
-@@ -1,32 +1,32 @@
+@@ -1,6 +1,6 @@
  use crate::{
 -    WasmStoreRef, WasmtimeStoreContextMut, WasmtimeStoreData, wasm_extern_t, wasm_extern_vec_t,
 -    wasm_module_t, wasm_store_t, wasm_trap_t, wasmtime_error_t, wasmtime_extern_t,
@@ -7001,6 +7681,7 @@ index e7a84639e0..c2f6f9146c 100644
      wasmtime_module_t,
  };
  use std::mem::MaybeUninit;
+@@ -8,26 +8,26 @@ use std::ptr;
  use wasmtime::{Instance, InstancePre, Trap};
  
  #[derive(Clone)]
@@ -7038,7 +7719,7 @@ index e7a84639e0..c2f6f9146c 100644
      let imports = (*imports)
          .as_slice()
          .iter()
-@@ -35,14 +35,14 @@ pub unsafe extern "C" fn wasm_instance_new(
+@@ -36,14 +36,14 @@ pub unsafe extern "C" fn wasm_instance_new(
              None => None,
          })
          .collect::<Vec<_>>();
@@ -7056,7 +7737,7 @@ index e7a84639e0..c2f6f9146c 100644
              }
              None
          }
-@@ -50,9 +50,9 @@ pub unsafe extern "C" fn wasm_instance_new(
+@@ -51,9 +51,9 @@ pub unsafe extern "C" fn wasm_instance_new(
  }
  
  #[unsafe(no_mangle)]
@@ -7069,7 +7750,7 @@ index e7a84639e0..c2f6f9146c 100644
  ) {
      let store = instance.store.clone();
      out.set_buffer(
-@@ -60,7 +60,7 @@ pub unsafe extern "C" fn wasm_instance_exports(
+@@ -61,7 +61,7 @@ pub unsafe extern "C" fn wasm_instance_exports(
              .instance
              .exports(instance.store.context_mut())
              .map(|e| {
@@ -7078,7 +7759,7 @@ index e7a84639e0..c2f6f9146c 100644
                      which: e.into_extern(),
                      store: store.clone(),
                  }))
-@@ -76,7 +76,7 @@ pub unsafe extern "C" fn wasmtime_instance_new(
+@@ -77,7 +77,7 @@ pub unsafe extern "C" fn wasmtime_instance_new(
      imports: *const wasmtime_extern_t,
      nimports: usize,
      instance: &mut Instance,
@@ -7087,16 +7768,16 @@ index e7a84639e0..c2f6f9146c 100644
  ) -> Option<Box<wasmtime_error_t>> {
      let imports = crate::slice_from_raw_parts(imports, nimports)
          .iter()
-@@ -92,7 +92,7 @@ pub unsafe extern "C" fn wasmtime_instance_new(
+@@ -93,7 +93,7 @@ pub unsafe extern "C" fn wasmtime_instance_new(
  pub(crate) fn handle_instantiate(
      instance: wasmtime::Result<Instance>,
      instance_ptr: &mut Instance,
 -    trap_ptr: &mut *mut wasm_trap_t,
 +    trap_ptr: &mut *mut wasmtime_wasm_trap_t,
  ) -> Option<Box<wasmtime_error_t>> {
+     *trap_ptr = ptr::null_mut();
      match instance {
-         Ok(i) => {
-@@ -101,7 +101,7 @@ pub(crate) fn handle_instantiate(
+@@ -103,7 +103,7 @@ pub(crate) fn handle_instantiate(
          }
          Err(e) => {
              if e.is::<Trap>() {
@@ -7105,7 +7786,7 @@ index e7a84639e0..c2f6f9146c 100644
                  None
              } else {
                  Some(Box::new(e.into()))
-@@ -166,7 +166,7 @@ pub unsafe extern "C" fn wasmtime_instance_pre_instantiate(
+@@ -168,7 +168,7 @@ pub unsafe extern "C" fn wasmtime_instance_pre_instantiate(
      instance_pre: &wasmtime_instance_pre_t,
      store: WasmtimeStoreContextMut<'_>,
      instance_ptr: &mut Instance,
@@ -7115,7 +7796,7 @@ index e7a84639e0..c2f6f9146c 100644
      let result = instance_pre.underlying.instantiate(store);
      handle_instantiate(result, instance_ptr, trap_ptr)
 diff --git a/crates/c-api/src/linker.rs b/crates/c-api/src/linker.rs
-index 93a0d38631..a21042f21d 100644
+index 00d04cb619..e17c23939c 100644
 --- a/crates/c-api/src/linker.rs
 +++ b/crates/c-api/src/linker.rs
 @@ -1,6 +1,6 @@
@@ -7164,7 +7845,7 @@ index 93a0d38631..a21042f21d 100644
      let result = linker.linker.instantiate(store, &module.module);
      super::instance::handle_instantiate(result, instance_ptr, trap_ptr)
 diff --git a/crates/c-api/src/memory.rs b/crates/c-api/src/memory.rs
-index 4c6b2fc685..d32c41a300 100644
+index 0ef454caeb..0e5c0e4a28 100644
 --- a/crates/c-api/src/memory.rs
 +++ b/crates/c-api/src/memory.rs
 @@ -1,22 +1,22 @@
@@ -7554,12 +8235,12 @@ index 307b434f80..1b6356011d 100644
      let mut buf = vec![];
      match guestprofiler.guest_profiler.finish(&mut buf) {
 diff --git a/crates/c-api/src/ref.rs b/crates/c-api/src/ref.rs
-index b890f03c74..75a6e00c17 100644
+index 25e079831d..4315373209 100644
 --- a/crates/c-api/src/ref.rs
 +++ b/crates/c-api/src/ref.rs
-@@ -3,63 +3,63 @@ use std::mem::{ManuallyDrop, MaybeUninit};
- use std::{num::NonZeroU64, os::raw::c_void, ptr};
- use wasmtime::{AnyRef, ExternRef, I31, OwnedRooted, Ref, RootScope, Val};
+@@ -2,63 +2,63 @@ use crate::abort;
+ use std::os::raw::c_void;
+ use wasmtime::{Ref, Val};
  
 -/// `*mut wasm_ref_t` is a reference type (`externref` or `funcref`), as seen by
 +/// `*mut wasmtime_wasm_ref_t` is a reference type (`externref` or `funcref`), as seen by
@@ -7637,7 +8318,7 @@ index b890f03c74..75a6e00c17 100644
      _info: *mut c_void,
      _finalizer: Option<extern "C" fn(*mut c_void)>,
  ) {
-@@ -67,119 +67,119 @@ pub extern "C" fn wasm_ref_set_host_info_with_finalizer(
+@@ -66,118 +66,118 @@ pub extern "C" fn wasm_ref_set_host_info_with_finalizer(
  }
  
  #[unsafe(no_mangle)]
@@ -7785,7 +8466,6 @@ index b890f03c74..75a6e00c17 100644
 +pub extern "C" fn wasmtime_wasm_foreign_new(_store: &crate::wasm_store_t) -> Box<wasmtime_wasm_foreign_t> {
      abort("wasm_foreign_new")
  }
- 
 diff --git a/crates/c-api/src/sharedmemory.rs b/crates/c-api/src/sharedmemory.rs
 index c6748eef95..c376736b9b 100644
 --- a/crates/c-api/src/sharedmemory.rs
@@ -7817,7 +8497,7 @@ index c6748eef95..c376736b9b 100644
  
  #[unsafe(no_mangle)]
 diff --git a/crates/c-api/src/store.rs b/crates/c-api/src/store.rs
-index 6e5d2d8e74..d9a6d8ff26 100644
+index 7d5c65b099..d7479ba1cb 100644
 --- a/crates/c-api/src/store.rs
 +++ b/crates/c-api/src/store.rs
 @@ -1,4 +1,4 @@
@@ -7848,7 +8528,7 @@ index 6e5d2d8e74..d9a6d8ff26 100644
          store: WasmStoreRef {
              store: Arc::new(UnsafeCell::new(store)),
          },
-@@ -91,7 +91,7 @@ pub struct WasmtimeStoreData {
+@@ -93,7 +93,7 @@ pub struct WasmtimeStoreData {
  
      /// Temporary storage for usage during host->wasm calls, same as above but
      /// for a different direction.
@@ -7857,7 +8537,7 @@ index 6e5d2d8e74..d9a6d8ff26 100644
  
      /// Limits for the store.
      pub store_limits: StoreLimits,
-@@ -106,7 +106,7 @@ impl wasmtime_wasi::WasiView for WasmtimeStoreData {
+@@ -122,7 +122,7 @@ impl wasmtime_wasi_http::p2::WasiHttpView for WasmtimeStoreData {
  
  #[unsafe(no_mangle)]
  pub extern "C" fn wasmtime_store_new(
@@ -7866,9 +8546,9 @@ index 6e5d2d8e74..d9a6d8ff26 100644
      data: *mut c_void,
      finalizer: Option<extern "C" fn(*mut c_void)>,
  ) -> Box<wasmtime_store_t> {
-@@ -118,7 +118,7 @@ pub extern "C" fn wasmtime_store_new(
-                 #[cfg(feature = "wasi")]
-                 wasi: None,
+@@ -136,7 +136,7 @@ pub extern "C" fn wasmtime_store_new(
+                 #[cfg(feature = "wasi-http")]
+                 wasi_http: None,
                  hostcall_val_storage: Vec::new(),
 -                wasm_val_storage: Vec::new(),
 +                wasmtime_wasm_val_storage: Vec::new(),
@@ -7876,18 +8556,22 @@ index 6e5d2d8e74..d9a6d8ff26 100644
              },
          ),
 diff --git a/crates/c-api/src/table.rs b/crates/c-api/src/table.rs
-index bffb1ffc80..15b58d5d23 100644
+index 3fc060f316..78306b3963 100644
 --- a/crates/c-api/src/table.rs
 +++ b/crates/c-api/src/table.rs
-@@ -1,22 +1,22 @@
+@@ -1,9 +1,9 @@
  use crate::{
--    WasmtimeStoreContext, WasmtimeStoreContextMut, handle_result, wasm_extern_t, wasm_ref_t,
--    wasm_store_t, wasm_tabletype_t, wasmtime_error_t, wasmtime_val_t,
-+    WasmtimeStoreContext, WasmtimeStoreContextMut, handle_result, wasmtime_wasm_extern_t, wasmtime_wasm_ref_t,
-+    wasmtime_wasm_store_t, wasmtime_wasm_tabletype_t, wasmtime_error_t, wasmtime_val_t,
+-    WasmtimeStoreContext, WasmtimeStoreContextMut, handle_result, wasm_extern_t, wasm_tabletype_t,
++    WasmtimeStoreContext, WasmtimeStoreContextMut, handle_result, wasmtime_wasm_extern_t, wasmtime_wasm_tabletype_t,
+     wasmtime_error_t, wasmtime_val_t,
  };
+ #[cfg(feature = "gc")]
+-use crate::{wasm_ref_t, wasm_store_t};
++use crate::{wasm_ref_t, wasmtime_wasm_store_t};
  use std::mem::MaybeUninit;
- use wasmtime::{Extern, Ref, RootScope, Table, TableType, format_err};
+ use wasmtime::{Extern, Table, format_err};
+ #[cfg(feature = "gc")]
+@@ -11,16 +11,16 @@ use wasmtime::{Ref, RootScope, TableType};
  
  #[derive(Clone)]
  #[repr(transparent)]
@@ -7910,10 +8594,10 @@ index bffb1ffc80..15b58d5d23 100644
          match &e.which {
              Extern::Table(_) => Some(unsafe { &*(e as *const _ as *const _) }),
              _ => None,
-@@ -31,22 +31,22 @@ impl wasm_table_t {
-     }
+@@ -36,23 +36,23 @@ impl wasm_table_t {
  }
  
+ #[cfg(feature = "gc")]
 -fn option_wasm_ref_t_to_ref(r: Option<&wasm_ref_t>, table_ty: &TableType) -> Ref {
 +fn option_wasm_ref_t_to_ref(r: Option<&wasmtime_wasm_ref_t>, table_ty: &TableType) -> Ref {
      r.map(|r| r.r.clone())
@@ -7921,6 +8605,7 @@ index bffb1ffc80..15b58d5d23 100644
  }
  
  #[unsafe(no_mangle)]
+ #[cfg(feature = "gc")]
 -pub unsafe extern "C" fn wasm_table_new(
 -    store: &mut wasm_store_t,
 -    tt: &wasm_tabletype_t,
@@ -7941,7 +8626,7 @@ index bffb1ffc80..15b58d5d23 100644
              store: store.store.clone(),
              which: table.into(),
          },
-@@ -54,27 +54,27 @@ pub unsafe extern "C" fn wasm_table_new(
+@@ -60,29 +60,29 @@ pub unsafe extern "C" fn wasm_table_new(
  }
  
  #[unsafe(no_mangle)]
@@ -7954,6 +8639,7 @@ index bffb1ffc80..15b58d5d23 100644
  }
  
  #[unsafe(no_mangle)]
+ #[cfg(feature = "gc")]
 -pub unsafe extern "C" fn wasm_table_get(
 -    t: &mut wasm_table_t,
 -    index: wasm_table_size_t,
@@ -7969,6 +8655,7 @@ index bffb1ffc80..15b58d5d23 100644
  }
  
  #[unsafe(no_mangle)]
+ #[cfg(feature = "gc")]
 -pub unsafe extern "C" fn wasm_table_set(
 -    t: &mut wasm_table_t,
 -    index: wasm_table_size_t,
@@ -7980,7 +8667,7 @@ index bffb1ffc80..15b58d5d23 100644
  ) -> bool {
      let table = t.table();
      let val = option_wasm_ref_t_to_ref(r, &table.ty(t.ext.store.context()));
-@@ -84,17 +84,17 @@ pub unsafe extern "C" fn wasm_table_set(
+@@ -92,7 +92,7 @@ pub unsafe extern "C" fn wasm_table_set(
  }
  
  #[unsafe(no_mangle)]
@@ -7989,9 +8676,10 @@ index bffb1ffc80..15b58d5d23 100644
      let table = t.table();
      let store = t.ext.store.context();
      u32::try_from(table.size(&store)).unwrap()
- }
+@@ -100,10 +100,10 @@ pub unsafe extern "C" fn wasm_table_size(t: &wasm_table_t) -> wasm_table_size_t
  
  #[unsafe(no_mangle)]
+ #[cfg(feature = "gc")]
 -pub unsafe extern "C" fn wasm_table_grow(
 -    t: &mut wasm_table_t,
 -    delta: wasm_table_size_t,
@@ -8003,7 +8691,7 @@ index bffb1ffc80..15b58d5d23 100644
  ) -> bool {
      let table = t.table();
      let init = option_wasm_ref_t_to_ref(init, &table.ty(t.ext.store.context()));
-@@ -104,19 +104,19 @@ pub unsafe extern "C" fn wasm_table_grow(
+@@ -113,19 +113,19 @@ pub unsafe extern "C" fn wasm_table_grow(
  }
  
  #[unsafe(no_mangle)]
@@ -8026,7 +8714,7 @@ index bffb1ffc80..15b58d5d23 100644
      init: &wasmtime_val_t,
      out: &mut Table,
  ) -> Option<Box<wasmtime_error_t>> {
-@@ -134,8 +134,8 @@ pub unsafe extern "C" fn wasmtime_table_new(
+@@ -145,8 +145,8 @@ pub unsafe extern "C" fn wasmtime_table_new(
  pub unsafe extern "C" fn wasmtime_table_type(
      store: WasmtimeStoreContext<'_>,
      table: &Table,
@@ -8037,8 +8725,40 @@ index bffb1ffc80..15b58d5d23 100644
  }
  
  #[unsafe(no_mangle)]
+diff --git a/crates/c-api/src/tag.rs b/crates/c-api/src/tag.rs
+index b0f106f182..d078b93194 100644
+--- a/crates/c-api/src/tag.rs
++++ b/crates/c-api/src/tag.rs
+@@ -1,5 +1,5 @@
+ use crate::{
+-    WasmtimeStoreContext, WasmtimeStoreContextMut, handle_result, wasm_tagtype_t, wasmtime_error_t,
++    WasmtimeStoreContext, WasmtimeStoreContextMut, handle_result, wasmtime_wasm_tagtype_t, wasmtime_error_t,
+ };
+ use std::mem::MaybeUninit;
+ use wasmtime::Tag;
+@@ -8,7 +8,7 @@ use wasmtime::Tag;
+ #[unsafe(no_mangle)]
+ pub unsafe extern "C" fn wasmtime_tag_new(
+     mut store: WasmtimeStoreContextMut<'_>,
+-    tt: &wasm_tagtype_t,
++    tt: &wasmtime_wasm_tagtype_t,
+     ret: &mut MaybeUninit<Tag>,
+ ) -> Option<Box<wasmtime_error_t>> {
+     let tag_type = tt.ty(store.engine());
+@@ -22,9 +22,9 @@ pub unsafe extern "C" fn wasmtime_tag_new(
+ pub extern "C" fn wasmtime_tag_type(
+     store: WasmtimeStoreContext<'_>,
+     tag: &Tag,
+-) -> Box<wasm_tagtype_t> {
++) -> Box<wasmtime_wasm_tagtype_t> {
+     let ty = tag.ty(store);
+-    Box::new(wasm_tagtype_t::new(ty))
++    Box::new(wasmtime_wasm_tagtype_t::new(ty))
+ }
+ 
+ /// Tests whether two tags are the same (identity equality).
 diff --git a/crates/c-api/src/trap.rs b/crates/c-api/src/trap.rs
-index 1eb3a1c508..c56af91925 100644
+index 75b15740ba..304490b83c 100644
 --- a/crates/c-api/src/trap.rs
 +++ b/crates/c-api/src/trap.rs
 @@ -1,4 +1,4 @@
@@ -8047,7 +8767,7 @@ index 1eb3a1c508..c56af91925 100644
  use std::cell::OnceCell;
  use wasmtime::{Error, Trap, WasmBacktrace, format_err};
  
-@@ -43,7 +43,7 @@ const _: () = {
+@@ -57,7 +57,7 @@ const _: () = {
  };
  
  #[repr(C)]
@@ -8056,7 +8776,7 @@ index 1eb3a1c508..c56af91925 100644
      pub(crate) error: Error,
  }
  
-@@ -51,69 +51,69 @@ pub struct wasm_trap_t {
+@@ -65,69 +65,69 @@ pub struct wasm_trap_t {
  //
  // For now the impl here is "fake it til you make it" since this is losing
  // context by only cloning the error string.
@@ -8148,7 +8868,7 @@ index 1eb3a1c508..c56af91925 100644
      let mut buffer = Vec::new();
      buffer.extend_from_slice(format!("{:?}", trap.error).as_bytes());
      buffer.reserve_exact(1);
-@@ -122,13 +122,13 @@ pub extern "C" fn wasm_trap_message(trap: &wasm_trap_t, out: &mut wasm_message_t
+@@ -136,13 +136,13 @@ pub extern "C" fn wasm_trap_message(trap: &wasm_trap_t, out: &mut wasm_message_t
  }
  
  #[unsafe(no_mangle)]
@@ -8164,7 +8884,7 @@ index 1eb3a1c508..c56af91925 100644
              trace,
              idx: 0,
              func_name: OnceCell::new(),
-@@ -140,18 +140,18 @@ pub extern "C" fn wasm_trap_origin(raw: &wasm_trap_t) -> Option<Box<wasm_frame_t
+@@ -154,18 +154,18 @@ pub extern "C" fn wasm_trap_origin(raw: &wasm_trap_t) -> Option<Box<wasm_frame_t
  }
  
  #[unsafe(no_mangle)]
@@ -8186,7 +8906,7 @@ index 1eb3a1c508..c56af91925 100644
                  trace,
                  idx,
                  func_name: OnceCell::new(),
-@@ -163,7 +163,7 @@ pub(crate) fn error_trace<'a>(error: &'a Error, out: &mut wasm_frame_vec_t<'a>)
+@@ -177,7 +177,7 @@ pub(crate) fn error_trace<'a>(error: &'a Error, out: &mut wasm_frame_vec_t<'a>)
  }
  
  #[unsafe(no_mangle)]
@@ -8195,7 +8915,7 @@ index 1eb3a1c508..c56af91925 100644
      let trap = match raw.error.downcast_ref::<Trap>() {
          Some(trap) => trap,
          None => return false,
-@@ -173,59 +173,59 @@ pub extern "C" fn wasmtime_trap_code(raw: &wasm_trap_t, code: &mut u8) -> bool {
+@@ -187,59 +187,59 @@ pub extern "C" fn wasmtime_trap_code(raw: &wasm_trap_t, code: &mut u8) -> bool {
  }
  
  #[unsafe(no_mangle)]
@@ -8267,7 +8987,7 @@ index 1eb3a1c508..c56af91925 100644
      Box::new(frame.clone())
  }
 diff --git a/crates/c-api/src/types.rs b/crates/c-api/src/types.rs
-index e1aa3a704a..28085d5027 100644
+index 1db1a675c2..8bef2618e8 100644
 --- a/crates/c-api/src/types.rs
 +++ b/crates/c-api/src/types.rs
 @@ -1,11 +1,11 @@
@@ -8284,6 +9004,34 @@ index e1aa3a704a..28085d5027 100644
      pub(crate) fn max(&self) -> Option<u32> {
          if self.max == u32::max_value() {
              None
+diff --git a/crates/c-api/src/types/exn.rs b/crates/c-api/src/types/exn.rs
+index 07fa70057d..500520f222 100644
+--- a/crates/c-api/src/types/exn.rs
++++ b/crates/c-api/src/types/exn.rs
+@@ -1,4 +1,4 @@
+-use crate::{wasm_tagtype_t, wasm_valtype_vec_t, wasmtime_error_t};
++use crate::{wasm_tagtype_t, wasmtime_wasm_valtype_vec_t, wasmtime_error_t};
+ use std::mem::MaybeUninit;
+ use wasmtime::ExnType;
+ 
+@@ -11,7 +11,7 @@ wasmtime_c_api_macros::declare_ty!(wasmtime_exn_type_t);
+ #[unsafe(no_mangle)]
+ pub extern "C" fn wasmtime_exn_type_new(
+     engine: &crate::wasm_engine_t,
+-    params: &wasm_valtype_vec_t,
++    params: &wasmtime_wasm_valtype_vec_t,
+     out: &mut MaybeUninit<Box<wasmtime_exn_type_t>>,
+ ) -> Option<Box<wasmtime_error_t>> {
+     crate::handle_result(
+@@ -29,6 +29,6 @@ pub extern "C" fn wasmtime_exn_type_new(
+ }
+ 
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasmtime_exn_type_tag_type(ty: &wasmtime_exn_type_t) -> Box<wasm_tagtype_t> {
+-    Box::new(wasm_tagtype_t::new(ty.ty.tag_type()))
++pub extern "C" fn wasmtime_exn_type_tag_type(ty: &wasmtime_exn_type_t) -> Box<wasmtime_wasm_tagtype_t> {
++    Box::new(wasmtime_wasm_tagtype_t::new(ty.ty.tag_type()))
+ }
 diff --git a/crates/c-api/src/types/export.rs b/crates/c-api/src/types/export.rs
 index 5a7a72c582..a0f2c3298e 100644
 --- a/crates/c-api/src/types/export.rs
@@ -8351,11 +9099,11 @@ index 5a7a72c582..a0f2c3298e 100644
 +        .get_or_init(|| wasmtime_wasm_externtype_t::from_cextern_type(et.ty.clone()))
  }
 diff --git a/crates/c-api/src/types/extern.rs b/crates/c-api/src/types/extern.rs
-index 075b1b7105..5e45d76a02 100644
+index ea755bd835..2acb645015 100644
 --- a/crates/c-api/src/types/extern.rs
 +++ b/crates/c-api/src/types/extern.rs
 @@ -1,14 +1,14 @@
- use crate::{CFuncType, CGlobalType, CMemoryType, CTableType};
+ use crate::{CFuncType, CGlobalType, CMemoryType, CTableType, CTagType};
 -use crate::{wasm_functype_t, wasm_globaltype_t, wasm_memorytype_t, wasm_tabletype_t};
 +use crate::{wasm_functype_t, wasmtime_wasm_globaltype_t, wasmtime_wasm_memorytype_t, wasmtime_wasm_tabletype_t};
  use wasmtime::ExternType;
@@ -8372,7 +9120,7 @@ index 075b1b7105..5e45d76a02 100644
  
  #[derive(Clone)]
  pub(crate) enum CExternType {
-@@ -30,27 +30,27 @@ impl CExternType {
+@@ -31,30 +31,30 @@ impl CExternType {
      }
  }
  
@@ -8387,6 +9135,10 @@ index 075b1b7105..5e45d76a02 100644
 +pub const WASM_EXTERN_GLOBAL: wasmtime_wasm_externkind_t = 1;
 +pub const WASM_EXTERN_TABLE: wasmtime_wasm_externkind_t = 2;
 +pub const WASM_EXTERN_MEMORY: wasmtime_wasm_externkind_t = 3;
+ /// Value returned by `wasm_externtype_kind` for exception tags.
+ /// This extends the `wasm_externkind_t` range (0-3 in wasm.h) with tag support.
+-pub const WASMTIME_EXTERNTYPE_TAG: wasm_externkind_t = 4;
++pub const WASMTIME_EXTERNTYPE_TAG: wasmtime_wasm_externkind_t = 4;
  
 -impl wasm_externtype_t {
 -    pub(crate) fn from_extern_type(ty: ExternType) -> wasm_externtype_t {
@@ -8411,7 +9163,7 @@ index 075b1b7105..5e45d76a02 100644
      match &et.which {
          CExternType::Func(_) => WASM_EXTERN_FUNC,
          CExternType::Table(_) => WASM_EXTERN_TABLE,
-@@ -60,55 +60,55 @@ pub extern "C" fn wasm_externtype_kind(et: &wasm_externtype_t) -> wasm_externkin
+@@ -65,55 +65,55 @@ pub extern "C" fn wasm_externtype_kind(et: &wasm_externtype_t) -> wasm_externkin
  }
  
  #[unsafe(no_mangle)]
@@ -8498,12 +9250,12 @@ index 075b1b7105..5e45d76a02 100644
 +    wasmtime_wasm_memorytype_t::try_from(et)
  }
 diff --git a/crates/c-api/src/types/func.rs b/crates/c-api/src/types/func.rs
-index 220801a3f1..72e0318778 100644
+index 9468adbffb..1f28f16f48 100644
 --- a/crates/c-api/src/types/func.rs
 +++ b/crates/c-api/src/types/func.rs
 @@ -1,4 +1,4 @@
--use crate::{CExternType, wasm_externtype_t, wasm_valtype_t, wasm_valtype_vec_t};
-+use crate::{CExternType, wasmtime_wasm_externtype_t, wasmtime_wasm_valtype_t, wasmtime_wasm_valtype_vec_t};
+-use crate::{CExternType, wasm_externtype_t, wasm_valtype_vec_t};
++use crate::{CExternType, wasmtime_wasm_externtype_t, wasmtime_wasm_valtype_vec_t};
  use std::cell::OnceCell;
  use std::{
      mem,
@@ -8574,9 +9326,9 @@ index 220801a3f1..72e0318778 100644
      let params = params
          .take()
          .into_iter()
-@@ -155,39 +155,39 @@ pub extern "C" fn wasm_functype_new(
+@@ -155,11 +155,11 @@ pub extern "C" fn wasm_functype_new(
          .into_iter()
-         .map(|vt| vt.unwrap().ty.clone())
+         .map(|vt| (*vt.unwrap()).clone())
          .collect();
 -    Box::new(wasm_functype_t::lazy(params, results))
 +    Box::new(wasmtime_wasm_functype_t::lazy(params, results))
@@ -8588,12 +9340,7 @@ index 220801a3f1..72e0318778 100644
      let ft = ft.ty();
      ft.params_cache.get_or_init(|| {
          let ty = ft.ty.lock().unwrap();
-         ty.params()
--            .map(|p| Some(Box::new(wasm_valtype_t { ty: p.clone() })))
-+            .map(|p| Some(Box::new(wasmtime_wasm_valtype_t { ty: p.clone() })))
-             .collect::<Vec<_>>()
-             .into()
-     })
+@@ -171,7 +171,7 @@ pub extern "C" fn wasm_functype_params(ft: &wasm_functype_t) -> &wasm_valtype_ve
  }
  
  #[unsafe(no_mangle)]
@@ -8602,12 +9349,7 @@ index 220801a3f1..72e0318778 100644
      let ft = ft.ty();
      ft.returns_cache.get_or_init(|| {
          let ty = ft.ty.lock().unwrap();
-         ty.results()
--            .map(|p| Some(Box::new(wasm_valtype_t { ty: p.clone() })))
-+            .map(|p| Some(Box::new(wasmtime_wasm_valtype_t { ty: p.clone() })))
-             .collect::<Vec<_>>()
-             .into()
-     })
+@@ -183,11 +183,11 @@ pub extern "C" fn wasm_functype_results(ft: &wasm_functype_t) -> &wasm_valtype_v
  }
  
  #[unsafe(no_mangle)]
@@ -8622,13 +9364,12 @@ index 220801a3f1..72e0318778 100644
      &ty.ext
  }
 diff --git a/crates/c-api/src/types/global.rs b/crates/c-api/src/types/global.rs
-index aa34df67fd..e6c65523af 100644
+index 5912960950..1bf229297c 100644
 --- a/crates/c-api/src/types/global.rs
 +++ b/crates/c-api/src/types/global.rs
-@@ -1,34 +1,34 @@
+@@ -1,32 +1,32 @@
 -use crate::{CExternType, wasm_externtype_t, wasm_valtype_t};
 +use crate::{CExternType, wasmtime_wasm_externtype_t, wasmtime_wasm_valtype_t};
- use std::cell::OnceCell;
  use wasmtime::GlobalType;
  
 -pub type wasm_mutability_t = u8;
@@ -8653,8 +9394,6 @@ index aa34df67fd..e6c65523af 100644
  #[derive(Clone)]
  pub(crate) struct CGlobalType {
      pub(crate) ty: GlobalType,
--    content_cache: OnceCell<wasm_valtype_t>,
-+    content_cache: OnceCell<wasmtime_wasm_valtype_t>,
  }
  
 -impl wasm_globaltype_t {
@@ -8673,7 +9412,7 @@ index aa34df67fd..e6c65523af 100644
          match &e.which {
              CExternType::Global(_) => Some(unsafe { &*(e as *const _ as *const _) }),
              _ => None,
-@@ -53,10 +53,10 @@ impl CGlobalType {
+@@ -48,10 +48,10 @@ impl CGlobalType {
  }
  
  #[unsafe(no_mangle)]
@@ -8688,10 +9427,10 @@ index aa34df67fd..e6c65523af 100644
      use wasmtime::Mutability::*;
      let mutability = match mutability {
          WASM_CONST => Const,
-@@ -64,19 +64,19 @@ pub extern "C" fn wasm_globaltype_new(
+@@ -59,16 +59,16 @@ pub extern "C" fn wasm_globaltype_new(
          _ => return None,
      };
-     let ty = GlobalType::new(ty.ty.clone(), mutability);
+     let ty = GlobalType::new((*ty).clone(), mutability);
 -    Some(Box::new(wasm_globaltype_t::new(ty)))
 +    Some(Box::new(wasmtime_wasm_globaltype_t::new(ty)))
  }
@@ -8699,11 +9438,7 @@ index aa34df67fd..e6c65523af 100644
  #[unsafe(no_mangle)]
 -pub extern "C" fn wasm_globaltype_content(gt: &wasm_globaltype_t) -> &wasm_valtype_t {
 +pub extern "C" fn wasmtime_wasm_globaltype_content(gt: &wasmtime_wasm_globaltype_t) -> &wasmtime_wasm_valtype_t {
-     let gt = gt.ty();
--    gt.content_cache.get_or_init(|| wasm_valtype_t {
-+    gt.content_cache.get_or_init(|| wasmtime_wasm_valtype_t {
-         ty: gt.ty.content().clone(),
-     })
+     gt.ty().ty.content()
  }
  
  #[unsafe(no_mangle)]
@@ -8712,7 +9447,7 @@ index aa34df67fd..e6c65523af 100644
      use wasmtime::Mutability::*;
      let gt = gt.ty();
      match gt.ty.mutability() {
-@@ -86,13 +86,13 @@ pub extern "C" fn wasm_globaltype_mutability(gt: &wasm_globaltype_t) -> wasm_mut
+@@ -78,13 +78,13 @@ pub extern "C" fn wasm_globaltype_mutability(gt: &wasm_globaltype_t) -> wasm_mut
  }
  
  #[unsafe(no_mangle)]
@@ -8955,8 +9690,21 @@ index d4d4c2edcb..a55bcd538e 100644
 +) -> &wasmtime_wasm_externtype_t {
      &ty.ext
  }
+diff --git a/crates/c-api/src/types/structref.rs b/crates/c-api/src/types/structref.rs
+index 7d481f8850..c3f57c6543 100644
+--- a/crates/c-api/src/types/structref.rs
++++ b/crates/c-api/src/types/structref.rs
+@@ -7,7 +7,7 @@ use wasmtime::{FieldType, Mutability, StorageType, StructType};
+ pub enum wasmtime_storage_type_t {
+     I8,
+     I16,
+-    Val(Box<wasm_valtype_t>),
++    Val(Box<wasmtime_wasm_valtype_t>),
+ }
+ 
+ impl From<StorageType> for wasmtime_storage_type_t {
 diff --git a/crates/c-api/src/types/table.rs b/crates/c-api/src/types/table.rs
-index 63440f9b29..81b2a408df 100644
+index 7c90ea7e1a..e73f096d05 100644
 --- a/crates/c-api/src/types/table.rs
 +++ b/crates/c-api/src/types/table.rs
 @@ -1,30 +1,30 @@
@@ -9013,23 +9761,21 @@ index 63440f9b29..81b2a408df 100644
 +    ty: Box<wasmtime_wasm_valtype_t>,
 +    limits: &wasmtime_wasm_limits_t,
 +) -> Option<Box<wasmtime_wasm_tabletype_t>> {
-     let ty = ty.ty.as_ref()?.clone();
+     let ty = (*ty).as_ref()?.clone();
 -    Some(Box::new(wasm_tabletype_t::new(TableType::new(
 +    Some(Box::new(wasmtime_wasm_tabletype_t::new(TableType::new(
          ty,
          limits.min,
          limits.max(),
-@@ -63,28 +63,28 @@ pub extern "C" fn wasm_tabletype_new(
+@@ -63,27 +63,27 @@ pub extern "C" fn wasm_tabletype_new(
  }
  
  #[unsafe(no_mangle)]
 -pub extern "C" fn wasm_tabletype_element(tt: &wasm_tabletype_t) -> &wasm_valtype_t {
 +pub extern "C" fn wasmtime_wasm_tabletype_element(tt: &wasmtime_wasm_tabletype_t) -> &wasmtime_wasm_valtype_t {
      let tt = tt.ty();
--    tt.element_cache.get_or_init(|| wasm_valtype_t {
-+    tt.element_cache.get_or_init(|| wasmtime_wasm_valtype_t {
-         ty: ValType::Ref(tt.ty.element().clone()),
-     })
+     tt.element_cache
+         .get_or_init(|| ValType::Ref(tt.ty.element().clone()))
  }
  
  #[unsafe(no_mangle)]
@@ -9054,18 +9800,147 @@ index 63440f9b29..81b2a408df 100644
 +pub extern "C" fn wasmtime_wasm_tabletype_as_externtype_const(ty: &wasmtime_wasm_tabletype_t) -> &wasmtime_wasm_externtype_t {
      &ty.ext
  }
+diff --git a/crates/c-api/src/types/tag.rs b/crates/c-api/src/types/tag.rs
+index 89991aa296..84db666373 100644
+--- a/crates/c-api/src/types/tag.rs
++++ b/crates/c-api/src/types/tag.rs
+@@ -1,26 +1,26 @@
+-use crate::{CExternType, wasm_externtype_t, wasm_functype_t};
++use crate::{CExternType, wasmtime_wasm_externtype_t, wasmtime_wasm_functype_t};
+ use std::cell::OnceCell;
+ use wasmtime::{Engine, TagType};
+ 
+ #[repr(transparent)]
+ #[derive(Clone)]
+-pub struct wasm_tagtype_t {
+-    ext: wasm_externtype_t,
++pub struct wasmtime_wasm_tagtype_t {
++    ext: wasmtime_wasm_externtype_t,
+ }
+ 
+-wasmtime_c_api_macros::declare_ty!(wasm_tagtype_t);
++wasmtime_c_api_macros::declare_ty!(wasmtime_wasm_tagtype_t);
+ 
+ #[derive(Clone)]
+ pub(crate) struct CTagType {
+     ty: LazyTagType,
+     tagtype_cache: OnceCell<TagType>,
+-    functype_cache: OnceCell<Box<wasm_functype_t>>,
++    functype_cache: OnceCell<Box<wasmtime_wasm_functype_t>>,
+ }
+ 
+ #[derive(Clone)]
+ enum LazyTagType {
+     TagType(TagType),
+-    Lazy(Box<wasm_functype_t>),
++    Lazy(Box<wasmtime_wasm_functype_t>),
+ }
+ 
+ impl CTagType {
+@@ -32,7 +32,7 @@ impl CTagType {
+         }
+     }
+ 
+-    fn lazy(functype: Box<wasm_functype_t>) -> CTagType {
++    fn lazy(functype: Box<wasmtime_wasm_functype_t>) -> CTagType {
+         CTagType {
+             ty: LazyTagType::Lazy(functype),
+             tagtype_cache: OnceCell::new(),
+@@ -41,14 +41,14 @@ impl CTagType {
+     }
+ }
+ 
+-impl wasm_tagtype_t {
+-    pub(crate) fn new(ty: TagType) -> wasm_tagtype_t {
+-        wasm_tagtype_t {
+-            ext: wasm_externtype_t::from_extern_type(ty.into()),
++impl wasmtime_wasm_tagtype_t {
++    pub(crate) fn new(ty: TagType) -> wasmtime_wasm_tagtype_t {
++        wasmtime_wasm_tagtype_t {
++            ext: wasmtime_wasm_externtype_t::from_extern_type(ty.into()),
+         }
+     }
+ 
+-    pub(crate) fn try_from(e: &wasm_externtype_t) -> Option<&wasm_tagtype_t> {
++    pub(crate) fn try_from(e: &wasmtime_wasm_externtype_t) -> Option<&wasmtime_wasm_tagtype_t> {
+         match &e.which {
+             CExternType::Tag(_) => Some(unsafe { &*(e as *const _ as *const _) }),
+             _ => None,
+@@ -76,46 +76,46 @@ impl wasm_tagtype_t {
+ /// Creates a new tag type from a function type describing the exception payload.
+ /// Takes ownership of `functype`.
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasm_tagtype_new(functype: Box<wasm_functype_t>) -> Box<wasm_tagtype_t> {
+-    Box::new(wasm_tagtype_t {
+-        ext: wasm_externtype_t::from_cextern_type(CExternType::Tag(CTagType::lazy(functype))),
++pub extern "C" fn wasmtime_wasm_tagtype_new(functype: Box<wasmtime_wasm_functype_t>) -> Box<wasmtime_wasm_tagtype_t> {
++    Box::new(wasmtime_wasm_tagtype_t {
++        ext: wasmtime_wasm_externtype_t::from_cextern_type(CExternType::Tag(CTagType::lazy(functype))),
+     })
+ }
+ 
+ /// Returns a borrowed reference to the function type describing this tag's exception payload.
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasm_tagtype_functype(tt: &wasm_tagtype_t) -> &wasm_functype_t {
++pub extern "C" fn wasmtime_wasm_tagtype_functype(tt: &wasmtime_wasm_tagtype_t) -> &wasmtime_wasm_functype_t {
+     let cty = tt.cty();
+     match &cty.ty {
+         LazyTagType::TagType(ty) => cty
+             .functype_cache
+-            .get_or_init(|| Box::new(wasm_functype_t::new(ty.ty().clone()))),
++            .get_or_init(|| Box::new(wasmtime_wasm_functype_t::new(ty.ty().clone()))),
+         LazyTagType::Lazy(f) => f,
+     }
+ }
+ 
+ /// Converts a `wasm_tagtype_t` to a `wasm_externtype_t` (borrowed).
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasm_tagtype_as_externtype(ty: &wasm_tagtype_t) -> &wasm_externtype_t {
++pub extern "C" fn wasmtime_wasm_tagtype_as_externtype(ty: &wasmtime_wasm_tagtype_t) -> &wasmtime_wasm_externtype_t {
+     &ty.ext
+ }
+ 
+ /// Converts a const `wasm_tagtype_t` to a const `wasm_externtype_t` (borrowed).
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasm_tagtype_as_externtype_const(ty: &wasm_tagtype_t) -> &wasm_externtype_t {
++pub extern "C" fn wasmtime_wasm_tagtype_as_externtype_const(ty: &wasmtime_wasm_tagtype_t) -> &wasmtime_wasm_externtype_t {
+     &ty.ext
+ }
+ 
+ /// Converts a `wasm_externtype_t` to a `wasm_tagtype_t`, or NULL if not a tag.
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasm_externtype_as_tagtype(et: &wasm_externtype_t) -> Option<&wasm_tagtype_t> {
+-    wasm_externtype_as_tagtype_const(et)
++pub extern "C" fn wasmtime_wasm_externtype_as_tagtype(et: &wasmtime_wasm_externtype_t) -> Option<&wasmtime_wasm_tagtype_t> {
++    wasmtime_wasm_externtype_as_tagtype_const(et)
+ }
+ 
+ /// Converts a const `wasm_externtype_t` to a const `wasm_tagtype_t`, or NULL if not a tag.
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasm_externtype_as_tagtype_const(
+-    et: &wasm_externtype_t,
+-) -> Option<&wasm_tagtype_t> {
+-    wasm_tagtype_t::try_from(et)
++pub extern "C" fn wasmtime_wasm_externtype_as_tagtype_const(
++    et: &wasmtime_wasm_externtype_t,
++) -> Option<&wasmtime_wasm_tagtype_t> {
++    wasmtime_wasm_tagtype_t::try_from(et)
+ }
 diff --git a/crates/c-api/src/types/val.rs b/crates/c-api/src/types/val.rs
-index 57f10d35b0..40cf3d424a 100644
+index 6b120a4708..09864e1afd 100644
 --- a/crates/c-api/src/types/val.rs
 +++ b/crates/c-api/src/types/val.rs
-@@ -2,33 +2,33 @@ use wasmtime::{HeapType, ValType};
+@@ -1,24 +1,24 @@
+ use crate::{
+-    wasm_engine_t, wasm_functype_t, wasmtime_array_type_t, wasmtime_exn_type_t,
++    wasmtime_wasm_engine_t, wasmtime_wasm_functype_t, wasmtime_array_type_t, wasmtime_exn_type_t,
+     wasmtime_struct_type_t,
+ };
+ use std::mem::{ManuallyDrop, MaybeUninit};
+ use wasmtime::{HeapType, RefType, ValType};
  
- #[repr(C)]
- #[derive(Clone)]
--pub struct wasm_valtype_t {
-+pub struct wasmtime_wasm_valtype_t {
-     pub(crate) ty: ValType,
- }
+-pub type wasm_valtype_t = ValType;
++pub type wasmtime_wasm_valtype_t = ValType;
  
 -wasmtime_c_api_macros::declare_ty!(wasm_valtype_t);
 +wasmtime_c_api_macros::declare_ty!(wasmtime_wasm_valtype_t);
@@ -9087,47 +9962,92 @@ index 57f10d35b0..40cf3d424a 100644
  
  #[unsafe(no_mangle)]
 -pub extern "C" fn wasm_valtype_new(kind: wasm_valkind_t) -> Box<wasm_valtype_t> {
--    Box::new(wasm_valtype_t {
 +pub extern "C" fn wasmtime_wasm_valtype_new(kind: wasmtime_wasm_valkind_t) -> Box<wasmtime_wasm_valtype_t> {
-+    Box::new(wasmtime_wasm_valtype_t {
-         ty: into_valtype(kind),
-     })
+     Box::new(match kind {
+         WASM_I32 => ValType::I32,
+         WASM_I64 => ValType::I64,
+@@ -31,7 +31,7 @@ pub extern "C" fn wasm_valtype_new(kind: wasm_valkind_t) -> Box<wasm_valtype_t>
  }
  
  #[unsafe(no_mangle)]
 -pub extern "C" fn wasm_valtype_kind(vt: &wasm_valtype_t) -> wasm_valkind_t {
 +pub extern "C" fn wasmtime_wasm_valtype_kind(vt: &wasmtime_wasm_valtype_t) -> wasmtime_wasm_valkind_t {
-     from_valtype(&vt.ty)
- }
- 
--pub(crate) fn into_valtype(kind: wasm_valkind_t) -> ValType {
-+pub(crate) fn into_valtype(kind: wasmtime_wasm_valkind_t) -> ValType {
-     match kind {
-         WASM_I32 => ValType::I32,
-         WASM_I64 => ValType::I64,
-@@ -41,7 +41,7 @@ pub(crate) fn into_valtype(kind: wasm_valkind_t) -> ValType {
-     }
- }
- 
--pub(crate) fn from_valtype(ty: &ValType) -> wasm_valkind_t {
-+pub(crate) fn from_valtype(ty: &ValType) -> wasmtime_wasm_valkind_t {
-     match ty {
+     match vt {
          ValType::I32 => WASM_I32,
          ValType::I64 => WASM_I64,
+@@ -49,12 +49,12 @@ pub extern "C" fn wasm_valtype_kind(vt: &wasm_valtype_t) -> wasm_valkind_t {
+ }
+ 
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasmtime_wasm_valtype_v128() -> Box<wasm_valtype_t> {
++pub extern "C" fn wasmtime_wasm_valtype_v128() -> Box<wasmtime_wasm_valtype_t> {
+     Box::new(ValType::V128)
+ }
+ 
+ #[unsafe(no_mangle)]
+-pub extern "C" fn wasmtime_wasm_valtype_equal(a: &wasm_valtype_t, b: &wasm_valtype_t) -> bool {
++pub extern "C" fn wasmtime_wasm_valtype_equal(a: &wasmtime_wasm_valtype_t, b: &wasmtime_wasm_valtype_t) -> bool {
+     ValType::eq(a, b)
+ }
+ 
+@@ -71,7 +71,7 @@ pub enum wasmtime_valtype_t {
+ 
+ #[unsafe(no_mangle)]
+ pub extern "C" fn wasmtime_valtype_new(
+-    ty: &wasm_valtype_t,
++    ty: &wasmtime_wasm_valtype_t,
+     ret: &mut MaybeUninit<wasmtime_valtype_t>,
+ ) {
+     ret.write(match ty {
+@@ -105,9 +105,9 @@ pub unsafe extern "C" fn wasmtime_valtype_delete(
+ 
+ #[unsafe(no_mangle)]
+ pub unsafe extern "C" fn wasmtime_valtype_to_wasm(
+-    engine: Option<&wasm_engine_t>,
++    engine: Option<&wasmtime_wasm_engine_t>,
+     r: &wasmtime_valtype_t,
+-) -> Box<wasm_valtype_t> {
++) -> Box<wasmtime_wasm_valtype_t> {
+     let r = match r {
+         wasmtime_valtype_t::I32 => return Box::new(ValType::I32),
+         wasmtime_valtype_t::I64 => return Box::new(ValType::I64),
+@@ -145,7 +145,7 @@ pub enum wasmtime_heaptype_t {
+     Extern,
+     NoExtern,
+     Func,
+-    ConcreteFunc(Box<wasm_functype_t>),
++    ConcreteFunc(Box<wasmtime_wasm_functype_t>),
+     NoFunc,
+     Any,
+     None,
+@@ -167,7 +167,7 @@ impl From<&HeapType> for wasmtime_heaptype_t {
+             HeapType::NoExtern => Self::NoExtern,
+             HeapType::Func => Self::Func,
+             HeapType::ConcreteFunc(f) => {
+-                Self::ConcreteFunc(Box::new(wasm_functype_t::new(f.clone())))
++                Self::ConcreteFunc(Box::new(wasmtime_wasm_functype_t::new(f.clone())))
+             }
+             HeapType::NoFunc => Self::NoFunc,
+             HeapType::Any => Self::Any,
 diff --git a/crates/c-api/src/val.rs b/crates/c-api/src/val.rs
-index 8da29cc8d7..105a23c5b2 100644
+index 9991dbbaaf..cc1f302b77 100644
 --- a/crates/c-api/src/val.rs
 +++ b/crates/c-api/src/val.rs
-@@ -1,6 +1,6 @@
+@@ -2,10 +2,10 @@
  use crate::r#ref::ref_to_val;
+ #[cfg(feature = "gc")]
  use crate::{
--    WASM_I32, from_valtype, into_valtype, wasm_ref_t, wasm_valkind_t, wasmtime_anyref_t,
-+    WASM_I32, from_valtype, into_valtype, wasmtime_wasm_ref_t, wasmtime_wasm_valkind_t, wasmtime_anyref_t,
-     wasmtime_externref_t, wasmtime_valkind_t,
+-    WASM_EXTERNREF, WASM_FUNCREF, wasm_ref_t, wasmtime_anyref_t, wasmtime_exnref_t,
++    WASM_EXTERNREF, WASM_FUNCREF, wasmtime_wasm_ref_t, wasmtime_anyref_t, wasmtime_exnref_t,
+     wasmtime_externref_t,
  };
+-use crate::{WASM_F32, WASM_F64, WASM_I32, WASM_I64, wasm_valkind_t};
++use crate::{WASM_F32, WASM_F64, WASM_I32, WASM_I64, wasmtime_wasm_valkind_t};
  use std::mem::{ManuallyDrop, MaybeUninit};
-@@ -8,24 +8,24 @@ use std::ptr;
- use wasmtime::{AsContextMut, Func, HeapType, Ref, RootScope, Val, ValType};
+ use std::ptr;
+ use wasmtime::{AsContextMut, Func, Val};
+@@ -13,14 +13,14 @@ use wasmtime::{AsContextMut, Func, Val};
+ use wasmtime::{Ref, RootScope};
  
  #[repr(C)]
 -pub struct wasm_val_t {
@@ -9145,31 +10065,37 @@ index 8da29cc8d7..105a23c5b2 100644
      pub i32: i32,
      pub i64: i64,
      pub u32: u32,
-     pub u64: u64,
+@@ -28,11 +28,11 @@ pub union wasm_val_union {
      pub f32: f32,
      pub f64: f64,
+     #[cfg(feature = "gc")]
 -    pub ref_: *mut wasm_ref_t,
 +    pub ref_: *mut wasmtime_wasm_ref_t,
  }
  
+ #[cfg(feature = "gc")]
 -impl Drop for wasm_val_t {
 +impl Drop for wasmtime_wasm_val_t {
      fn drop(&mut self) {
-         match into_valtype(self.kind) {
-             ValType::Ref(_) => unsafe {
-@@ -38,9 +38,9 @@ impl Drop for wasm_val_t {
+         match self.kind {
+             WASM_FUNCREF | WASM_EXTERNREF => unsafe {
+@@ -45,13 +45,13 @@ impl Drop for wasm_val_t {
      }
  }
  
 -impl Clone for wasm_val_t {
 +impl Clone for wasmtime_wasm_val_t {
      fn clone(&self) -> Self {
+         #[allow(
+             unused_mut,
+             reason = "needed for conditional mutation under cfg(feature = \"gc\")"
+         )]
 -        let mut ret = wasm_val_t {
 +        let mut ret = wasmtime_wasm_val_t {
              kind: self.kind,
              of: self.of,
          };
-@@ -56,49 +56,49 @@ impl Clone for wasm_val_t {
+@@ -70,52 +70,52 @@ impl Clone for wasm_val_t {
      }
  }
  
@@ -9192,31 +10118,32 @@ index 8da29cc8d7..105a23c5b2 100644
          match val {
 -            Val::I32(i) => wasm_val_t {
 +            Val::I32(i) => wasmtime_wasm_val_t {
-                 kind: from_valtype(&ValType::I32),
+                 kind: WASM_I32,
 -                of: wasm_val_union { i32: i },
 +                of: wasmtime_wasm_val_union { i32: i },
              },
 -            Val::I64(i) => wasm_val_t {
 +            Val::I64(i) => wasmtime_wasm_val_t {
-                 kind: from_valtype(&ValType::I64),
+                 kind: WASM_I64,
 -                of: wasm_val_union { i64: i },
 +                of: wasmtime_wasm_val_union { i64: i },
              },
 -            Val::F32(f) => wasm_val_t {
 +            Val::F32(f) => wasmtime_wasm_val_t {
-                 kind: from_valtype(&ValType::F32),
+                 kind: WASM_F32,
 -                of: wasm_val_union { u32: f },
 +                of: wasmtime_wasm_val_union { u32: f },
              },
 -            Val::F64(f) => wasm_val_t {
 +            Val::F64(f) => wasmtime_wasm_val_t {
-                 kind: from_valtype(&ValType::F64),
+                 kind: WASM_F64,
 -                of: wasm_val_union { u64: f },
 +                of: wasmtime_wasm_val_union { u64: f },
              },
+             #[cfg(feature = "gc")]
 -            Val::FuncRef(f) => wasm_val_t {
 +            Val::FuncRef(f) => wasmtime_wasm_val_t {
-                 kind: from_valtype(&ValType::FUNCREF),
+                 kind: WASM_FUNCREF,
 -                of: wasm_val_union {
 +                of: wasmtime_wasm_val_union {
                      ref_: f.map_or(ptr::null_mut(), |f| {
@@ -9227,11 +10154,14 @@ index 8da29cc8d7..105a23c5b2 100644
                      }),
                  },
              },
+             #[cfg(not(feature = "gc"))]
+-            Val::FuncRef(_) => crate::abort("creating a wasm_val_t from a funcref"),
 -            Val::AnyRef(_) => crate::abort("creating a wasm_val_t from an anyref"),
 -            Val::ExternRef(_) => crate::abort("creating a wasm_val_t from an externref"),
 -            Val::ExnRef(_) => crate::abort("creating a wasm_val_t from  an exnref"),
 -            Val::V128(_) => crate::abort("creating a wasm_val_t from a v128"),
 -            Val::ContRef(_) => crate::abort("creating a wasm_val_t from a contref"),
++            Val::FuncRef(_) => crate::abort("creating a wasmtime_wasm_val_t from a funcref"),
 +            Val::AnyRef(_) => crate::abort("creating a wasmtime_wasm_val_t from an anyref"),
 +            Val::ExternRef(_) => crate::abort("creating a wasmtime_wasm_val_t from an externref"),
 +            Val::ExnRef(_) => crate::abort("creating a wasmtime_wasm_val_t from  an exnref"),
@@ -9240,7 +10170,7 @@ index 8da29cc8d7..105a23c5b2 100644
          }
      }
  
-@@ -125,12 +125,12 @@ impl wasm_val_t {
+@@ -139,12 +139,12 @@ impl wasm_val_t {
  }
  
  #[unsafe(no_mangle)]
@@ -9256,17 +10186,17 @@ index 8da29cc8d7..105a23c5b2 100644
  }
  
 diff --git a/crates/c-api/src/vec.rs b/crates/c-api/src/vec.rs
-index bf6303bc5d..6d744ffd20 100644
+index 24c827de47..ea8c5d779c 100644
 --- a/crates/c-api/src/vec.rs
 +++ b/crates/c-api/src/vec.rs
 @@ -1,17 +1,17 @@
  use crate::{
 -    wasm_exporttype_t, wasm_extern_t, wasm_externtype_t, wasm_frame_t, wasm_functype_t,
--    wasm_globaltype_t, wasm_importtype_t, wasm_memorytype_t, wasm_tabletype_t, wasm_val_t,
--    wasm_valtype_t,
+-    wasm_globaltype_t, wasm_importtype_t, wasm_memorytype_t, wasm_tabletype_t, wasm_tagtype_t,
+-    wasm_val_t, wasm_valtype_t,
 +    wasmtime_wasm_exporttype_t, wasmtime_wasm_extern_t, wasmtime_wasm_externtype_t, wasmtime_wasm_frame_t, wasmtime_wasm_functype_t,
-+    wasmtime_wasm_globaltype_t, wasmtime_wasm_importtype_t, wasmtime_wasm_memorytype_t, wasmtime_wasm_tabletype_t, wasmtime_wasm_val_t,
-+    wasmtime_wasm_valtype_t,
++    wasmtime_wasm_globaltype_t, wasmtime_wasm_importtype_t, wasmtime_wasm_memorytype_t, wasmtime_wasm_tabletype_t, wasmtime_wasm_tagtype_t,
++    wasmtime_wasm_val_t, wasmtime_wasm_valtype_t,
  };
  use std::mem;
  use std::mem::MaybeUninit;
@@ -9283,7 +10213,7 @@ index bf6303bc5d..6d744ffd20 100644
          name.into_bytes().into()
      }
  }
-@@ -153,111 +153,111 @@ pub(crate) use declare_vecs;
+@@ -153,120 +153,120 @@ pub(crate) use declare_vecs;
  
  declare_vecs! {
      (
@@ -9477,12 +10407,28 @@ index bf6303bc5d..6d744ffd20 100644
 +        copy: wasmtime_wasm_extern_vec_copy,
 +        delete: wasmtime_wasm_extern_vec_delete,
      )
+     (
+-        name: wasm_tagtype_vec_t,
+-        ty: Option<Box<wasm_tagtype_t>>,
+-        new: wasm_tagtype_vec_new,
+-        empty: wasm_tagtype_vec_new_empty,
+-        uninit: wasm_tagtype_vec_new_uninitialized,
+-        copy: wasm_tagtype_vec_copy,
+-        delete: wasm_tagtype_vec_delete,
++        name: wasmtime_wasm_tagtype_vec_t,
++        ty: Option<Box<wasmtime_wasm_tagtype_t>>,
++        new: wasmtime_wasm_tagtype_vec_new,
++        empty: wasmtime_wasm_tagtype_vec_new_empty,
++        uninit: wasmtime_wasm_tagtype_vec_new_uninitialized,
++        copy: wasmtime_wasm_tagtype_vec_copy,
++        delete: wasmtime_wasm_tagtype_vec_delete,
+     )
  }
 diff --git a/crates/c-api/src/wasi.rs b/crates/c-api/src/wasi.rs
-index a5ddf9599a..5a25be3c40 100644
+index e5045ff581..ca43260dca 100644
 --- a/crates/c-api/src/wasi.rs
 +++ b/crates/c-api/src/wasi.rs
-@@ -120,7 +120,7 @@ pub unsafe extern "C" fn wasi_config_set_stdin_file(
+@@ -133,7 +133,7 @@ pub unsafe extern "C" fn wasi_config_set_stdin_file(
  #[unsafe(no_mangle)]
  pub unsafe extern "C" fn wasi_config_set_stdin_bytes(
      config: &mut wasi_config_t,
@@ -9508,8 +10454,60 @@ index 5f6f0f6630..aa51a06d82 100644
  ) -> Option<Box<wasmtime_error_t>> {
      let wat = crate::slice_from_raw_parts(wat, wat_len);
      let wat = match std::str::from_utf8(wat) {
+diff --git a/crates/c-api/tests/async.cc b/crates/c-api/tests/async.cc
+index 7f39618783..107c8db6b8 100644
+--- a/crates/c-api/tests/async.cc
++++ b/crates/c-api/tests/async.cc
+@@ -25,7 +25,7 @@ TEST(async, call_func_async) {
+   wasmtime_val_t params[2] = {{.kind = WASMTIME_I32, .of = {.i32 = 34}},
+                               {.kind = WASMTIME_I32, .of = {.i32 = 35}}};
+   wasmtime_val_t results[1] = {};
+-  wasm_trap_t *trap = nullptr;
++  wasmtime_wasm_trap_t *trap = nullptr;
+   wasmtime_error_t *error = nullptr;
+ 
+   auto *future = wasmtime_func_call_async(context.capi(), &f.capi(), params, 2,
+@@ -50,7 +50,7 @@ TEST(async, instantiate_async) {
+   Linker linker(engine);
+ 
+   wasmtime_instance_t instance;
+-  wasm_trap_t *trap = nullptr;
++  wasmtime_wasm_trap_t *trap = nullptr;
+   wasmtime_error_t *error = nullptr;
+ 
+   auto *future =
+diff --git a/crates/c-api/tests/component/async.cc b/crates/c-api/tests/component/async.cc
+index 07f0991eb2..91297776b5 100644
+--- a/crates/c-api/tests/component/async.cc
++++ b/crates/c-api/tests/component/async.cc
+@@ -13,9 +13,9 @@ using wasmtime::Store;
+ 
+ TEST(component_async, config) {
+   Config config;
+-  config.wasm_component_model_async(true);
+-  config.wasm_component_model_more_async_builtins(true);
+-  config.wasm_component_model_async_stackful(true);
++  config.wasmtime_wasm_component_model_async(true);
++  config.wasmtime_wasm_component_model_more_async_builtins(true);
++  config.wasmtime_wasm_component_model_async_stackful(true);
+   Engine engine(std::move(config));
+ }
+ 
+diff --git a/crates/c-api/tests/component/types.cc b/crates/c-api/tests/component/types.cc
+index aaf9f6b4b7..626b16e4e3 100644
+--- a/crates/c-api/tests/component/types.cc
++++ b/crates/c-api/tests/component/types.cc
+@@ -190,7 +190,7 @@ TEST(types, valtype_list) {
+ 
+ TEST(types, valtype_map) {
+   Config config;
+-  config.wasm_component_model_map(true);
++  config.wasmtime_wasm_component_model_map(true);
+   Engine engine(std::move(config));
+   auto component =
+       Component::compile(
 diff --git a/crates/c-api/tests/config.cc b/crates/c-api/tests/config.cc
-index 1d61d232a8..4a39191034 100644
+index c0343bf73d..f2c81044ab 100644
 --- a/crates/c-api/tests/config.cc
 +++ b/crates/c-api/tests/config.cc
 @@ -37,22 +37,22 @@ TEST(Config, Smoke) {
@@ -9551,11 +10549,200 @@ index 1d61d232a8..4a39191034 100644
    config.strategy(Strategy::Auto);
    config.cranelift_debug_verifier(false);
    config.cranelift_opt_level(OptLevel::Speed);
+diff --git a/crates/c-api/tests/exception.cc b/crates/c-api/tests/exception.cc
+index f8007c0754..00e7a5e000 100644
+--- a/crates/c-api/tests/exception.cc
++++ b/crates/c-api/tests/exception.cc
+@@ -5,7 +5,7 @@ using namespace wasmtime;
+ 
+ static Engine make_engine() {
+   Config config;
+-  config.wasm_exceptions(true);
++  config.wasmtime_wasm_exceptions(true);
+   return Engine(std::move(config));
+ }
+ 
+diff --git a/crates/c-api/tests/gc.cc b/crates/c-api/tests/gc.cc
+index 4bdad2fd4c..3a7b26ed2d 100644
+--- a/crates/c-api/tests/gc.cc
++++ b/crates/c-api/tests/gc.cc
+@@ -5,7 +5,7 @@ using namespace wasmtime;
+ 
+ TEST(EqRef, CopyAndMove) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+ 
+@@ -47,7 +47,7 @@ TEST(EqRef, NullEqRef) {
+ 
+ TEST(I31Ref, CreateAndRead) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+   auto cx = store.context();
+@@ -73,7 +73,7 @@ TEST(I31Ref, CreateAndRead) {
+ 
+ TEST(I31Ref, SignedValues) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+   auto cx = store.context();
+@@ -91,7 +91,7 @@ TEST(I31Ref, SignedValues) {
+ 
+ TEST(StructRef, CreateAndReadFields) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+   auto cx = store.context();
+@@ -129,7 +129,7 @@ TEST(StructRef, CreateAndReadFields) {
+ 
+ TEST(StructRef, UpcastAndDowncast) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+   auto cx = store.context();
+@@ -163,7 +163,7 @@ TEST(StructRef, UpcastAndDowncast) {
+ 
+ TEST(ArrayRef, CreateAndReadElements) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+   auto cx = store.context();
+@@ -200,7 +200,7 @@ TEST(ArrayRef, CreateAndReadElements) {
+ 
+ TEST(ArrayRef, UpcastAndDowncast) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+   auto cx = store.context();
+@@ -237,7 +237,7 @@ TEST(ArrayRef, UpcastAndDowncast) {
+ 
+ TEST(AnyRef, DowncastI31) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+   auto cx = store.context();
+@@ -260,7 +260,7 @@ TEST(AnyRef, DowncastI31) {
+ 
+ TEST(AnyRef, DowncastStruct) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+   auto cx = store.context();
+@@ -288,7 +288,7 @@ TEST(AnyRef, DowncastStruct) {
+ 
+ TEST(AnyRef, DowncastArray) {
+   Config config;
+-  config.wasm_gc(true);
++  config.wasmtime_wasm_gc(true);
+   Engine engine(std::move(config));
+   Store store(engine);
+   auto cx = store.context();
+diff --git a/crates/c-api/tests/instance.cc b/crates/c-api/tests/instance.cc
+index 72ff552d21..f9d5410478 100644
+--- a/crates/c-api/tests/instance.cc
++++ b/crates/c-api/tests/instance.cc
+@@ -55,7 +55,7 @@ TEST(Instance, NewClearsTrapPointer) {
+ 
+   auto ok_module = Module::compile(engine, "(module)").unwrap();
+   wasmtime_instance_t instance;
+-  wasm_trap_t *trap = reinterpret_cast<wasm_trap_t *>(1);
++  wasmtime_wasm_trap_t *trap = reinterpret_cast<wasmtime_wasm_trap_t *>(1);
+   auto *error = wasmtime_instance_new(context.capi(), ok_module.capi(), nullptr,
+                                       0, &instance, &trap);
+   EXPECT_EQ(error, nullptr);
+@@ -63,7 +63,7 @@ TEST(Instance, NewClearsTrapPointer) {
+ 
+   auto import_module =
+       Module::compile(engine, "(module (import \"\" \"\" (func)))").unwrap();
+-  trap = reinterpret_cast<wasm_trap_t *>(1);
++  trap = reinterpret_cast<wasmtime_wasm_trap_t *>(1);
+   error = wasmtime_instance_new(context.capi(), import_module.capi(), nullptr,
+                                 0, &instance, &trap);
+   EXPECT_NE(error, nullptr);
+diff --git a/crates/c-api/tests/tag_type.cc b/crates/c-api/tests/tag_type.cc
+index ed3930a4e0..8c54f8967b 100644
+--- a/crates/c-api/tests/tag_type.cc
++++ b/crates/c-api/tests/tag_type.cc
+@@ -8,7 +8,7 @@ using namespace wasmtime;
+ // Basic TagType construction and param inspection via functype.
+ TEST(TagType, Simple) {
+   Config config;
+-  config.wasm_exceptions(true);
++  config.wasmtime_wasm_exceptions(true);
+   Engine engine(std::move(config));
+ 
+   // Tag with no payload: empty functype.
+@@ -38,7 +38,7 @@ TEST(TagType, Simple) {
+ // Previously, CExternType::new() hit todo!() for ExternType::Tag.
+ TEST(TagType, ModuleExportEnumeration) {
+   Config config;
+-  config.wasm_exceptions(true);
++  config.wasmtime_wasm_exceptions(true);
+   Engine engine(std::move(config));
+ 
+   // Compile a module that exports a tag.  The tag has an i32 payload.
+@@ -64,11 +64,11 @@ TEST(TagType, ModuleExportEnumeration) {
+   EXPECT_EQ(*params.begin(), ValType::i32());
+ }
+ 
+-// Verify that wasm_externtype_kind returns WASM_EXTERN_TAG for tag exports
++// Verify that wasmtime_wasm_externtype_kind returns WASM_EXTERN_TAG for tag exports
+ // and that the C-level cast functions work correctly.
+ TEST(TagType, ExternTypeKindAndCast) {
+   Config config;
+-  config.wasm_exceptions(true);
++  config.wasmtime_wasm_exceptions(true);
+   Engine engine(std::move(config));
+ 
+   Module module = Module::compile(engine, "(module"
+@@ -83,14 +83,14 @@ TEST(TagType, ExternTypeKindAndCast) {
+   auto e = *exports.begin();
+ 
+   // Access the raw C export type to verify kind and cast functions.
+-  const wasm_exporttype_t *raw_et =
+-      *reinterpret_cast<const wasm_exporttype_t *const *>(&e);
+-  const wasm_externtype_t *ext = wasm_exporttype_type(raw_et);
++  const wasmtime_wasm_exporttype_t *raw_et =
++      *reinterpret_cast<const wasmtime_wasm_exporttype_t *const *>(&e);
++  const wasmtime_wasm_externtype_t *ext = wasmtime_wasm_exporttype_type(raw_et);
+ 
+-  EXPECT_EQ(wasm_externtype_kind(ext), WASM_EXTERN_TAG);
+-  EXPECT_NE(wasm_externtype_as_tagtype_const(ext), nullptr);
+-  EXPECT_EQ(wasm_externtype_as_functype_const(ext), nullptr);
+-  EXPECT_EQ(wasm_externtype_as_globaltype_const(ext), nullptr);
+-  EXPECT_EQ(wasm_externtype_as_memorytype_const(ext), nullptr);
+-  EXPECT_EQ(wasm_externtype_as_tabletype_const(ext), nullptr);
++  EXPECT_EQ(wasmtime_wasm_externtype_kind(ext), WASM_EXTERN_TAG);
++  EXPECT_NE(wasmtime_wasm_externtype_as_tagtype_const(ext), nullptr);
++  EXPECT_EQ(wasmtime_wasm_externtype_as_functype_const(ext), nullptr);
++  EXPECT_EQ(wasmtime_wasm_externtype_as_globaltype_const(ext), nullptr);
++  EXPECT_EQ(wasmtime_wasm_externtype_as_memorytype_const(ext), nullptr);
++  EXPECT_EQ(wasmtime_wasm_externtype_as_tabletype_const(ext), nullptr);
+ }
 diff --git a/src/lib.rs b/src/lib.rs
-index f0b736f95b..834b9d2ab5 100644
+index 4bc3898c83..834b9d2ab5 100644
 --- a/src/lib.rs
 +++ b/src/lib.rs
-@@ -1,10 +1 @@
+@@ -1,13 +1 @@
 -//! The Wasmtime command line interface (CLI) crate.
 -//!
 -//! This crate implements the Wasmtime command line tools.
@@ -9566,7 +10753,10 @@ index f0b736f95b..834b9d2ab5 100644
 -
 -#[cfg(any(feature = "run", feature = "wizer"))]
 -pub(crate) mod common;
+-
+-#[cfg(any(feature = "objdump", all(feature = "hot-blocks", target_os = "linux")))]
+-pub(crate) mod disas;
 +pub use wasmtime_c_api;
 -- 
-2.53.0.880.g73c4285caa-goog
+2.55.0.rc0.786.g65d90a0328-goog
 

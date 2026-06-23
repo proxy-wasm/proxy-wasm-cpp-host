@@ -21,11 +21,16 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "anyhow",
+    name = "wasmtime_internal_cranelift",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
     ),
+    aliases = {
+        "@cu__wasmtime-internal-core-45.0.2//:wasmtime_internal_core": "wasmtime_core",
+        "@cu__wasmtime-internal-unwinder-45.0.2//:wasmtime_internal_unwinder": "wasmtime_unwinder",
+        "@cu__wasmtime-internal-versioned-export-macros-45.0.2//:wasmtime_internal_versioned_export_macros": "wasmtime_versioned_export_macros",
+    },
     compile_data = glob(
         include = ["**"],
         allow_empty = True,
@@ -39,10 +44,15 @@ rust_library(
         ],
     ),
     crate_features = [
-        "std",
+        "gc",
+        "gc-drc",
+        "pulley",
     ],
     crate_root = "src/lib.rs",
-    edition = "2021",
+    edition = "2024",
+    proc_macro_deps = [
+        "@cu__wasmtime-internal-versioned-export-macros-45.0.2//:wasmtime_internal_versioned_export_macros",
+    ],
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -51,14 +61,32 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=anyhow",
+        "crate-name=wasmtime-internal-cranelift",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.102",
+    version = "45.0.2",
     deps = [
-        "@cu__anyhow-1.0.102//:build_script_build",
+        "@cu__cfg-if-1.0.0//:cfg_if",
+        "@cu__cranelift-codegen-0.132.2//:cranelift_codegen",
+        "@cu__cranelift-control-0.132.2//:cranelift_control",
+        "@cu__cranelift-entity-0.132.2//:cranelift_entity",
+        "@cu__cranelift-frontend-0.132.2//:cranelift_frontend",
+        "@cu__cranelift-native-0.132.2//:cranelift_native",
+        "@cu__gimli-0.33.0//:gimli",
+        "@cu__itertools-0.14.0//:itertools",
+        "@cu__log-0.4.29//:log",
+        "@cu__object-0.39.1//:object",
+        "@cu__pulley-interpreter-45.0.2//:pulley_interpreter",
+        "@cu__smallvec-1.15.1//:smallvec",
+        "@cu__target-lexicon-0.13.5//:target_lexicon",
+        "@cu__thiserror-2.0.18//:thiserror",
+        "@cu__wasmparser-0.248.0//:wasmparser",
+        "@cu__wasmtime-environ-45.0.2//:wasmtime_environ",
+        "@cu__wasmtime-internal-core-45.0.2//:wasmtime_internal_core",
+        "@cu__wasmtime-internal-cranelift-45.0.2//:build_script_build",
+        "@cu__wasmtime-internal-unwinder-45.0.2//:wasmtime_internal_unwinder",
     ],
 )
 
@@ -82,7 +110,9 @@ cargo_build_script(
         ],
     ),
     crate_features = [
-        "std",
+        "gc",
+        "gc-drc",
+        "pulley",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",
@@ -98,8 +128,8 @@ cargo_build_script(
             "WORKSPACE.bazel",
         ],
     ),
-    edition = "2021",
-    pkg_name = "anyhow",
+    edition = "2024",
+    pkg_name = "wasmtime-internal-cranelift",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -108,12 +138,12 @@ cargo_build_script(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=anyhow",
+        "crate-name=wasmtime-internal-cranelift",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "1.0.102",
+    version = "45.0.2",
     visibility = ["//visibility:private"],
 )
 
