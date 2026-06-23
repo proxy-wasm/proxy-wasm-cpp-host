@@ -17,11 +17,14 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "mach2",
+    name = "cranelift_bforest",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
     ),
+    aliases = {
+        "@cu__wasmtime-internal-core-45.0.2//:wasmtime_internal_core": "wasmtime_core",
+    },
     compile_data = glob(
         include = ["**"],
         allow_empty = True,
@@ -34,11 +37,8 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
-    crate_features = [
-        "default",
-    ],
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -47,31 +47,14 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=mach2",
+        "crate-name=cranelift-bforest",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.4.2",
-    deps = select({
-        "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:aarch64-apple-ios": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:aarch64-apple-ios-sim": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:i686-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-ios": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "//conditions:default": [],
-    }),
+    version = "0.132.2",
+    deps = [
+        "@cu__cranelift-entity-0.132.2//:cranelift_entity",
+        "@cu__wasmtime-internal-core-45.0.2//:wasmtime_internal_core",
+    ],
 )

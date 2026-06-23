@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "mach2",
+    name = "bumpalo",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,10 +35,11 @@ rust_library(
         ],
     ),
     crate_features = [
+        "allocator-api2",
         "default",
     ],
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2021",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -47,31 +48,13 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=mach2",
+        "crate-name=bumpalo",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.4.2",
-    deps = select({
-        "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:aarch64-apple-ios": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:aarch64-apple-ios-sim": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:i686-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-ios": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "//conditions:default": [],
-    }),
+    version = "3.20.3",
+    deps = [
+        "@cu__allocator-api2-0.2.21//:allocator_api2",
+    ],
 )

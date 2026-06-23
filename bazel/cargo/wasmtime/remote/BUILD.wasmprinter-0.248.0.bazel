@@ -17,7 +17,7 @@ cargo_toml_env_vars(
 )
 
 rust_library(
-    name = "mach2",
+    name = "wasmprinter",
     srcs = glob(
         include = ["**/*.rs"],
         allow_empty = True,
@@ -35,10 +35,12 @@ rust_library(
         ],
     ),
     crate_features = [
+        "component-model",
         "default",
+        "validate",
     ],
     crate_root = "src/lib.rs",
-    edition = "2015",
+    edition = "2024",
     rustc_env_files = [
         ":cargo_toml_env_vars",
     ],
@@ -47,31 +49,15 @@ rust_library(
     ],
     tags = [
         "cargo-bazel",
-        "crate-name=mach2",
+        "crate-name=wasmprinter",
         "manual",
         "noclippy",
         "norustfmt",
     ],
-    version = "0.4.2",
-    deps = select({
-        "@rules_rust//rust/platform:aarch64-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:aarch64-apple-ios": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:aarch64-apple-ios-sim": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:i686-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-darwin": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "@rules_rust//rust/platform:x86_64-apple-ios": [
-            "@cu__libc-0.2.186//:libc",  # cfg(any(target_os = "macos", target_os = "ios"))
-        ],
-        "//conditions:default": [],
-    }),
+    version = "0.248.0",
+    deps = [
+        "@cu__anyhow-1.0.102//:anyhow",
+        "@cu__termcolor-1.4.1//:termcolor",
+        "@cu__wasmparser-0.248.0//:wasmparser",
+    ],
 )
