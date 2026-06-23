@@ -33,7 +33,7 @@ namespace wasmtime::detail {
 // Defines how wasmtime serializes proxy_wasm::Word.
 template <> struct WasmType<proxy_wasm::Word> {
   static const bool valid = true;
-  static const ValKind kind = ValKind::I32;
+  static ValType valtype() { return ValType::i32(); }
   static void store(Store::Context cx, wasmtime_val_raw_t *p, const proxy_wasm::Word &t) {
     p->i32 = t;
   }
