@@ -142,6 +142,42 @@ TEST_P(TestVm, WasmMemoryLimit) {
   }
 }
 
+TEST_P(TestVm, WasmMemoryLimitClone) {
+  // TODO(PiotrSikora): enforce memory limits in other engines.
+  if (engine_ != "v8" && engine_ != "wasmtime") {
+    return;
+  }
+  auto source = readTestWasmFile("resource_limits.wasm");
+  ASSERT_FALSE(source.empty());
+
+  auto base_wasm = std::make_shared<TestWasm>(std::move(vm_));
+  ASSERT_TRUE(base_wasm->load(source, false));
+  auto base_wasm_handle = std::make_shared<WasmHandleBase>(base_wasm);
+
+  TestWasm wasm(base_wasm_handle, [this]() { return makeVm(engine_); });
+  ASSERT_TRUE(wasm.initialize());
+
+  WasmCallVoid<0> infinite_memory;
+  wasm.wasm_vm()->getFunction("infinite_memory", &infinite_memory);
+  ASSERT_TRUE(infinite_memory != nullptr);
+  infinite_memory(wasm.vm_context());
+
+  EXPECT_GE(wasm.wasm_vm()->getMemorySize(), PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES * 0.95);
+  EXPECT_LE(wasm.wasm_vm()->getMemorySize(), PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES);
+
+  // Check integration logs.
+  auto *host = dynamic_cast<TestIntegration *>(wasm.wasm_vm()->integration().get());
+  EXPECT_TRUE(host->isErrorLogged("Function: infinite_memory failed"));
+  // Trap message
+  EXPECT_TRUE(host->isErrorLogged("unreachable"));
+  // Backtrace
+  if (engine_ == "v8") {
+    EXPECT_TRUE(host->isErrorLogged("Proxy-Wasm plugin in-VM backtrace:"));
+    EXPECT_TRUE(host->isErrorLogged("rust_oom"));
+    EXPECT_TRUE(host->isErrorLogged(" - alloc::alloc::handle_alloc_error"));
+  }
+}
+
 #if defined(PROXY_WASM_HOST_ENGINE_WASMTIME)
 TEST_P(TestVm, WasmMemoryLimitCustomOption) {
   if (engine_ != "wasmtime") {

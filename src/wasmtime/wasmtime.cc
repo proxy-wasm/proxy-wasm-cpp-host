@@ -232,6 +232,11 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
   }
 
   clone->store_.emplace(Store(*engine()));
+  clone->store_->limiter(options_.max_wasm_memory_size_bytes,
+                         /*table_elements=*/10000,
+                         /*instances=*/1,
+                         /*tables=*/10000,
+                         /*memories=*/1);
   if (!clone->store_.has_value()) {
     return nullptr;
   }
