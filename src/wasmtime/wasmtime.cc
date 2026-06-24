@@ -261,7 +261,7 @@ bool Wasmtime::link(std::string_view /*debug_name*/) {
   TrapResult<Instance> instance = linker_.instantiate(store_->context(), *module_);
   if (!instance) {
     fail(FailState::UnableToInitializeCode,
-         "Failed to create new Wasm instance: " + instance.err().message());
+         "Failed to load Wasm module: " + instance.err().message());
     return false;
   }
   instance_.emplace(instance.ok());
