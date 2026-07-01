@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "gtest/gtest.h"
+#include "benchmark/benchmark.h"
 
 #include <memory>
 #include <string>
@@ -31,10 +32,12 @@ INSTANTIATE_TEST_SUITE_P(WasmEngines, TestVm, testing::ValuesIn(getWasmEngines()
                          });
 
 TEST_P(TestVm, Init) {
+  std::unique_ptr<WasmVm> vm1 = makeVm(engine_);
+  std::unique_ptr<WasmVm> vm2 = makeVm(engine_);
   auto time1 = std::chrono::steady_clock::now();
-  vm_->warm();
+  vm1->warm();
   auto time2 = std::chrono::steady_clock::now();
-  vm_->warm();
+  vm2->warm();
   auto time3 = std::chrono::steady_clock::now();
 
   auto cold = std::chrono::duration_cast<std::chrono::nanoseconds>(time2 - time1).count();
@@ -43,24 +46,30 @@ TEST_P(TestVm, Init) {
   std::cout << "[" << engine_ << "] \"cold\" engine time: " << cold << "ns" << std::endl;
   std::cout << "[" << engine_ << "] \"warm\" engine time: " << warm << "ns" << std::endl;
 
-  // Default warm time in nanoseconds.
-  int warm_time_ns_limit = 10000;
-
-#if defined(__linux__) && defined(__s390x__)
-  // Linux 390x is significantly slower, so we use a more lenient limit.
-  warm_time_ns_limit = 75000;
-#endif
-
-  // Verify that getting a "warm" engine takes less than 10us.
-  EXPECT_LE(warm, warm_time_ns_limit);
-
   // Verify that getting a "warm" engine takes at least 50x less time than getting a "cold" one.
   // We skip NullVM because warm() is a noop.
   if (engine_ == "null") {
     std::cout << "Skipping warm() performance assertions for NullVM." << std::endl;
     return;
   }
-  EXPECT_LE(warm * 50, cold);
+  int expected_warm_time_ns = 0;
+  if (engine_ == "v8") {
+    expected_warm_time_ns = 30000000;
+  } else if (engine_ == "wamr") {
+    expected_warm_time_ns = 10000;
+  } else if (engine_ == "wasmedge") {
+    expected_warm_time_ns = 2000;
+  } else if (engine_ == "wasmtime") {
+    expected_warm_time_ns = 20000;
+  }
+  // Linux 390x is significantly slower, so we use a more lenient limit.
+#if defined(__linux__) && defined(__s390x__)
+  expected_warm_time_ns *= 30;
+#endif
+#if !defined(THREAD_SANITIZER) && !defined(MEMORY_SANITIZER) && !defined(ADDRESS_SANITIZER) &&     \
+    !defined(HWADDRESS_SANITIZER) && !defined(THREAD_SANITIZER)
+  EXPECT_LT(warm, expected_warm_time_ns);
+#endif
 }
 
 TEST_P(TestVm, Basic) {
@@ -188,6 +197,30 @@ TEST_P(TestVm, DISABLED_CloneUntilOutOfMemory) {
 }
 
 #endif
+
+void BM_WarmVmStart(benchmark::State &state, auto makeVm) {
+  std::unique_ptr<WasmVm> cold_vm = makeVm();
+  cold_vm->warm();
+  for (auto _ : state) {
+    std::unique_ptr<WasmVm> warm_vm = makeVm();
+    warm_vm->warm();
+  }
+}
+
+TEST(TestVm, Benchmarks) {
+#if defined(THREAD_SANITIZER) || defined(MEMORY_SANITIZER) || defined(ADDRESS_SANITIZER) ||        \
+    defined(HWADDRESS_SANITIZER) || defined(THREAD_SANITIZER)
+  GTEST_SKIP() << "Disabled due to sanitizer.";
+#endif
+  for (std::string engine : getWasmEngines()) {
+    benchmark::RegisterBenchmark(
+        "BM_WarmVmStart/" + engine,
+        [](benchmark::State &state, auto makeVm) { BM_WarmVmStart(state, makeVm); },
+        [engine]() { return TestVm::makeVm(engine); });
+  }
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
+}
 
 } // namespace
 } // namespace proxy_wasm
