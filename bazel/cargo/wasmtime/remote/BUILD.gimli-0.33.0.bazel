@@ -59,6 +59,6 @@ rust_library(
     deps = [
         "@cu__fnv-1.0.7//:fnv",
         "@cu__hashbrown-0.16.1//:hashbrown",
-        "@cu__indexmap-2.13.0//:indexmap",
+        "@cu__indexmap-2.14.0//:indexmap",
     ],
 )

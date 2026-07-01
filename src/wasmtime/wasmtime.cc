@@ -33,7 +33,7 @@ namespace wasmtime::detail {
 // Defines how wasmtime serializes proxy_wasm::Word.
 template <> struct WasmType<proxy_wasm::Word> {
   static const bool valid = true;
-  static const ValKind kind = ValKind::I32;
+  static ValType valtype() { return ValType::i32(); }
   static void store(Store::Context cx, wasmtime_val_raw_t *p, const proxy_wasm::Word &t) {
     p->i32 = t;
   }
@@ -95,7 +95,7 @@ void InPlaceConvertHostToWasmEndianness(auto &...args) {
 
 class Wasmtime : public WasmVm {
 public:
-  Wasmtime() = default;
+  Wasmtime(WasmtimeOptions options) : options_(std::move(options)) {}
 
   std::string_view getEngineName() override { return "wasmtime"; }
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
@@ -162,6 +162,8 @@ private:
   Linker linker_ = Linker(*engine());
 
   std::unordered_map<std::string, ::wasmtime::Func> module_functions_;
+
+  WasmtimeOptions options_;
 };
 
 void Wasmtime::initStore() {
@@ -169,7 +171,7 @@ void Wasmtime::initStore() {
     return;
   }
   store_.emplace(*engine());
-  store_->limiter(PROXY_WASM_HOST_MAX_WASM_MEMORY_SIZE_BYTES,
+  store_->limiter(options_.max_wasm_memory_size_bytes,
                   /*table_elements=*/10000,
                   /*instances=*/1,
                   /*tables=*/10000,
@@ -224,12 +226,17 @@ std::optional<std::string> Wasmtime::serialize(std::string_view original_bytecod
 }
 
 std::unique_ptr<WasmVm> Wasmtime::clone() {
-  auto clone = std::make_unique<Wasmtime>();
+  auto clone = std::make_unique<Wasmtime>(options_);
   if (clone == nullptr) {
     return nullptr;
   }
 
   clone->store_.emplace(Store(*engine()));
+  clone->store_->limiter(options_.max_wasm_memory_size_bytes,
+                         /*table_elements=*/10000,
+                         /*instances=*/1,
+                         /*tables=*/10000,
+                         /*memories=*/1);
   if (!clone->store_.has_value()) {
     return nullptr;
   }
@@ -459,6 +466,8 @@ std::string_view Wasmtime::getPrecompiledSectionName() {
 
 } // namespace wasmtime
 
-std::unique_ptr<WasmVm> createWasmtimeVm() { return std::make_unique<wasmtime::Wasmtime>(); }
+std::unique_ptr<WasmVm> createWasmtimeVm(WasmtimeOptions options) {
+  return std::make_unique<wasmtime::Wasmtime>(std::move(options));
+}
 
 } // namespace proxy_wasm
