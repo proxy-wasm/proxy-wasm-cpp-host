@@ -324,4 +324,32 @@ TEST_P(TestVm, CleanupThreadLocalCacheKeys) {
   EXPECT_TRUE(stale_wasms_keys.empty());
 }
 
+// doAfterVmCallActions() must not spin forever when a queued action re-enqueues itself
+// during the drain. With the old unguarded `while (!empty())` loop this loops forever;
+// with the drain-to-local fix each call runs the snapshot exactly once and the re-added
+// copy is deferred to the next drain.
+TEST_P(TestVm, DoAfterVmCallActionsReentrySafe) {
+  // WasmBase::doAfterVmCallActions() calls shared_from_this(), so the instance must be
+  // owned by a std::shared_ptr (a stack WasmBase would crash).
+  auto wasm = std::make_shared<TestWasm>(makeVm(engine_));
+
+  int count = 0;
+  std::function<void()> f;
+  f = [&]() {
+    ++count;
+    // Re-enqueue self during the drain. Under the old code this would be picked up by the
+    // same loop and never terminate.
+    wasm->addAfterVmCallAction(f);
+  };
+
+  wasm->addAfterVmCallAction(f);
+  // Snapshot {f} runs exactly once; the re-added copy lands in the now-empty member queue.
+  wasm->doAfterVmCallActions();
+  EXPECT_EQ(count, 1); // Returns after one pass (the old while-loop would never return).
+
+  // The re-added copy runs on the next frame (and re-enqueues once more).
+  wasm->doAfterVmCallActions();
+  EXPECT_EQ(count, 2);
+}
+
 } // namespace proxy_wasm

@@ -147,9 +147,21 @@ public:
     // NB: this may be deleted by a delayed function unless prevented.
     if (!after_vm_call_actions_.empty()) {
       auto self = shared_from_this();
-      while (!self->after_vm_call_actions_.empty()) {
-        auto f = std::move(self->after_vm_call_actions_.front());
-        self->after_vm_call_actions_.pop_front();
+      // Swap the queue into a local before draining, then iterate the snapshot exactly
+      // once. Actions re-added by a callback during the drain land in the (now-empty)
+      // member queue and are picked up by the next-outer DeferAfterCallActions frame,
+      // instead of being re-run in this same loop. With the old unguarded
+      // `while (!empty())`, an action that (directly or transitively) re-enqueues during
+      // the drain -- e.g. a host call such as sendLocalReply/injectEncodedDataToFilterChain
+      // that synchronously re-enters the VM and schedules another after-VM-call action --
+      // means the loop never observes an empty queue and spins forever, pinning a CPU at
+      // 100%. Deferring re-added actions to the next-outer frame also prevents an action
+      // queued in one phase (e.g. continueStream from onRequestHeaders) from executing
+      // inside a nested VM call of a different phase (e.g. onResponseHeaders triggered by
+      // sendLocalReply); see proxy-wasm/proxy-wasm-cpp-host#326.
+      std::deque<std::function<void()>> local;
+      local.swap(self->after_vm_call_actions_);
+      for (auto &f : local) {
         f();
       }
     }
