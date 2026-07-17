@@ -225,6 +225,7 @@ cc_library(
         ":base_lib",
         ":wasm_vm_headers",
         "@com_github_bytecodealliance_wasmtime//:wasmtime_lib",
+        "@com_google_absl//absl/base:no_destructor",
     ],
 )
 

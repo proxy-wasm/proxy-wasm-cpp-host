@@ -26,4 +26,4 @@ path = "fake_lib.rs"
 [dependencies]
 # Fixes testdata build error due to missing crate_features = ["std"]
 log = {version = "0.4.29", default-features = false, features = ['std']}
-wasmtime-c-api-impl = {version = "45.0.2", default-features = false, features = ['cranelift', 'gc-drc']}
+wasmtime-c-api-impl = {version = "45.0.2", default-features = false, features = ['cranelift', 'winch', 'gc-drc']}

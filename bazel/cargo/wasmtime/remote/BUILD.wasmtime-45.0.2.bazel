@@ -32,6 +32,7 @@ rust_library(
         "@cu__wasmtime-internal-jit-icache-coherence-45.0.2//:wasmtime_internal_jit_icache_coherence": "wasmtime_jit_icache_coherence",
         "@cu__wasmtime-internal-unwinder-45.0.2//:wasmtime_internal_unwinder": "wasmtime_unwinder",
         "@cu__wasmtime-internal-versioned-export-macros-45.0.2//:wasmtime_internal_versioned_export_macros": "wasmtime_versioned_export_macros",
+        "@cu__wasmtime-internal-winch-45.0.2//:wasmtime_internal_winch": "wasmtime_winch",
     },
     compile_data = glob(
         include = ["**"],
@@ -53,6 +54,7 @@ rust_library(
         "runtime",
         "std",
         "wasmtime-jit-icache-coherence",
+        "winch",
     ],
     crate_root = "src/lib.rs",
     edition = "2024",
@@ -95,6 +97,7 @@ rust_library(
         "@cu__wasmtime-internal-cranelift-45.0.2//:wasmtime_internal_cranelift",
         "@cu__wasmtime-internal-jit-icache-coherence-45.0.2//:wasmtime_internal_jit_icache_coherence",
         "@cu__wasmtime-internal-unwinder-45.0.2//:wasmtime_internal_unwinder",
+        "@cu__wasmtime-internal-winch-45.0.2//:wasmtime_internal_winch",
     ] + select({
         "@rules_rust//rust/platform:aarch64-apple-darwin": [
             "@cu__mach2-0.4.2//:mach2",  # aarch64-apple-darwin
@@ -237,6 +240,7 @@ cargo_build_script(
         "runtime",
         "std",
         "wasmtime-jit-icache-coherence",
+        "winch",
     ],
     crate_name = "build_script_build",
     crate_root = "build.rs",

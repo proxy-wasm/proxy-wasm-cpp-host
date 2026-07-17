@@ -26,6 +26,7 @@
 #include "include/proxy-wasm/word.h"
 #include "include/proxy-wasm/bytecode_util.h"
 
+#include "absl/base/no_destructor.h"
 #include "crates/c-api/include/wasmtime.h"  // IWYU pragma: keep
 #include "crates/c-api/include/wasmtime.hh" // IWYU pragma: keep
 
@@ -59,13 +60,24 @@ using ::wasmtime::Store;
 using ::wasmtime::Table;
 using ::wasmtime::TrapResult;
 
-Engine *engine() {
-  static auto *const engine = []() {
-    Config config;
-    config.epoch_interruption(true);
-    return new Engine(std::move(config));
-  }();
-  return engine;
+Engine *engine(WasmtimeOptions &options) {
+  static absl::NoDestructor<std::mutex> engines_mutex;
+  std::lock_guard<std::mutex> guard(*engines_mutex);
+  static absl::NoDestructor<std::unordered_map<WasmtimeCompiler, std::unique_ptr<Engine>>> engines;
+  std::unique_ptr<Engine> &engine = (*engines)[options.compiler];
+  if (engine != nullptr) {
+    return engine.get();
+  }
+  Config config;
+  config.epoch_interruption(true);
+  if (options.compiler == WasmtimeCompiler::kCranelift) {
+    config.strategy(::wasmtime::Strategy::Cranelift);
+    config.cranelift_opt_level(::wasmtime::OptLevel::SpeedAndSize);
+  } else {
+    config.strategy(::wasmtime::Strategy::Winch);
+  }
+  engine = std::make_unique<Engine>(std::move(config));
+  return engine.get();
 }
 
 template <typename T> std::string printValue(const T &value) { return std::to_string(value); }
@@ -95,7 +107,8 @@ void InPlaceConvertHostToWasmEndianness(auto &...args) {
 
 class Wasmtime : public WasmVm {
 public:
-  Wasmtime(WasmtimeOptions options) : options_(std::move(options)) {}
+  Wasmtime(WasmtimeOptions options)
+      : options_(std::move(options)), engine_(engine(options_)), linker_(*engine_) {}
 
   std::string_view getEngineName() override { return "wasmtime"; }
   Cloneable cloneable() override { return Cloneable::CompiledBytecode; }
@@ -130,7 +143,7 @@ public:
 
   void warm() override;
 
-  void terminate() override { engine()->increment_epoch(); }
+  void terminate() override { engine_->increment_epoch(); }
 
   bool usesWasmByteOrder() override { return true; }
 
@@ -154,23 +167,23 @@ private:
   // Initialize the Wasmtime store if necessary.
   void initStore();
 
+  WasmtimeOptions options_;
+  Engine *engine_;
   std::optional<Store> store_;
   std::optional<Module> module_;
   std::optional<Instance> instance_;
   std::optional<Memory> memory_;
   std::optional<Table> table_;
-  Linker linker_ = Linker(*engine());
+  Linker linker_;
 
   std::unordered_map<std::string, ::wasmtime::Func> module_functions_;
-
-  WasmtimeOptions options_;
 };
 
 void Wasmtime::initStore() {
   if (store_.has_value()) {
     return;
   }
-  store_.emplace(*engine());
+  store_.emplace(*engine_);
   store_->limiter(options_.max_wasm_memory_size_bytes,
                   /*table_elements=*/10000,
                   /*instances=*/1,
@@ -188,8 +201,8 @@ bool Wasmtime::load(std::string_view bytecode, std::string_view precompiled,
   // Error message used if both precompiled and bytecode are empty.
   Result<Module> module(::wasmtime::Error("Unable to load Wasm module: empty"));
   if (!precompiled.empty()) {
-    module = Module::deserialize(*engine(),
-                                 std::span((uint8_t *)precompiled.data(), precompiled.size()));
+    module =
+        Module::deserialize(*engine_, std::span((uint8_t *)precompiled.data(), precompiled.size()));
     if (module) {
       module_.emplace(module.ok());
       return true;
@@ -200,7 +213,7 @@ bool Wasmtime::load(std::string_view bytecode, std::string_view precompiled,
          "Failed to deserialize Wasm module: " + module.err().message());
     return false;
   }
-  module = Module::compile(*engine(), std::span((uint8_t *)bytecode.data(), bytecode.size()));
+  module = Module::compile(*engine_, std::span((uint8_t *)bytecode.data(), bytecode.size()));
   if (!module) {
     fail(FailState::UnableToInitializeCode,
          "Failed to load Wasm module: " + module.err().message());
@@ -231,7 +244,7 @@ std::unique_ptr<WasmVm> Wasmtime::clone() {
     return nullptr;
   }
 
-  clone->store_.emplace(Store(*engine()));
+  clone->store_.emplace(Store(*engine_));
   clone->store_->limiter(options_.max_wasm_memory_size_bytes,
                          /*table_elements=*/10000,
                          /*instances=*/1,

@@ -210,6 +210,35 @@ TEST_P(TestVm, WasmMemoryLimitCustomOption) {
   EXPECT_TRUE(host->isErrorLogged("Function: infinite_memory failed"));
   EXPECT_TRUE(host->isErrorLogged("unreachable"));
 }
+
+TEST_P(TestVm, WasmtimeCompilerOption) {
+  if (engine_ != "wasmtime") {
+    return;
+  }
+  auto cranelift_vm = createWasmtimeVm({.compiler = WasmtimeCompiler::kCranelift});
+  cranelift_vm->integration() = std::make_unique<TestIntegration>();
+#ifdef __s390x__
+  // s390x does not currently support Winch.
+  return;
+#endif
+  auto winch_vm = createWasmtimeVm({.compiler = WasmtimeCompiler::kWinch});
+  winch_vm->integration() = std::make_unique<TestIntegration>();
+  auto source = readTestWasmFile("clock.wasm");
+  ASSERT_FALSE(source.empty());
+  auto cranelift_wasm = TestWasm(std::move(cranelift_vm));
+  auto winch_wasm = TestWasm(std::move(winch_vm));
+
+  auto t1 = std::chrono::steady_clock::now();
+  ASSERT_TRUE(cranelift_wasm.load(source, false));
+  auto t2 = std::chrono::steady_clock::now();
+  ASSERT_TRUE(winch_wasm.load(source, false));
+  auto t3 = std::chrono::steady_clock::now();
+
+  std::chrono::duration winch_load_time = t3 - t2;
+  std::chrono::duration cranelift_load_time = t2 - t1;
+  // Winch should be significantly (5x) faster to load than cranelift.
+  EXPECT_LT(winch_load_time * 3, cranelift_load_time);
+}
 #endif
 
 TEST_P(TestVm, Trap) {

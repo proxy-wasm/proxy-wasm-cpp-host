@@ -37,6 +37,10 @@ rust_library(
             "WORKSPACE.bazel",
         ],
     ),
+    crate_features = [
+        "gc",
+        "gc-drc",
+    ],
     crate_root = "src/lib.rs",
     edition = "2024",
     rustc_env_files = [

@@ -64,6 +64,7 @@ genrule(
 # will result in compile/link time failures.
 features = [
     "cranelift",
+    "winch",
     "gc-drc",
     # The C API of Wasmtime references the "gc" feature whenever cranelift is turned on.
     # Without adding `gc` to the headers, the C++ API will fail at compile time.
