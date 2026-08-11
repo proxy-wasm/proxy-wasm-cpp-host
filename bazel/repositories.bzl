@@ -193,6 +193,14 @@ def proxy_wasm_cpp_host_repositories():
         },
     )
 
+    maybe(
+        http_archive,
+        name = "com_google_benchmark",
+        sha256 = "9631341c82bac4a288bef951f8b26b41f69021794184ece969f8473977eaa340",
+        strip_prefix = "benchmark-1.9.5",
+        urls = ["https://github.com/google/benchmark/archive/refs/tags/v1.9.5.tar.gz"],
+    )
+
     # NullVM dependencies.
 
     maybe(
