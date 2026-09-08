@@ -19,6 +19,7 @@ for cc_binary targets. This file provides the equivalent for cc_library targets 
 the same transition that V8 uses.
 """
 
+load("@rules_cc//cc/common:cc_info.bzl", "CcInfo")
 load("@v8//:bazel/v8-non-pointer-compression.bzl", "v8_disable_pointer_compression")
 
 def _v8_lib_no_pointer_compression_impl(ctx):
