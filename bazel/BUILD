@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@bazel_skylib//lib:selects.bzl", "selects")
 load(":v8_transition.bzl", "v8_lib_no_pointer_compression")
 
 package(default_visibility = ["//visibility:public"])
@@ -53,21 +52,8 @@ config_setting(
 )
 
 config_setting(
-    name = "requested_crypto_system",
-    values = {"define": "crypto=system"},
-)
-
-config_setting(
-    name = "linux_s390x",
-    values = {"cpu": "s390x"},
-)
-
-selects.config_setting_group(
     name = "crypto_system",
-    match_any = [
-        ":requested_crypto_system",
-        ":linux_s390x",
-    ],
+    values = {"define": "crypto=system"},
 )
 
 # V8 library with pointer compression disabled using V8's Starlark transition.

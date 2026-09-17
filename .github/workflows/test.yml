@@ -244,7 +244,7 @@ jobs:
           os: ubuntu-24.04
           arch: s390x
           action: test
-          flags: --config=clang --test_timeout=1800
+          flags: --config=clang --define=crypto=system --test_timeout=1800
           # s390x build-tools image built from bazel/external/Dockerfile.bazel
           run_under: docker run --rm --env HOME=$HOME --env USER=$(id -un) --volume "$HOME:$HOME" --workdir $(pwd) --user $(id -u):$(id -g) --platform linux/s390x ghcr.io/proxy-wasm/build-tools:ubuntu-24.04-bazel-7.7.1
           cache: true
