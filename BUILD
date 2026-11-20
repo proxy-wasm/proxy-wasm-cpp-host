@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@proxy_wasm_cpp_host//bazel:privately_linked_cc_library.bzl", "privately_linked_cc_library")
 load(
     "@proxy_wasm_cpp_host//bazel:select.bzl",
     "proxy_wasm_select_engine_null",
@@ -189,7 +190,9 @@ cc_library(
     ],
 )
 
-cc_library(
+# Wasmtime exposes the wasm_c_api headers and symbols, which conflicts with any other
+# runtime implementing wasm_c_api (V8) when multiple engines are linked.
+privately_linked_cc_library(
     name = "wasmtime_lib",
     srcs = [
         "src/common/types.h",
@@ -221,10 +224,15 @@ cc_library(
             "-lpthread",
         ],
     }),
+    private_deps = [
+        "@com_github_bytecodealliance_wasmtime//:wasmtime_lib",
+    ],
+    public_symbols = [
+        "*proxy_wasm*",
+    ],
     deps = [
         ":base_lib",
         ":wasm_vm_headers",
-        "@com_github_bytecodealliance_wasmtime//:wasmtime_lib",
         "@com_google_absl//absl/base:no_destructor",
     ],
 )
