@@ -22,39 +22,29 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "wasmtime_lib",
     srcs = [
-        ":prefixed_wasmtime_c_api_lib",
+        ":wasmtime_lib_staticlib",
     ],
     hdrs = glob(["crates/c-api/include/**"]) + [":wasmtime_conf.h"],
     includes = ["crates/c-api/include/"],
+)
+
+genrule(
+    name = "wasmtime_c_api_lib_rs",
+    outs = ["wasmtime_c_api_lib.rs"],
+    cmd = "echo 'pub use wasmtime_c_api;' > $@",
 )
 
 # Wrap wasmtime-c-api-impl in a rust_static_library so it can be used as a cc_library.
 rust_static_library(
     name = "wasmtime_lib_staticlib",
     srcs = [
-        "src/lib.rs",
+        ":wasmtime_c_api_lib_rs",
     ],
+    crate_root = ":wasmtime_c_api_lib_rs",
     edition = "2021",
     deps = [
         "@proxy_wasm_cpp_host//bazel/cargo/wasmtime/remote:wasmtime-c-api-impl",
     ],
-)
-
-genrule(
-    name = "prefixed_wasmtime_c_api_lib",
-    srcs = [
-        ":wasmtime_lib_staticlib",
-    ],
-    outs = [
-        "prefixed_wasmtime_c_api.a",
-    ],
-    cmd = """
-        for symbol in $$(nm -P $(<) 2>/dev/null | grep -E ^_?wasm_ | cut -d" " -f1); do
-            echo $$symbol | perl -p -e 's!^(_?)(wasm_[a-z_0-9.:-]+)$$!\\1\\2 \\1wasmtime_\\2!' >>prefixed
-        done
-        $(OBJCOPY) --redefine-syms=prefixed $(<) $@ 
-        """,
-    toolchains = ["@bazel_tools//tools/cpp:current_cc_toolchain"],
 )
 
 # This should match the features defined in `bazel/cargo/wasmtime/Cargo.toml`
